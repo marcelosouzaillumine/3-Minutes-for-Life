@@ -1,5 +1,6 @@
 import type { Principle } from '../data/principles';
-import { isFavorite, saveFavorite, removeFavorite } from '../utils/storage';
+import { favoritesService } from '../services/favoritesService';
+import { progressService } from '../services/progressService';
 import { useState, useEffect } from 'react';
 
 interface PrincipleViewProps {
@@ -12,16 +13,38 @@ export function PrincipleView({ principle, onBack, customAction }: PrincipleView
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    setSaved(isFavorite(principle.id));
+    // Start progress
+    const today = new Date().toISOString().split('T')[0];
+    progressService.start(principle.id, today).catch(console.error);
+
+    // Check if favorite
+    favoritesService.list()
+      .then(ids => setSaved(ids.includes(principle.id)))
+      .catch(console.error);
   }, [principle.id]);
 
-  const toggleSave = () => {
-    if (saved) {
-      removeFavorite(principle.id);
-      setSaved(false);
-    } else {
-      saveFavorite(principle.id);
-      setSaved(true);
+  const toggleSave = async () => {
+    try {
+      if (saved) {
+        await favoritesService.remove(principle.id);
+        setSaved(false);
+      } else {
+        await favoritesService.add(principle.id);
+        setSaved(true);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao atualizar favorito.');
+    }
+  };
+
+  const markComplete = async () => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      await progressService.complete(principle.id, today);
+      alert('Concluído!');
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -93,15 +116,20 @@ export function PrincipleView({ principle, onBack, customAction }: PrincipleView
           </div>
         )}
         
-        <div style={{ marginTop: '2rem' }}>
+        <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           {customAction ? (
             <button className="btn-primary" onClick={customAction.onClick}>
               {customAction.label}
             </button>
           ) : (
-            <button className="btn-primary" onClick={toggleSave}>
-              {saved ? 'Remover dos salvos' : 'Salvar princípio'}
-            </button>
+            <>
+              <button className="btn-primary" onClick={toggleSave}>
+                {saved ? 'Remover dos salvos' : 'Salvar princípio'}
+              </button>
+              <button className="btn-secondary" onClick={markComplete}>
+                Concluir reflexão
+              </button>
+            </>
           )}
         </div>
       </div>

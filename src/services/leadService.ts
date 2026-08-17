@@ -1,15 +1,27 @@
-export interface Lead {
+import { supabase } from '../lib/supabase';
+
+export interface LeadData {
   name: string;
   email: string;
+  source?: string;
 }
 
-export async function submitLead(lead: Lead): Promise<void> {
-  // TODO: Integrar com serviço real (ex: ConvertKit, Mailchimp, ou backend próprio).
-  // Não estamos salvando no localStorage nem simulando sucesso falso
-  // conforme as regras de negócio do MVP.
-  
-  console.log('Lead recebido (integração pendente):', lead);
-  
-  // Lança um erro controlado para que a UI saiba que não foi salvo de verdade.
-  throw new Error('NOT_IMPLEMENTED');
-}
+export const leadService = {
+  async submitLead(data: LeadData) {
+    const { error } = await supabase
+      .from('leads')
+      .insert([
+        {
+          name: data.name,
+          email: data.email.toLowerCase().trim(),
+          source: data.source || 'landing',
+        }
+      ]);
+
+    if (error) {
+      console.error('Error submitting lead:', error);
+      throw new Error('Não foi possível registrar seu e-mail no momento. Tente novamente mais tarde.');
+    }
+    return { success: true };
+  }
+};

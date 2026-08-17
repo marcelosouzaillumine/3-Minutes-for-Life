@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { principles } from "../data/principles";
 import type { Principle } from '../data/principles';
-import { getFavorites } from '../utils/storage';
+import { favoritesService } from '../services/favoritesService';
 import { PrincipleView } from '../components/PrincipleView';
 
 export function Favorites() {
@@ -9,7 +9,7 @@ export function Favorites() {
   const [selectedPrinciple, setSelectedPrinciple] = useState<Principle | null>(null);
 
   useEffect(() => {
-    setFavoriteIds(getFavorites());
+    favoritesService.list().then(setFavoriteIds).catch(console.error);
   }, [selectedPrinciple]); // re-fetch when returning from view to catch removals
 
   if (selectedPrinciple) {

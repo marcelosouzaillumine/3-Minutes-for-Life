@@ -1,5 +1,6 @@
 import { getDailyPrinciple } from '../utils/daily';
-import { isFavorite, saveFavorite, removeFavorite } from '../utils/storage';
+import { favoritesService } from '../services/favoritesService';
+import { progressService } from '../services/progressService';
 import { useState, useEffect } from 'react';
 import type { Principle } from '../data/principles';
 
@@ -14,17 +15,41 @@ export function Home({ onExplore }: HomeProps) {
   useEffect(() => {
     const daily = getDailyPrinciple();
     setPrinciple(daily);
-    setSaved(isFavorite(daily.id));
+    
+    if (daily) {
+      const today = new Date().toISOString().split('T')[0];
+      progressService.start(daily.id, today).catch(console.error);
+
+      favoritesService.list()
+        .then(ids => setSaved(ids.includes(daily.id)))
+        .catch(console.error);
+    }
   }, []);
 
-  const toggleSave = () => {
+  const toggleSave = async () => {
     if (!principle) return;
-    if (saved) {
-      removeFavorite(principle.id);
-      setSaved(false);
-    } else {
-      saveFavorite(principle.id);
-      setSaved(true);
+    try {
+      if (saved) {
+        await favoritesService.remove(principle.id);
+        setSaved(false);
+      } else {
+        await favoritesService.add(principle.id);
+        setSaved(true);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao atualizar favorito.');
+    }
+  };
+
+  const markComplete = async () => {
+    if (!principle) return;
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      await progressService.complete(principle.id, today);
+      alert('Concluído!');
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -89,12 +114,17 @@ export function Home({ onExplore }: HomeProps) {
           </div>
         )}
         
-        <button className="btn-primary" onClick={toggleSave}>
-          {saved ? 'Remover dos salvos' : 'Salvar princípio'}
-        </button>
-        <button className="btn-secondary" onClick={onExplore}>
-          Explorar princípios
-        </button>
+        <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <button className="btn-primary" onClick={toggleSave}>
+            {saved ? 'Remover dos salvos' : 'Salvar princípio'}
+          </button>
+          <button className="btn-secondary" onClick={markComplete}>
+            Concluir reflexão
+          </button>
+          <button className="btn-secondary" onClick={onExplore}>
+            Explorar princípios
+          </button>
+        </div>
       </div>
     </div>
   );
