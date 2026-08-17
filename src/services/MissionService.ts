@@ -46,6 +46,15 @@ export const MissionService = {
     return data;
   },
 
+  async getDailyImpact(): Promise<number> {
+    const { data, error } = await supabase.rpc('get_daily_impact');
+    if (error) {
+      console.error('Error fetching daily impact:', error);
+      return 1247; // fallback temporário caso a RPC ainda não exista
+    }
+    return data || 1247;
+  },
+
   async getContributions(): Promise<Contribution[]> {
     const { data, error } = await supabase
       .from('contributions')

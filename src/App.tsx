@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Home } from './pages/Home';
 import { Explore } from './pages/Explore';
 import { Favorites } from './pages/Favorites';
-import { About } from './pages/About';
+import { Profile } from './pages/Profile';
 import { BottomNav } from './components/BottomNav';
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
@@ -12,7 +12,7 @@ import { Mission } from './pages/Mission';
 import { useAuth } from './context/AuthContext';
 import { AnalyticsService } from './services/AnalyticsService';
 
-type Tab = 'home' | 'explore' | 'favorites' | 'about';
+type Tab = 'home' | 'explore' | 'favorites' | 'profile';
 
 function App() {
   const { session, loading } = useAuth();
@@ -70,8 +70,8 @@ function App() {
         return <Explore />;
       case 'favorites':
         return <Favorites />;
-      case 'about':
-        return <About />;
+      case 'profile':
+        return <Profile />;
       default:
         return <Home onExplore={() => setCurrentTab('explore')} />;
     }

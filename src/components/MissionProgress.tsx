@@ -41,7 +41,7 @@ export function MissionProgress({ current = 1247, target = 100000, variant = 'ba
     return (
       <div className="mission-progress-pill">
         <span className="pulse-dot"></span>
-        <span className="pill-text"><strong>{formattedCurrent}</strong> pessoas já fazem parte</span>
+        <span className="pill-text"><strong>{formattedCurrent}</strong> pessoas alcançadas hoje</span>
       </div>
     );
   }

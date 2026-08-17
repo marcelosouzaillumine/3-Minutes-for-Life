@@ -46,8 +46,15 @@ serve(async (req) => {
     assert(!errProf && !!existingProfile, "Deve encontrar um profile válido");
     const userId = existingProfile.id;
     
-    const { data: supporter, error: supErr } = await supabaseAdmin.from('supporters')
-      .upsert({ user_id: userId, status: 'active' }).select('id').single();
+    let { data: supporter, error: supErr } = await supabaseAdmin.from('supporters')
+      .select('id').eq('user_id', userId).maybeSingle();
+      
+    if (!supporter) {
+      const ins = await supabaseAdmin.from('supporters').insert({ user_id: userId, status: 'active' }).select('id').single();
+      supporter = ins.data;
+      supErr = ins.error;
+    }
+    
     assert(!supErr && !!supporter, "Deve criar ou achar o supporter");
 
     const providerReference = 'pay_' + Date.now();
@@ -126,7 +133,6 @@ serve(async (req) => {
     assert(contribCheckB.status === 'pending', "Ataque B não deve mutar a contribution existente");
 
     log('\n[Fluxo Feliz] Simulação de Pagamento no Sandbox (Recebimento)');
-    // Simulando o pagamento internamente no Asaas para ele gerar um evento real se o webhook real estivesse configurado
     const receiveRes = await fetch(`https://sandbox.asaas.com/api/v3/payments/${pixData.id}/receiveInCash`, {
       method: 'POST',
       headers: { 'access_token': asaasApiKey!, 'Content-Type': 'application/json' },

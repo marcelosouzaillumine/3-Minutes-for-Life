@@ -46,7 +46,7 @@ export const Signup: React.FC = () => {
       if (err.message?.includes('already registered')) {
         setError('Este e-mail já está cadastrado. Tente entrar na sua conta.');
       } else {
-        setError('Ocorreu um erro ao criar sua conta. Tente novamente.');
+        setError(`FALHA_CRIAR_CONTA: ${err?.message || JSON.stringify(err) || String(err)}`);
       }
     } finally {
       setLoading(false);
