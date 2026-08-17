@@ -24,7 +24,6 @@ function useIntersectionObserver() {
 
   return (el: Element | null) => {
     if (el && observerRef.current) {
-      // Small timeout to ensure observer is ready and avoid React render phase issues
       setTimeout(() => {
         if (observerRef.current) observerRef.current.observe(el);
       }, 0);
@@ -69,19 +68,20 @@ export function Landing() {
 
   return (
     <div className="landing-page">
-      {/* 1. Header Minimalista */}
+      {/* Header */}
       <header className="landing-header">
         <div className="landing-logo">3 Minutes for Life</div>
         <nav className="landing-nav">
           <a href="#como-funciona">Como funciona</a>
           <a href="#sobre">Sobre</a>
+          <a href="#apoie">Apoie o projeto</a>
           <button className="btn-start-nav" onClick={startApp}>
             Começar
           </button>
         </nav>
       </header>
 
-      {/* 01 — Convite (Hero Editorial Limpo) */}
+      {/* Hero */}
       <section className="landing-hero" ref={setRef}>
         <div className="hero-content reveal">
           <h1 className="hero-title">Três minutos para olhar a vida com mais atenção.</h1>
@@ -105,9 +105,7 @@ export function Landing() {
         </div>
       </section>
 
-      {/* 03 e 04 — A Tensão e a Resposta (Redesenhadas Editorialmente) */}
-      
-      {/* Seção 1: A Tensão (Grid Assimétrico) */}
+      {/* Por que três minutos? */}
       <section className="tension-section" ref={setRef}>
         <div className="tension-grid">
           <div className="tension-left reveal">
@@ -125,7 +123,7 @@ export function Landing() {
         </div>
       </section>
 
-      {/* Seção 2: O Alívio (Declaração Monumental) */}
+      {/* É por isso que existem três minutos. */}
       <section className="relief-section" ref={setRef}>
         <div className="relief-content reveal">
           <h2 className="relief-statement">É por isso que existem três minutos.</h2>
@@ -135,7 +133,7 @@ export function Landing() {
         </div>
       </section>
 
-      {/* 05 — Experiência Visual (3 Cards paralelos sobre Imagem) */}
+      {/* Pare. Reflita. Pratique. */}
       <section id="como-funciona" className="experience-image-section" ref={setRef}>
         <div className="experience-cards-grid">
           <div className="experience-card-item reveal delay-100">
@@ -153,7 +151,7 @@ export function Landing() {
         </div>
       </section>
 
-      {/* 06 — Ideia Central (Citação) */}
+      {/* Citação */}
       <section className="quote-section" ref={setRef}>
         <p style={{ fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--landing-text-light)', marginBottom: '2rem' }} className="reveal">
           Uma pausa pode mudar a maneira como você vê o dia.
@@ -164,7 +162,7 @@ export function Landing() {
         </div>
       </section>
 
-      {/* 07 — Profundidade (Além do que vemos) */}
+      {/* O que orienta o seu olhar? */}
       <section className="split-section" ref={setRef}>
         <div className="split-image reveal"></div>
         <div className="split-content reveal delay-200">
@@ -178,7 +176,7 @@ export function Landing() {
         </div>
       </section>
 
-      {/* 08 — Identificação (Para Quem É) */}
+      {/* Para quem é */}
       <section id="sobre" className="audience-section" ref={setRef}>
         <div className="audience-grid">
           <div className="audience-lead reveal">
@@ -195,7 +193,7 @@ export function Landing() {
         </div>
       </section>
 
-      {/* 09 — Nova Citação Resumo */}
+      {/* Citação Resumo */}
       <section className="quote-section" ref={setRef} style={{ padding: '6rem var(--spacing-lg)' }}>
         <div className="perceived-statement reveal">
           Três minutos.<br />
@@ -207,7 +205,54 @@ export function Landing() {
         </p>
       </section>
 
-      {/* 10 — Captação de Lead (Comunidade Inicial) */}
+      {/* Sustentabilidade */}
+      <section id="apoie" className="sustainability-section" ref={setRef}>
+        <div className="sustainability-container reveal">
+          <h2 className="sustainability-title">Um projeto gratuito, sustentado por pessoas</h2>
+          
+          <div className="sustainability-grid">
+            <div className="sustainability-text">
+              <p>O 3 Minutes for Life nasceu para que qualquer pessoa possa encontrar, todos os dias, alguns minutos para parar, refletir e olhar a vida com mais atenção.</p>
+              <p>Por isso, o acesso ao conteúdo é gratuito.</p>
+              <p>Não queremos que a capacidade de pagar determine quem pode receber uma reflexão.</p>
+              <p>O projeto é sustentado por pessoas que acreditam nessa proposta e escolhem contribuir voluntariamente para que ele continue existindo, seja mantido e possa alcançar mais pessoas.</p>
+              <p>Você não precisa contribuir para usar. O apoio é voluntário e não altera o acesso ao conteúdo ou às funcionalidades essenciais do 3 Minutes for Life.</p>
+              <p>Se, em algum momento, você sentir que vale a pena ajudar, poderá fazer parte da sustentabilidade do projeto.</p>
+              
+              <button className="btn-support" onClick={() => alert('Em breve!')}>
+                Apoiar o projeto
+              </button>
+            </div>
+            
+            <div className="sustainability-breakdown">
+              <h3>Para onde vai o apoio?</h3>
+              <p>As contribuições ajudam a manter e desenvolver o projeto.</p>
+              
+              <ul className="breakdown-list">
+                <li>
+                  <strong>Conteúdo</strong>
+                  <span>Produção, revisão e desenvolvimento das reflexões.</span>
+                </li>
+                <li>
+                  <strong>Tecnologia</strong>
+                  <span>Aplicativos, servidores, banco de dados e infraestrutura.</span>
+                </li>
+                <li>
+                  <strong>Alcance</strong>
+                  <span>Comunicação e iniciativas para que mais pessoas conheçam o projeto.</span>
+                </li>
+                <li>
+                  <strong>Desenvolvimento</strong>
+                  <span>Novos conteúdos, recursos e possibilidades para ampliar a experiência.</span>
+                </li>
+              </ul>
+              <p className="breakdown-note">À medida que o projeto crescer, queremos compartilhar com transparência como os recursos são utilizados.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Captação de Lead */}
       <section className="lead-section" ref={setRef}>
         <div className="perceived-statement reveal" style={{ fontSize: '3rem', margin: '0 auto 6rem' }}>
           Estamos começando.
@@ -234,24 +279,23 @@ export function Landing() {
             onChange={e => setEmail(e.target.value)}
             required 
           />
-          <label style={{ display: 'flex', gap: '8px', fontSize: '0.9rem', textAlign: 'left', margin: '1rem 0' }}>
-            <input type="checkbox" required />
-            Quero participar dos testes e receber novidades sobre o 3 Minutes for Life.
+          <label style={{ display: 'flex', gap: '8px', fontSize: '0.9rem', textAlign: 'left', margin: '1rem 0', alignItems: 'flex-start' }}>
+            <input type="checkbox" required style={{ marginTop: '4px' }} />
+            <span>Quero participar dos testes e receber novidades sobre o 3 Minutes for Life.</span>
           </label>
           <button type="submit" className="btn-submit" disabled={isSubmitting}>
             Quero participar
           </button>
-          <span style={{ display: 'block', marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--landing-text-light)', opacity: 0.8 }}>Gratuito durante a fase de testes.</span>
         </form>
       </section>
 
-      {/* 11. FAQ */}
+      {/* FAQ */}
       <section className="faq-section" ref={setRef}>
         <h2 className="faq-title reveal">Perguntas frequentes</h2>
         <div className="faq-grid">
           <div className="faq-item reveal delay-100">
             <h3 className="faq-question">O 3 Minutes for Life é gratuito?</h3>
-            <p className="faq-answer">Durante a fase inicial, o acesso será 100% gratuito.</p>
+            <p className="faq-answer">Sim. O acesso ao conteúdo principal é gratuito. O projeto é sustentado por pessoas que escolhem apoiá-lo voluntariamente.</p>
           </div>
           <div className="faq-item reveal delay-200">
             <h3 className="faq-question">Preciso ser cristão para usar?</h3>
@@ -269,10 +313,14 @@ export function Landing() {
             <h3 className="faq-question">O conteúdo é gerado por inteligência artificial?</h3>
             <p className="faq-answer">Não. O conteúdo é escrito e revisado editorialmente por pessoas, para preservar uma voz humana, simples e consistente.</p>
           </div>
+          <div className="faq-item reveal delay-600">
+            <h3 className="faq-question">Como posso apoiar o projeto?</h3>
+            <p className="faq-answer">O conteúdo é gratuito. Se você quiser contribuir voluntariamente para a continuidade e expansão do projeto, poderá conhecer as formas de apoio disponibilizadas pelo 3 Minutes for Life. O apoio não é necessário para acessar o conteúdo.</p>
+          </div>
         </div>
       </section>
 
-      {/* 12. CTA Final */}
+      {/* CTA Final */}
       <section className="cta-final" ref={setRef}>
         <h2 className="cta-final-title reveal">Reserve três minutos.</h2>
         <p className="cta-final-subtitle reveal delay-100">Pare. Reflita. Viva.</p>
@@ -283,13 +331,15 @@ export function Landing() {
         </div>
       </section>
 
-      {/* 13. Footer */}
+      {/* Footer */}
       <footer className="landing-footer">
         <div className="footer-signature">3 Minutes for Life</div>
         <div className="footer-content">
           <p className="footer-tagline">Três minutos para olhar a vida com mais atenção.</p>
           <div className="footer-links">
-            <a href="#">Sobre</a>
+            <a href="#como-funciona">Como funciona</a>
+            <a href="#sobre">Sobre</a>
+            <a href="#apoie">Apoie o projeto</a>
             <a href="#">Privacidade</a>
             <a href="#">Termos</a>
             <a href="#">Contato</a>

@@ -1,6 +1,5 @@
 import type { Principle } from '../data/principles';
-import { favoritesService } from '../services/favoritesService';
-import { progressService } from '../services/progressService';
+import { JourneyService } from '../services/JourneyService';
 import { useState, useEffect } from 'react';
 
 interface PrincipleViewProps {
@@ -15,10 +14,10 @@ export function PrincipleView({ principle, onBack, customAction }: PrincipleView
   useEffect(() => {
     // Start progress
     const today = new Date().toISOString().split('T')[0];
-    progressService.start(principle.id, today).catch(console.error);
-
-    // Check if favorite
-    favoritesService.list()
+    JourneyService.start(principle.id, today).catch(console.error);
+    
+    // Check if saved
+    JourneyService.listFavorites()
       .then(ids => setSaved(ids.includes(principle.id)))
       .catch(console.error);
   }, [principle.id]);
@@ -26,10 +25,10 @@ export function PrincipleView({ principle, onBack, customAction }: PrincipleView
   const toggleSave = async () => {
     try {
       if (saved) {
-        await favoritesService.remove(principle.id);
+        await JourneyService.toggleFavorite(principle.id);
         setSaved(false);
       } else {
-        await favoritesService.add(principle.id);
+        await JourneyService.toggleFavorite(principle.id);
         setSaved(true);
       }
     } catch (err) {
@@ -41,7 +40,7 @@ export function PrincipleView({ principle, onBack, customAction }: PrincipleView
   const markComplete = async () => {
     try {
       const today = new Date().toISOString().split('T')[0];
-      await progressService.complete(principle.id, today);
+      await JourneyService.complete(principle.id, today);
       alert('Concluído!');
     } catch (err) {
       console.error(err);

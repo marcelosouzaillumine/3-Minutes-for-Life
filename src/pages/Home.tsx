@@ -1,6 +1,5 @@
 import { getDailyPrinciple } from '../utils/daily';
-import { favoritesService } from '../services/favoritesService';
-import { progressService } from '../services/progressService';
+import { JourneyService } from '../services/JourneyService';
 import { useState, useEffect } from 'react';
 import type { Principle } from '../data/principles';
 
@@ -18,9 +17,9 @@ export function Home({ onExplore }: HomeProps) {
     
     if (daily) {
       const today = new Date().toISOString().split('T')[0];
-      progressService.start(daily.id, today).catch(console.error);
+      JourneyService.start(daily.id, today).catch(console.error);
 
-      favoritesService.list()
+      JourneyService.listFavorites()
         .then(ids => setSaved(ids.includes(daily.id)))
         .catch(console.error);
     }
@@ -30,10 +29,10 @@ export function Home({ onExplore }: HomeProps) {
     if (!principle) return;
     try {
       if (saved) {
-        await favoritesService.remove(principle.id);
+        await JourneyService.toggleFavorite(principle.id);
         setSaved(false);
       } else {
-        await favoritesService.add(principle.id);
+        await JourneyService.toggleFavorite(principle.id);
         setSaved(true);
       }
     } catch (err) {
@@ -46,7 +45,7 @@ export function Home({ onExplore }: HomeProps) {
     if (!principle) return;
     try {
       const today = new Date().toISOString().split('T')[0];
-      await progressService.complete(principle.id, today);
+      await JourneyService.complete(principle.id, today);
       alert('Concluído!');
     } catch (err) {
       console.error(err);
