@@ -47,12 +47,22 @@ export const MissionService = {
   },
 
   async getDailyImpact(): Promise<number> {
-    const { data, error } = await supabase.rpc('get_daily_impact');
-    if (error) {
-      console.error('Error fetching daily impact:', error);
-      return 1247; // fallback temporário caso a RPC ainda não exista
+    try {
+      // Tenta buscar o número real de usuários na tabela profiles
+      const { count, error } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+      
+      if (error) {
+        console.error('Erro ao buscar total de usuários:', error);
+        return 1247; // fallback temporário
+      }
+      
+      return count || 0;
+    } catch (err) {
+      console.error('Error fetching real user count:', err);
+      return 1247;
     }
-    return data || 1247;
   },
 
   async getContributions(): Promise<Contribution[]> {

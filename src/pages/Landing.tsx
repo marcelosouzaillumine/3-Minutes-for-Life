@@ -39,6 +39,7 @@ export function Landing() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const setRef = useIntersectionObserver();
 
   const demoPrinciple = {
@@ -73,13 +74,30 @@ export function Landing() {
   return (
     <div className="landing-page">
       {/* Header */}
-      <header className="landing-header">
+      <header className={`landing-header ${isMenuOpen ? 'menu-open' : ''}`}>
         <div className="landing-logo">3 Minutes for Life</div>
-        <nav className="landing-nav">
-          <a href="#como-funciona">Como funciona</a>
-          <a href="#sobre">Sobre</a>
-          <a href="#apoie">Apoie o projeto</a>
-          <button className="btn-start-nav" onClick={startApp}>
+        
+        <button 
+          className="mobile-menu-btn" 
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
+        >
+          {isMenuOpen ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M18 6L6 18M6 6l12 12"></path>
+            </svg>
+          ) : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 12h16M4 6h16M4 18h16"></path>
+            </svg>
+          )}
+        </button>
+
+        <nav className={`landing-nav ${isMenuOpen ? 'open' : ''}`}>
+          <a href="#como-funciona" onClick={() => setIsMenuOpen(false)}>Como funciona</a>
+          <a href="#sobre" onClick={() => setIsMenuOpen(false)}>Sobre</a>
+          <a href="#apoie" onClick={() => setIsMenuOpen(false)}>Apoie o projeto</a>
+          <button className="btn-start-nav" onClick={() => { setIsMenuOpen(false); startApp(); }}>
             Começar
           </button>
         </nav>

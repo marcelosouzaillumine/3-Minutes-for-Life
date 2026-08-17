@@ -101,6 +101,9 @@ serve(async (req) => {
     const qrRes = await fetch(`https://sandbox.asaas.com/api/v3/payments/${pixData.id}/pixQrCode`, {
       headers: { 'access_token': asaasApiKey! }
     });
+    if (!qrRes.ok) {
+       log(`Erro QR Code: ${qrRes.status} ${await qrRes.text()}`);
+    }
     assert(qrRes.ok, "Consulta do QR Code deve retornar 200 OK");
     const qrData = await qrRes.json();
     assert(!!qrData.encodedImage && !!qrData.payload, "Endpoint de QR Code deve retornar imagem e payload");

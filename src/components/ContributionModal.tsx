@@ -23,21 +23,27 @@ export function ContributionModal({ isOpen, onClose, initialTier = 'parceiro', i
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Aqui entrará a integração com o Asaas no futuro.
-    // Por enquanto, simulamos o processamento estruturado.
-    const payload = {
-      tier,
-      periodicity,
-      value: tier === 'livre' ? customValue : null
+    // Mapeamento dos links de pagamento do Asaas
+    const asaasLinks: Record<string, string> = {
+      'semente_mensal': 'https://www.asaas.com/c/p6w7aqj3q73z0s6p',
+      'semente_anual': 'https://www.asaas.com/c/ixokaznn11xejuir',
+      'parceiro_mensal': 'https://www.asaas.com/c/1v9p290p8ahpwo6j',
+      'parceiro_anual': 'https://www.asaas.com/c/xfxu2px60t2dba76',
+      'mantenedor_mensal': 'https://www.asaas.com/c/pp99zqoplzq37tha',
+      'mantenedor_anual': 'https://www.asaas.com/c/r92unbxashnv547o',
+      'livre_unica': 'https://www.asaas.com/c/cfo4mysapw0wlk4i',
+      'livre_mensal': 'https://www.asaas.com/c/vye9xaj09lcim8x7'
     };
-    
-    console.log('Preparando checkout com os dados:', payload);
-    
-    setTimeout(() => {
-      alert('Integração com Asaas em desenvolvimento. Obrigado pela intenção!');
+
+    const linkKey = `${tier}_${periodicity}`;
+    const checkoutUrl = asaasLinks[linkKey];
+
+    if (checkoutUrl) {
+      window.location.href = checkoutUrl;
+    } else {
+      alert('Link de pagamento não configurado para esta opção.');
       setIsSubmitting(false);
-      onClose();
-    }, 1500);
+    }
   };
 
   return (
