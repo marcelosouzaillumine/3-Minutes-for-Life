@@ -6,6 +6,7 @@ import type { Devotional } from '../types/Devotional';
 
 function useIntersectionObserver() {
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const elementsRef = useRef<Element[]>([]);
 
   useEffect(() => {
     observerRef.current = new IntersectionObserver((entries) => {
@@ -16,6 +17,10 @@ function useIntersectionObserver() {
       });
     }, { threshold: 0.1 });
 
+    elementsRef.current.forEach(el => {
+      if (observerRef.current) observerRef.current.observe(el);
+    });
+
     return () => {
       if (observerRef.current) {
         observerRef.current.disconnect();
@@ -24,10 +29,8 @@ function useIntersectionObserver() {
   }, []);
 
   return (el: Element | null) => {
-    if (el && observerRef.current) {
-      setTimeout(() => {
-        if (observerRef.current) observerRef.current.observe(el);
-      }, 0);
+    if (el && !elementsRef.current.includes(el)) {
+      elementsRef.current.push(el);
     }
   };
 }
