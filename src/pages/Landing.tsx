@@ -1,29 +1,33 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './Landing.css';
 import { PrincipleView } from '../components/PrincipleView';
 import { leadService } from '../services/leadService';
 
-function useIntersectionObserver(options = {}) {
-  const [elements, setElements] = useState<Element[]>([]);
-  
+function useIntersectionObserver() {
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
   useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
+    observerRef.current = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('active');
-          // Optional: observer.unobserve(entry.target) se quiser que anime apenas 1 vez
         }
       });
-    }, { threshold: 0.1, ...options });
+    }, { threshold: 0.1 });
 
-    elements.forEach(el => observer.observe(el));
-
-    return () => observer.disconnect();
-  }, [elements, options]);
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, []);
 
   return (el: Element | null) => {
-    if (el && !elements.includes(el)) {
-      setElements(prev => [...prev, el]);
+    if (el && observerRef.current) {
+      // Small timeout to ensure observer is ready and avoid React render phase issues
+      setTimeout(() => {
+        if (observerRef.current) observerRef.current.observe(el);
+      }, 0);
     }
   };
 }
@@ -38,7 +42,7 @@ export function Landing() {
     id: 9999,
     title: 'Você está brigando com a realidade?',
     principle: 'A mudança começa quando reconhecemos a realidade como ela é.',
-    reflection: 'Todos nós já gastamos energia desejando que uma situação fosse diferente. Ficamos pensando no que poderia ter acontecido, no que alguém deveria ter feito ou em como gostaríamos que as coisas fossem. Enquanto isso, a realidade continua diante de nós, esperando que façamos alguma coisa com ela.\n\nAceitar a realidade não significa gostar dela, concordar com ela ou desistir de mudá-la. Significa reconhecer onde estamos para descobrir o que podemos fazer a partir daí.\n\nE há coisas que simplesmente não estão sob nosso controle. É nesse limite que a fé pode nos ensinar um novo caminho. A fé cristã nos lembra que não precisamos controlar tudo para seguir em frente. Podemos entregar a Deus aquilo que não conseguimos mudar e voltar nossa atenção para aquilo que está ao nosso alcance.\n\nPor isso, talvez a pergunta de hoje não seja “por que isso aconteceu?”, mas “o que posso fazer a partir daqui?”',
+    reflection: 'Todos nós já gastamos energia desejando que uma situação fosse diferente. Ficamos pensando no que poderia ter acontecido, no que alguém deveria ter feito ou em como gostaríamos que as coisas fossem.\n\nEnquanto isso, a realidade continua diante de nós, esperando que a encaremos e decidamos o que fazer.\n\nAceitar a realidade não significa gostar dela, concordar com ela ou desistir de mudá-la. Significa reconhecer onde estamos para descobrir o que podemos fazer a partir daí.\n\nSó que nem tudo está sob nosso controle. E é justamente nesse limite que a fé pode nos ensinar um novo caminho.\n\nA fé cristã nos lembra que não precisamos controlar tudo para seguir em frente. Podemos entregar a Deus aquilo que não conseguimos mudar e voltar nossa atenção para aquilo que está ao nosso alcance.\n\nPor isso, a pergunta de hoje pode ser simples:\n\nO que posso fazer a partir daqui?',
     application: 'Pense em uma situação que tem trazido frustração. Separe o que você pode mudar daquilo que não está sob seu controle.\n\nEscolha uma coisa que está ao seu alcance e dê hoje um pequeno passo.',
     category: 'Uma reflexão para hoje',
     date: new Date().toISOString()
@@ -77,117 +81,143 @@ export function Landing() {
         </nav>
       </header>
 
-      {/* 2. Hero Editorial */}
+      {/* 01 — Convite (Hero Editorial Limpo) */}
       <section className="landing-hero" ref={setRef}>
         <div className="hero-content reveal">
           <h1 className="hero-title">Três minutos para olhar a vida com mais atenção.</h1>
           <p className="hero-subtitle">
-            Uma reflexão por dia para parar, pensar no que realmente importa e levar algo para a vida.
+            Uma reflexão por dia para parar, pensar sobre a vida e perceber o que merece sua atenção.
           </p>
           <div className="hero-actions">
             <button className="btn-start" onClick={startApp}>
               Começar gratuitamente
             </button>
+            <span className="hero-hint" style={{ display: 'block', marginTop: '1rem', opacity: 0.7 }}>Sem cadastro para experimentar.</span>
           </div>
         </div>
         <div className="hero-visual reveal delay-200">
           <div className="hero-mockup-wrapper reveal delay-400">
-            {/* Componente real rodando em modo visualização como objeto físico */}
             <PrincipleView 
               principle={mockPrinciple} 
-              customAction={{ label: 'Experimentar esta reflexão', onClick: startApp }} 
+              customAction={{ label: 'Experimentar esta reflexão →', onClick: startApp }} 
             />
           </div>
         </div>
       </section>
 
-      {/* 3. Disputa de Atenção */}
-      <section className="attention-section" ref={setRef}>
-        <h2 className="attention-intro reveal">O mundo disputa sua atenção.</h2>
-        <div className="attention-list">
-          <span className="attention-item reveal delay-100">Seu celular.</span>
-          <span className="attention-item reveal delay-200">Suas mensagens.</span>
-          <span className="attention-item reveal delay-300">Seu trabalho.</span>
-          <span className="attention-item reveal delay-400">Suas preocupações.</span>
-          <span className="attention-item reveal delay-400" style={{ marginTop: '1rem' }}>E sempre aparece mais uma coisa.</span>
-        </div>
-        <h3 className="attention-conclusion reveal delay-400">Às vezes, você só precisa de três minutos.</h3>
-      </section>
-
-      {/* 4. Experiência Visual */}
-      <section id="como-funciona" className="experience-section" ref={setRef}>
-        <div className="step-block reveal">
-          <span className="step-number">01 — Pare.</span>
-          <p className="step-desc">Respire. Diminua o ritmo. Preste atenção.</p>
-        </div>
-        <div className="step-block reveal delay-100">
-          <span className="step-number">02 — Reflita.</span>
-          <p className="step-desc">Uma ideia. Uma pergunta. Um novo olhar.</p>
-        </div>
-        <div className="step-block reveal delay-200">
-          <span className="step-number">03 — Pratique.</span>
-          <p className="step-desc">Leve algo para a vida real.</p>
+      {/* 03 e 04 — A Tensão e a Resposta (Redesenhadas Editorialmente) */}
+      
+      {/* Seção 1: A Tensão (Grid Assimétrico) */}
+      <section className="tension-section" ref={setRef}>
+        <div className="tension-grid">
+          <div className="tension-left reveal">
+            <span className="attention-kicker">Por que três minutos?</span>
+            <h3 className="tension-title">Seu dia já<br/>está cheio.</h3>
+          </div>
+          <div className="tension-right reveal delay-200">
+            <p className="tension-paragraph">
+              Mensagens, trabalho, notícias, decisões, preocupações. E sempre aparece mais uma coisa.
+            </p>
+            <p className="tension-paragraph">
+              No meio de tudo isso, é fácil passar o dia inteiro reagindo ao que acontece e quase nunca parar para perceber o que está acontecendo dentro de nós.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* 5. Imagem Intercalar de Respiro */}
-      <div className="image-break reveal" ref={setRef}></div>
+      {/* Seção 2: O Alívio (Declaração Monumental) */}
+      <section className="relief-section" ref={setRef}>
+        <div className="relief-content reveal">
+          <h2 className="relief-statement">É por isso que existem três minutos.</h2>
+          <p className="relief-subtext">
+            Um pequeno espaço no dia para parar, pensar e prestar atenção à vida que está acontecendo agora.
+          </p>
+        </div>
+      </section>
 
-      {/* 6. Citação Tipográfica */}
+      {/* 05 — Experiência Visual (3 Cards paralelos sobre Imagem) */}
+      <section id="como-funciona" className="experience-image-section" ref={setRef}>
+        <div className="experience-cards-grid">
+          <div className="experience-card-item reveal delay-100">
+            <h3 className="step-title">Pare.</h3>
+            <p className="step-desc">Respire.<br/>Diminua o ritmo.<br/>Preste atenção.</p>
+          </div>
+          <div className="experience-card-item reveal delay-200">
+            <h3 className="step-title">Reflita.</h3>
+            <p className="step-desc">Uma ideia.<br/>Uma pergunta.<br/>Um novo olhar.</p>
+          </div>
+          <div className="experience-card-item reveal delay-300">
+            <h3 className="step-title">Pratique.</h3>
+            <p className="step-desc">Leve a reflexão para a vida real.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* 06 — Ideia Central (Citação) */}
       <section className="quote-section" ref={setRef}>
-        <h2 className="quote-text reveal">
+        <p style={{ fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--landing-text-light)', marginBottom: '2rem' }} className="reveal">
+          Uma pausa pode mudar a maneira como você vê o dia.
+        </p>
+        <div className="perceived-statement reveal delay-100" style={{ margin: 0 }}>
           A vida não precisa de mais velocidade.<br />
-          Talvez precise de mais atenção.
-        </h2>
+          Precisa de mais atenção.
+        </div>
       </section>
 
-      {/* 7. Além do que vemos (Perspectiva Cristã Sutil) */}
+      {/* 07 — Profundidade (Além do que vemos) */}
       <section className="split-section" ref={setRef}>
         <div className="split-image reveal"></div>
         <div className="split-content reveal delay-200">
-          <h2 className="split-title">Além do que vemos</h2>
+          <h2 className="split-title">O que orienta o seu olhar?</h2>
           <p className="split-text">
-            O 3 Minutes for Life também nasce de uma convicção cristã: existe um sentido maior para a vida, mesmo quando não conseguimos entender tudo o que acontece.
+            A fé cristã está no coração do 3 Minutes for Life. Ela nos convida a olhar para nossas escolhas, nossos relacionamentos, nossos desafios e nosso propósito à luz de Deus e dos ensinamentos de Jesus.
           </p>
           <p className="split-text">
-            Por isso, algumas reflexões apresentam ensinamentos de Jesus e princípios das Escrituras.
-          </p>
-          <p className="split-text" style={{ fontWeight: 500, color: 'var(--landing-text)' }}>
-            Você não precisa ser cristão para começar. Basta estar disposto a parar, pensar e considerar uma nova perspectiva.
+            Não para oferecer respostas prontas, mas para abrir espaço para perguntas que realmente importam.
           </p>
         </div>
       </section>
 
-      {/* 8. Para Quem É */}
+      {/* 08 — Identificação (Para Quem É) */}
       <section id="sobre" className="audience-section" ref={setRef}>
-        <h2 className="audience-title reveal">Para quem é o 3 Minutes for Life?</h2>
-        <div className="audience-list">
-          <span className="reveal" style={{ marginBottom: '1rem', color: 'var(--landing-bg)' }}>Para você que:</span>
-          <span className="reveal delay-100">Está tentando tomar uma decisão.</span>
-          <span className="reveal delay-200">Precisa desacelerar.</span>
-          <span className="reveal delay-300">Quer melhorar seus relacionamentos.</span>
-          <span className="reveal delay-400">Deseja trabalhar e liderar melhor.</span>
-          <span className="reveal delay-400">Está buscando mais sentido.</span>
-          <span className="reveal delay-400" style={{ marginTop: '1rem', fontStyle: 'italic' }}>Ou simplesmente quer alguns minutos para pensar.</span>
+        <div className="audience-grid">
+          <div className="audience-lead reveal">
+            <h2>Para quem quer viver com mais intenção.</h2>
+          </div>
+          <div className="audience-list reveal delay-200">
+            <p>Para quem está diante de uma decisão.</p>
+            <p>Para quem precisa desacelerar.</p>
+            <p>Para quem quer cuidar melhor dos seus relacionamentos.</p>
+            <p>Para quem trabalha e lidera.</p>
+            <p>Para quem busca mais sentido.</p>
+            <p>Para quem simplesmente precisa de alguns minutos para pensar.</p>
+          </div>
         </div>
       </section>
 
-      {/* 9. Citação Final Tipográfica */}
-      <section className="quote-section" ref={setRef}>
-        <h2 className="quote-text reveal">
+      {/* 09 — Nova Citação Resumo */}
+      <section className="quote-section" ref={setRef} style={{ padding: '6rem var(--spacing-lg)' }}>
+        <div className="perceived-statement reveal">
           Três minutos.<br />
           Uma reflexão.<br />
           Um pequeno passo.
-        </h2>
+        </div>
+        <p style={{ fontFamily: 'var(--font-serif)', fontSize: '2.5rem', color: 'var(--landing-text-light)', fontStyle: 'italic', marginTop: '4rem' }} className="reveal delay-100">
+          Mais atenção para a vida que você já está vivendo.
+        </p>
       </section>
 
-      {/* 10. Captação de Lead */}
+      {/* 10 — Captação de Lead (Comunidade Inicial) */}
       <section className="lead-section" ref={setRef}>
-        <h2 className="lead-title reveal">Quer fazer parte do começo?</h2>
+        <div className="perceived-statement reveal" style={{ fontSize: '3rem', margin: '0 auto 6rem' }}>
+          Estamos começando.
+        </div>
         <p className="lead-subtitle reveal delay-100">
-          Estamos convidando um pequeno grupo de pessoas para experimentar o 3 Minutes for Life nesta primeira fase e nos ajudar a melhorar a experiência.
+          Nesta primeira fase, estamos reunindo um pequeno grupo de pessoas para experimentar o 3 Minutes for Life, receber uma reflexão por dia e nos ajudar a construir uma experiência cada vez melhor.
         </p>
-        <form className="lead-form reveal delay-200" onSubmit={handleLeadSubmit}>
+        <h2 className="lead-title reveal delay-200" style={{ marginTop: '4rem', fontSize: '2rem' }}>Quer fazer parte do começo?</h2>
+        
+        <form className="lead-form reveal delay-300" onSubmit={handleLeadSubmit}>
           <input 
             type="text" 
             className="form-input" 
@@ -204,27 +234,28 @@ export function Landing() {
             onChange={e => setEmail(e.target.value)}
             required 
           />
-          <label style={{ display: 'flex', gap: '8px', fontSize: '0.9rem', textAlign: 'left', marginTop: '8px' }}>
+          <label style={{ display: 'flex', gap: '8px', fontSize: '0.9rem', textAlign: 'left', margin: '1rem 0' }}>
             <input type="checkbox" required />
             Quero participar dos testes e receber novidades sobre o 3 Minutes for Life.
           </label>
           <button type="submit" className="btn-submit" disabled={isSubmitting}>
             Quero participar
           </button>
+          <span style={{ display: 'block', marginTop: '1.5rem', fontSize: '0.9rem', color: 'var(--landing-text-light)', opacity: 0.8 }}>Gratuito durante a fase de testes.</span>
         </form>
       </section>
 
       {/* 11. FAQ */}
       <section className="faq-section" ref={setRef}>
         <h2 className="faq-title reveal">Perguntas frequentes</h2>
-        <div className="faq-list">
+        <div className="faq-grid">
           <div className="faq-item reveal delay-100">
             <h3 className="faq-question">O 3 Minutes for Life é gratuito?</h3>
-            <p className="faq-answer">Durante a fase inicial de testes, o acesso ao MVP será gratuito.</p>
+            <p className="faq-answer">Durante a fase inicial, o acesso será 100% gratuito.</p>
           </div>
           <div className="faq-item reveal delay-200">
             <h3 className="faq-question">Preciso ser cristão para usar?</h3>
-            <p className="faq-answer">Não. O conteúdo parte de uma perspectiva cristã, mas é escrito para conversar com qualquer pessoa interessada em refletir sobre a vida.</p>
+            <p className="faq-answer">Não. O 3 Minutes for Life parte de uma perspectiva cristã, mas foi criado para conversar com qualquer pessoa que queira parar, refletir e olhar para a vida com mais atenção.</p>
           </div>
           <div className="faq-item reveal delay-300">
             <h3 className="faq-question">Quanto tempo preciso por dia?</h3>
@@ -232,9 +263,9 @@ export function Landing() {
           </div>
           <div className="faq-item reveal delay-400">
             <h3 className="faq-question">Preciso instalar um aplicativo?</h3>
-            <p className="faq-answer">O MVP funciona diretamente no navegador e pode ser adicionado à tela inicial do celular como um aplicativo.</p>
+            <p className="faq-answer">A plataforma funciona diretamente no navegador e pode ser adicionada à tela inicial do celular como um aplicativo.</p>
           </div>
-          <div className="faq-item reveal delay-400">
+          <div className="faq-item reveal delay-500">
             <h3 className="faq-question">O conteúdo é gerado por inteligência artificial?</h3>
             <p className="faq-answer">Não. O conteúdo é escrito e revisado editorialmente por pessoas, para preservar uma voz humana, simples e consistente.</p>
           </div>
@@ -243,7 +274,7 @@ export function Landing() {
 
       {/* 12. CTA Final */}
       <section className="cta-final" ref={setRef}>
-        <h2 className="cta-final-title reveal">Reserve três minutos para você.</h2>
+        <h2 className="cta-final-title reveal">Reserve três minutos.</h2>
         <p className="cta-final-subtitle reveal delay-100">Pare. Reflita. Viva.</p>
         <div className="reveal delay-200">
           <button className="btn-start" onClick={startApp}>
@@ -254,15 +285,17 @@ export function Landing() {
 
       {/* 13. Footer */}
       <footer className="landing-footer">
-        <div className="footer-logo">3 Minutes for Life</div>
-        <p className="footer-tagline">Três minutos para parar, refletir e viver melhor.</p>
-        <div className="footer-links">
-          <a href="#">Sobre</a>
-          <a href="#">Privacidade</a>
-          <a href="#">Termos</a>
-          <a href="#">Contato</a>
+        <div className="footer-signature">3 Minutes for Life</div>
+        <div className="footer-content">
+          <p className="footer-tagline">Três minutos para olhar a vida com mais atenção.</p>
+          <div className="footer-links">
+            <a href="#">Sobre</a>
+            <a href="#">Privacidade</a>
+            <a href="#">Termos</a>
+            <a href="#">Contato</a>
+          </div>
+          <p className="footer-copy">© 2026 3 Minutes for Life</p>
         </div>
-        <p className="footer-copy">© 2026 3 Minutes for Life</p>
       </footer>
     </div>
   );

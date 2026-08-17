@@ -15,12 +15,14 @@ export interface Principle {
     translation?: string;
     text?: string;
   };
+  status?: 'published' | 'draft';
 }
 
-export const principles: Principle[] = [
+const allPrinciples: Principle[] = [
   // Vida
   {
     id: 1,
+    status: 'published',
     category: 'Vida',
     title: 'Você está dando atenção ao que importa?',
     principle: 'Aquilo que recebe sua atenção ganha espaço na sua vida.',
@@ -29,6 +31,7 @@ export const principles: Principle[] = [
   },
   {
     id: 2,
+    status: 'published',
     category: 'Vida',
     title: 'Você está brigando com a realidade?',
     principle: 'A mudança começa quando reconhecemos a realidade como ela é.',
@@ -37,6 +40,7 @@ export const principles: Principle[] = [
   },
   {
     id: 3,
+    status: 'published',
     category: 'Vida',
     title: 'O conforto está tornando você mais frágil?',
     principle: 'Evitar todo desconforto pode nos tornar menos preparados para a vida.',
@@ -48,16 +52,22 @@ export const principles: Principle[] = [
   },
   {
     id: 4,
+    status: 'published',
     category: 'Vida',
-    title: 'A métrica do contentamento',
-    principle: 'A felicidade frequentemente está menos em adquirir coisas novas e mais em querer o que já se tem.',
-    reflection: 'Nossa cultura nos treinou para focar no que falta. No entanto, a saciedade não vem de saciar todo desejo, mas de aprender a não desejar incessantemente. O contentamento é uma prática ativa de reconhecimento do que é suficiente.',
-    application: 'Anote três coisas comuns na sua vida hoje (sua cama, água limpa, um amigo) e tire um minuto para genuinamente agradecer por elas existirem.'
+    title: 'Você sabe o que é suficiente para ser feliz?',
+    principle: 'O contentamento não é ter tudo o que se deseja, mas aprender a reconhecer o que já é suficiente.',
+    reflection: 'Nossa cultura nos ensina a olhar constantemente para aquilo que nos falta. Somos cercados pela ideia de que a próxima conquista, a próxima compra ou o próximo passo finalmente nos trará a satisfação que procuramos.\n\nO problema é que, quando alcançamos aquilo que desejávamos, quase sempre surge algo novo para buscar. A conquista de hoje rapidamente se transforma no desejo de amanhã. E, se a nossa paz depender de conseguir sempre mais, nunca haverá um momento em que teremos o suficiente.\n\nÉ por isso que o contentamento precisa ser aprendido. A fé cristã nos mostra esse caminho. Paulo escreveu que aprendeu a viver contente tanto na fartura quanto na necessidade. Sua paz não estava determinada pelo que possuía ou pela situação que enfrentava, mas pela confiança que havia colocado em Deus.\n\nTalvez o contentamento comece exatamente aí: quando deixamos de medir nossa vida apenas pelo que ainda falta e passamos a perceber, com gratidão, o valor daquilo que já recebemos.',
+    application: 'Pense em três coisas simples e comuns que fazem parte da sua vida hoje.\n\nPode ser uma refeição, um lugar para morar, alguém que você ama, seu trabalho, uma conversa ou até algo que normalmente passa despercebido.\n\nPare por um minuto e agradeça a Deus por cada uma delas.',
+    prayer: 'Deus, ajuda-me a reconhecer o que já tenho e a não viver preso ao que ainda me falta. Ensina-me a encontrar contentamento nas coisas simples e a receber com gratidão aquilo que colocaste em minhas mãos. Amém.',
+    reference: {
+      citation: 'Filipenses 4:11–12'
+    }
   },
   
   // Relacionamentos
   {
     id: 5,
+    status: 'draft',
     category: 'Relacionamentos',
     title: 'Julgue pela intenção, responda ao impacto',
     principle: 'Entenda que as pessoas raramente agem com malícia, mas os erros delas ainda causam dor.',
@@ -66,6 +76,7 @@ export const principles: Principle[] = [
   },
   {
     id: 6,
+    status: 'draft',
     category: 'Relacionamentos',
     title: 'Escuta não é espera',
     principle: 'A maioria de nós não escuta para entender, mas apenas espera a nossa vez de falar.',
@@ -74,6 +85,7 @@ export const principles: Principle[] = [
   },
   {
     id: 7,
+    status: 'draft',
     category: 'Relacionamentos',
     title: 'O custo das expectativas não ditas',
     principle: 'Frustração em relacionamentos é, quase sempre, o resultado de expectativas não comunicadas.',
@@ -82,6 +94,7 @@ export const principles: Principle[] = [
   },
   {
     id: 8,
+    status: 'draft',
     category: 'Relacionamentos',
     title: 'Limites preservam o amor',
     principle: 'Estabelecer limites não afasta as pessoas; mostra a elas como podem permanecer perto.',
@@ -92,6 +105,7 @@ export const principles: Principle[] = [
   // Decisões
   {
     id: 9,
+    status: 'draft',
     category: 'Decisões',
     title: 'A inversão',
     principle: 'Quando não souber como alcançar um objetivo, pergunte-se como garantir o fracasso, e então evite isso.',
@@ -100,6 +114,7 @@ export const principles: Principle[] = [
   },
   {
     id: 10,
+    status: 'draft',
     category: 'Decisões',
     title: 'O filtro do "Inferno, sim!"',
     principle: 'Se a resposta não é "Com certeza sim", então deveria ser "Não".',
@@ -108,6 +123,7 @@ export const principles: Principle[] = [
   },
   {
     id: 11,
+    status: 'draft',
     category: 'Decisões',
     title: 'Informação não é ação',
     principle: 'Pesquisar mais, às vezes, é apenas uma forma disfarçada de procrastinação.',
@@ -116,6 +132,7 @@ export const principles: Principle[] = [
   },
   {
     id: 12,
+    status: 'draft',
     category: 'Decisões',
     title: 'Minimização de arrependimentos',
     principle: 'Projete-se aos 80 anos de idade e escolha o caminho que causará menos arrependimento.',
@@ -126,6 +143,7 @@ export const principles: Principle[] = [
   // Trabalho
   {
     id: 13,
+    status: 'draft',
     category: 'Trabalho',
     title: 'Trabalho raso vs. Trabalho profundo',
     principle: 'Ocupar-se com tarefas rasas é a maneira mais fácil de parecer produtivo enquanto não se produz nada de valor.',
@@ -134,6 +152,7 @@ export const principles: Principle[] = [
   },
   {
     id: 14,
+    status: 'draft',
     category: 'Trabalho',
     title: 'Seja um artesão',
     principle: 'Trate o seu trabalho diário com a reverência de quem está construindo um legado, não batendo o ponto.',
@@ -142,6 +161,7 @@ export const principles: Principle[] = [
   },
   {
     id: 15,
+    status: 'draft',
     category: 'Trabalho',
     title: 'Sistemas são melhores que metas',
     principle: 'Você não se eleva ao nível das suas metas, você cai ao nível dos seus sistemas.',
@@ -150,6 +170,7 @@ export const principles: Principle[] = [
   },
   {
     id: 16,
+    status: 'draft',
     category: 'Trabalho',
     title: 'O custo da interrupção',
     principle: 'A cada vez que você interrompe o foco, demora até vinte minutos para que seu cérebro retorne ao estado original.',
@@ -160,6 +181,7 @@ export const principles: Principle[] = [
   // Dinheiro
   {
     id: 17,
+    status: 'draft',
     category: 'Dinheiro',
     title: 'A diferença entre ser rico e ter riqueza',
     principle: 'A riqueza é o dinheiro que você não gasta.',
@@ -168,6 +190,7 @@ export const principles: Principle[] = [
   },
   {
     id: 18,
+    status: 'draft',
     category: 'Dinheiro',
     title: 'A inflação do estilo de vida',
     principle: 'Se os seus desejos sobem na mesma velocidade que os seus ganhos, você estará para sempre no mesmo lugar.',
@@ -176,6 +199,7 @@ export const principles: Principle[] = [
   },
   {
     id: 19,
+    status: 'draft',
     category: 'Dinheiro',
     title: 'Tempo é a moeda final',
     principle: 'Dinheiro é uma ferramenta para comprar de volta o controle sobre o seu próprio tempo.',
@@ -186,6 +210,7 @@ export const principles: Principle[] = [
   // Liderança
   {
     id: 20,
+    status: 'draft',
     category: 'Liderança',
     title: 'A responsabilidade extrema',
     principle: 'Um líder não terceiriza a culpa.',
@@ -194,6 +219,7 @@ export const principles: Principle[] = [
   },
   {
     id: 21,
+    status: 'draft',
     category: 'Liderança',
     title: 'Lidere pelo exemplo, não pela ordem',
     principle: 'As pessoas observam o que você faz muito mais do que ouvem o que você diz.',
@@ -202,6 +228,7 @@ export const principles: Principle[] = [
   },
   {
     id: 22,
+    status: 'draft',
     category: 'Liderança',
     title: 'Elogie em público, critique em particular',
     principle: 'O feedback deve construir a pessoa, não destruí-la diante do grupo.',
@@ -212,6 +239,7 @@ export const principles: Principle[] = [
   // Propósito
   {
     id: 23,
+    status: 'draft',
     category: 'Propósito',
     title: 'Propósito é ação, não epifania',
     principle: 'Não espere que o propósito caia do céu; ele é forjado no fazer diário.',
@@ -220,6 +248,7 @@ export const principles: Principle[] = [
   },
   {
     id: 24,
+    status: 'draft',
     category: 'Propósito',
     title: 'Identidade maleável',
     principle: 'Cuidado para não se apegar demais a uma versão de si mesmo.',
@@ -228,6 +257,7 @@ export const principles: Principle[] = [
   },
   {
     id: 25,
+    status: 'draft',
     category: 'Propósito',
     title: 'O sacrifício necessário',
     principle: 'Tudo tem um custo; o que define sua vida é qual sofrimento você escolhe suportar.',
@@ -238,6 +268,7 @@ export const principles: Principle[] = [
   // Fé
   {
     id: 26,
+    status: 'draft',
     category: 'Fé',
     title: 'A clareza no silêncio',
     principle: 'Você não ouvirá o essencial enquanto não calar o barulho ao seu redor.',
@@ -247,6 +278,7 @@ export const principles: Principle[] = [
   },
   {
     id: 27,
+    status: 'draft',
     category: 'Fé',
     title: 'Confiança através da ação',
     principle: 'A verdadeira fé não é passiva; é o movimento na direção do que não se vê.',
@@ -256,6 +288,7 @@ export const principles: Principle[] = [
   },
   {
     id: 28,
+    status: 'draft',
     category: 'Fé',
     title: 'Humildade existencial',
     principle: 'Reconheça a vastidão do universo e as limitações do seu próprio entendimento.',
@@ -264,6 +297,7 @@ export const principles: Principle[] = [
   },
   {
     id: 29,
+    status: 'draft',
     category: 'Fé',
     title: 'A reverência pelo ordinário',
     principle: 'O sagrado muitas vezes se esconde nas repetições cotidianas que consideramos banais.',
@@ -272,6 +306,7 @@ export const principles: Principle[] = [
   },
   {
     id: 30,
+    status: 'draft',
     category: 'Fé',
     title: 'O sofrimento tem contornos',
     principle: 'A dor não tem a palavra final na narrativa da sua vida.',
@@ -279,3 +314,5 @@ export const principles: Principle[] = [
     application: 'Quando a angústia surgir hoje, lembre-se das outras vezes que você pensou que não suportaria, e ainda assim, você continuou. A tempestade também passa.'
   }
 ];
+
+export const principles = allPrinciples.filter(p => p.status === 'published' || (!p.status && p.id <= 4));

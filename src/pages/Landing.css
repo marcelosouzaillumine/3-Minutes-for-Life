@@ -101,8 +101,8 @@
   margin: 0 auto;
   padding: 8rem var(--spacing-lg) 4rem; /* Um pouco mais de respiro em cima */
   display: flex;
-  align-items: center; /* Centralizado verticalmente */
-  gap: 8rem; /* Aumentado para o texto não encostar no mockup */
+  align-items: center; /* Mantendo centralizado para equilíbrio de massas */
+  gap: 4rem; /* Reduzindo gap pois o card não estará mais tão deslocado */
 }
 
 .hero-content {
@@ -133,22 +133,21 @@
 .btn-start {
   background-color: var(--landing-accent);
   color: #fff;
-  padding: 1rem 2rem;
+  padding: 1rem 2.5rem;
   font-size: 1.1rem;
-  border-radius: 2px; /* Ligeiramente mais quadrado para ar editorial */
+  border-radius: 2px;
   font-weight: 400;
+  letter-spacing: 0.05em; /* Ar de convite calmo */
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: background-color 0.4s ease, opacity 0.4s ease;
   display: inline-block;
   cursor: pointer;
   border: none;
-  box-shadow: 0 2px 8px rgba(196, 109, 83, 0.2);
 }
 
 .btn-start:hover {
   background-color: var(--landing-accent-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(196, 109, 83, 0.3);
+  /* Removido o translateY e shadow para não parecer um app ansioso por cliques */
 }
 
 .hero-hint {
@@ -161,31 +160,33 @@
 .hero-visual {
   flex: 1;
   position: relative;
-  height: 680px; /* Reduzido para ficar mais proporcional à altura do mockup e do texto */
+  height: 680px; 
   background-image: url('/images/hero_morning_light.png');
   background-size: cover;
   background-position: center;
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* Mockup levemente sobreposto à esquerda da imagem */
+  justify-content: center;
 }
 
 .hero-mockup-wrapper {
   background: var(--landing-bg);
   border: 1px solid var(--landing-border);
-  border-radius: 12px; /* Canto mais suave, menos arredondado */
-  box-shadow: -10px 20px 40px rgba(41, 38, 36, 0.08), 0 2px 10px rgba(41, 38, 36, 0.04);
-  width: 360px;
-  height: 600px;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(41, 38, 36, 0.08), 0 2px 10px rgba(41, 38, 36, 0.04);
+  width: 420px; /* Levemente mais largo para dar mais conforto ao texto longo da reflexão inteira */
+  height: 620px;
   overflow-y: auto;
   padding: var(--spacing-lg) var(--spacing-md);
   text-align: left;
-  transform: translateX(-40px); /* Puxa para fora da imagem para o meio da tela */
+  transform: translateX(-20px);
 }
 
 .hero-mockup-wrapper::-webkit-scrollbar {
   display: none;
 }
+
+/* Removendo .real-experience-section (substituído pelo mockup) */
 
 /* Sections Base */
 .landing-section {
@@ -194,87 +195,172 @@
   margin: 0 auto;
 }
 
-/* Attention Section */
-.attention-section {
-  text-align: center;
-  padding: 8rem var(--spacing-lg);
-  max-width: 800px;
+/* Tension Section (Editorial Grid) */
+.tension-section {
+  padding: 12rem var(--spacing-lg) 8rem;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-.attention-intro {
-  font-size: 2rem;
-  font-family: var(--font-serif);
-  margin-bottom: 4rem;
+.tension-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center; /* Centraliza verticalmente o texto com o título */
 }
 
-.attention-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin-bottom: 5rem;
-}
-
-.attention-item {
-  font-size: 1.5rem;
+.attention-kicker {
+  font-family: var(--font-family);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
   color: var(--landing-text-light);
-  opacity: 0.8;
+  display: block;
+  margin-bottom: 3rem;
 }
 
-.attention-item:last-child {
-  font-weight: 500;
-  color: var(--landing-text);
-  opacity: 1;
-}
-
-.attention-conclusion {
-  font-size: 2.5rem;
+.tension-title {
   font-family: var(--font-serif);
-  color: var(--landing-accent);
+  font-size: clamp(3.5rem, 6vw, 5.5rem);
+  color: var(--landing-text);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin: 0;
+  white-space: nowrap;
 }
 
-/* Visual Experience (01, 02, 03) */
-.experience-section {
-  padding: 6rem var(--spacing-lg);
-  max-width: 800px;
-  margin: 0 auto;
+.tension-right {
+  padding-bottom: 0;
 }
 
-.step-block {
-  margin-bottom: 6rem;
+.tension-paragraph {
+  font-family: var(--font-family);
+  font-size: 1.5rem;
+  line-height: 1.6;
+  color: var(--landing-text-light);
+  margin-bottom: 1.5rem;
 }
 
-.step-block:last-child {
+.tension-paragraph:last-child {
   margin-bottom: 0;
 }
 
-.step-number {
-  font-size: 1.5rem;
-  font-family: var(--font-serif);
-  color: var(--landing-accent);
-  display: block;
-  margin-bottom: 1rem;
+/* Relief Section (Monumental Statement) */
+.relief-section {
+  padding: 8rem var(--spacing-lg) 6rem;
+  text-align: center;
 }
 
+.relief-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.relief-statement {
+  font-family: var(--font-serif);
+  font-size: 4.5rem;
+  color: var(--landing-accent);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 3rem;
+}
+
+.relief-subtext {
+  font-size: 1.8rem;
+  line-height: 1.6;
+  color: var(--landing-text-light);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Novo tratamento visual para frases a serem "percebidas" */
+.perceived-statement {
+  font-family: var(--font-serif);
+  font-size: 4rem;
+  color: var(--landing-accent);
+  margin: 8rem 0;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+/* Visual Experience (Text over Image) */
+.experience-image-section {
+  position: relative;
+  height: 85vh;
+  min-height: 800px;
+  background-image: url('/images/coffee_silence.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4rem 0;
+  padding: 0 var(--spacing-lg);
+}
+
+.experience-image-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(25, 23, 21, 0.65); /* Overlay muito mais escuro e encorpado para alto contraste */
+  z-index: 0;
+}
+
+.experience-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3rem;
+  max-width: 1200px;
+  width: 100%;
+  position: relative;
+  z-index: 1; /* Coloca o texto sobre o overlay */
+}
+
+.experience-card-item {
+  background: transparent; /* Removemos o fundo chapado */
+  border: none;
+  padding: 5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centralização perfeita */
+  text-align: center;
+}
+
+/* step-number foi removido */
+
 .step-title {
-  font-size: 3.5rem;
-  margin-bottom: 1rem;
+  font-size: 3rem;
+  font-family: var(--font-serif);
+  color: #ffffff !important; /* Forçado para evitar qualquer override */
+  line-height: 1.1;
+  margin-bottom: 2rem;
+  text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.step-title::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.5);
+  margin-top: 2rem;
 }
 
 .step-desc {
-  font-size: 1.5rem;
-  color: var(--landing-text-light);
-  max-width: 500px;
-  line-height: 1.6;
+  font-size: 1.25rem;
+  line-height: 1.8;
+  color: #ffffff !important;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Sombra invisível no texto para garantir leitura na foto */
 }
 
-/* Giant Quotes */
 .quote-section {
   padding: 8rem var(--spacing-lg);
   text-align: center;
-  background-color: #fff;
-  border-top: 1px solid var(--landing-border);
-  border-bottom: 1px solid var(--landing-border);
 }
 
 .quote-text {
@@ -319,35 +405,50 @@
   margin-bottom: 1.5rem;
 }
 
-/* Image Break Section */
-.image-break {
-  height: 500px;
-  background-image: url('/images/coffee_silence.png');
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-}
-
-/* Target Audience */
+/* Target Audience (Manifesto) */
 .audience-section {
-  text-align: center;
-  padding: 8rem var(--spacing-lg);
+  padding: 12rem var(--spacing-lg);
   background-color: var(--landing-text);
   color: var(--landing-bg);
 }
 
-.audience-title {
+.audience-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: center;
+}
+
+.audience-lead h2 {
+  font-family: var(--font-serif);
+  font-size: 4.5rem;
+  font-style: italic;
   color: var(--landing-bg);
-  font-size: 3rem;
-  margin-bottom: 4rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0;
 }
 
 .audience-list {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  font-size: 1.5rem;
-  color: rgba(252, 251, 249, 0.8);
+}
+
+.audience-list p {
+  font-family: var(--font-family);
+  font-size: 1.4rem;
+  font-weight: 300; /* Tipografia bem leve */
+  color: rgba(250, 248, 246, 0.6); /* Cor sutil para não brigar com o título */
+  line-height: 1.5;
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.audience-list p:hover {
+  color: rgba(250, 248, 246, 1); /* Acende levemente ao passar o mouse */
 }
 
 /* Lead Capture */
@@ -422,24 +523,27 @@
 
 /* FAQ */
 .faq-section {
-  padding: 6rem var(--spacing-lg);
-  max-width: 800px;
+  padding: 8rem var(--spacing-lg);
+  max-width: 1200px;
   margin: 0 auto;
 }
 
 .faq-title {
-  font-size: 2.5rem;
-  margin-bottom: 3rem;
+  font-size: 3rem;
+  font-family: var(--font-serif);
+  margin-bottom: 4rem;
   text-align: center;
 }
 
-.faq-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+.faq-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
 }
 
 .faq-item {
+  display: flex;
+  flex-direction: column;
   border-bottom: 1px solid var(--landing-border);
   padding-bottom: 2rem;
 }
@@ -453,6 +557,33 @@
 .faq-answer {
   color: var(--landing-text-light);
   line-height: 1.7;
+  flex-grow: 1;
+}
+
+/* Alinhamento Perfeito usando Subgrid (Browsers Modernos) */
+@supports (grid-template-rows: subgrid) {
+  .faq-grid {
+    gap: 0 4rem;
+  }
+
+  .faq-item {
+    display: grid;
+    grid-template-rows: subgrid;
+    grid-row: span 2;
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 4rem;
+  }
+
+  .faq-question {
+    align-self: end;
+    margin-bottom: 1rem;
+  }
+
+  .faq-answer {
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--landing-border);
+  }
 }
 
 /* CTA Final */
@@ -476,25 +607,35 @@
 /* Footer */
 .landing-footer {
   text-align: center;
-  padding: 4rem var(--spacing-lg);
+  padding: 8rem var(--spacing-lg) 4rem;
   border-top: 1px solid var(--landing-border);
 }
 
-.footer-logo {
+.footer-signature {
   font-family: var(--font-serif);
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
+  font-size: 5rem;
+  color: var(--landing-text);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 4rem;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .footer-tagline {
   color: var(--landing-text-light);
-  margin-bottom: 2rem;
+  font-size: 1.2rem;
+  margin-bottom: 3rem;
 }
 
 .footer-links {
   display: flex;
   justify-content: center;
-  gap: 1.5rem;
+  gap: 2rem;
   margin-bottom: 3rem;
 }
 
@@ -537,6 +678,40 @@
     width: 90%;
     max-width: 360px;
   }
+  .tension-section {
+    padding: 6rem 1rem 4rem;
+  }
+  .tension-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  .tension-title {
+    font-size: 3.5rem;
+    white-space: normal; /* Quebra natural no celular */
+  }
+  .relief-section {
+    padding: 4rem 1rem 8rem;
+  }
+  .relief-statement {
+    font-size: 3rem;
+  }
+  .perceived-statement {
+    font-size: 2.5rem !important;
+    margin: 3rem 0 !important;
+  }
+  .audience-section {
+    padding: 4rem 1rem;
+  }
+  .audience-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .real-experience-section {
+    padding: 4rem var(--spacing-lg) 8rem;
+  }
+  .real-experience-title {
+    font-size: 2.5rem;
+  }
   .hero-title {
     font-size: 3rem;
   }
@@ -548,6 +723,28 @@
   }
   .audience-title {
     font-size: 2.5rem;
+  }
+  .experience-image-section {
+    height: auto;
+    padding: 6rem 1rem;
+    margin: 4rem 0;
+    background-attachment: scroll;
+    display: flex;
+  }
+  .experience-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  .experience-card-item {
+    width: 100%;
+    padding: 0;
+    background: transparent;
+  }
+  .experience-card-item .step-title {
+    color: #fff;
+  }
+  .experience-card-item .step-desc {
+    color: rgba(255, 255, 255, 0.9);
   }
   .audience-list {
     font-size: 1.2rem;
