@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { authService } from '../services/authService';
+import { AnalyticsService } from '../services/AnalyticsService';
+import { supabase } from '../lib/supabase';
 import './Auth.css';
 
 export const Signup: React.FC = () => {
@@ -14,7 +16,30 @@ export const Signup: React.FC = () => {
     setError('');
     setLoading(true);
     try {
-      await authService.signUp(email, password, fullName);
+      const data = await authService.signUp(email, password, fullName);
+      const user = data.user;
+      
+      if (user) {
+        const referralContext = AnalyticsService.getReferralContext();
+        if (referralContext) {
+          try {
+            await supabase.rpc('attribute_referral', { 
+              p_user_id: user.id, 
+              p_referral_code: referralContext.code 
+            });
+            await AnalyticsService.trackEvent('referral_signup', {
+              code: referralContext.code,
+              devotional_id: referralContext.devotional_id,
+              new_user_id: user.id
+            });
+          } catch (e) {
+            console.error('Error attributing referral', e);
+          } finally {
+            AnalyticsService.clearReferralContext();
+          }
+        }
+      }
+      
       window.location.href = '/app';
     } catch (err: any) {
       console.error(err);

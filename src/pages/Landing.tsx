@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import './Landing.css';
 import { PrincipleView } from '../components/PrincipleView';
 import { leadService } from '../services/leadService';
+import type { Devotional } from '../types/Devotional';
 
 function useIntersectionObserver() {
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -37,7 +38,7 @@ export function Landing() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const setRef = useIntersectionObserver();
 
-  const mockPrinciple = {
+  const demoPrinciple = {
     id: 9999,
     title: 'Você está brigando com a realidade?',
     principle: 'A mudança começa quando reconhecemos a realidade como ela é.',
@@ -98,8 +99,18 @@ export function Landing() {
         <div className="hero-visual reveal delay-200">
           <div className="hero-mockup-wrapper reveal delay-400">
             <PrincipleView 
-              principle={mockPrinciple} 
-              customAction={{ label: 'Experimentar esta reflexão →', onClick: startApp }} 
+              devotional={{
+                id: demoPrinciple.id.toString(),
+                title: demoPrinciple.title,
+                reflection: demoPrinciple.principle + "\n\n" + demoPrinciple.reflection,
+                practical_application: demoPrinciple.application,
+                categories: { name: demoPrinciple.category },
+                status: 'published'
+              } as unknown as Devotional}
+              customAction={{
+                label: 'Quero começar minha jornada',
+                onClick: startApp
+              }}
             />
           </div>
         </div>
@@ -219,7 +230,7 @@ export function Landing() {
               <p>Você não precisa contribuir para usar. O apoio é voluntário e não altera o acesso ao conteúdo ou às funcionalidades essenciais do 3 Minutes for Life.</p>
               <p>Se, em algum momento, você sentir que vale a pena ajudar, poderá fazer parte da sustentabilidade do projeto.</p>
               
-              <button className="btn-support" onClick={() => alert('Em breve!')}>
+              <button className="btn-support" onClick={() => window.location.href = '/missao'}>
                 Apoiar o projeto
               </button>
             </div>

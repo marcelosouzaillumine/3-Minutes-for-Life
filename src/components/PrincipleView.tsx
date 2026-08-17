@@ -1,34 +1,34 @@
-import type { Principle } from '../data/principles';
+import type { Devotional } from '../types/Devotional';
 import { JourneyService } from '../services/JourneyService';
 import { useState, useEffect } from 'react';
+import { ShareButton } from './ShareButton';
 
 interface PrincipleViewProps {
-  principle: Principle;
+  devotional: Devotional;
   onBack?: () => void;
   customAction?: { label: string; onClick: () => void };
 }
 
-export function PrincipleView({ principle, onBack, customAction }: PrincipleViewProps) {
+export function PrincipleView({ devotional, onBack, customAction }: PrincipleViewProps) {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    // Start progress
-    const today = new Date().toISOString().split('T')[0];
-    JourneyService.start(principle.id, today).catch(console.error);
+    // Start progress using canonical UUID directly
+    JourneyService.start(devotional.id).catch(console.error);
     
     // Check if saved
     JourneyService.listFavorites()
-      .then(ids => setSaved(ids.includes(principle.id)))
+      .then(ids => setSaved(ids.includes(devotional.id)))
       .catch(console.error);
-  }, [principle.id]);
+  }, [devotional.id]);
 
   const toggleSave = async () => {
     try {
       if (saved) {
-        await JourneyService.toggleFavorite(principle.id);
+        await JourneyService.toggleFavorite(devotional.id);
         setSaved(false);
       } else {
-        await JourneyService.toggleFavorite(principle.id);
+        await JourneyService.toggleFavorite(devotional.id);
         setSaved(true);
       }
     } catch (err) {
@@ -39,8 +39,7 @@ export function PrincipleView({ principle, onBack, customAction }: PrincipleView
 
   const markComplete = async () => {
     try {
-      const today = new Date().toISOString().split('T')[0];
-      await JourneyService.complete(principle.id, today);
+      await JourneyService.complete(devotional.id);
       alert('Concluído!');
     } catch (err) {
       console.error(err);
@@ -58,20 +57,21 @@ export function PrincipleView({ principle, onBack, customAction }: PrincipleView
         </button>
       )}
       
-      <span className="label">{principle.category}</span>
+      <span className="label">{devotional.categories?.name || 'Devocional'}</span>
       
-      <h1 className="principle-title">{principle.title}</h1>
-      <p className="principle-statement">{principle.principle}</p>
+      <h1 className="principle-title">{devotional.title}</h1>
+      <p className="principle-statement">{devotional.reflection.split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)[0]}</p>
       
-      {principle.audio && (
+      {devotional.audio_url && (
         <div style={{ marginBottom: '2rem' }}>
-          <audio controls src={principle.audio.url} style={{ width: '100%', height: '40px' }} />
+          <audio controls src={devotional.audio_url} style={{ width: '100%', height: '40px' }} />
         </div>
       )}
 
       <div className="principle-reflection">
-        {principle.reflection
-          .split(/\n\s*\n/)
+        {devotional.reflection
+          .split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)
+          .slice(1) // Skip first block assuming it's the statement
           .map(paragraph => paragraph.trim())
           .filter(Boolean)
           .map((paragraph, index) => (
@@ -82,54 +82,64 @@ export function PrincipleView({ principle, onBack, customAction }: PrincipleView
       <div className="application-section">
         <span className="label">Para praticar hoje</span>
         <div className="application-text">
-          {principle.application
-            .split(/\n\s*\n/)
-            .map(paragraph => paragraph.trim())
-            .filter(Boolean)
-            .map((paragraph, index) => (
-              <p key={index} style={{ marginBottom: '1rem' }}>{paragraph}</p>
-            ))}
+          {devotional.practical_application ? (
+            devotional.practical_application
+              .split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)
+              .map(paragraph => paragraph.trim())
+              .filter(Boolean)
+              .map((paragraph, index) => (
+                <p key={index} style={{ marginBottom: '1rem' }}>{paragraph}</p>
+              ))
+          ) : (
+            <p style={{ marginBottom: '1rem', fontStyle: 'italic', opacity: 0.7 }}>Aplicação em elaboração.</p>
+          )}
         </div>
 
-        {principle.prayer && (
-          <div style={{ marginTop: '2rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
-            <span className="label">Nossa oração</span>
-            <p style={{ fontStyle: 'italic', lineHeight: '1.7', color: 'var(--color-text-light)' }}>
-              "{principle.prayer}"
-            </p>
-          </div>
-        )}
+        {/* Prayer logic removed as it's not in the canonical schema yet */}
 
-        {principle.reference && (
+        {devotional.scripture_reference && (
           <div style={{ marginTop: '2rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
             <span className="label">Referência bíblica</span>
             <p style={{ fontWeight: 500 }}>
-              {principle.reference.citation}
-              {principle.reference.translation && ` — ${principle.reference.translation}`}
+              {devotional.scripture_reference}
             </p>
-            {principle.reference.text && (
+            {devotional.scripture_text && (
               <p style={{ marginTop: '0.5rem', lineHeight: '1.6', color: 'var(--color-text-light)', fontSize: '0.95rem' }}>
-                "{principle.reference.text}"
+                "{devotional.scripture_text}"
               </p>
             )}
           </div>
         )}
         
-        <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+        <div className="action-bar">
           {customAction ? (
-            <button className="btn-primary" onClick={customAction.onClick}>
-              {customAction.label}
+            <button className="action-btn" onClick={customAction.onClick}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 8v8M8 12h8" />
+              </svg>
+              <span className="action-label">{customAction.label}</span>
             </button>
           ) : (
             <>
-              <button className="btn-primary" onClick={toggleSave}>
-                {saved ? 'Remover dos salvos' : 'Salvar princípio'}
+              <button className={`action-btn ${saved ? 'active' : ''}`} onClick={toggleSave}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+                <span className="action-label">{saved ? 'Salvo' : 'Salvar'}</span>
               </button>
-              <button className="btn-secondary" onClick={markComplete}>
-                Concluir reflexão
+
+              <button className="action-btn" onClick={markComplete}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+                <span className="action-label">Concluir</span>
               </button>
             </>
           )}
+
+          <ShareButton devotional={devotional} asIcon={true} />
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Home } from './pages/Home';
 import { Explore } from './pages/Explore';
 import { Favorites } from './pages/Favorites';
@@ -7,7 +7,10 @@ import { BottomNav } from './components/BottomNav';
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
+import { SharedDevotional } from './pages/SharedDevotional';
+import { Mission } from './pages/Mission';
 import { useAuth } from './context/AuthContext';
+import { AnalyticsService } from './services/AnalyticsService';
 
 type Tab = 'home' | 'explore' | 'favorites' | 'about';
 
@@ -17,7 +20,22 @@ function App() {
   const isAppPath = pathname === '/app';
   const isLoginPath = pathname === '/login';
   const isSignupPath = pathname === '/signup';
+  const isMissionPath = pathname === '/missao';
+  const isReferralPath = pathname.startsWith('/r/');
   const [currentTab, setCurrentTab] = useState<Tab>('home');
+
+  useEffect(() => {
+    if (isReferralPath) {
+      const code = pathname.replace('/r/', '').split('?')[0].replace('/', '');
+      const searchParams = new URLSearchParams(window.location.search);
+      const devotionalId = searchParams.get('d');
+
+      if (code && devotionalId) {
+        AnalyticsService.saveReferralContext(code, devotionalId);
+        AnalyticsService.trackEvent('referral_click', { code, devotional_id: devotionalId });
+      }
+    }
+  }, [isReferralPath, pathname]);
 
   if (loading) {
     return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Carregando...</div>;
@@ -37,6 +55,8 @@ function App() {
 
   if (isLoginPath) return <Login />;
   if (isSignupPath) return <Signup />;
+  if (isMissionPath) return <Mission />;
+  if (isReferralPath) return <SharedDevotional />;
 
   if (!isAppPath) {
     return <Landing />;
