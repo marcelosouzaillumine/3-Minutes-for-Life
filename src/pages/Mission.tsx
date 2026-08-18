@@ -39,7 +39,7 @@ function useIntersectionObserver() {
 export function Mission() {
   const setRef = useIntersectionObserver();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalInitialTier, setModalInitialTier] = useState<ContributionTier>('parceiro');
+  const [modalInitialTier, setModalInitialTier] = useState<ContributionTier>('apoio');
   const [modalInitialPeriodicity, setModalInitialPeriodicity] = useState<Periodicity>('mensal');
   const [currentUsers, setCurrentUsers] = useState(0);
 
@@ -47,7 +47,7 @@ export function Mission() {
     MissionService.getDailyImpact().then(count => setCurrentUsers(count));
   }, []);
 
-  const openModal = (tier: ContributionTier = 'parceiro', periodicity: Periodicity = 'mensal') => {
+  const openModal = (tier: ContributionTier = 'apoio', periodicity: Periodicity = 'mensal') => {
     setModalInitialTier(tier);
     setModalInitialPeriodicity(periodicity);
     setIsModalOpen(true);
