@@ -89,30 +89,11 @@ export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
               gap: '24px'
             }}
           >
-            {/* Simple Logo Circle Mock */}
-            <div
-              style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '32px',
-                backgroundColor: '#000000',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <span style={{ color: '#ffffff', fontWeight: 'bold', fontSize: '28px' }}>3</span>
-            </div>
-            <span
-              style={{
-                fontSize: '32px',
-                fontWeight: 600,
-                letterSpacing: '-0.03em',
-                color: '#1a1a1a'
-              }}
-            >
-              3 minutos para a vida
-            </span>
+            <img 
+              src="/logo.png" 
+              alt="3 Minutos para a Vida" 
+              style={{ height: '64px', objectFit: 'contain' }} 
+            />
           </div>
         </div>
       </div>

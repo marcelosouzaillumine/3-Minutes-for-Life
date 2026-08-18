@@ -11,6 +11,7 @@ import { SharedDevotional } from './pages/SharedDevotional';
 import { Mission } from './pages/Mission';
 import { useAuth } from './context/AuthContext';
 import { AnalyticsService } from './services/AnalyticsService';
+import { AdminLayout } from './layouts/AdminLayout';
 
 type Tab = 'home' | 'explore' | 'favorites' | 'profile';
 
@@ -57,6 +58,12 @@ function App() {
   if (isSignupPath) return <Signup />;
   if (isMissionPath) return <Mission />;
   if (isReferralPath) return <SharedDevotional />;
+
+  const isAdminPath = pathname.startsWith('/admin');
+
+  if (isAdminPath) {
+    return <AdminLayout />;
+  }
 
   if (!isAppPath) {
     return <Landing />;

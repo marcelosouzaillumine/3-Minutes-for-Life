@@ -68,6 +68,13 @@
   z-index: 1000;
 }
 
+.landing-logo-img {
+  height: 50px;
+  width: auto;
+  z-index: 1000;
+  position: relative;
+}
+
 .landing-nav {
   display: flex;
   gap: var(--spacing-lg);

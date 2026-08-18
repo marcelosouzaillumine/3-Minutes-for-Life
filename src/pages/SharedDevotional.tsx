@@ -66,7 +66,7 @@ export function SharedDevotional() {
   return (
     <div className="shared-devotional-page">
       <header className="landing-header" style={{ position: 'relative', background: 'transparent' }}>
-        <div className="landing-logo">3 Minutes for Life</div>
+        <img src="/logo.png" alt="3 Minutes for Life" className="landing-logo-img" style={{ marginTop: '1rem' }} />
       </header>
 
       <div style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem 1rem' }}>

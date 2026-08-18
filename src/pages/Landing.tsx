@@ -75,7 +75,7 @@ export function Landing() {
     <div className="landing-page">
       {/* Header */}
       <header className={`landing-header ${isMenuOpen ? 'menu-open' : ''}`}>
-        <div className="landing-logo">3 Minutes for Life</div>
+        <img src="/logo.png" alt="3 Minutes for Life" className="landing-logo-img" />
         
         <button 
           className="mobile-menu-btn" 

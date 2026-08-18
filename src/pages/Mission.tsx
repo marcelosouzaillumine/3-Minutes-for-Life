@@ -42,6 +42,11 @@ export function Mission() {
   const [modalInitialTier, setModalInitialTier] = useState<ContributionTier>('apoio');
   const [modalInitialPeriodicity, setModalInitialPeriodicity] = useState<Periodicity>('mensal');
   const [currentUsers, setCurrentUsers] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const startApp = () => {
+    window.location.href = '/signup';
+  };
 
   useEffect(() => {
     MissionService.getDailyImpact().then(count => setCurrentUsers(count));
@@ -65,7 +70,7 @@ export function Mission() {
     const checkoutUrl = asaasLinks[linkKey];
 
     if (checkoutUrl) {
-      window.location.href = checkoutUrl;
+      window.open(checkoutUrl, '_blank');
     } else {
       openModal(tier as ContributionTier, periodicity as Periodicity); // fallback to modal if link missing somehow
     }
@@ -73,7 +78,37 @@ export function Mission() {
 
   return (
     <div className="mission-page">
-      
+      {/* Header */}
+      <header className={`landing-header ${isMenuOpen ? 'menu-open' : ''}`} style={{ backgroundColor: 'var(--landing-bg)' }}>
+        <a href="/">
+          <img src="/logo.png" alt="3 Minutes for Life" className="landing-logo-img" />
+        </a>
+        
+        <button 
+          className="mobile-menu-btn" 
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
+        >
+          {isMenuOpen ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M18 6L6 18M6 6l12 12"></path>
+            </svg>
+          ) : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 12h16M4 6h16M4 18h16"></path>
+            </svg>
+          )}
+        </button>
+
+        <nav className={`landing-nav ${isMenuOpen ? 'open' : ''}`}>
+          <a href="/#como-funciona" onClick={() => setIsMenuOpen(false)}>Como funciona</a>
+          <a href="/#sobre" onClick={() => setIsMenuOpen(false)}>Sobre</a>
+          <button className="btn-start-nav" onClick={() => { setIsMenuOpen(false); startApp(); }}>
+            Começar
+          </button>
+        </nav>
+      </header>
+
       {/* 1. HERO */}
       <section className="mission-hero">
         <div className="mission-hero-text reveal" ref={setRef}>
