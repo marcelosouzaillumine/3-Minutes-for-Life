@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase';
 import type { Devotional } from '../types/Devotional';
 import { principles } from '../data/principles';
+import { getTodayInSaoPaulo } from '../utils/date';
 
 // --- TRANSITIONAL FALLBACK ADAPTER --- //
 // Isolates legacy data from the canonical flow
@@ -24,22 +25,6 @@ function getTransitionalFallback(legacyId: number): Devotional {
 export const DevotionalService = {
 
   async getDailyDevotional(dateStr: string): Promise<Devotional> {
-    // 1. LEGACY DETERMINISTIC RULE (To be replaced by publication_date)
-    const date = new Date(dateStr);
-    // Use UTC for consistent day calculations
-    const start = new Date(Date.UTC(date.getUTCFullYear(), 0, 0));
-    const diff = date.getTime() - start.getTime();
-    const oneDay = 1000 * 60 * 60 * 24;
-    const dayOfYear = Math.floor(diff / oneDay);
-    const totalLegacyPrinciples = 4; // Constant from MVP (only 4 seeded in DB currently)
-    
-    // In principles.ts, index is (dayOfYear % 31). So legacy_id is index + 1 (if IDs are 1-based)
-    // Wait, let's replicate the EXACT logic from `daily.ts`:
-    // const index = dayOfYear % principles.length; return principles[index];
-    const index = dayOfYear % totalLegacyPrinciples;
-    const legacyId = index + 1; // Assuming IDs are 1 to 31
-
-    // 2. CANONICAL FETCH
     try {
       const { data, error } = await supabase
         .from('devotionals')
@@ -57,29 +42,29 @@ export const DevotionalService = {
             name
           )
         `)
-        .eq('legacy_id', legacyId)
+        .eq('publication_date', dateStr)
         .maybeSingle() as any;
 
       if (error) {
-        throw error; // Do not mask real DB errors
+        throw error;
       }
       
       if (!data) {
-        throw new Error(`Content not found in Supabase for deterministic legacy_id ${legacyId}`);
+        throw new Error(`Content not found in Supabase for publication_date ${dateStr}`);
       }
 
       const p = principles.find(p => p.title === data.title);
       data.share_quote = p?.principle || data.title;
       return data as Devotional;
     } catch (err) {
-      // 3. TRANSITIONAL FALLBACK
-      // Only runs if the canonical path strictly fails (e.g., offline)
       console.error("Canonical fetch failed:", err);
-      return getTransitionalFallback(legacyId);
+      return getTransitionalFallback(1); // Default fallback if offline
     }
   },
 
   async getDevotional(id: string): Promise<Devotional> {
+    const today = getTodayInSaoPaulo();
+    
     const { data, error } = await supabase
       .from('devotionals')
       .select(`
@@ -97,10 +82,11 @@ export const DevotionalService = {
         )
       `)
       .eq('id', id)
+      .lte('publication_date', today)
       .single() as any;
 
     if (error) {throw error;}
-    if (!data) throw new Error("Devotional not found");
+    if (!data) throw new Error("Devotional not found or not published yet");
 
     const p = principles.find(p => p.title === data.title);
     data.share_quote = p?.principle || data.title;
@@ -108,6 +94,8 @@ export const DevotionalService = {
   },
 
   async getDevotionals(): Promise<Devotional[]> {
+    const today = getTodayInSaoPaulo();
+    
     const { data, error } = await supabase
       .from('devotionals')
       .select(`
@@ -124,13 +112,11 @@ export const DevotionalService = {
           name
         )
       `)
-      // .eq('status', 'published') // Optional: if we implement status
-      .order('legacy_id', { ascending: true }) as any; // Ordering by legacy for consistency during transition
+      .lte('publication_date', today)
+      .order('publication_date', { ascending: true }) as any;
 
     if (error) {throw error;}
     
-    // In a real disaster where `data` is totally empty, we could map principles.ts,
-    // but Explorer usually handles empty lists gracefully.
     return (data as any[]).map(d => {
       const p = principles.find(p => p.title === d.title);
       return { ...d, share_quote: p?.principle || d.title } as Devotional;

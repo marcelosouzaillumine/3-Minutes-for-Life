@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { About } from './About';
+import { TestimonialSection } from '../components/TestimonialSection';
+import { TestimonialList } from '../components/TestimonialList';
 import './Profile.css';
 
 export function Profile() {
@@ -92,6 +94,15 @@ export function Profile() {
             <div className="toggle-switch"></div>
           </div>
         </div>
+      </div>
+
+      <div className="profile-section">
+        <h3 className="section-title">Sua História</h3>
+        <p style={{ color: 'var(--color-text-light)', fontSize: '0.9rem', marginBottom: '-1.5rem', lineHeight: 1.5 }}>
+          Um espaço privado para registrar o que as reflexões têm despertado em você.
+        </p>
+        <TestimonialSection />
+        <TestimonialList />
       </div>
 
       <div className="profile-section">

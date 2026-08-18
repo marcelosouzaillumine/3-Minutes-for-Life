@@ -1,8 +1,10 @@
 import { DevotionalService } from '../services/DevotionalService';
 import { JourneyService } from '../services/JourneyService';
+import { getTodayInSaoPaulo } from '../utils/date';
 import { useState, useEffect } from 'react';
 import type { Devotional } from '../types/Devotional';
 import { ShareButton } from '../components/ShareButton';
+import { TestimonialSection } from '../components/TestimonialSection';
 
 interface HomeProps {
   onExplore: () => void;
@@ -16,8 +18,8 @@ export function Home({ onExplore }: HomeProps) {
 
   useEffect(() => {
     // 1. Fetch Canonical Content
-    // To deterministically fetch today's devotional, we pass the current date.
-    const todayStr = new Date().toISOString().split('T')[0];
+    // To deterministically fetch today's devotional, we pass the current date in Sao Paulo timezone.
+    const todayStr = getTodayInSaoPaulo();
     
     DevotionalService.getDailyDevotional(todayStr)
       .then(canonicalData => {
@@ -157,6 +159,8 @@ export function Home({ onExplore }: HomeProps) {
 
           <ShareButton devotional={devotional} asIcon={true} />
         </div>
+
+        <TestimonialSection devotionalId={devotional.id} />
         
         <div style={{ marginTop: '1rem' }}>
           <button className="btn-secondary" onClick={onExplore}>

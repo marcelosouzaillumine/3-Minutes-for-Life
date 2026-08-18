@@ -27,7 +27,7 @@ export function Explore() {
   if (loading) {
     return (
       <div>
-        <h2 style={{ marginBottom: '1.5rem', fontWeight: 500 }}>Explorar</h2>
+        <h2 style={{ marginBottom: '1.5rem', fontWeight: 500 }}>Biblioteca</h2>
         <span className="label" style={{ opacity: 0.5 }}>Carregando biblioteca...</span>
       </div>
     );
@@ -36,7 +36,7 @@ export function Explore() {
   if (error) {
     return (
       <div>
-        <h2 style={{ marginBottom: '1.5rem', fontWeight: 500 }}>Explorar</h2>
+        <h2 style={{ marginBottom: '1.5rem', fontWeight: 500 }}>Biblioteca</h2>
         <p>Não foi possível carregar a biblioteca de devocionais.</p>
       </div>
     );
@@ -80,7 +80,7 @@ export function Explore() {
 
   return (
     <div>
-      <h2 style={{ marginBottom: '1.5rem', fontWeight: 500 }}>Explorar</h2>
+      <h2 style={{ marginBottom: '1.5rem', fontWeight: 500 }}>Biblioteca</h2>
       <ul className="category-list">
         {categories.map(category => {
           const count = devotionals.filter(d => d.categories?.name === category).length;
