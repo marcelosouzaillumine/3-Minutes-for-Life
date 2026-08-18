@@ -90,10 +90,15 @@ export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
               gap: '24px'
             }}
           >
-            <img 
-              src={logoBase64} 
-              alt="3 Minutos para a Vida" 
-              style={{ height: '64px', objectFit: 'contain' }} 
+            <div 
+              style={{ 
+                height: '64px', 
+                width: '300px', // Adjusting width to be safe for the logo proportions
+                backgroundImage: `url(${logoBase64})`,
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'left center'
+              }} 
             />
           </div>
         </div>
