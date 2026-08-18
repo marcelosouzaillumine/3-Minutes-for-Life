@@ -1,0 +1,20 @@
+{
+  "continue": "Continue",
+  "cancel": "Cancel",
+  "save": "Save",
+  "share": "Share",
+  "loading": "Loading...",
+  "error": "Error",
+  "success": "Success",
+  "back": "Back",
+  "categories": {
+    "Vida": "Life",
+    "Relacionamentos": "Relationships",
+    "Decisões": "Decisions",
+    "Trabalho": "Work",
+    "Dinheiro": "Money",
+    "Liderança": "Leadership",
+    "Propósito": "Purpose",
+    "Fé": "Faith"
+  }
+}

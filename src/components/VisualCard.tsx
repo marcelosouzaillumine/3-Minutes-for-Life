@@ -87,19 +87,40 @@ export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
               marginTop: 'auto',
               display: 'flex',
               alignItems: 'center',
-              gap: '24px'
+              justifyContent: 'space-between',
+              width: '100%'
             }}
           >
             <div 
               style={{ 
-                height: '96px', 
-                width: '350px', 
+                height: '144px', 
+                width: '400px', 
                 backgroundImage: `url(${logoBase64})`,
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'left center'
               }} 
             />
+            
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-end',
+                gap: '8px',
+                textAlign: 'right'
+              }}
+            >
+              <span style={{ fontSize: '24px', fontWeight: 600, color: '#1a1a1a', letterSpacing: '-0.02em', marginBottom: '4px' }}>
+                Pare. Reflita. Pratique.
+              </span>
+              <span style={{ fontSize: '20px', color: '#666666', fontWeight: 500 }}>
+                3minutosforlife.com
+              </span>
+              <span style={{ fontSize: '20px', color: '#666666', fontWeight: 500 }}>
+                @3minutesforlife
+              </span>
+            </div>
           </div>
         </div>
       </div>

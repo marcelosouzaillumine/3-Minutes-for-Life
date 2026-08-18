@@ -1,0 +1,20 @@
+{
+  "continue": "Continuar",
+  "cancel": "Cancelar",
+  "save": "Salvar",
+  "share": "Compartilhar",
+  "loading": "Carregando...",
+  "error": "Erro",
+  "success": "Sucesso",
+  "back": "Voltar",
+  "categories": {
+    "Vida": "Vida",
+    "Relacionamentos": "Relacionamentos",
+    "Decisões": "Decisões",
+    "Trabalho": "Trabalho",
+    "Dinheiro": "Dinheiro",
+    "Liderança": "Liderança",
+    "Propósito": "Propósito",
+    "Fé": "Fé"
+  }
+}
