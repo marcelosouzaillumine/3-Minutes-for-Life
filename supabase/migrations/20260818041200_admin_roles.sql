@@ -23,6 +23,10 @@ CREATE UNIQUE INDEX idx_user_roles_active ON public.user_roles (user_id, role) W
 -- 3. Enable RLS
 ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
 
+-- Grants
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.user_roles TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.user_roles TO service_role;
+
 -- 4. Create helper function for RLS (SECURITY DEFINER with strict search_path)
 CREATE OR REPLACE FUNCTION public.has_role(required_roles public.app_role[])
 RETURNS boolean 

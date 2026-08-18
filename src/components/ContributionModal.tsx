@@ -32,10 +32,14 @@ export function ContributionModal({ isOpen, onClose, initialTier = 'apoio', init
     };
 
     const linkKey = `${tier}_${periodicity}`;
-    const checkoutUrl = asaasLinks[linkKey];
+    let checkoutUrl = asaasLinks[linkKey];
 
     if (checkoutUrl) {
-      window.location.href = checkoutUrl;
+      if (tier === 'livre' && customValue) {
+        checkoutUrl = `${checkoutUrl}?value=${customValue}`;
+      }
+      window.open(checkoutUrl, '_blank');
+      setIsSubmitting(false);
     } else {
       alert('Link de pagamento não configurado para esta opção.');
       setIsSubmitting(false);
