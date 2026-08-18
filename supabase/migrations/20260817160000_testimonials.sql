@@ -1,3 +1,6 @@
+-- Enable moddatetime extension
+CREATE EXTENSION IF NOT EXISTS moddatetime;
+
 -- Create enum for testimonial status
 CREATE TYPE testimonial_status AS ENUM ('pending', 'reviewed', 'archived');
 

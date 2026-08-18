@@ -732,9 +732,9 @@
   }
   .hero-mockup-wrapper {
     transform: none;
-    width: 92%;
-    max-width: 400px;
-    height: 480px;
+    width: 90%;
+    max-width: 380px;
+    height: 400px;
     border-radius: 16px;
   }
   .tension-section {
