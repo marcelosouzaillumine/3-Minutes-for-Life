@@ -2,13 +2,17 @@ import { supabase } from '../lib/supabase';
 import type { Session } from '@supabase/supabase-js';
 
 export const authService = {
-  async signUp(email: string, password: string, fullName: string) {
+  async signUp(email: string, password: string, fullName: string, phone?: string, country?: string, state?: string, city?: string) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           full_name: fullName,
+          phone: phone || null,
+          country: country || null,
+          state: state || null,
+          city: city || null,
         }
       }
     });
