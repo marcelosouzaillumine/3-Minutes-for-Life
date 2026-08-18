@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../pages/Mission.css';
 
-export type ContributionTier = 'semente' | 'parceiro' | 'mantenedor' | 'livre';
+export type ContributionTier = 'apoio' | 'livre';
 export type Periodicity = 'mensal' | 'anual' | 'unica';
 
 interface ContributionModalProps {
@@ -11,7 +11,7 @@ interface ContributionModalProps {
   initialPeriodicity?: Periodicity;
 }
 
-export function ContributionModal({ isOpen, onClose, initialTier = 'parceiro', initialPeriodicity = 'mensal' }: ContributionModalProps) {
+export function ContributionModal({ isOpen, onClose, initialTier = 'apoio', initialPeriodicity = 'mensal' }: ContributionModalProps) {
   const [tier, setTier] = useState<ContributionTier>(initialTier);
   const [periodicity, setPeriodicity] = useState<Periodicity>(initialPeriodicity);
   const [customValue, setCustomValue] = useState<string>('');
@@ -25,12 +25,8 @@ export function ContributionModal({ isOpen, onClose, initialTier = 'parceiro', i
     
     // Mapeamento dos links de pagamento do Asaas
     const asaasLinks: Record<string, string> = {
-      'semente_mensal': 'https://www.asaas.com/c/p6w7aqj3q73z0s6p',
-      'semente_anual': 'https://www.asaas.com/c/ixokaznn11xejuir',
-      'parceiro_mensal': 'https://www.asaas.com/c/1v9p290p8ahpwo6j',
-      'parceiro_anual': 'https://www.asaas.com/c/xfxu2px60t2dba76',
-      'mantenedor_mensal': 'https://www.asaas.com/c/pp99zqoplzq37tha',
-      'mantenedor_anual': 'https://www.asaas.com/c/r92unbxashnv547o',
+      'apoio_mensal': 'https://www.asaas.com/c/p6w7aqj3q73z0s6p',
+      'apoio_anual': 'https://www.asaas.com/c/ixokaznn11xejuir',
       'livre_unica': 'https://www.asaas.com/c/cfo4mysapw0wlk4i',
       'livre_mensal': 'https://www.asaas.com/c/vye9xaj09lcim8x7'
     };
@@ -60,10 +56,13 @@ export function ContributionModal({ isOpen, onClose, initialTier = 'parceiro', i
           
           <div className="form-group">
             <label>Tipo de Contribuição</label>
-            <select value={tier} onChange={e => setTier(e.target.value as ContributionTier)}>
-              <option value="semente">Semente (R$ 9,90/mês)</option>
-              <option value="parceiro">Parceiro (R$ 19,90/mês)</option>
-              <option value="mantenedor">Mantenedor (R$ 29,90/mês)</option>
+            <select value={tier} onChange={e => {
+              const newTier = e.target.value as ContributionTier;
+              setTier(newTier);
+              if (newTier === 'apoio' && periodicity === 'unica') setPeriodicity('mensal');
+              if (newTier === 'livre' && periodicity === 'anual') setPeriodicity('mensal');
+            }}>
+              <option value="apoio">Apoio (R$ 9,90/mês ou R$ 59,90/ano)</option>
               <option value="livre">Valor Livre</option>
             </select>
           </div>
@@ -71,10 +70,10 @@ export function ContributionModal({ isOpen, onClose, initialTier = 'parceiro', i
           <div className="form-group">
             <label>Periodicidade</label>
             <select value={periodicity} onChange={e => setPeriodicity(e.target.value as Periodicity)}>
-              {tier !== 'livre' && (
+              {tier === 'apoio' && (
                 <>
-                  <option value="mensal">Mensal</option>
-                  <option value="anual">Anual</option>
+                  <option value="mensal">Mensal (R$ 9,90)</option>
+                  <option value="anual">Anual (R$ 59,90)</option>
                 </>
               )}
               {tier === 'livre' && (
