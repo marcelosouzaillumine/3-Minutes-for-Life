@@ -1,4 +1,5 @@
 import { forwardRef } from 'react';
+import { logoBase64 } from '../constants/logoBase64';
 
 interface VisualCardProps {
   title: string;
@@ -90,7 +91,7 @@ export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
             }}
           >
             <img 
-              src="/logo.png" 
+              src={logoBase64} 
               alt="3 Minutos para a Vida" 
               style={{ height: '64px', objectFit: 'contain' }} 
             />

@@ -48,10 +48,8 @@ export const MissionService = {
 
   async getDailyImpact(): Promise<number> {
     try {
-      // Tenta buscar o número real de usuários na tabela profiles
-      const { count, error } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
+      // Chama a função RPC que ignora o RLS para obter a contagem total
+      const { data: count, error } = await supabase.rpc('get_total_profiles_count');
       
       if (error) {
         console.error('Erro ao buscar total de usuários:', error);
