@@ -92,8 +92,8 @@ export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
           >
             <div 
               style={{ 
-                height: '64px', 
-                width: '300px', // Adjusting width to be safe for the logo proportions
+                height: '96px', 
+                width: '350px', 
                 backgroundImage: `url(${logoBase64})`,
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
