@@ -29,6 +29,17 @@ export const authService = {
     return data;
   },
 
+  async signInWithOAuth(provider: 'google' | 'apple') {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: window.location.origin + '/app'
+      }
+    });
+    if (error) throw error;
+    return data;
+  },
+
   async signOut() {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;

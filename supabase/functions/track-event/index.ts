@@ -8,12 +8,23 @@ const corsHeaders = {
 }
 
 const ALLOWED_EVENTS = [
+  // Legacy events
   'share_initiated',
   'referral_click',
   'referral_signup',
   'daily_return',
   'shared_devotional_viewed',
-  'referred_user_shared'
+  'referred_user_shared',
+  // New Event Taxonomy
+  'devotional_opened',
+  'content_shared',
+  'testimonial_submitted',
+  'testimonial_published',
+  'testimonial_responded',
+  'notification_sent',
+  'notification_delivered',
+  'notification_read',
+  'user_reactivated'
 ];
 
 serve(async (req) => {
@@ -30,10 +41,22 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     const payload = await req.json()
-    const { event_name, anonymous_id, metadata } = payload
+    const { 
+      event_name, // Legacy
+      event_type, // New
+      content_id,
+      entity_type,
+      entity_id,
+      channel,
+      anonymous_id,
+      idempotency_key,
+      metadata 
+    } = payload
 
-    if (!event_name || !ALLOWED_EVENTS.includes(event_name)) {
-      return new Response(JSON.stringify({ error: 'Invalid or missing event_name' }), {
+    const type = event_type || event_name;
+
+    if (!type || !ALLOWED_EVENTS.includes(type)) {
+      return new Response(JSON.stringify({ error: 'Invalid or missing event type' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
@@ -61,18 +84,21 @@ serve(async (req) => {
       }
     }
 
-    // Insert the event
-    const { error: insertError } = await supabase
-      .from('app_events')
-      .insert({
-        event_name,
-        user_id,
-        anonymous_id: anonymous_id || null,
-        metadata: metadata || {}
-      })
+    // Insert the event using the new RPC helper
+    const { error: insertError } = await supabase.rpc('track_analytic_event', {
+      p_event_type: type,
+      p_user_id: user_id,
+      p_content_id: content_id || null,
+      p_entity_type: entity_type || null,
+      p_entity_id: entity_id || null,
+      p_channel: channel || null,
+      p_metadata: metadata || {},
+      p_idempotency_key: idempotency_key || null,
+      p_anonymous_id: anonymous_id || null
+    })
 
     if (insertError) {
-      console.error('Error inserting event:', insertError)
+      console.error('Error inserting event via RPC:', insertError)
       throw insertError
     }
 
