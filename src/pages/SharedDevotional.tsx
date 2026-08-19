@@ -89,8 +89,9 @@ export function SharedDevotional() {
           customAction={{
             variant: 'shared',
             text: "Que estes três minutos não terminem aqui.",
-            subtext: "Continue amanhã com uma nova reflexão.",
+            subtext: "Amanhã, uma nova reflexão espera por você.",
             label: "Quero continuar",
+            note: "Gratuito, sempre.",
             onClick: handleSignupClick
           }}
         />

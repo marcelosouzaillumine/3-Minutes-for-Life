@@ -16,6 +16,7 @@ interface PrincipleViewProps {
     variant?: 'shared';
     text?: string;
     subtext?: string;
+    note?: string;
   };
 }
 
@@ -296,6 +297,11 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
             >
               {customAction.label}
             </button>
+            {customAction.note && (
+              <p style={{ fontSize: '0.9rem', color: 'var(--color-text-light)', marginTop: '-0.5rem' }}>
+                {customAction.note}
+              </p>
+            )}
           </div>
         )}
 
