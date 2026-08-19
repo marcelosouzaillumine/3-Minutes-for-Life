@@ -168,17 +168,8 @@ export function Mission() {
              <h2 className="tension-title">{t('tension.title')}</h2>
            </div>
            <div className="tension-right">
-             <p>{t('tension.p1')}</p>
-             <p>{t('tension.p2')}</p>
-             <p>{t('tension.p3')}</p>
-             <p>{t('tension.p4')}</p>
-             <p>{t('tension.p5')}</p>
-             <p>{t('tension.p6')}</p>
+             <p style={{ fontSize: '1.25rem', lineHeight: '1.8' }}>{t('tension.p1')}</p>
            </div>
-         </div>
-         <div className="tension-conclusion">
-            <p>{t('tension.conclusion1')}</p>
-            <p className="highlight">{t('tension.conclusion2')}</p>
          </div>
       </section>
 

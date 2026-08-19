@@ -22,14 +22,7 @@
   },
   "tension": {
     "title": "E se esses três minutos mudassem alguma coisa?",
-    "p1": "Talvez alguém escolha ouvir em vez de responder.",
-    "p2": "Talvez alguém volte para casa diferente.",
-    "p3": "Talvez uma conversa aconteça.",
-    "p4": "Talvez uma decisão seja tomada com mais sabedoria.",
-    "p5": "Talvez alguém encontre coragem para continuar.",
-    "p6": "Talvez alguém perceba que precisa mudar.",
-    "conclusion1": "Não sabemos qual vida será alcançada.",
-    "conclusion2": "Mas sabemos que cada vida importa."
+    "p1": "Uma escolha pode mudar uma conversa. Uma conversa pode influenciar uma decisão. E uma decisão pode mudar o rumo de uma história."
   },
   "minimal": {
     "id": "Uma vida de cada vez.",
