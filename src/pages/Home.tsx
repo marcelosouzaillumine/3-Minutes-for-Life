@@ -208,18 +208,18 @@ export function Home({ onExplore }: HomeProps) {
           </div>
         )}
         
-        {/* O que ficou comigo - Secao de Reflexao Pessoal */}
+        {/* Minha reflexao - Secao de Reflexao Pessoal */}
         <div style={{ marginTop: '2.5rem', marginBottom: '2.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '2rem' }}>
-          <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: 600 }}>O que ficou comigo</h3>
+          <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: 600 }}>Minha reflexão</h3>
           <p style={{ fontSize: '0.95rem', color: 'var(--color-text-light)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-            Alguma parte dessa reflexão ficou com você? Registre aqui. Este espaço é só seu.
+            O que essa reflexão despertou em você?
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <textarea
               value={reflectionContent}
               onChange={(e) => setReflectionContent(e.target.value)}
-              placeholder="Escreva o que essa reflexão despertou em você..."
+              placeholder="Escreva aqui o que você gostaria de guardar deste momento."
               style={{
                 width: '100%',
                 minHeight: '120px',
