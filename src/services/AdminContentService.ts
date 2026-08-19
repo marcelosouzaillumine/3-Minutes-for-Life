@@ -69,7 +69,7 @@ export const AdminContentService = {
           prayer: sanitizeHtml(trans.prayer || ''),
           status: newDevotional.status || 'draft'
         };
-      }).filter(Boolean);
+      }).filter(Boolean) as any[];
 
       if (translationPayloads.length > 0) {
         const { error: transError } = await supabase
@@ -114,7 +114,7 @@ export const AdminContentService = {
           prayer: sanitizeHtml(trans.prayer || ''),
           status: updatedDevotional.status || 'draft'
         };
-      }).filter(Boolean);
+      }).filter(Boolean) as any[];
 
       if (translationPayloads.length > 0) {
         const { error: transError } = await supabase
