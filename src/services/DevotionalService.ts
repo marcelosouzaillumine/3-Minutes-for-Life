@@ -21,53 +21,33 @@ function resolveTranslation(
 ): Devotional {
   const translations: DevotionalTranslation[] = devotional.devotional_translations || [];
   
-  // Try to find the requested language (must be published)
-  const requestedTranslation = translations.find(
-    t => t.language === requestedLanguage && t.status === 'published'
-  );
+  // If the requested language is not the base language (pt-BR), try to find its translation
+  if (requestedLanguage !== 'pt-BR') {
+    const requestedTranslation = translations.find(
+      t => t.language === requestedLanguage && t.status === 'published'
+    );
 
-  if (requestedTranslation) {
-    return {
-      ...devotional,
-      title: requestedTranslation.title,
-      subtitle: requestedTranslation.subtitle || devotional.subtitle,
-      principle_statement: requestedTranslation.principle_statement || devotional.principle_statement,
-      reflection: requestedTranslation.reflection,
-      practical_application: requestedTranslation.practical_application || devotional.practical_application,
-      prayer: requestedTranslation.prayer || devotional.prayer,
-      requestedLanguage,
-      resolvedLanguage: requestedLanguage,
-      isLanguageFallback: false,
-      isCached,
-      source,
-      devotional_translations: undefined // Clean up payload
-    };
+    if (requestedTranslation) {
+      return {
+        ...devotional,
+        title: requestedTranslation.title,
+        subtitle: requestedTranslation.subtitle || devotional.subtitle,
+        principle_statement: requestedTranslation.principle_statement || devotional.principle_statement,
+        reflection: requestedTranslation.reflection,
+        practical_application: requestedTranslation.practical_application || devotional.practical_application,
+        prayer: requestedTranslation.prayer || devotional.prayer,
+        requestedLanguage,
+        resolvedLanguage: requestedLanguage,
+        isLanguageFallback: false,
+        isCached,
+        source,
+        devotional_translations: undefined // Clean up payload
+      };
+    }
   }
 
-  // Fallback to pt-BR (must be published, or we fall back to the base table which was initialized with pt-BR)
-  const ptbrTranslation = translations.find(
-    t => t.language === 'pt-BR' && t.status === 'published'
-  );
-
-  if (ptbrTranslation) {
-    return {
-      ...devotional,
-      title: ptbrTranslation.title,
-      subtitle: ptbrTranslation.subtitle || devotional.subtitle,
-      principle_statement: ptbrTranslation.principle_statement || devotional.principle_statement,
-      reflection: ptbrTranslation.reflection,
-      practical_application: ptbrTranslation.practical_application || devotional.practical_application,
-      prayer: ptbrTranslation.prayer || devotional.prayer,
-      requestedLanguage,
-      resolvedLanguage: 'pt-BR',
-      isLanguageFallback: requestedLanguage !== 'pt-BR',
-      isCached,
-      source,
-      devotional_translations: undefined
-    };
-  }
-
-  // Last resort: use the base devotional fields (which are implicitly pt-BR for now)
+  // Fallback (or if requested pt-BR directly): use the base devotional fields, 
+  // because the base table is the single source of truth for the Portuguese editorial content.
   return {
     ...devotional,
     requestedLanguage,
