@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { LanguageSelector } from './LanguageSelector';
 
 type Tab = 'home' | 'explore' | 'favorites' | 'profile';
 
@@ -52,9 +51,6 @@ export function BottomNav({ currentTab, setTab }: BottomNavProps) {
         {t('profile')}
       </button>
 
-      <div className="nav-item" style={{ justifyContent: 'center' }}>
-        <LanguageSelector dropUp={true} />
-      </div>
     </nav>
   );
 }

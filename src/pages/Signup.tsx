@@ -58,6 +58,8 @@ export const Signup: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const searchParams = new URLSearchParams(window.location.search);
+    const redirectTo = searchParams.get('redirectTo') || '/app';
     setError('');
     setLoading(true);
     try {
@@ -85,7 +87,7 @@ export const Signup: React.FC = () => {
         }
       }
       
-      window.location.href = '/app';
+      window.location.href = redirectTo;
     } catch (err: any) {
       console.error(err);
       if (err.message?.includes('already registered')) {
@@ -101,6 +103,7 @@ export const Signup: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-box">
+        <img src="/logo.png" alt="3 Minutes for Life" className="auth-logo" />
         <h1 className="auth-title">{t('signup.title')}</h1>
         <p className="auth-subtitle">{t('signup.subtitle')}</p>
         
@@ -220,7 +223,7 @@ export const Signup: React.FC = () => {
         </form>
         
         <div className="auth-footer">
-          {t('signup.haveAccount')} <a href="/login">{t('signup.loginLink')}</a>
+          {t('signup.haveAccount')} <a href={`/login${window.location.search}`}>{t('signup.loginLink')}</a>
         </div>
       </div>
     </div>

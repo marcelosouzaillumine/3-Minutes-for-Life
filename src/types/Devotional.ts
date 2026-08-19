@@ -8,6 +8,7 @@ export interface DevotionalTranslation {
   practical_application?: string | null;
   prayer?: string | null;
   status: 'draft' | 'scheduled' | 'published' | 'archived';
+  source_content_hash?: string;
 }
 
 export interface Devotional {
@@ -27,6 +28,7 @@ export interface Devotional {
   category_id?: string;
   categories?: { name: string } | null;
   share_quote?: string;
+  content_hash?: string;
   
   // i18n
   isLanguageFallback?: boolean;

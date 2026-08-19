@@ -44,5 +44,9 @@
     "Liderança": "Liderança",
     "Propósito": "Propósito",
     "Fé": "Fé"
+  },
+  "visualCard": {
+    "header": "3 Minutos para a Vida",
+    "footer": "Pare. Reflita. Pratique."
   }
 }

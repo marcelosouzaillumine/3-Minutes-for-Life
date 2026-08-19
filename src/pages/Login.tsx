@@ -12,11 +12,14 @@ export const Login: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const searchParams = new URLSearchParams(window.location.search);
+    const redirectTo = searchParams.get('redirectTo') || '/app';
     setError('');
     setLoading(true);
     try {
       await authService.signIn(email, password);
-      window.location.href = '/app';
+      window.location.href = redirectTo;
     } catch (err: any) {
       console.error(err);
       setError(t('login.errorIncorrect'));
@@ -28,6 +31,7 @@ export const Login: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-box">
+        <img src="/logo.png" alt="3 Minutes for Life" className="auth-logo" />
         <h1 className="auth-title">{t('login.title')}</h1>
         <p className="auth-subtitle">{t('login.subtitle')}</p>
         
@@ -56,7 +60,7 @@ export const Login: React.FC = () => {
         </form>
         
         <div className="auth-footer">
-          {t('login.noAccount')} <a href="/signup">{t('login.signupLink')}</a>
+          {t('login.noAccount')} <a href={`/signup${window.location.search}`}>{t('login.signupLink')}</a>
         </div>
       </div>
     </div>

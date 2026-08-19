@@ -1,4 +1,5 @@
 import { forwardRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { logoBase64 } from '../constants/logoBase64';
 
 interface VisualCardProps {
@@ -8,6 +9,7 @@ interface VisualCardProps {
 
 export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
   ({ title, quote }, ref) => {
+    const { t } = useTranslation('common');
     return (
       <div style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: -9999 }}>
         <div
@@ -25,7 +27,7 @@ export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
           }}
         >
           {/* Header */}
-          <div style={{ marginBottom: '80px' }}>
+          <div style={{ marginBottom: '80px', flexShrink: 0 }}>
             <span
               style={{
                 fontSize: '28px',
@@ -35,7 +37,7 @@ export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
                 fontWeight: 600
               }}
             >
-              3 Minutos para a Vida
+              {t('visualCard.header', { defaultValue: '3 Minutos para a Vida' })}
             </span>
           </div>
 
@@ -49,7 +51,9 @@ export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
               marginBottom: '80px',
               maxWidth: '900px',
               color: '#000000',
-              letterSpacing: '-0.02em'
+              letterSpacing: '-0.02em',
+              flexShrink: 0,
+              margin: '0 0 80px 0' // Explicit margin to avoid default h1 margin bugs
             }}
           >
             {title}
@@ -61,12 +65,13 @@ export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
               width: '140px',
               height: '4px',
               backgroundColor: '#1a1a1a',
-              marginBottom: '80px'
+              marginBottom: '80px',
+              flexShrink: 0
             }}
           />
 
           {/* Quote */}
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start' }}>
             <p
               style={{
                 fontSize: '52px',
@@ -74,7 +79,8 @@ export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
                 lineHeight: 1.4,
                 color: '#333333',
                 maxWidth: '850px',
-                fontStyle: 'italic'
+                fontStyle: 'italic',
+                margin: 0
               }}
             >
               "{quote}"
@@ -93,8 +99,8 @@ export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
           >
             <div 
               style={{ 
-                height: '144px', 
-                width: '400px', 
+                height: '187px', 
+                width: '520px', 
                 backgroundImage: `url(${logoBase64})`,
                 backgroundSize: 'contain',
                 backgroundRepeat: 'no-repeat',
@@ -107,12 +113,12 @@ export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'flex-end',
-                gap: '8px',
+                gap: '5px',
                 textAlign: 'right'
               }}
             >
-              <span style={{ fontSize: '24px', fontWeight: 600, color: '#1a1a1a', letterSpacing: '-0.02em', marginBottom: '4px' }}>
-                Pare. Reflita. Pratique.
+              <span style={{ fontSize: '24px', fontWeight: 600, color: '#1a1a1a', letterSpacing: '-0.02em', marginBottom: '2px' }}>
+                {t('visualCard.footer', { defaultValue: 'Pare. Reflita. Pratique.' })}
               </span>
               <span style={{ fontSize: '20px', color: '#666666', fontWeight: 500 }}>
                 3minutesforlife.com

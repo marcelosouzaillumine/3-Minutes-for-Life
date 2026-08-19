@@ -44,5 +44,9 @@
     "Liderança": "Leadership",
     "Propósito": "Purpose",
     "Fé": "Faith"
+  },
+  "visualCard": {
+    "header": "3 Minutes for Life",
+    "footer": "Stop. Reflect. Practice."
   }
 }

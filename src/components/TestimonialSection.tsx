@@ -26,7 +26,7 @@ export function TestimonialSection({ devotionalId, onSuccess }: TestimonialSecti
           marginBottom: '0.5rem',
           color: 'var(--color-text)'
         }}>
-          Compartilhe sua história
+          Como essa reflexão tocou você?
         </h3>
         <p style={{
           fontSize: '1rem',
@@ -34,14 +34,14 @@ export function TestimonialSection({ devotionalId, onSuccess }: TestimonialSecti
           marginBottom: '1.5rem',
           lineHeight: 1.6
         }}>
-          O que esta reflexão despertou em você?
+          Seu testemunho pode inspirar e abençoar outras pessoas que estão na mesma jornada.
         </p>
         <button 
           className="btn-secondary" 
           onClick={() => setIsModalOpen(true)}
           style={{ width: 'auto', padding: '0.75rem 1.5rem' }}
         >
-          Compartilhar minha história
+          Escrever meu testemunho
         </button>
       </div>
 

@@ -6,11 +6,17 @@ import { ShareButton } from './ShareButton';
 import { HtmlRenderer } from './HtmlRenderer';
 import { useAuth } from '../context/AuthContext';
 import { ReflectionService } from '../services/ReflectionService';
-
+import { TestimonialSection } from './TestimonialSection';
 interface PrincipleViewProps {
   devotional: Devotional;
   onBack?: () => void;
-  customAction?: { label: string; onClick: () => void };
+  customAction?: { 
+    label: string; 
+    onClick: () => void;
+    variant?: 'shared';
+    text?: string;
+    subtext?: string;
+  };
 }
 
 export function PrincipleView({ devotional, onBack, customAction }: PrincipleViewProps) {
@@ -264,8 +270,37 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
           )}
         </div>
 
+        {customAction?.variant === 'shared' && (
+          <div style={{ marginTop: '3rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', background: 'var(--color-bg)', padding: '2rem 1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
+            <p style={{ fontSize: '1.25rem', color: 'var(--color-text)', lineHeight: 1.5, fontWeight: 500 }}>
+              {customAction.text}
+            </p>
+            <p style={{ fontSize: '1.1rem', color: 'var(--color-text-light)', marginTop: '-1rem' }}>
+              {customAction.subtext}
+            </p>
+            <button 
+              onClick={customAction.onClick}
+              style={{
+                padding: '1rem 2rem',
+                borderRadius: '30px',
+                border: 'none',
+                background: 'var(--color-text)',
+                color: 'var(--color-bg)',
+                fontWeight: 600,
+                fontSize: '1.1rem',
+                cursor: 'pointer',
+                transition: 'opacity 0.2s',
+                width: '100%',
+                maxWidth: '300px'
+              }}
+            >
+              {customAction.label}
+            </button>
+          </div>
+        )}
+
         <div className="action-bar">
-          {customAction ? (
+          {customAction && customAction.variant !== 'shared' ? (
             <button className="action-btn" onClick={customAction.onClick}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <circle cx="12" cy="12" r="10" />
@@ -273,7 +308,7 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
               </svg>
               <span className="action-label">{customAction.label}</span>
             </button>
-          ) : (
+          ) : !customAction ? (
             <>
               <button className={`action-btn ${saved ? 'active' : ''}`} onClick={toggleSave}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -290,10 +325,12 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
                 <span className="action-label">Concluir</span>
               </button>
             </>
-          )}
+          ) : null}
 
           <ShareButton devotional={devotional} asIcon={true} />
         </div>
+
+        <TestimonialSection devotionalId={devotional.id} />
       </div>
     </div>
   );

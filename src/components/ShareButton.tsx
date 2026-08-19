@@ -12,7 +12,7 @@ interface ShareButtonProps {
 }
 
 export const ShareButton: React.FC<ShareButtonProps> = ({ devotional, asIcon }) => {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const { session } = useAuth();
   const [isSharing, setIsSharing] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -43,19 +43,19 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ devotional, asIcon }) 
         }
       }
 
-      await AnalyticsService.trackEvent('share_initiated', { 
+      await AnalyticsService.trackEvent('content_shared', { 
         devotional_id: devotional.id,
         channel: 'whatsapp'
       });
 
       // Obter a frase central para o Card e texto
-      const quoteText = devotional.share_quote || devotional.title;
+      const quoteText = devotional.principle_statement || devotional.share_quote || devotional.title;
       
       // Construir o link e o texto editorial
       const baseUrl = window.location.hostname.includes('3minutosforlife.com')
         ? 'https://3minutosforlife.com'
         : window.location.origin;
-      const shareUrl = `${baseUrl}/r/${referralCode}?d=${devotional.id}`;
+      const shareUrl = `${baseUrl}/r/${referralCode}?d=${devotional.id}&lang=${i18n.language}`;
       
       const rawMsg = t('shareActions.message');
       const textMsg = rawMsg.replace('{{url}}', shareUrl).replace(/\\n/g, '\n');
@@ -166,7 +166,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ devotional, asIcon }) 
   };
 
   // Obter a frase central
-  const quote = devotional.share_quote || devotional.title;
+  const quote = devotional.principle_statement || devotional.share_quote || devotional.title;
 
   return (
     <>

@@ -21,25 +21,31 @@ function resolveTranslation(
 ): Devotional {
   const translations: DevotionalTranslation[] = devotional.devotional_translations || [];
   
+  // Extract base language (e.g., 'en' from 'en-US') to match DB ISO codes ('en', 'es', 'pt-BR')
+  let targetLang = requestedLanguage;
+  if (requestedLanguage !== 'pt-BR' && requestedLanguage.includes('-')) {
+    targetLang = requestedLanguage.split('-')[0];
+  }
+
   // If the requested language is not the base language (pt-BR), try to find its translation
-  if (requestedLanguage !== 'pt-BR') {
+  if (targetLang !== 'pt-BR') {
     const requestedTranslation = translations.find(
-      t => t.language === requestedLanguage && 
+      t => t.language === targetLang && 
            t.status === 'published' && 
-           t.source_content_hash === devotional.content_hash
+           (!t.source_content_hash || t.source_content_hash === devotional.content_hash)
     );
 
     if (requestedTranslation) {
       return {
         ...devotional,
-        title: requestedTranslation.title,
-        subtitle: requestedTranslation.subtitle || devotional.subtitle,
-        principle_statement: requestedTranslation.principle_statement || devotional.principle_statement,
-        reflection: requestedTranslation.reflection,
-        practical_application: requestedTranslation.practical_application || devotional.practical_application,
-        prayer: requestedTranslation.prayer || devotional.prayer,
+        title: requestedTranslation.title?.trim() || devotional.title,
+        subtitle: requestedTranslation.subtitle?.trim() || devotional.subtitle,
+        principle_statement: requestedTranslation.principle_statement?.trim() || devotional.principle_statement,
+        reflection: requestedTranslation.reflection?.trim() || devotional.reflection,
+        practical_application: requestedTranslation.practical_application?.trim() || devotional.practical_application,
+        prayer: requestedTranslation.prayer?.trim() || devotional.prayer,
         requestedLanguage,
-        resolvedLanguage: requestedLanguage,
+        resolvedLanguage: targetLang,
         isLanguageFallback: false,
         isCached,
         source,
@@ -74,6 +80,7 @@ const selectQuery = `
   audio_url,
   theme_id,
   category_id,
+  content_hash,
   categories (
     name
   ),
@@ -86,7 +93,8 @@ const selectQuery = `
     reflection,
     practical_application,
     prayer,
-    status
+    status,
+    source_content_hash
   )
 `;
 
@@ -105,6 +113,7 @@ export const DevotionalService = {
         // .eq('devotional_translations.language', 'pt-BR') is an inner join.
         // We will fetch all translations (which is at most 3 rows) to avoid inner join bugs, 
         // as the user rule 1 can be technically challenging with Supabase's JS syntax without breaking LEFT JOIN.
+        .eq('status', 'published')
         .eq('publication_date', dateStr)
         .order('created_at', { ascending: false })
         .limit(1)
@@ -145,6 +154,7 @@ export const DevotionalService = {
       .from('devotionals')
       .select(selectQuery)
       .eq('id', id)
+      .eq('status', 'published')
       .lte('publication_date', today)
       .single() as any;
 
@@ -181,6 +191,7 @@ export const DevotionalService = {
     const { data, error } = await supabase
       .from('devotionals')
       .select(selectQuery)
+      .eq('status', 'published')
       .lte('publication_date', today)
       .order('publication_date', { ascending: true }) as any;
 

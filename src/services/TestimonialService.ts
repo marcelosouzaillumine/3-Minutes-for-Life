@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import type { Testimonial, TestimonialInsert, TestimonialUserUpdate } from '../types/Testimonial';
+import { AnalyticsService } from './AnalyticsService';
 
 export const TestimonialService = {
   async createTestimonial(data: TestimonialInsert): Promise<Testimonial> {
@@ -23,6 +24,8 @@ export const TestimonialService = {
       console.error("Error creating testimonial:", error);
       throw error;
     }
+
+    AnalyticsService.trackEvent('testimonial_submitted', { devotional_id: data.devotional_id });
 
     return testimonial as Testimonial;
   },

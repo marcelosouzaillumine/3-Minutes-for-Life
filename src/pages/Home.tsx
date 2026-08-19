@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { HtmlRenderer } from '../components/HtmlRenderer';
 import { useAuth } from '../context/AuthContext';
 import { ReflectionService } from '../services/ReflectionService';
+import { AnalyticsService } from '../services/AnalyticsService';
 
 interface HomeProps {
   onExplore: () => void;
@@ -36,6 +37,9 @@ export function Home({ onExplore }: HomeProps) {
       .then(canonicalData => {
         setDevotional(canonicalData);
         setLoading(false);
+        
+        // Track the opening event for the new metrics system
+        AnalyticsService.trackEvent('devotional_opened', { devotional_id: canonicalData.id, channel: 'home' });
         
         // 2. Fetch Journey State
         JourneyService.start(canonicalData.id).catch(console.error);

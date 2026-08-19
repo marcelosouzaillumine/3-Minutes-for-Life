@@ -16,16 +16,24 @@ export function SharedDevotional() {
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const devotionalId = searchParams.get('d');
+    const urlLang = searchParams.get('lang');
     const pathname = window.location.pathname;
     const code = pathname.replace('/r/', '').split('?')[0].replace('/', '');
+
+    // Force language from URL if present
+    if (urlLang && i18n.language !== urlLang) {
+      i18n.changeLanguage(urlLang);
+    }
 
     const fetchDevotionalAndSender = async () => {
       try {
         if (!devotionalId) throw new Error("No devotional ID found");
         
-        const data = await DevotionalService.getDevotional(devotionalId);
+        // Use urlLang if available, otherwise fallback to current i18n language
+        const targetLang = urlLang || i18n.language;
+        const data = await DevotionalService.getDevotional(devotionalId, targetLang);
         setDevotional(data);
-        AnalyticsService.trackEvent('shared_devotional_viewed', { devotional_id: devotionalId });
+        AnalyticsService.trackEvent('devotional_opened', { devotional_id: devotionalId, channel: 'shared_link' });
 
         if (code) {
           const { data: referrerName, error: referrerError } = await supabase
@@ -67,8 +75,8 @@ export function SharedDevotional() {
 
   return (
     <div className="shared-devotional-page">
-      <header className="landing-header" style={{ position: 'relative', background: 'transparent' }}>
-        <img src="/logo.png" alt="3 Minutes for Life" className="landing-logo-img" style={{ marginTop: '1rem' }} />
+      <header className="landing-header" style={{ position: 'relative', background: 'transparent', justifyContent: 'center' }}>
+        <img src="/logo.png" alt="3 Minutes for Life" className="landing-logo-img" style={{ marginTop: '1rem', height: '62.5px' }} />
       </header>
 
       <div style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem 1rem' }}>
@@ -79,7 +87,10 @@ export function SharedDevotional() {
         <PrincipleView 
           devotional={devotional} 
           customAction={{
-            label: "Gostou? Receba uma nova todos os dias",
+            variant: 'shared',
+            text: "Que estes três minutos não terminem aqui.",
+            subtext: "Continue amanhã com uma nova reflexão.",
+            label: "Quero continuar",
             onClick: handleSignupClick
           }}
         />

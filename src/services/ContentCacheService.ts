@@ -9,7 +9,7 @@ export interface CachedDevotional {
 }
 
 const DB_NAME = '3minutes_cache';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_NAME = 'devotional_cache';
 
 class IndexedDBWrapper {
