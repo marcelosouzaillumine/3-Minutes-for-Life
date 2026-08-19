@@ -72,31 +72,6 @@ export const AdminContentService = {
 
     if (error) throw error;
 
-    if (translations && Object.keys(translations).length > 0) {
-      const translationPayloads = Object.keys(translations).map(lang => {
-        const trans = translations[lang];
-        if (!trans) return null;
-        return {
-          devotional_id: newDevotional.id,
-          language: lang,
-          title: trans.title || '',
-          subtitle: trans.subtitle || null,
-          principle_statement: trans.principle_statement || null,
-          reflection: sanitizeHtml(trans.reflection || ''),
-          practical_application: sanitizeHtml(trans.practical_application || ''),
-          prayer: sanitizeHtml(trans.prayer || ''),
-          status: newDevotional.status || 'draft'
-        };
-      }).filter(Boolean) as any[];
-
-      if (translationPayloads.length > 0) {
-        const { error: transError } = await supabase
-          .from('devotional_translations')
-          .upsert(translationPayloads, { onConflict: 'devotional_id,language' });
-        
-        if (transError) console.error('Error saving translations:', transError);
-      }
-    }
 
     return newDevotional;
   },
@@ -117,31 +92,7 @@ export const AdminContentService = {
 
     if (error) throw error;
 
-    if (translations && Object.keys(translations).length > 0) {
-      const translationPayloads = Object.keys(translations).map(lang => {
-        const trans = translations[lang];
-        if (!trans) return null;
-        return {
-          devotional_id: id,
-          language: lang,
-          title: trans.title || '',
-          subtitle: trans.subtitle || null,
-          principle_statement: trans.principle_statement || null,
-          reflection: sanitizeHtml(trans.reflection || ''),
-          practical_application: sanitizeHtml(trans.practical_application || ''),
-          prayer: sanitizeHtml(trans.prayer || ''),
-          status: updatedDevotional.status || 'draft'
-        };
-      }).filter(Boolean) as any[];
 
-      if (translationPayloads.length > 0) {
-        const { error: transError } = await supabase
-          .from('devotional_translations')
-          .upsert(translationPayloads, { onConflict: 'devotional_id,language' });
-        
-        if (transError) console.error('Error saving translations:', transError);
-      }
-    }
 
     return updatedDevotional;
   },

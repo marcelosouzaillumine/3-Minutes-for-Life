@@ -24,7 +24,9 @@ function resolveTranslation(
   // If the requested language is not the base language (pt-BR), try to find its translation
   if (requestedLanguage !== 'pt-BR') {
     const requestedTranslation = translations.find(
-      t => t.language === requestedLanguage && t.status === 'published'
+      t => t.language === requestedLanguage && 
+           t.status === 'published' && 
+           t.source_content_hash === devotional.content_hash
     );
 
     if (requestedTranslation) {
