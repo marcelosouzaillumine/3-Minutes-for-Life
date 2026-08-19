@@ -13,7 +13,9 @@ export function AdminDevotionals() {
   // States for editor
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<any>(null);
-  const [currentLang, setCurrentLang] = useState<'pt-BR' | 'en' | 'es'>('pt-BR');
+  const [languages, setLanguages] = useState<any[]>([]);
+  const [currentLang, setCurrentLang] = useState<string>('pt-BR');
+  const [currentJobs, setCurrentJobs] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -29,12 +31,14 @@ export function AdminDevotionals() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [devs, cats] = await Promise.all([
+      const [devs, cats, langs] = await Promise.all([
         AdminContentService.getDevotionals(),
-        AdminContentService.getCategories()
+        AdminContentService.getCategories(),
+        AdminContentService.getLanguages()
       ]);
       setDevotionals(devs);
       setCategories(cats);
+      setLanguages(langs);
     } catch (err: any) {
       setError('Erro ao carregar dados: ' + err.message);
     } finally {
@@ -48,28 +52,34 @@ export function AdminDevotionals() {
       const fullDevotional = await AdminContentService.getDevotional(id);
       
       // Transform fetched devotional_translations into a dictionary for the form
-      const translationsMap: Record<string, any> = { en: {}, es: {} };
+      const translationsMap: Record<string, any> = {};
       if (fullDevotional.devotional_translations) {
         fullDevotional.devotional_translations.forEach((t: any) => {
-          if (t.language === 'en' || t.language === 'es') {
+          if (t.language !== 'pt-BR') {
             translationsMap[t.language] = {
               title: t.title,
               subtitle: t.subtitle,
               principle_statement: t.principle_statement,
               reflection: t.reflection,
               practical_application: t.practical_application,
-              prayer: t.prayer
+              prayer: t.prayer,
+              status: t.status,
+              validation_warnings: t.validation_warnings
             };
           }
         });
       }
+
+      const jobs = await AdminContentService.getTranslationJobsByDevotional(id);
+      setCurrentJobs(jobs);
 
       setEditForm({
         ...fullDevotional,
         translations: translationsMap
       });
       setEditingId(id);
-      setCurrentLang('pt-BR');
+      const sourceLang = languages.find(l => l.is_source)?.iso_code || 'pt-BR';
+      setCurrentLang(sourceLang);
     } catch (err: any) {
       alert('Erro ao carregar devocional: ' + err.message);
     } finally {
@@ -78,6 +88,13 @@ export function AdminDevotionals() {
   };
 
   const handleCreateNew = () => {
+    const initialTranslations: Record<string, any> = {};
+    languages.forEach(lang => {
+      if (!lang.is_source) {
+        initialTranslations[lang.iso_code] = { title: '', subtitle: '', principle_statement: '', reflection: '', practical_application: '', prayer: '' };
+      }
+    });
+
     setEditForm({
       title: '',
       subtitle: '',
@@ -91,20 +108,21 @@ export function AdminDevotionals() {
       status: 'draft',
       publication_date: new Date().toISOString().split('T')[0],
       category_id: '',
-      translations: {
-        en: { title: '', subtitle: '', principle_statement: '', reflection: '', practical_application: '', prayer: '' },
-        es: { title: '', subtitle: '', principle_statement: '', reflection: '', practical_application: '', prayer: '' }
-      }
+      translations: initialTranslations
     });
     setEditingId('new');
-    setCurrentLang('pt-BR');
+    setCurrentJobs([]);
+    const sourceLang = languages.find(l => l.is_source)?.iso_code || 'pt-BR';
+    setCurrentLang(sourceLang);
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
     setEditForm(null);
     setShowPreview(false);
-    setCurrentLang('pt-BR');
+    setCurrentJobs([]);
+    const sourceLang = languages.find(l => l.is_source)?.iso_code || 'pt-BR';
+    setCurrentLang(sourceLang);
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -309,60 +327,67 @@ export function AdminDevotionals() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-            <button
-              type="button"
-              onClick={() => setCurrentLang('pt-BR')}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
-                border: 'none',
-                fontWeight: 'bold',
-                background: currentLang === 'pt-BR' ? 'var(--color-primary)' : '#eee',
-                color: currentLang === 'pt-BR' ? 'white' : '#666'
-              }}
-            >
-              🇧🇷 Português
-            </button>
-            <button
-              type="button"
-              onClick={() => setCurrentLang('en')}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
-                border: 'none',
-                fontWeight: 'bold',
-                background: currentLang === 'en' ? 'var(--color-primary)' : '#eee',
-                color: currentLang === 'en' ? 'white' : '#666'
-              }}
-            >
-              🇺🇸 English
-            </button>
-            <button
-              type="button"
-              onClick={() => setCurrentLang('es')}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
-                border: 'none',
-                fontWeight: 'bold',
-                background: currentLang === 'es' ? 'var(--color-primary)' : '#eee',
-                color: currentLang === 'es' ? 'white' : '#666'
-              }}
-            >
-              🇪🇸 Español
-            </button>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+            {languages.map(lang => {
+              const isActiveTab = currentLang === lang.iso_code;
+              // Find the most recent job for this language
+              const job = currentJobs.find(j => j.target_language === lang.iso_code);
+              let statusLabel = '';
+              let statusColor = '';
+              
+              if (!lang.is_source && editingId !== 'new') {
+                const trans = editForm?.translations?.[lang.iso_code];
+                if (job) {
+                  if (job.status === 'queued') { statusLabel = 'Fila'; statusColor = '#999'; }
+                  if (job.status === 'translating') { statusLabel = 'Processando...'; statusColor = '#0284c7'; }
+                  if (job.status === 'failed') { statusLabel = 'Falhou'; statusColor = '#dc2626'; }
+                }
+                if (trans && trans.status === 'published') { statusLabel = 'Publicado'; statusColor = '#059669'; }
+                if (trans && trans.status === 'draft') { statusLabel = 'Revisão'; statusColor = '#d97706'; }
+              }
+
+              return (
+                <button
+                  key={lang.iso_code}
+                  type="button"
+                  onClick={() => setCurrentLang(lang.iso_code)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    fontWeight: 'bold',
+                    background: isActiveTab ? 'var(--color-primary)' : '#eee',
+                    color: isActiveTab ? 'white' : '#666',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <div>{lang.flag_emoji} {lang.name}</div>
+                  {statusLabel && (
+                    <span style={{ fontSize: '0.7rem', color: isActiveTab ? 'white' : statusColor, opacity: 0.9 }}>
+                      {statusLabel}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
 
           {(() => {
+            const isSource = languages.find(l => l.iso_code === currentLang)?.is_source;
+            const currentTranslation = editForm?.translations?.[currentLang];
+            const hasWarnings = currentTranslation?.validation_warnings?.length > 0;
+            
             // Helper to get/set value based on current language
             const getValue = (field: string) => {
-              if (currentLang === 'pt-BR') return editForm[field] || '';
-              return editForm.translations?.[currentLang]?.[field] || '';
+              if (isSource) return editForm[field] || '';
+              return currentTranslation?.[field] || '';
             };
 
             const setValue = (field: string, value: string) => {
-              if (currentLang === 'pt-BR') {
+              if (isSource) {
                 setEditForm({ ...editForm, [field]: value });
               } else {
                 setEditForm({
@@ -380,13 +405,24 @@ export function AdminDevotionals() {
 
             return (
               <>
+                {!isSource && hasWarnings && (
+                  <div style={{ padding: '12px', background: '#fffbeb', color: '#b45309', borderRadius: '8px', marginBottom: '16px', border: '1px solid #fde68a' }}>
+                    <strong>⚠️ Avisos de Validação da IA:</strong>
+                    <ul style={{ margin: '8px 0 0 20px' }}>
+                      {currentTranslation.validation_warnings.map((w: string, i: number) => (
+                        <li key={i}>{w}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
                 <div>
                   <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>Título ({currentLang})</label>
                   <input 
                     type="text" 
                     value={getValue('title')}
                     onChange={(e) => setValue('title', e.target.value)}
-                    required={currentLang === 'pt-BR'}
+                    required={isSource}
                     style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd' }}
                   />
                 </div>

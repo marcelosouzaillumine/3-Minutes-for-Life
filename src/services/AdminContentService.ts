@@ -2,6 +2,24 @@ import { supabase } from '../lib/supabase';
 import { sanitizeHtml } from '../lib/sanitizer';
 
 export const AdminContentService = {
+  async getLanguages(): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('languages')
+      .select('*')
+      .order('display_order', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getTranslationJobsByDevotional(devotionalId: string): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('translation_jobs')
+      .select('*')
+      .eq('devotional_id', devotionalId)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  },
   async getDevotionals(): Promise<any[]> {
     const { data, error } = await supabase
       .from('devotionals')
@@ -54,8 +72,8 @@ export const AdminContentService = {
 
     if (error) throw error;
 
-    if (translations) {
-      const translationPayloads = ['en', 'es'].map(lang => {
+    if (translations && Object.keys(translations).length > 0) {
+      const translationPayloads = Object.keys(translations).map(lang => {
         const trans = translations[lang];
         if (!trans) return null;
         return {
@@ -99,8 +117,8 @@ export const AdminContentService = {
 
     if (error) throw error;
 
-    if (translations) {
-      const translationPayloads = ['en', 'es'].map(lang => {
+    if (translations && Object.keys(translations).length > 0) {
+      const translationPayloads = Object.keys(translations).map(lang => {
         const trans = translations[lang];
         if (!trans) return null;
         return {

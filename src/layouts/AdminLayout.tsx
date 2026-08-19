@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { AdminService } from '../services/AdminService';
 import { AdminDashboard } from '../pages/admin/AdminDashboard';
 import { AdminDevotionals } from '../pages/admin/AdminDevotionals';
+import { AdminTranslations } from '../pages/admin/AdminTranslations';
 import { AdminBottomNav } from '../components/AdminBottomNav';
 import '../styles/admin.css';
 
@@ -41,9 +42,12 @@ export function AdminLayout() {
       return <AdminDashboard />;
     }
     
-    // Future routes
     if (pathname === '/admin/devotionals') {
       return <AdminDevotionals />;
+    }
+
+    if (pathname === '/admin/translations') {
+      return <AdminTranslations />;
     }
     
     if (pathname === '/admin/testimonials') {
