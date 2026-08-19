@@ -15,7 +15,6 @@ export function AdminDevotionals() {
   const [editForm, setEditForm] = useState<any>(null);
   const [languages, setLanguages] = useState<any[]>([]);
   const [currentLang, setCurrentLang] = useState<string>('pt-BR');
-  const [currentJobs, setCurrentJobs] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -70,8 +69,6 @@ export function AdminDevotionals() {
         });
       }
 
-      const jobs = await AdminContentService.getTranslationJobsByDevotional(id);
-      setCurrentJobs(jobs);
 
       setEditForm({
         ...fullDevotional,
@@ -111,7 +108,6 @@ export function AdminDevotionals() {
       translations: initialTranslations
     });
     setEditingId('new');
-    setCurrentJobs([]);
     const sourceLang = languages.find(l => l.is_source)?.iso_code || 'pt-BR';
     setCurrentLang(sourceLang);
   };
@@ -120,7 +116,6 @@ export function AdminDevotionals() {
     setEditingId(null);
     setEditForm(null);
     setShowPreview(false);
-    setCurrentJobs([]);
     const sourceLang = languages.find(l => l.is_source)?.iso_code || 'pt-BR';
     setCurrentLang(sourceLang);
   };
