@@ -7,6 +7,8 @@ import { ShareButton } from '../components/ShareButton';
 import { TestimonialSection } from '../components/TestimonialSection';
 import { useTranslation } from 'react-i18next';
 import { HtmlRenderer } from '../components/HtmlRenderer';
+import { useAuth } from '../context/AuthContext';
+import { ReflectionService } from '../services/ReflectionService';
 
 interface HomeProps {
   onExplore: () => void;
@@ -14,10 +16,14 @@ interface HomeProps {
 
 export function Home({ onExplore }: HomeProps) {
   const { t, i18n } = useTranslation(['common']);
+  const { user } = useAuth();
   const [devotional, setDevotional] = useState<Devotional | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [saved, setSaved] = useState(false);
+  const [reflectionContent, setReflectionContent] = useState('');
+  const [savingReflection, setSavingReflection] = useState(false);
+  const [savedReflectionSuccess, setSavedReflectionSuccess] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -37,6 +43,12 @@ export function Home({ onExplore }: HomeProps) {
         JourneyService.listFavorites()
           .then(ids => setSaved(ids.includes(canonicalData.id)))
           .catch(console.error);
+          
+        if (user) {
+          ReflectionService.getReflection(canonicalData.id).then(content => {
+            if (content) setReflectionContent(content);
+          });
+        }
       })
       .catch(err => {
         console.error("Failed to load daily devotional:", err);
@@ -68,6 +80,21 @@ export function Home({ onExplore }: HomeProps) {
       alert(t('completed'));
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleSaveReflection = async () => {
+    if (!devotional || !reflectionContent.trim()) return;
+    setSavingReflection(true);
+    try {
+      await ReflectionService.saveReflection(devotional.id, reflectionContent);
+      setSavedReflectionSuccess(true);
+      setTimeout(() => setSavedReflectionSuccess(false), 3000);
+    } catch (err) {
+      console.error('Failed to save reflection:', err);
+      alert('Erro ao salvar sua reflexão.');
+    } finally {
+      setSavingReflection(false);
     }
   };
 
@@ -181,6 +208,63 @@ export function Home({ onExplore }: HomeProps) {
           </div>
         )}
         
+        {/* O que ficou comigo - Secao de Reflexao Pessoal */}
+        <div style={{ marginTop: '2.5rem', marginBottom: '2.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '2rem' }}>
+          <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: 600 }}>O que ficou comigo</h3>
+          <p style={{ fontSize: '0.95rem', color: 'var(--color-text-light)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+            Alguma parte dessa reflexão ficou com você? Registre aqui. Este espaço é só seu.
+          </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <textarea
+              value={reflectionContent}
+              onChange={(e) => setReflectionContent(e.target.value)}
+              placeholder="Escreva o que essa reflexão despertou em você..."
+              style={{
+                width: '100%',
+                minHeight: '120px',
+                padding: '1rem',
+                borderRadius: '12px',
+                border: '1px solid var(--color-border)',
+                background: 'var(--color-bg)',
+                color: 'var(--color-text)',
+                fontSize: '1rem',
+                lineHeight: '1.5',
+                resize: 'vertical',
+                fontFamily: 'inherit'
+              }}
+            />
+            <p style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', marginTop: '-0.5rem', fontStyle: 'italic' }}>
+              Só você pode ver o que escreve aqui.
+            </p>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
+              <button
+                onClick={handleSaveReflection}
+                disabled={savingReflection || !reflectionContent.trim()}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '24px',
+                  border: 'none',
+                  background: 'var(--color-text)',
+                  color: 'var(--color-bg)',
+                  fontWeight: 600,
+                  cursor: (savingReflection || !reflectionContent.trim()) ? 'not-allowed' : 'pointer',
+                  opacity: (savingReflection || !reflectionContent.trim()) ? 0.5 : 1,
+                  transition: 'opacity 0.2s'
+                }}
+              >
+                {savingReflection ? 'Guardando...' : 'Guardar'}
+              </button>
+              {savedReflectionSuccess && (
+                <span style={{ fontSize: '0.9rem', color: '#4CAF50', fontWeight: 500 }}>
+                  Guardado na sua jornada.
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
         <div className="action-bar">
           <button className={`action-btn ${saved ? 'active' : ''}`} onClick={toggleSave}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
