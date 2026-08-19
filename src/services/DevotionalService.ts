@@ -124,6 +124,8 @@ export const DevotionalService = {
         // We will fetch all translations (which is at most 3 rows) to avoid inner join bugs, 
         // as the user rule 1 can be technically challenging with Supabase's JS syntax without breaking LEFT JOIN.
         .eq('publication_date', dateStr)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle() as any;
 
       if (error) throw error;

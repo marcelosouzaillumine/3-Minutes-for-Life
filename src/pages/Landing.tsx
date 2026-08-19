@@ -61,7 +61,7 @@ export function Landing() {
     <div className="landing-page">
       {/* Header */}
       <header className={`landing-header ${isMenuOpen ? 'menu-open' : ''}`}>
-        <img src="/logo.png" alt="3 Minutes for Life" className="landing-logo-img" />
+        <div className="landing-logo"><span className="landing-logo-number">3</span> Minutes for Life</div>
         
         <button 
           className="mobile-menu-btn" 
@@ -147,7 +147,7 @@ export function Landing() {
       {/* {t('landing:relief.title')} */}
       <section className="relief-section" ref={setRef}>
         <div className="relief-content reveal">
-          <h2 className="relief-statement">É por isso que existem três minutos.</h2>
+          <h2 className="relief-statement">{t('landing:relief.title')}</h2>
           <p className="relief-subtext">
             {t('landing:relief.subtitle')}
           </p>
@@ -186,7 +186,7 @@ export function Landing() {
       <section className="split-section" ref={setRef}>
         <div className="split-image reveal"></div>
         <div className="split-content reveal delay-200">
-          <h2 className="split-title">O que orienta o seu olhar?</h2>
+          <h2 className="split-title">{t('landing:split.title')}</h2>
           <p className="split-text">
             {t('landing:split.p1')}
           </p>
@@ -197,19 +197,14 @@ export function Landing() {
       </section>
 
       {/* Para quem é */}
-      <section id="sobre" className="audience-section" ref={setRef}>
-        <div className="audience-grid">
-          <div className="audience-lead reveal">
-            <h2>{t('landing:audience.title')}</h2>
-          </div>
-          <div className="audience-list reveal delay-200">
-            <p>{(t('landing:audience.items', { returnObjects: true }) as string[])[0]}</p>
-            <p>{(t('landing:audience.items', { returnObjects: true }) as string[])[1]}</p>
-            <p>{(t('landing:audience.items', { returnObjects: true }) as string[])[2]}</p>
-            <p>{(t('landing:audience.items', { returnObjects: true }) as string[])[3]}</p>
-            <p>{(t('landing:audience.items', { returnObjects: true }) as string[])[4]}</p>
-            <p>{(t('landing:audience.items', { returnObjects: true }) as string[])[5]}</p>
-          </div>
+      <section id="sobre" className="audience-section" ref={setRef} style={{ textAlign: 'center' }}>
+        <div className="reveal" style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <p style={{ fontFamily: 'var(--font-serif)', fontSize: '2.5rem', lineHeight: '1.4', marginBottom: '2rem' }}>
+            {t('landing:audience.p1')}
+          </p>
+          <p style={{ fontSize: '1.25rem', color: 'rgba(250, 248, 246, 0.8)' }}>
+            {t('landing:audience.p2')}
+          </p>
         </div>
       </section>
 

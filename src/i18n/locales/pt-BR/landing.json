@@ -20,7 +20,7 @@
   },
   "relief": {
     "title": "É por isso que existem três minutos.",
-    "subtitle": "Um pequeno espaço no dia para parar, pensar e prestar atenção à vida que está acontecendo agora."
+    "subtitle": "Um momento do dia para parar, pensar e olhar para a vida com mais clareza."
   },
   "experience": {
     "step1": {
@@ -41,24 +41,17 @@
     "statement": "A vida não precisa de mais velocidade.<br />Precisa de mais atenção."
   },
   "split": {
-    "title": "O que orienta o seu olhar?",
-    "p1": "A fé cristã está no coração do 3 Minutes for Life. Ela nos convida a olhar para nossas escolhas, nossos relacionamentos, nossos desafios e nosso propósito à luz de Deus e dos ensinamentos de Jesus.",
-    "p2": "Não para oferecer respostas prontas, mas para abrir espaço para perguntas que realmente importam."
+    "title": "Como você enxerga a sua vida?",
+    "p1": "A vida é feita de escolhas, relacionamentos, desafios e perguntas que nem sempre encontram respostas fáceis. No 3 Minutes for Life, a fé cristã nos ajuda a olhar para tudo isso a partir de Deus e das palavras de Jesus.",
+    "p2": "É um convite para desacelerar, refletir sobre a vida e encontrar direção para viver cada dia com mais propósito."
   },
   "audience": {
-    "title": "Para quem quer viver com mais intenção.",
-    "items": [
-      "Para quem está diante de uma decisão.",
-      "Para quem precisa desacelerar.",
-      "Para quem quer cuidar melhor dos seus relacionamentos.",
-      "Para quem trabalha e lidera.",
-      "Para quem busca mais sentido.",
-      "Para quem simplesmente precisa de alguns minutos para pensar."
-    ]
+    "p1": "Há momentos em que precisamos tomar uma decisão, desacelerar, cuidar melhor de um relacionamento, encontrar mais sentido no que fazemos ou simplesmente parar por alguns minutos.",
+    "p2": "O 3 Minutes for Life foi criado para esses momentos."
   },
   "quote2": {
     "statement": "Três minutos.<br />Uma reflexão.<br />Um pequeno passo.",
-    "bottom": "Mais atenção para a vida que você já está vivendo."
+    "bottom": "Para não perder de vista o que dá sentido à sua vida."
   },
   "sustainability": {
     "title": "Um projeto gratuito, sustentado por pessoas",
@@ -80,8 +73,8 @@
     "note": "À medida que o projeto crescer, queremos compartilhar com transparência como os recursos são utilizados."
   },
   "continue": {
-    "title": "Continue sua jornada",
-    "subtitle": "Se essa reflexão fez sentido para você, continue sua jornada no 3 Minutes for Life.",
+    "title": "O seu momento diário.",
+    "subtitle": "Receba uma nova reflexão a cada manhã para orientar o seu dia.",
     "btnCreate": "Criar minha conta",
     "btnLogin": "Já tem uma conta? Entrar"
   },
