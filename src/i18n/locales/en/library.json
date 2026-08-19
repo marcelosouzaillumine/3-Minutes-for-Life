@@ -1,3 +1,8 @@
 {
-  "title": "Library"
+  "title": "Library",
+  "loading": "Loading library...",
+  "error": "Could not load the devotional library.",
+  "categories": "Categories",
+  "count_one": "{{count}} devotional",
+  "count_other": "{{count}} devotionals"
 }

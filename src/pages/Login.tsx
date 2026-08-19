@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { authService } from '../services/authService';
+import { useTranslation } from 'react-i18next';
 import './Auth.css';
 
 export const Login: React.FC = () => {
+  const { t } = useTranslation('auth');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -17,7 +19,7 @@ export const Login: React.FC = () => {
       window.location.href = '/app';
     } catch (err: any) {
       console.error(err);
-      setError('E-mail ou senha incorretos. Tente novamente.');
+      setError(t('login.errorIncorrect'));
     } finally {
       setLoading(false);
     }
@@ -26,15 +28,15 @@ export const Login: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h1 className="auth-title">Entrar</h1>
-        <p className="auth-subtitle">Bem-vindo de volta ao 3 Minutes for Life.</p>
+        <h1 className="auth-title">{t('login.title')}</h1>
+        <p className="auth-subtitle">{t('login.subtitle')}</p>
         
         {error && <div className="auth-error">{error}</div>}
         
         <form onSubmit={handleSubmit} className="auth-form">
           <input 
             type="email" 
-            placeholder="E-mail" 
+            placeholder={t('login.emailPlaceholder')} 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -42,19 +44,19 @@ export const Login: React.FC = () => {
           />
           <input 
             type="password" 
-            placeholder="Senha" 
+            placeholder={t('login.passwordPlaceholder')} 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             className="auth-input"
           />
           <button type="submit" disabled={loading} className="auth-button">
-            {loading ? 'Entrando...' : 'Entrar'}
+            {loading ? t('login.buttonLoading') : t('login.button')}
           </button>
         </form>
         
         <div className="auth-footer">
-          Não tem uma conta? <a href="/signup">Cadastre-se</a>
+          {t('login.noAccount')} <a href="/signup">{t('login.signupLink')}</a>
         </div>
       </div>
     </div>

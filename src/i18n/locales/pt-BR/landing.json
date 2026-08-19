@@ -1,0 +1,114 @@
+{
+  "nav": {
+    "howItWorks": "Como funciona",
+    "about": "Sobre",
+    "support": "Apoie o projeto",
+    "start": "Começar"
+  },
+  "hero": {
+    "title": "Três minutos para olhar a vida com mais atenção.",
+    "subtitle": "Uma reflexão por dia para parar, pensar sobre a vida e perceber o que merece sua atenção.",
+    "btnStart": "Começar",
+    "hint": "Sem cadastro para experimentar.",
+    "mockupLabel": "Continuar"
+  },
+  "tension": {
+    "kicker": "Por que três minutos?",
+    "title": "Seu dia já<br/>está cheio.",
+    "p1": "Mensagens, trabalho, notícias, decisões, preocupações. E sempre aparece mais uma coisa.",
+    "p2": "No meio de tudo isso, é fácil passar o dia inteiro reagindo ao que acontece e quase nunca parar para perceber o que está acontecendo dentro de nós."
+  },
+  "relief": {
+    "title": "É por isso que existem três minutos.",
+    "subtitle": "Um pequeno espaço no dia para parar, pensar e prestar atenção à vida que está acontecendo agora."
+  },
+  "experience": {
+    "step1": {
+      "title": "Pare.",
+      "desc": "Respire.<br/>Diminua o ritmo.<br/>Preste atenção."
+    },
+    "step2": {
+      "title": "Reflita.",
+      "desc": "Uma ideia.<br/>Uma pergunta.<br/>Um novo olhar."
+    },
+    "step3": {
+      "title": "Pratique.",
+      "desc": "Leve a reflexão para a vida real."
+    }
+  },
+  "quote1": {
+    "top": "Uma pausa pode mudar a maneira como você vê o dia.",
+    "statement": "A vida não precisa de mais velocidade.<br />Precisa de mais atenção."
+  },
+  "split": {
+    "title": "O que orienta o seu olhar?",
+    "p1": "A fé cristã está no coração do 3 Minutes for Life. Ela nos convida a olhar para nossas escolhas, nossos relacionamentos, nossos desafios e nosso propósito à luz de Deus e dos ensinamentos de Jesus.",
+    "p2": "Não para oferecer respostas prontas, mas para abrir espaço para perguntas que realmente importam."
+  },
+  "audience": {
+    "title": "Para quem quer viver com mais intenção.",
+    "items": [
+      "Para quem está diante de uma decisão.",
+      "Para quem precisa desacelerar.",
+      "Para quem quer cuidar melhor dos seus relacionamentos.",
+      "Para quem trabalha e lidera.",
+      "Para quem busca mais sentido.",
+      "Para quem simplesmente precisa de alguns minutos para pensar."
+    ]
+  },
+  "quote2": {
+    "statement": "Três minutos.<br />Uma reflexão.<br />Um pequeno passo.",
+    "bottom": "Mais atenção para a vida que você já está vivendo."
+  },
+  "sustainability": {
+    "title": "Um projeto gratuito, sustentado por pessoas",
+    "p1": "O 3 Minutes for Life nasceu para que qualquer pessoa possa encontrar, todos os dias, alguns minutos para parar, refletir e olhar a vida com mais atenção.",
+    "p2": "Por isso, o acesso ao conteúdo é gratuito.",
+    "p3": "Não queremos que a capacidade de pagar determine quem pode receber uma reflexão.",
+    "p4": "O projeto é sustentado por pessoas que acreditam nessa proposta e escolhem contribuir voluntariamente para que ele continue existindo, seja mantido e possa alcançar mais pessoas.",
+    "p5": "Você não precisa contribuir para usar. O apoio é voluntário e não altera o acesso ao conteúdo ou às funcionalidades essenciais do 3 Minutes for Life.",
+    "p6": "Se, em algum momento, você sentir que vale a pena ajudar, poderá fazer parte da sustentabilidade do projeto.",
+    "btn": "Apoiar o projeto",
+    "breakdownTitle": "Para onde vai o apoio?",
+    "breakdownDesc": "As contribuições ajudam a manter e desenvolver o projeto.",
+    "items": [
+      { "title": "Conteúdo", "desc": "Produção, revisão e desenvolvimento das reflexões." },
+      { "title": "Tecnologia", "desc": "Aplicativos, servidores, banco de dados e infraestrutura." },
+      { "title": "Alcance", "desc": "Comunicação e iniciativas para que mais pessoas conheçam o projeto." },
+      { "title": "Desenvolvimento", "desc": "Novos conteúdos, recursos e possibilidades para ampliar a experiência." }
+    ],
+    "note": "À medida que o projeto crescer, queremos compartilhar com transparência como os recursos são utilizados."
+  },
+  "continue": {
+    "title": "Continue sua jornada",
+    "subtitle": "Se essa reflexão fez sentido para você, continue sua jornada no 3 Minutes for Life.",
+    "btnCreate": "Criar minha conta",
+    "btnLogin": "Já tem uma conta? Entrar"
+  },
+  "faq": {
+    "title": "Perguntas frequentes",
+    "q1": { "q": "O 3 Minutes for Life é gratuito?", "a": "Sim. O acesso ao conteúdo principal é gratuito. O projeto é sustentado por pessoas que escolhem apoiá-lo voluntariamente." },
+    "q2": { "q": "Preciso ser cristão para usar?", "a": "Não. O 3 Minutes for Life parte de uma perspectiva cristã, mas foi criado para conversar com qualquer pessoa que queira parar, refletir e olhar para a vida com mais atenção." },
+    "q3": { "q": "Quanto tempo preciso por dia?", "a": "A proposta é levar aproximadamente três minutos." },
+    "q4": { "q": "Preciso instalar um aplicativo?", "a": "A plataforma funciona diretamente no navegador e pode ser adicionada à tela inicial do celular como um aplicativo." },
+    "q5": { "q": "O conteúdo é gerado por inteligência artificial?", "a": "Não. O conteúdo é escrito e revisado editorialmente por pessoas, para preservar uma voz humana, simples e consistente." },
+    "q6": { "q": "Como posso apoiar o projeto?", "a": "O conteúdo é gratuito. Se você quiser contribuir voluntariamente para a continuidade e expansão do projeto, poderá conhecer as formas de apoio disponibilizadas pelo 3 Minutes for Life. O apoio não é necessário para acessar o conteúdo." }
+  },
+  "cta": {
+    "title": "Reserve três minutos.",
+    "subtitle": "Pare. Reflita. Viva.",
+    "btn": "Começar hoje"
+  },
+  "footer": {
+    "tagline": "Três minutos para olhar a vida com mais atenção.",
+    "links": {
+      "howItWorks": "Como funciona",
+      "about": "Sobre",
+      "support": "Apoie o projeto",
+      "privacy": "Privacidade",
+      "terms": "Termos",
+      "contact": "Contato"
+    },
+    "copy": "© 2026 3 Minutes for Life"
+  }
+}

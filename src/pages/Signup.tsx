@@ -4,9 +4,11 @@ import { AnalyticsService } from '../services/AnalyticsService';
 import { LocationService } from '../services/LocationService';
 import type { State, City } from '../services/LocationService';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 import './Auth.css';
 
 export const Signup: React.FC = () => {
+  const { t } = useTranslation('auth');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -87,9 +89,9 @@ export const Signup: React.FC = () => {
     } catch (err: any) {
       console.error(err);
       if (err.message?.includes('already registered')) {
-        setError('Este e-mail já está cadastrado. Tente entrar na sua conta.');
+        setError(t('signup.errorEmailExists'));
       } else {
-        setError(`FALHA_CRIAR_CONTA: ${err?.message || JSON.stringify(err) || String(err)}`);
+        setError(`${t('signup.errorCreate')}${err?.message || JSON.stringify(err) || String(err)}`);
       }
     } finally {
       setLoading(false);
@@ -99,15 +101,15 @@ export const Signup: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <h1 className="auth-title">Criar conta</h1>
-        <p className="auth-subtitle">Comece gratuitamente sua jornada.</p>
+        <h1 className="auth-title">{t('signup.title')}</h1>
+        <p className="auth-subtitle">{t('signup.subtitle')}</p>
         
         {error && <div className="auth-error">{error}</div>}
         
         <form onSubmit={handleSubmit} className="auth-form">
           <input 
             type="text" 
-            placeholder="Nome completo" 
+            placeholder={t('signup.fullNamePlaceholder')} 
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
@@ -115,7 +117,7 @@ export const Signup: React.FC = () => {
           />
           <input 
             type="email" 
-            placeholder="E-mail" 
+            placeholder={t('signup.emailPlaceholder')} 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -123,7 +125,7 @@ export const Signup: React.FC = () => {
           />
           <input 
             type="tel" 
-            placeholder="Telefone (opcional)" 
+            placeholder={t('signup.phonePlaceholder')} 
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             className="auth-input"
@@ -141,7 +143,7 @@ export const Signup: React.FC = () => {
                 setCity('');
               }} 
             />
-            <label htmlFor="foreign" style={{ fontSize: '0.9rem', color: 'var(--color-text-light)' }}>Moro fora do Brasil</label>
+            <label htmlFor="foreign" style={{ fontSize: '0.9rem', color: 'var(--color-text-light)' }}>{t('signup.foreignCheckbox')}</label>
           </div>
 
           {!isForeign ? (
@@ -154,7 +156,7 @@ export const Signup: React.FC = () => {
                 required
                 disabled={loadingLocation}
               >
-                <option value="">Estado</option>
+                <option value="">{t('signup.statePlaceholder')}</option>
                 {states.map(s => (
                   <option key={s.id} value={s.name}>{s.name}</option>
                 ))}
@@ -168,7 +170,7 @@ export const Signup: React.FC = () => {
                 required
                 disabled={!state}
               >
-                <option value="">Cidade</option>
+                <option value="">{t('signup.cityPlaceholder')}</option>
                 {cities.map(c => (
                   <option key={c.id} value={c.name}>{c.name}</option>
                 ))}
@@ -178,7 +180,7 @@ export const Signup: React.FC = () => {
             <>
               <input 
                 type="text" 
-                placeholder="País" 
+                placeholder={t('signup.countryPlaceholder')} 
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
                 required
@@ -187,14 +189,14 @@ export const Signup: React.FC = () => {
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <input 
                   type="text" 
-                  placeholder="Estado/Província" 
+                  placeholder={t('signup.foreignStatePlaceholder')} 
                   value={state}
                   onChange={(e) => setState(e.target.value)}
                   className="auth-input"
                 />
                 <input 
                   type="text" 
-                  placeholder="Cidade" 
+                  placeholder={t('signup.cityPlaceholder')} 
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   className="auth-input"
@@ -205,7 +207,7 @@ export const Signup: React.FC = () => {
 
           <input 
             type="password" 
-            placeholder="Senha (mínimo 6 caracteres)" 
+            placeholder={t('signup.passwordPlaceholder')} 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -213,12 +215,12 @@ export const Signup: React.FC = () => {
             className="auth-input"
           />
           <button type="submit" disabled={loading} className="auth-button">
-            {loading ? 'Criando conta...' : 'Criar conta'}
+            {loading ? t('signup.buttonLoading') : t('signup.button')}
           </button>
         </form>
         
         <div className="auth-footer">
-          Já tem uma conta? <a href="/login">Entrar</a>
+          {t('signup.haveAccount')} <a href="/login">{t('signup.loginLink')}</a>
         </div>
       </div>
     </div>

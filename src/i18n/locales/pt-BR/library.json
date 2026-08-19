@@ -1,3 +1,8 @@
 {
-  "title": "Biblioteca"
+  "title": "Biblioteca",
+  "loading": "Carregando biblioteca...",
+  "error": "Não foi possível carregar a biblioteca de devocionais.",
+  "categories": "Categorias",
+  "count_one": "{{count}} devocional",
+  "count_other": "{{count}} devocionais"
 }

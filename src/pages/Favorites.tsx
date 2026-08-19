@@ -3,8 +3,10 @@ import { DevotionalService } from '../services/DevotionalService';
 import type { Devotional } from '../types/Devotional';
 import { JourneyService } from '../services/JourneyService';
 import { PrincipleView } from '../components/PrincipleView';
+import { useTranslation } from 'react-i18next';
 
 export function Favorites() {
+  const { t, i18n } = useTranslation(['common']);
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
   const [devotionals, setDevotionals] = useState<Devotional[]>([]);
   const [selectedDevotional, setSelectedDevotional] = useState<Devotional | null>(null);
@@ -13,7 +15,7 @@ export function Favorites() {
   useEffect(() => {
     Promise.all([
       JourneyService.listFavorites(),
-      DevotionalService.getDevotionals()
+      DevotionalService.getDevotionals(i18n.language)
     ])
       .then(([ids, data]) => {
         setFavoriteIds(ids);
@@ -24,7 +26,7 @@ export function Favorites() {
         console.error(err);
         setLoading(false);
       });
-  }, [selectedDevotional]); // re-fetch when returning from view to catch removals
+  }, [selectedDevotional, i18n.language]); // re-fetch when returning from view to catch removals
 
   if (selectedDevotional) {
     return <PrincipleView devotional={selectedDevotional} onBack={() => setSelectedDevotional(null)} />;
@@ -33,8 +35,8 @@ export function Favorites() {
   if (loading) {
     return (
       <div>
-        <h2 style={{ marginBottom: '1.5rem', fontWeight: 500 }}>Salvos</h2>
-        <span className="label" style={{ opacity: 0.5 }}>Carregando favoritos...</span>
+        <h2 style={{ marginBottom: '1.5rem', fontWeight: 500 }}>{t('savedNav')}</h2>
+        <span className="label" style={{ opacity: 0.5 }}>{t('loadingFavorites')}</span>
       </div>
     );
   }
@@ -43,11 +45,11 @@ export function Favorites() {
 
   return (
     <div>
-      <h2 style={{ marginBottom: '1.5rem', fontWeight: 500 }}>Salvos</h2>
+      <h2 style={{ marginBottom: '1.5rem', fontWeight: 500 }}>{t('savedNav')}</h2>
       
       {favoriteDevotionals.length === 0 ? (
         <div className="empty-state">
-          <p>Você ainda não salvou nenhum devocional.</p>
+          <p>{t('noFavorites')}</p>
         </div>
       ) : (
         <div className="category-list">
@@ -55,7 +57,9 @@ export function Favorites() {
             <div key={d.id} className="principle-list-item" onClick={() => setSelectedDevotional(d)}>
               <span className="label" style={{ marginBottom: '4px' }}>{d.categories?.name}</span>
               <h3 className="principle-list-title">{d.title}</h3>
-              <p className="principle-list-preview">{d.reflection.split('\\n\\n')[0]}</p>
+              <p className="principle-list-preview">
+                {d.principle_statement ? d.principle_statement : d.reflection.split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)[0]}
+              </p>
             </div>
           ))}
         </div>

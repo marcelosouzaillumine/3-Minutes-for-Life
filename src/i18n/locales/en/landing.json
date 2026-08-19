@@ -1,0 +1,114 @@
+{
+  "nav": {
+    "howItWorks": "How it works",
+    "about": "About",
+    "support": "Support the project",
+    "start": "Start"
+  },
+  "hero": {
+    "title": "Three minutes to look at life with more attention.",
+    "subtitle": "A daily reflection to pause, think about life, and notice what deserves your attention.",
+    "btnStart": "Start",
+    "hint": "No signup required to try.",
+    "mockupLabel": "Continue"
+  },
+  "tension": {
+    "kicker": "Why three minutes?",
+    "title": "Your day is<br/>already full.",
+    "p1": "Messages, work, news, decisions, worries. And there's always one more thing.",
+    "p2": "In the midst of all this, it's easy to spend the whole day reacting to what happens and almost never stop to notice what is happening inside us."
+  },
+  "relief": {
+    "title": "That's why three minutes exist.",
+    "subtitle": "A small space in the day to pause, think, and pay attention to the life that is happening right now."
+  },
+  "experience": {
+    "step1": {
+      "title": "Pause.",
+      "desc": "Breathe.<br/>Slow down.<br/>Pay attention."
+    },
+    "step2": {
+      "title": "Reflect.",
+      "desc": "An idea.<br/>A question.<br/>A new perspective."
+    },
+    "step3": {
+      "title": "Practice.",
+      "desc": "Bring the reflection into real life."
+    }
+  },
+  "quote1": {
+    "top": "A pause can change how you see the day.",
+    "statement": "Life doesn't need more speed.<br />It needs more attention."
+  },
+  "split": {
+    "title": "What guides your sight?",
+    "p1": "The Christian faith is at the heart of 3 Minutes for Life. It invites us to look at our choices, our relationships, our challenges, and our purpose in the light of God and the teachings of Jesus.",
+    "p2": "Not to offer ready-made answers, but to make room for questions that really matter."
+  },
+  "audience": {
+    "title": "For those who want to live with more intention.",
+    "items": [
+      "For those facing a decision.",
+      "For those who need to slow down.",
+      "For those who want to better care for their relationships.",
+      "For those who work and lead.",
+      "For those seeking more meaning.",
+      "For those who simply need a few minutes to think."
+    ]
+  },
+  "quote2": {
+    "statement": "Three minutes.<br />One reflection.<br />One small step.",
+    "bottom": "More attention to the life you are already living."
+  },
+  "sustainability": {
+    "title": "A free project, sustained by people",
+    "p1": "3 Minutes for Life was born so that anyone can find, every day, a few minutes to pause, reflect, and look at life with more attention.",
+    "p2": "That is why access to the content is free.",
+    "p3": "We don't want the ability to pay to determine who can receive a reflection.",
+    "p4": "The project is sustained by people who believe in this proposal and choose to contribute voluntarily so that it continues to exist, be maintained, and reach more people.",
+    "p5": "You don't have to contribute to use it. Support is voluntary and does not alter access to the content or essential features of 3 Minutes for Life.",
+    "p6": "If, at some point, you feel it is worth helping, you can be part of the project's sustainability.",
+    "btn": "Support the project",
+    "breakdownTitle": "Where does the support go?",
+    "breakdownDesc": "Contributions help maintain and develop the project.",
+    "items": [
+      { "title": "Content", "desc": "Production, review, and development of reflections." },
+      { "title": "Technology", "desc": "Applications, servers, databases, and infrastructure." },
+      { "title": "Reach", "desc": "Communication and initiatives so more people know the project." },
+      { "title": "Development", "desc": "New content, features, and possibilities to expand the experience." }
+    ],
+    "note": "As the project grows, we want to transparently share how resources are used."
+  },
+  "continue": {
+    "title": "Continue your journey",
+    "subtitle": "If this reflection resonated with you, continue your journey on 3 Minutes for Life.",
+    "btnCreate": "Create my account",
+    "btnLogin": "Already have an account? Log in"
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "q1": { "q": "Is 3 Minutes for Life free?", "a": "Yes. Access to the core content is free. The project is sustained by people who choose to support it voluntarily." },
+    "q2": { "q": "Do I need to be Christian to use it?", "a": "No. 3 Minutes for Life starts from a Christian perspective, but it was created to converse with anyone who wants to pause, reflect, and look at life with more attention." },
+    "q3": { "q": "How much time do I need per day?", "a": "The proposal is to take approximately three minutes." },
+    "q4": { "q": "Do I need to install an app?", "a": "The platform works directly in the browser and can be added to the mobile home screen as an app." },
+    "q5": { "q": "Is the content generated by AI?", "a": "No. The content is written and editorially reviewed by people, to preserve a human, simple, and consistent voice." },
+    "q6": { "q": "How can I support the project?", "a": "The content is free. If you want to voluntarily contribute to the continuity and expansion of the project, you can learn about the support options provided by 3 Minutes for Life. Support is not required to access the content." }
+  },
+  "cta": {
+    "title": "Set aside three minutes.",
+    "subtitle": "Pause. Reflect. Live.",
+    "btn": "Start today"
+  },
+  "footer": {
+    "tagline": "Three minutes to look at life with more attention.",
+    "links": {
+      "howItWorks": "How it works",
+      "about": "About",
+      "support": "Support the project",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "contact": "Contact"
+    },
+    "copy": "© 2026 3 Minutes for Life"
+  }
+}

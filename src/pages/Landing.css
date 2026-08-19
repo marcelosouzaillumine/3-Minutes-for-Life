@@ -730,7 +730,8 @@
   }
   .hero-visual {
     width: 100%;
-    height: 600px;
+    height: auto;
+    padding: 4rem 0;
     justify-content: center;
   }
   .split-image {
@@ -741,7 +742,7 @@
     transform: none;
     width: 90%;
     max-width: 380px;
-    height: 400px;
+    height: 380px;
     border-radius: 16px;
   }
   .tension-section {

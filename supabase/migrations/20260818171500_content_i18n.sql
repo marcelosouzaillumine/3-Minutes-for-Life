@@ -43,5 +43,5 @@ SELECT
   title,
   reflection,
   practical_application,
-  status
+  'published' as status
 FROM public.devotionals;

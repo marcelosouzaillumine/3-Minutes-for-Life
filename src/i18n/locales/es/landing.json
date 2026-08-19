@@ -1,0 +1,114 @@
+{
+  "nav": {
+    "howItWorks": "Cómo funciona",
+    "about": "Sobre nosotros",
+    "support": "Apoya el proyecto",
+    "start": "Comenzar"
+  },
+  "hero": {
+    "title": "Tres minutos para mirar la vida con más atención.",
+    "subtitle": "Una reflexión diaria para detenerse, pensar en la vida y notar lo que merece tu atención.",
+    "btnStart": "Comenzar",
+    "hint": "Sin registro para probar.",
+    "mockupLabel": "Continuar"
+  },
+  "tension": {
+    "kicker": "¿Por qué tres minutos?",
+    "title": "Tu día ya<br/>está lleno.",
+    "p1": "Mensajes, trabajo, noticias, decisiones, preocupaciones. Y siempre aparece una cosa más.",
+    "p2": "En medio de todo esto, es fácil pasar todo el día reaccionando a lo que sucede y casi nunca detenerse a notar lo que está sucediendo dentro de nosotros."
+  },
+  "relief": {
+    "title": "Por eso existen tres minutos.",
+    "subtitle": "Un pequeño espacio en el día para detenerse, pensar y prestar atención a la vida que está sucediendo ahora mismo."
+  },
+  "experience": {
+    "step1": {
+      "title": "Detente.",
+      "desc": "Respira.<br/>Baja el ritmo.<br/>Presta atención."
+    },
+    "step2": {
+      "title": "Reflexiona.",
+      "desc": "Una idea.<br/>Una pregunta.<br/>Una nueva perspectiva."
+    },
+    "step3": {
+      "title": "Practica.",
+      "desc": "Lleva la reflexión a la vida real."
+    }
+  },
+  "quote1": {
+    "top": "Una pausa puede cambiar cómo ves el día.",
+    "statement": "La vida no necesita más velocidad.<br />Necesita más atención."
+  },
+  "split": {
+    "title": "¿Qué orienta tu mirada?",
+    "p1": "La fe cristiana está en el corazón de 3 Minutes for Life. Nos invita a mirar nuestras elecciones, nuestras relaciones, nuestros desafíos y nuestro propósito a la luz de Dios y de las enseñanzas de Jesús.",
+    "p2": "No para ofrecer respuestas prefabricadas, sino para hacer espacio a las preguntas que realmente importan."
+  },
+  "audience": {
+    "title": "Para quienes quieren vivir con más intención.",
+    "items": [
+      "Para quienes se enfrentan a una decisión.",
+      "Para quienes necesitan bajar el ritmo.",
+      "Para quienes quieren cuidar mejor sus relaciones.",
+      "Para quienes trabajan y lideran.",
+      "Para quienes buscan más sentido.",
+      "Para quienes simplemente necesitan unos minutos para pensar."
+    ]
+  },
+  "quote2": {
+    "statement": "Tres minutos.<br />Una reflexión.<br />Un pequeño paso.",
+    "bottom": "Más atención a la vida que ya estás viviendo."
+  },
+  "sustainability": {
+    "title": "Un proyecto gratuito, sostenido por personas",
+    "p1": "3 Minutes for Life nació para que cualquier persona pueda encontrar, todos los días, unos minutos para detenerse, reflexionar y mirar la vida con más atención.",
+    "p2": "Por eso el acceso al contenido es gratuito.",
+    "p3": "No queremos que la capacidad de pago determine quién puede recibir una reflexión.",
+    "p4": "El proyecto se sostiene por personas que creen en esta propuesta y eligen contribuir voluntariamente para que siga existiendo, se mantenga y pueda llegar a más personas.",
+    "p5": "No tienes que contribuir para usarlo. El apoyo es voluntario y no altera el acceso al contenido ni a las funciones esenciales de 3 Minutes for Life.",
+    "p6": "Si en algún momento sientes que vale la pena ayudar, puedes ser parte de la sostenibilidad del proyecto.",
+    "btn": "Apoyar el proyecto",
+    "breakdownTitle": "¿A dónde va el apoyo?",
+    "breakdownDesc": "Las contribuciones ayudan a mantener y desarrollar el proyecto.",
+    "items": [
+      { "title": "Contenido", "desc": "Producción, revisión y desarrollo de las reflexiones." },
+      { "title": "Tecnología", "desc": "Aplicaciones, servidores, bases de datos e infraestructura." },
+      { "title": "Alcance", "desc": "Comunicación e iniciativas para que más personas conozcan el proyecto." },
+      { "title": "Desarrollo", "desc": "Nuevos contenidos, funciones y posibilidades para ampliar la experiencia." }
+    ],
+    "note": "A medida que el proyecto crezca, queremos compartir con transparencia cómo se utilizan los recursos."
+  },
+  "continue": {
+    "title": "Continúa tu viaje",
+    "subtitle": "Si esta reflexión tuvo sentido para ti, continúa tu viaje en 3 Minutes for Life.",
+    "btnCreate": "Crear mi cuenta",
+    "btnLogin": "¿Ya tienes una cuenta? Entrar"
+  },
+  "faq": {
+    "title": "Preguntas frecuentes",
+    "q1": { "q": "¿Es gratis 3 Minutes for Life?", "a": "Sí. El acceso al contenido principal es gratuito. El proyecto está sostenido por personas que eligen apoyarlo voluntariamente." },
+    "q2": { "q": "¿Necesito ser cristiano para usarlo?", "a": "No. 3 Minutes for Life parte de una perspectiva cristiana, pero fue creado para conversar con cualquier persona que quiera detenerse, reflexionar y mirar la vida con más atención." },
+    "q3": { "q": "¿Cuánto tiempo necesito por día?", "a": "La propuesta es tomar aproximadamente tres minutos." },
+    "q4": { "q": "¿Necesito instalar una aplicación?", "a": "La plataforma funciona directamente en el navegador y se puede añadir a la pantalla de inicio del móvil como una aplicación." },
+    "q5": { "q": "¿El contenido está generado por inteligencia artificial?", "a": "No. El contenido está escrito y revisado editorialmente por personas, para preservar una voz humana, simple y consistente." },
+    "q6": { "q": "¿Cómo puedo apoyar el proyecto?", "a": "El contenido es gratuito. Si quieres contribuir voluntariamente a la continuidad y expansión del proyecto, puedes conocer las formas de apoyo que ofrece 3 Minutes for Life. No es necesario el apoyo para acceder al contenido." }
+  },
+  "cta": {
+    "title": "Reserva tres minutos.",
+    "subtitle": "Detente. Reflexiona. Vive.",
+    "btn": "Empezar hoy"
+  },
+  "footer": {
+    "tagline": "Tres minutos para mirar la vida con más atención.",
+    "links": {
+      "howItWorks": "Cómo funciona",
+      "about": "Sobre nosotros",
+      "support": "Apoya el proyecto",
+      "privacy": "Privacidad",
+      "terms": "Términos",
+      "contact": "Contacto"
+    },
+    "copy": "© 2026 3 Minutes for Life"
+  }
+}

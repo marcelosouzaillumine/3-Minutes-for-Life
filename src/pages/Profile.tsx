@@ -3,9 +3,12 @@ import { useAuth } from '../context/AuthContext';
 import { About } from './About';
 import { TestimonialSection } from '../components/TestimonialSection';
 import { TestimonialList } from '../components/TestimonialList';
+import { LanguageSelector } from '../components/LanguageSelector';
+import { useTranslation } from 'react-i18next';
 import './Profile.css';
 
 export function Profile() {
+  const { t } = useTranslation(['profile', 'common']);
   const { user, signOut } = useAuth();
   const [showAbout, setShowAbout] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -26,7 +29,7 @@ export function Profile() {
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Voltar
+          {t('common:back')}
         </button>
         <div className="about-content">
           <About />
@@ -37,7 +40,7 @@ export function Profile() {
 
   return (
     <div className="profile-container">
-      <h2 className="page-header">Seu Perfil</h2>
+      <h2 className="page-header">{t('title')}</h2>
       
       <div className="profile-hero">
         <div className="avatar-wrapper" onClick={() => fileInputRef.current?.click()}>
@@ -69,7 +72,7 @@ export function Profile() {
       </div>
 
       <div className="profile-section">
-        <h3 className="section-title">Configurações</h3>
+        <h3 className="section-title">{t('settings')}</h3>
         <div className="settings-list">
           <div className="settings-item">
             <div className="settings-item-left">
@@ -78,7 +81,7 @@ export function Profile() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
               </div>
-              <span>Notificações Diárias</span>
+              <span>{t('dailyNotifications')}</span>
             </div>
             <div className="toggle-switch active"></div>
           </div>
@@ -89,24 +92,37 @@ export function Profile() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                 </svg>
               </div>
-              <span>Tema Escuro</span>
+              <span>{t('darkTheme')}</span>
             </div>
             <div className="toggle-switch"></div>
+          </div>
+          <div className="settings-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '0.5rem', paddingBottom: '1rem' }}>
+             <div className="settings-item-left" style={{ width: '100%' }}>
+              <div className="settings-icon-bg">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                </svg>
+              </div>
+              <span>{t('language')}</span>
+            </div>
+            <div style={{ paddingLeft: '2.5rem', width: '100%' }}>
+              <LanguageSelector />
+            </div>
           </div>
         </div>
       </div>
 
       <div className="profile-section">
-        <h3 className="section-title">Sua História</h3>
+        <h3 className="section-title">{t('yourStory')}</h3>
         <p style={{ color: 'var(--color-text-light)', fontSize: '0.9rem', marginBottom: '-1.5rem', lineHeight: 1.5 }}>
-          Um espaço privado para registrar o que as reflexões têm despertado em você.
+          {t('storyDescription')}
         </p>
         <TestimonialSection />
         <TestimonialList />
       </div>
 
       <div className="profile-section">
-        <h3 className="section-title">Mais</h3>
+        <h3 className="section-title">{t('more')}</h3>
         <div className="settings-list">
           <div className="settings-item clickable" onClick={() => setShowAbout(true)}>
              <div className="settings-item-left">
@@ -115,7 +131,7 @@ export function Profile() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <span>Sobre o App</span>
+              <span>{t('aboutApp')}</span>
             </div>
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20" className="chevron-icon">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -129,7 +145,7 @@ export function Profile() {
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
-          Sair da Conta
+          {t('logout')}
         </button>
       </div>
     </div>

@@ -1,0 +1,22 @@
+{
+  "modal": {
+    "title": "Fazer parte da missão",
+    "desc": "O 3 Minutos para a Vida é gratuito. Sua contribuição ajuda outra pessoa a receber também.",
+    "typeLabel": "Tipo de Contribuição",
+    "periodicityLabel": "Periodicidade",
+    "valueLabel": "Valor (R$)",
+    "valuePlaceholder": "Ex: 50",
+    "button": "Continuar",
+    "buttonLoading": "Preparando checkout...",
+    "footer": "Ambiente seguro. Você poderá cancelar sua contribuição mensal a qualquer momento.",
+    "options": {
+      "apoio": "Apoio (R$ 9,90/mês ou R$ 59,90/ano)",
+      "livre": "Valor Livre",
+      "mensal": "Mensal (R$ 9,90)",
+      "anual": "Anual (R$ 59,90)",
+      "unicaLivre": "Única",
+      "mensalLivre": "Mensal"
+    },
+    "errorNoLink": "Link de pagamento não configurado para esta opção."
+  }
+}

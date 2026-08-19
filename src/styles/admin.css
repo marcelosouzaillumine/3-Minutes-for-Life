@@ -1,89 +1,4 @@
-/* 3MinutesforLife - Admin Intelligence Styles */
-
-.admin-layout {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  background-color: #0b0c10; /* Following 3M dark aesthetic */
-  color: #fff;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  overflow: hidden;
-}
-
-.admin-sidebar {
-  width: 260px;
-  background-color: #151820;
-  border-right: 1px solid #232733;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-}
-
-.admin-logo {
-  padding: 32px 24px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.admin-logo h2 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-}
-
-.admin-badge {
-  background-color: #2e3b5e;
-  color: #8fb1ff;
-  font-size: 0.65rem;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.admin-nav {
-  display: flex;
-  flex-direction: column;
-  padding: 0 16px;
-  gap: 8px;
-  flex: 1;
-}
-
-.admin-nav-item {
-  padding: 12px 16px;
-  border-radius: 8px;
-  color: #a0a6b5;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-}
-
-.admin-nav-item:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-  color: #fff;
-}
-
-.admin-nav-item.active {
-  background-color: #2563eb; /* Primary accent */
-  color: #fff;
-  font-weight: 600;
-}
-
-.admin-nav-footer {
-  padding: 24px;
-  border-top: 1px solid #232733;
-}
-
-.admin-main {
-  flex: 1;
-  overflow-y: auto;
-  padding: 40px;
-}
+/* 3MinutesforLife - Admin Intelligence Styles (Clean Mobile First) */
 
 .admin-loading-state,
 .admin-empty-state,
@@ -92,15 +7,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  background-color: #0b0c10;
-  color: #a0a6b5;
+  height: 100%;
+  min-height: 50vh;
+  color: var(--color-text-light, #666);
+  text-align: center;
+  background-color: transparent;
 }
 
 .admin-spinner {
-  border: 3px solid rgba(255,255,255,0.1);
+  border: 3px solid var(--color-border, #eaeaea);
   border-radius: 50%;
-  border-top: 3px solid #2563eb;
+  border-top: 3px solid var(--color-accent, #c46d53);
   width: 40px;
   height: 40px;
   animation: admin-spin 1s linear infinite;
@@ -114,177 +31,227 @@
 
 /* Dashboard specific styles */
 .admin-header {
-  margin-bottom: 40px;
+  margin-bottom: 24px;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .admin-header h1 {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  margin: 0 0 8px 0;
+  margin: 0 0 4px 0;
+  color: var(--color-text, #1a1a1a);
 }
 
 .admin-header p {
   margin: 0;
-  color: #a0a6b5;
-  font-size: 0.95rem;
+  color: var(--color-text-light, #666);
+  font-size: 0.9rem;
 }
 
 .admin-period-selector select {
-  background-color: #151820;
-  border: 1px solid #232733;
-  color: #fff;
+  background-color: var(--color-bg, #ffffff);
+  border: 1px solid var(--color-border, #eaeaea);
+  color: var(--color-text, #1a1a1a);
   padding: 10px 16px;
   border-radius: 8px;
   font-size: 0.9rem;
   cursor: pointer;
   outline: none;
+  width: 100%;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  transition: border-color 0.2s;
+}
+
+.admin-period-selector select:focus {
+  border-color: var(--color-accent, #c46d53);
 }
 
 .admin-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-  margin-bottom: 40px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
 }
 
 .admin-card {
-  background-color: #151820;
-  border: 1px solid #232733;
+  background-color: var(--color-bg, #ffffff);
+  border: 1px solid var(--color-border, #eaeaea);
   border-radius: 12px;
-  padding: 24px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 }
 
 .admin-card-title {
-  color: #a0a6b5;
-  font-size: 0.85rem;
+  color: var(--color-text-light, #666);
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .admin-card-value {
-  font-size: 2rem;
+  color: var(--color-text, #1a1a1a);
+  font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 8px;
   display: flex;
-  align-items: baseline;
-  gap: 12px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
 }
 
 .admin-trend {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  padding: 4px 8px;
+  padding: 4px 6px;
   border-radius: 4px;
+  display: inline-block;
 }
 
 .admin-trend.up {
-  color: #10b981;
-  background-color: rgba(16, 185, 129, 0.1);
+  color: #059669; /* Darker green for light bg */
+  background-color: #d1fae5;
 }
 
 .admin-trend.down {
-  color: #ef4444;
-  background-color: rgba(239, 68, 68, 0.1);
+  color: #dc2626; /* Darker red for light bg */
+  background-color: #fee2e2;
 }
 
 .admin-trend.neutral {
-  color: #a0a6b5;
-  background-color: rgba(160, 166, 181, 0.1);
+  color: var(--color-text-light, #666);
+  background-color: #f3f4f6;
 }
 
 .admin-section {
-  background-color: #151820;
-  border: 1px solid #232733;
+  background-color: var(--color-bg, #ffffff);
+  border: 1px solid var(--color-border, #eaeaea);
   border-radius: 12px;
-  padding: 32px;
-  margin-bottom: 40px;
+  padding: 24px 16px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 }
 
 .admin-section h3 {
-  margin: 0 0 24px 0;
-  font-size: 1.2rem;
+  margin: 0 0 16px 0;
+  font-size: 1.1rem;
   font-weight: 600;
+  color: var(--color-text, #1a1a1a);
 }
 
 .admin-funnel-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: rgba(0,0,0,0.2);
-  padding: 24px;
+  flex-direction: column;
+  gap: 12px;
+  background-color: #f9fafb; /* Very light gray */
+  padding: 16px;
   border-radius: 8px;
-  overflow-x: auto;
+  border: 1px solid var(--color-border, #eaeaea);
 }
 
 .admin-funnel-step {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  min-width: 100px;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.admin-funnel-info {
+  display: flex;
+  flex-direction: column;
 }
 
 .admin-funnel-label {
-  color: #a0a6b5;
+  color: var(--color-text-light, #666);
   font-size: 0.85rem;
   font-weight: 500;
   text-transform: uppercase;
-  margin-bottom: 12px;
 }
 
 .admin-funnel-value {
-  font-size: 1.5rem;
+  color: var(--color-text, #1a1a1a);
+  font-size: 1.25rem;
   font-weight: 700;
-  margin-bottom: 4px;
 }
 
 .admin-funnel-rate {
-  color: #10b981;
-  font-size: 0.8rem;
+  color: #059669;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
 .admin-funnel-arrow {
-  color: #232733;
-  font-size: 1.5rem;
+  display: none;
 }
 
 .admin-retention-grid {
-  display: flex;
-  gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 .admin-retention-item {
-  flex: 1;
-  background-color: rgba(0,0,0,0.2);
-  padding: 20px;
+  background-color: #f9fafb;
+  border: 1px solid var(--color-border, #eaeaea);
+  padding: 16px;
   border-radius: 8px;
   text-align: center;
+}
+
+.admin-table-container {
+  overflow-x: auto;
 }
 
 .admin-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 300px;
 }
 
 .admin-table th, .admin-table td {
-  padding: 16px;
+  padding: 12px 8px;
   text-align: left;
-  border-bottom: 1px solid #232733;
+  border-bottom: 1px solid var(--color-border, #eaeaea);
+  font-size: 0.9rem;
+  color: var(--color-text, #1a1a1a);
 }
 
 .admin-table th {
-  color: #a0a6b5;
-  font-size: 0.85rem;
+  color: var(--color-text-light, #666);
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .admin-table tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.02);
+  background-color: #f9fafb;
+}
+
+/* Modifiers for Dashboard layout columns */
+.admin-dashboard-columns {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+@media (min-width: 600px) {
+  .admin-header {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .admin-period-selector select {
+    width: auto;
+  }
+  .admin-card-value {
+    flex-direction: row;
+    align-items: baseline;
+  }
 }

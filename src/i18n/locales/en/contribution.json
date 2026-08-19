@@ -1,0 +1,22 @@
+{
+  "modal": {
+    "title": "Be part of the mission",
+    "desc": "3 Minutes for Life is free. Your contribution helps someone else receive it too.",
+    "typeLabel": "Contribution Type",
+    "periodicityLabel": "Periodicity",
+    "valueLabel": "Amount (R$)",
+    "valuePlaceholder": "Ex: 50",
+    "button": "Continue",
+    "buttonLoading": "Preparing checkout...",
+    "footer": "Secure environment. You can cancel your monthly contribution at any time.",
+    "options": {
+      "apoio": "Support (R$ 9.90/mo or R$ 59.90/yr)",
+      "livre": "Custom Amount",
+      "mensal": "Monthly (R$ 9.90)",
+      "anual": "Yearly (R$ 59.90)",
+      "unicaLivre": "One-time",
+      "mensalLivre": "Monthly"
+    },
+    "errorNoLink": "Payment link not configured for this option."
+  }
+}

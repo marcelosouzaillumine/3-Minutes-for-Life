@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import './Landing.css';
 import { PrincipleView } from '../components/PrincipleView';
-import { leadService } from '../services/leadService';
 import type { Devotional } from '../types/Devotional';
+import { LanguageSelector } from '../components/LanguageSelector';
+import { useTranslation } from 'react-i18next';
 
 function useIntersectionObserver() {
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -36,9 +37,7 @@ function useIntersectionObserver() {
 }
 
 export function Landing() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useTranslation(['landing']);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const setRef = useIntersectionObserver();
 
@@ -52,20 +51,7 @@ export function Landing() {
     date: new Date().toISOString()
   };
 
-  const handleLeadSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      await leadService.submitLead({ name, email });
-      alert('E-mail cadastrado com sucesso! Em breve entraremos em contato.');
-      setName('');
-      setEmail('');
-    } catch (err: any) {
-      alert(err.message || 'Ocorreu um erro.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+
 
   const startApp = () => {
     window.location.href = '/signup';
@@ -94,27 +80,30 @@ export function Landing() {
         </button>
 
         <nav className={`landing-nav ${isMenuOpen ? 'open' : ''}`}>
-          <a href="#como-funciona" onClick={() => setIsMenuOpen(false)}>Como funciona</a>
-          <a href="#sobre" onClick={() => setIsMenuOpen(false)}>Sobre</a>
-          <a href="#apoie" onClick={() => setIsMenuOpen(false)}>Apoie o projeto</a>
+          <a href="#como-funciona" onClick={() => setIsMenuOpen(false)}>{t('landing:nav.howItWorks')}</a>
+          <a href="#sobre" onClick={() => setIsMenuOpen(false)}>{t('landing:nav.about')}</a>
+          <a href="#apoie" onClick={() => setIsMenuOpen(false)}>{t('landing:nav.support')}</a>
           <button className="btn-start-nav" onClick={() => { setIsMenuOpen(false); startApp(); }}>
-            Começar
+            {t('landing:nav.start')}
           </button>
+          <div style={{ display: 'flex', alignItems: 'center', marginLeft: '0.5rem' }}>
+            <LanguageSelector />
+          </div>
         </nav>
       </header>
 
       {/* Hero */}
       <section className="landing-hero" ref={setRef}>
         <div className="hero-content reveal">
-          <h1 className="hero-title">Três minutos para olhar a vida com mais atenção.</h1>
+          <h1 className="hero-title">{t('landing:hero.title')}</h1>
           <p className="hero-subtitle">
-            Uma reflexão por dia para parar, pensar sobre a vida e perceber o que merece sua atenção.
+            {t('landing:hero.subtitle')}
           </p>
           <div className="hero-actions">
             <button className="btn-start" onClick={startApp}>
-              Começar gratuitamente
+              {t('landing:hero.btnStart')}
             </button>
-            <span className="hero-hint" style={{ display: 'block', marginTop: '1rem', opacity: 0.7 }}>Sem cadastro para experimentar.</span>
+
           </div>
         </div>
         <div className="hero-visual reveal delay-200">
@@ -129,7 +118,7 @@ export function Landing() {
                 status: 'published'
               } as unknown as Devotional}
               customAction={{
-                label: 'Quero começar minha jornada',
+                label: t('landing:hero.mockupLabel'),
                 onClick: startApp
               }}
             />
@@ -141,26 +130,26 @@ export function Landing() {
       <section className="tension-section" ref={setRef}>
         <div className="tension-grid">
           <div className="tension-left reveal">
-            <span className="attention-kicker">Por que três minutos?</span>
-            <h3 className="tension-title">Seu dia já<br/>está cheio.</h3>
+            <span className="attention-kicker">{t('landing:tension.kicker')}</span>
+            <h3 className="tension-title"><span dangerouslySetInnerHTML={{ __html: t('landing:tension.title') }} /></h3>
           </div>
           <div className="tension-right reveal delay-200">
             <p className="tension-paragraph">
-              Mensagens, trabalho, notícias, decisões, preocupações. E sempre aparece mais uma coisa.
+              {t('landing:tension.p1')}
             </p>
             <p className="tension-paragraph">
-              No meio de tudo isso, é fácil passar o dia inteiro reagindo ao que acontece e quase nunca parar para perceber o que está acontecendo dentro de nós.
+              {t('landing:tension.p2')}
             </p>
           </div>
         </div>
       </section>
 
-      {/* É por isso que existem três minutos. */}
+      {/* {t('landing:relief.title')} */}
       <section className="relief-section" ref={setRef}>
         <div className="relief-content reveal">
           <h2 className="relief-statement">É por isso que existem três minutos.</h2>
           <p className="relief-subtext">
-            Um pequeno espaço no dia para parar, pensar e prestar atenção à vida que está acontecendo agora.
+            {t('landing:relief.subtitle')}
           </p>
         </div>
       </section>
@@ -169,16 +158,16 @@ export function Landing() {
       <section id="como-funciona" className="experience-image-section" ref={setRef}>
         <div className="experience-cards-grid">
           <div className="experience-card-item reveal delay-100">
-            <h3 className="step-title">Pare.</h3>
-            <p className="step-desc">Respire.<br/>Diminua o ritmo.<br/>Preste atenção.</p>
+            <h3 className="step-title">{t('landing:experience.step1.title')}</h3>
+            <p className="step-desc"><span dangerouslySetInnerHTML={{ __html: t('landing:experience.step1.desc') }} /></p>
           </div>
           <div className="experience-card-item reveal delay-200">
-            <h3 className="step-title">Reflita.</h3>
-            <p className="step-desc">Uma ideia.<br/>Uma pergunta.<br/>Um novo olhar.</p>
+            <h3 className="step-title">{t('landing:experience.step2.title')}</h3>
+            <p className="step-desc"><span dangerouslySetInnerHTML={{ __html: t('landing:experience.step2.desc') }} /></p>
           </div>
           <div className="experience-card-item reveal delay-300">
-            <h3 className="step-title">Pratique.</h3>
-            <p className="step-desc">Leve a reflexão para a vida real.</p>
+            <h3 className="step-title">{t('landing:experience.step3.title')}</h3>
+            <p className="step-desc">{t('landing:experience.step3.desc')}</p>
           </div>
         </div>
       </section>
@@ -186,24 +175,23 @@ export function Landing() {
       {/* Citação */}
       <section className="quote-section" ref={setRef}>
         <p style={{ fontSize: '1.2rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--landing-text-light)', marginBottom: '2rem' }} className="reveal">
-          Uma pausa pode mudar a maneira como você vê o dia.
+          {t('landing:quote1.top')}
         </p>
         <div className="perceived-statement reveal delay-100" style={{ margin: 0 }}>
-          A vida não precisa de mais velocidade.<br />
-          Precisa de mais atenção.
+          <span dangerouslySetInnerHTML={{ __html: t('landing:quote1.statement') }} />
         </div>
       </section>
 
-      {/* O que orienta o seu olhar? */}
+      {/* {t('landing:split.title')} */}
       <section className="split-section" ref={setRef}>
         <div className="split-image reveal"></div>
         <div className="split-content reveal delay-200">
           <h2 className="split-title">O que orienta o seu olhar?</h2>
           <p className="split-text">
-            A fé cristã está no coração do 3 Minutes for Life. Ela nos convida a olhar para nossas escolhas, nossos relacionamentos, nossos desafios e nosso propósito à luz de Deus e dos ensinamentos de Jesus.
+            {t('landing:split.p1')}
           </p>
           <p className="split-text">
-            Não para oferecer respostas prontas, mas para abrir espaço para perguntas que realmente importam.
+            {t('landing:split.p2')}
           </p>
         </div>
       </section>
@@ -212,15 +200,15 @@ export function Landing() {
       <section id="sobre" className="audience-section" ref={setRef}>
         <div className="audience-grid">
           <div className="audience-lead reveal">
-            <h2>Para quem quer viver com mais intenção.</h2>
+            <h2>{t('landing:audience.title')}</h2>
           </div>
           <div className="audience-list reveal delay-200">
-            <p>Para quem está diante de uma decisão.</p>
-            <p>Para quem precisa desacelerar.</p>
-            <p>Para quem quer cuidar melhor dos seus relacionamentos.</p>
-            <p>Para quem trabalha e lidera.</p>
-            <p>Para quem busca mais sentido.</p>
-            <p>Para quem simplesmente precisa de alguns minutos para pensar.</p>
+            <p>{(t('landing:audience.items', { returnObjects: true }) as string[])[0]}</p>
+            <p>{(t('landing:audience.items', { returnObjects: true }) as string[])[1]}</p>
+            <p>{(t('landing:audience.items', { returnObjects: true }) as string[])[2]}</p>
+            <p>{(t('landing:audience.items', { returnObjects: true }) as string[])[3]}</p>
+            <p>{(t('landing:audience.items', { returnObjects: true }) as string[])[4]}</p>
+            <p>{(t('landing:audience.items', { returnObjects: true }) as string[])[5]}</p>
           </div>
         </div>
       </section>
@@ -228,137 +216,121 @@ export function Landing() {
       {/* Citação Resumo */}
       <section className="quote-section" ref={setRef} style={{ padding: '6rem var(--spacing-lg)' }}>
         <div className="perceived-statement reveal">
-          Três minutos.<br />
-          Uma reflexão.<br />
-          Um pequeno passo.
+          <span dangerouslySetInnerHTML={{ __html: t('landing:quote2.statement') }} />
         </div>
         <p style={{ fontFamily: 'var(--font-serif)', fontSize: '2.5rem', color: 'var(--landing-text-light)', fontStyle: 'italic', marginTop: '4rem' }} className="reveal delay-100">
-          Mais atenção para a vida que você já está vivendo.
+          {t('landing:quote2.bottom')}
         </p>
       </section>
 
       {/* Sustentabilidade */}
       <section id="apoie" className="sustainability-section" ref={setRef}>
         <div className="sustainability-container reveal">
-          <h2 className="sustainability-title">Um projeto gratuito, sustentado por pessoas</h2>
+          <h2 className="sustainability-title">{t('landing:sustainability.title')}</h2>
           
           <div className="sustainability-grid">
             <div className="sustainability-text">
-              <p>O 3 Minutes for Life nasceu para que qualquer pessoa possa encontrar, todos os dias, alguns minutos para parar, refletir e olhar a vida com mais atenção.</p>
-              <p>Por isso, o acesso ao conteúdo é gratuito.</p>
-              <p>Não queremos que a capacidade de pagar determine quem pode receber uma reflexão.</p>
-              <p>O projeto é sustentado por pessoas que acreditam nessa proposta e escolhem contribuir voluntariamente para que ele continue existindo, seja mantido e possa alcançar mais pessoas.</p>
-              <p>Você não precisa contribuir para usar. O apoio é voluntário e não altera o acesso ao conteúdo ou às funcionalidades essenciais do 3 Minutes for Life.</p>
-              <p>Se, em algum momento, você sentir que vale a pena ajudar, poderá fazer parte da sustentabilidade do projeto.</p>
+              <p>{t('landing:sustainability.p1')}</p>
+              <p>{t('landing:sustainability.p2')}</p>
+              <p>{t('landing:sustainability.p3')}</p>
+              <p>{t('landing:sustainability.p4')}</p>
+              <p>{t('landing:sustainability.p5')}</p>
+              <p>{t('landing:sustainability.p6')}</p>
               
               <button className="btn-support" onClick={() => window.location.href = '/missao'}>
-                Apoiar o projeto
+                {t('landing:sustainability.btn')}
               </button>
             </div>
             
             <div className="sustainability-breakdown">
-              <h3>Para onde vai o apoio?</h3>
-              <p>As contribuições ajudam a manter e desenvolver o projeto.</p>
+              <h3>{t('landing:sustainability.breakdownTitle')}</h3>
+              <p>{t('landing:sustainability.breakdownDesc')}</p>
               
               <ul className="breakdown-list">
                 <li>
-                  <strong>Conteúdo</strong>
-                  <span>Produção, revisão e desenvolvimento das reflexões.</span>
+                  <strong>{(t('landing:sustainability.items', { returnObjects: true }) as any[])[0].title}</strong><span>{(t('landing:sustainability.items', { returnObjects: true }) as any[])[0].desc}</span>
                 </li>
                 <li>
-                  <strong>Tecnologia</strong>
-                  <span>Aplicativos, servidores, banco de dados e infraestrutura.</span>
+                  <strong>{(t('landing:sustainability.items', { returnObjects: true }) as any[])[1].title}</strong><span>{(t('landing:sustainability.items', { returnObjects: true }) as any[])[1].desc}</span>
                 </li>
                 <li>
-                  <strong>Alcance</strong>
-                  <span>Comunicação e iniciativas para que mais pessoas conheçam o projeto.</span>
+                  <strong>{(t('landing:sustainability.items', { returnObjects: true }) as any[])[2].title}</strong><span>{(t('landing:sustainability.items', { returnObjects: true }) as any[])[2].desc}</span>
                 </li>
                 <li>
-                  <strong>Desenvolvimento</strong>
-                  <span>Novos conteúdos, recursos e possibilidades para ampliar a experiência.</span>
+                  <strong>{(t('landing:sustainability.items', { returnObjects: true }) as any[])[3].title}</strong><span>{(t('landing:sustainability.items', { returnObjects: true }) as any[])[3].desc}</span>
                 </li>
               </ul>
-              <p className="breakdown-note">À medida que o projeto crescer, queremos compartilhar com transparência como os recursos são utilizados.</p>
+              <p className="breakdown-note">{t('landing:sustainability.note')}</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Captação de Lead */}
-      <section className="lead-section" ref={setRef}>
-        <div className="perceived-statement reveal" style={{ fontSize: '3rem', margin: '0 auto 6rem' }}>
-          Estamos começando.
-        </div>
-        <p className="lead-subtitle reveal delay-100">
-          Nesta primeira fase, estamos reunindo um pequeno grupo de pessoas para experimentar o 3 Minutes for Life, receber uma reflexão por dia e nos ajudar a construir uma experiência cada vez melhor.
+      {/* Continue sua jornada */}
+      <section className="continue-section" ref={setRef} style={{ padding: '6rem var(--spacing-md)', textAlign: 'center' }}>
+        <h2 className="reveal" style={{ fontSize: '2.5rem', marginBottom: '1rem', fontFamily: 'var(--font-serif)' }}>{t('landing:continue.title')}</h2>
+        <p className="reveal delay-100" style={{ fontSize: '1.1rem', color: 'var(--landing-text-light)', marginBottom: '3rem', maxWidth: '600px', margin: '0 auto 3rem' }}>
+          {t('landing:continue.subtitle')}
         </p>
-        <h2 className="lead-title reveal delay-200" style={{ marginTop: '4rem', fontSize: '2rem' }}>Quer fazer parte do começo?</h2>
         
-        <form className="lead-form reveal delay-300" onSubmit={handleLeadSubmit}>
-          <input 
-            type="text" 
-            className="form-input" 
-            placeholder="Nome" 
-            value={name}
-            onChange={e => setName(e.target.value)}
-            required 
-          />
-          <input 
-            type="email" 
-            className="form-input" 
-            placeholder="E-mail" 
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            required 
-          />
-          <label style={{ display: 'flex', gap: '8px', fontSize: '0.9rem', textAlign: 'left', margin: '1rem 0', alignItems: 'flex-start' }}>
-            <input type="checkbox" required style={{ marginTop: '4px' }} />
-            <span>Quero participar dos testes e receber novidades sobre o 3 Minutes for Life.</span>
-          </label>
-          <button type="submit" className="btn-submit" disabled={isSubmitting}>
-            Quero participar
+        <div className="reveal delay-200" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+          <button className="btn-start" onClick={startApp}>
+            {t('landing:continue.btnCreate')}
           </button>
-        </form>
+          <button 
+            onClick={() => window.location.href = '/login'}
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              color: 'var(--landing-text-light)', 
+              textDecoration: 'underline', 
+              cursor: 'pointer',
+              fontSize: '0.9rem'
+            }}
+          >
+            {t('landing:continue.btnLogin')}
+          </button>
+        </div>
       </section>
 
       {/* FAQ */}
       <section className="faq-section" ref={setRef}>
-        <h2 className="faq-title reveal">Perguntas frequentes</h2>
+        <h2 className="faq-title reveal">{t('landing:faq.title')}</h2>
         <div className="faq-grid">
           <div className="faq-item reveal delay-100">
-            <h3 className="faq-question">O 3 Minutes for Life é gratuito?</h3>
-            <p className="faq-answer">Sim. O acesso ao conteúdo principal é gratuito. O projeto é sustentado por pessoas que escolhem apoiá-lo voluntariamente.</p>
+            <h3 className="faq-question">{t('landing:faq.q1.q')}</h3>
+            <p className="faq-answer">{t('landing:faq.q1.a')}</p>
           </div>
           <div className="faq-item reveal delay-200">
-            <h3 className="faq-question">Preciso ser cristão para usar?</h3>
-            <p className="faq-answer">Não. O 3 Minutes for Life parte de uma perspectiva cristã, mas foi criado para conversar com qualquer pessoa que queira parar, refletir e olhar para a vida com mais atenção.</p>
+            <h3 className="faq-question">{t('landing:faq.q2.q')}</h3>
+            <p className="faq-answer">{t('landing:faq.q2.a')}</p>
           </div>
           <div className="faq-item reveal delay-300">
-            <h3 className="faq-question">Quanto tempo preciso por dia?</h3>
-            <p className="faq-answer">A proposta é levar aproximadamente três minutos.</p>
+            <h3 className="faq-question">{t('landing:faq.q3.q')}</h3>
+            <p className="faq-answer">{t('landing:faq.q3.a')}</p>
           </div>
           <div className="faq-item reveal delay-400">
-            <h3 className="faq-question">Preciso instalar um aplicativo?</h3>
-            <p className="faq-answer">A plataforma funciona diretamente no navegador e pode ser adicionada à tela inicial do celular como um aplicativo.</p>
+            <h3 className="faq-question">{t('landing:faq.q4.q')}</h3>
+            <p className="faq-answer">{t('landing:faq.q4.a')}</p>
           </div>
           <div className="faq-item reveal delay-500">
-            <h3 className="faq-question">O conteúdo é gerado por inteligência artificial?</h3>
-            <p className="faq-answer">Não. O conteúdo é escrito e revisado editorialmente por pessoas, para preservar uma voz humana, simples e consistente.</p>
+            <h3 className="faq-question">{t('landing:faq.q5.q')}</h3>
+            <p className="faq-answer">{t('landing:faq.q5.a')}</p>
           </div>
           <div className="faq-item reveal delay-600">
-            <h3 className="faq-question">Como posso apoiar o projeto?</h3>
-            <p className="faq-answer">O conteúdo é gratuito. Se você quiser contribuir voluntariamente para a continuidade e expansão do projeto, poderá conhecer as formas de apoio disponibilizadas pelo 3 Minutes for Life. O apoio não é necessário para acessar o conteúdo.</p>
+            <h3 className="faq-question">{t('landing:faq.q6.q')}</h3>
+            <p className="faq-answer">{t('landing:faq.q6.a')}</p>
           </div>
         </div>
       </section>
 
       {/* CTA Final */}
       <section className="cta-final" ref={setRef}>
-        <h2 className="cta-final-title reveal">Reserve três minutos.</h2>
-        <p className="cta-final-subtitle reveal delay-100">Pare. Reflita. Viva.</p>
+        <h2 className="cta-final-title reveal">{t('landing:cta.title')}</h2>
+        <p className="cta-final-subtitle reveal delay-100">{t('landing:cta.subtitle')}</p>
         <div className="reveal delay-200">
           <button className="btn-start" onClick={startApp}>
-            Começar hoje
+            {t('landing:cta.btn')}
           </button>
         </div>
       </section>
@@ -367,16 +339,16 @@ export function Landing() {
       <footer className="landing-footer">
         <div className="footer-signature">3 Minutes for Life</div>
         <div className="footer-content">
-          <p className="footer-tagline">Três minutos para olhar a vida com mais atenção.</p>
+          <p className="footer-tagline">{t('landing:footer.tagline')}</p>
           <div className="footer-links">
-            <a href="#como-funciona">Como funciona</a>
-            <a href="#sobre">Sobre</a>
-            <a href="#apoie">Apoie o projeto</a>
-            <a href="#">Privacidade</a>
-            <a href="#">Termos</a>
-            <a href="#">Contato</a>
+            <a href="#como-funciona">{t('landing:footer.links.howItWorks')}</a>
+            <a href="#sobre">{t('landing:footer.links.about')}</a>
+            <a href="#apoie">{t('landing:footer.links.support')}</a>
+            <a href="#">{t('landing:footer.links.privacy')}</a>
+            <a href="#">{t('landing:footer.links.terms')}</a>
+            <a href="#">{t('landing:footer.links.contact')}</a>
           </div>
-          <p className="footer-copy">© 2026 3 Minutes for Life</p>
+          <p className="footer-copy">{t('landing:footer.copy')}</p>
         </div>
       </footer>
     </div>

@@ -57,7 +57,7 @@ export function AdminDashboard() {
         <p>Não foi possível atualizar os dados do Dashboard.</p>
         <button 
           onClick={fetchMetrics}
-          style={{ marginTop: '16px', padding: '8px 16px', background: '#2563eb', border: 'none', color: '#fff', borderRadius: '4px', cursor: 'pointer' }}
+          style={{ marginTop: '16px', padding: '8px 16px', background: 'var(--color-accent)', border: 'none', color: '#fff', borderRadius: '4px', cursor: 'pointer' }}
         >
           Tentar Novamente
         </button>
@@ -148,69 +148,76 @@ export function AdminDashboard() {
         <h3>Jornada da Comunidade</h3>
         <div className="admin-funnel-container">
           <div className="admin-funnel-step">
-            <div className="admin-funnel-label">Acessou</div>
-            <div className="admin-funnel-value">{metrics.funnel.accessed}</div>
+            <div className="admin-funnel-info">
+              <div className="admin-funnel-label">Acessou</div>
+              <div className="admin-funnel-value">{metrics.funnel.accessed}</div>
+            </div>
             <div className="admin-funnel-rate">100%</div>
           </div>
-          <div className="admin-funnel-arrow">→</div>
           
           <div className="admin-funnel-step">
-            <div className="admin-funnel-label">Leu</div>
-            <div className="admin-funnel-value">{metrics.funnel.read}</div>
+            <div className="admin-funnel-info">
+              <div className="admin-funnel-label">Leu</div>
+              <div className="admin-funnel-value">{metrics.funnel.read}</div>
+            </div>
             <div className="admin-funnel-rate">{calcConversion(metrics.funnel.read, metrics.funnel.accessed)}</div>
           </div>
-          <div className="admin-funnel-arrow">→</div>
           
           <div className="admin-funnel-step">
-            <div className="admin-funnel-label">Compartilhou</div>
-            <div className="admin-funnel-value">{metrics.funnel.shared}</div>
+            <div className="admin-funnel-info">
+              <div className="admin-funnel-label">Compartilhou</div>
+              <div className="admin-funnel-value">{metrics.funnel.shared}</div>
+            </div>
             <div className="admin-funnel-rate">{calcConversion(metrics.funnel.shared, metrics.funnel.read)}</div>
           </div>
-          <div className="admin-funnel-arrow">→</div>
           
           <div className="admin-funnel-step">
-            <div className="admin-funnel-label">Testemunhou</div>
-            <div className="admin-funnel-value">{metrics.funnel.testified}</div>
+            <div className="admin-funnel-info">
+              <div className="admin-funnel-label">Testemunhou</div>
+              <div className="admin-funnel-value">{metrics.funnel.testified}</div>
+            </div>
             <div className="admin-funnel-rate">{calcConversion(metrics.funnel.testified, metrics.funnel.shared)}</div>
           </div>
-          <div className="admin-funnel-arrow">→</div>
           
           <div className="admin-funnel-step">
-            <div className="admin-funnel-label">Respondido</div>
-            <div className="admin-funnel-value">{metrics.funnel.responded}</div>
+            <div className="admin-funnel-info">
+              <div className="admin-funnel-label">Respondido</div>
+              <div className="admin-funnel-value">{metrics.funnel.responded}</div>
+            </div>
             <div className="admin-funnel-rate">{calcConversion(metrics.funnel.responded, metrics.funnel.testified)}</div>
           </div>
-          <div className="admin-funnel-arrow">→</div>
           
           <div className="admin-funnel-step">
-            <div className="admin-funnel-label">Retornou</div>
-            <div className="admin-funnel-value">{metrics.funnel.returned}</div>
+            <div className="admin-funnel-info">
+              <div className="admin-funnel-label">Retornou</div>
+              <div className="admin-funnel-value">{metrics.funnel.returned}</div>
+            </div>
             <div className="admin-funnel-rate">{calcConversion(metrics.funnel.returned, metrics.funnel.responded)}</div>
           </div>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+      <div className="admin-dashboard-columns">
         <div className="admin-section">
           <h3>Retenção da Coorte</h3>
-          <p style={{ color: '#a0a6b5', fontSize: '0.85rem', marginBottom: '24px' }}>
+          <p style={{ color: 'var(--color-text-light)', fontSize: '0.85rem', marginBottom: '24px' }}>
             Base {metrics.retention.cohort_size} usuários novos neste período.
           </p>
           <div className="admin-retention-grid">
             <div className="admin-retention-item">
-              <div style={{ color: '#a0a6b5', fontSize: '0.8rem', marginBottom: '8px' }}>D1</div>
+              <div style={{ color: 'var(--color-text-light)', fontSize: '0.8rem', marginBottom: '8px' }}>D1</div>
               <div style={{ fontSize: '1.2rem', fontWeight: 600 }}>{calcRetention(metrics.retention.d1, metrics.retention.cohort_size)}</div>
             </div>
             <div className="admin-retention-item">
-              <div style={{ color: '#a0a6b5', fontSize: '0.8rem', marginBottom: '8px' }}>D3</div>
+              <div style={{ color: 'var(--color-text-light)', fontSize: '0.8rem', marginBottom: '8px' }}>D3</div>
               <div style={{ fontSize: '1.2rem', fontWeight: 600 }}>{calcRetention(metrics.retention.d3, metrics.retention.cohort_size)}</div>
             </div>
             <div className="admin-retention-item">
-              <div style={{ color: '#a0a6b5', fontSize: '0.8rem', marginBottom: '8px' }}>D7</div>
+              <div style={{ color: 'var(--color-text-light)', fontSize: '0.8rem', marginBottom: '8px' }}>D7</div>
               <div style={{ fontSize: '1.2rem', fontWeight: 600 }}>{calcRetention(metrics.retention.d7, metrics.retention.cohort_size)}</div>
             </div>
             <div className="admin-retention-item">
-              <div style={{ color: '#a0a6b5', fontSize: '0.8rem', marginBottom: '8px' }}>D30</div>
+              <div style={{ color: 'var(--color-text-light)', fontSize: '0.8rem', marginBottom: '8px' }}>D30</div>
               <div style={{ fontSize: '1.2rem', fontWeight: 600 }}>{calcRetention(metrics.retention.d30, metrics.retention.cohort_size)}</div>
             </div>
           </div>
@@ -219,22 +226,22 @@ export function AdminDashboard() {
         <div className="admin-section">
           <h3>Comunidade & Moderação</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '16px', borderRadius: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f9fafb', border: '1px solid var(--color-border)', padding: '16px', borderRadius: '8px' }}>
               <div>
                 <div style={{ fontWeight: 600 }}>Testemunhos Pendentes</div>
-                <div style={{ fontSize: '0.85rem', color: '#a0a6b5' }}>Aguardando leitura e moderação</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--color-text-light)' }}>Aguardando leitura</div>
               </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: metrics.community.pending_testimonials > 0 ? '#ef4444' : '#10b981' }}>
+              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: metrics.community.pending_testimonials > 0 ? '#dc2626' : '#059669' }}>
                 {metrics.community.pending_testimonials}
               </div>
             </div>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '16px', borderRadius: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f9fafb', border: '1px solid var(--color-border)', padding: '16px', borderRadius: '8px' }}>
               <div>
                 <div style={{ fontWeight: 600 }}>Respostas Atrasadas</div>
-                <div style={{ fontSize: '0.85rem', color: '#a0a6b5' }}>&gt; 48h sem resposta oficial</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--color-text-light)' }}>&gt; 48h sem resposta</div>
               </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: metrics.community.delayed_responses > 0 ? '#ef4444' : '#10b981' }}>
+              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: metrics.community.delayed_responses > 0 ? '#dc2626' : '#059669' }}>
                 {metrics.community.delayed_responses}
               </div>
             </div>
@@ -245,24 +252,26 @@ export function AdminDashboard() {
       <div className="admin-section">
         <h3>Top Conteúdos (Engajamento)</h3>
         {metrics.top_content.length > 0 ? (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Devocional ID</th>
-                <th>Leituras</th>
-              </tr>
-            </thead>
-            <tbody>
-              {metrics.top_content.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.content_id}</td>
-                  <td>{item.opens}</td>
+          <div className="admin-table-container">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Devocional ID</th>
+                  <th>Leituras</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {metrics.top_content.map((item, index) => (
+                  <tr key={index}>
+                    <td>{item.content_id.split('-').slice(0, 3).join('-')}...</td>
+                    <td>{item.opens}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#a0a6b5' }}>
+          <div style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-light)' }}>
             Não houve leitura de devocionais neste período.
           </div>
         )}

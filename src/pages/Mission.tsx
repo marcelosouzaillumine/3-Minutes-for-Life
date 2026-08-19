@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { LanguageSelector } from '../components/LanguageSelector';
 import './Mission.css';
 import { ContributionModal } from '../components/ContributionModal';
 import type { ContributionTier, Periodicity } from '../components/ContributionModal';
@@ -37,6 +39,7 @@ function useIntersectionObserver() {
 }
 
 export function Mission() {
+  const { t } = useTranslation('mission');
   const setRef = useIntersectionObserver();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalInitialTier, setModalInitialTier] = useState<ContributionTier>('apoio');
@@ -101,11 +104,14 @@ export function Mission() {
         </button>
 
         <nav className={`landing-nav ${isMenuOpen ? 'open' : ''}`}>
-          <a href="/#como-funciona" onClick={() => setIsMenuOpen(false)}>Como funciona</a>
-          <a href="/#sobre" onClick={() => setIsMenuOpen(false)}>Sobre</a>
+          <a href="/#como-funciona" onClick={() => setIsMenuOpen(false)}>{t('nav.howItWorks')}</a>
+          <a href="/#sobre" onClick={() => setIsMenuOpen(false)}>{t('nav.about')}</a>
           <button className="btn-start-nav" onClick={() => { setIsMenuOpen(false); startApp(); }}>
-            Começar
+            {t('nav.start')}
           </button>
+          <div style={{ display: 'flex', alignItems: 'center', marginLeft: '0.5rem' }}>
+            <LanguageSelector />
+          </div>
         </nav>
       </header>
 
@@ -114,12 +120,12 @@ export function Mission() {
         <div className="mission-hero-text reveal" ref={setRef}>
           <span className="mission-id">3 Minutes for Life</span>
           <h1 className="mission-hero-title">
-            E se três minutos pudessem mudar a maneira como alguém vive o dia?
+            {t('hero.title')}
           </h1>
           <div className="mission-hero-statements">
-            <p>Uma pausa.</p>
-            <p>Uma reflexão.</p>
-            <p>Uma nova perspectiva.</p>
+            <p>{t('hero.statement1')}</p>
+            <p>{t('hero.statement2')}</p>
+            <p>{t('hero.statement3')}</p>
           </div>
           
           <div className="mission-hero-pill-wrapper">
@@ -127,8 +133,8 @@ export function Mission() {
           </div>
           
           <div className="mission-hero-cta">
-             <button className="btn-primary" onClick={() => openModal()}>Fazer parte da missão</button>
-             <a href="/" className="btn-secondary">Conhecer o projeto</a>
+             <button className="btn-primary" onClick={() => openModal()}>{t('hero.ctaBtn')}</button>
+             <a href="/" className="btn-secondary">{t('hero.ctaSecondary')}</a>
           </div>
         </div>
         <div className="mission-hero-visual reveal delay-200" ref={setRef}></div>
@@ -138,15 +144,19 @@ export function Mission() {
       <section className="mission-parallax-section">
         <div className="parallax-overlay"></div>
         <div className="parallax-content">
-          <h2 className="reveal" ref={setRef}>Três minutos.</h2>
+          <h2 className="reveal" ref={setRef}>{t('parallax.title')}</h2>
           <div className="parallax-list">
-            <p className="reveal delay-100" ref={setRef}>Antes de responder.</p>
-            <p className="reveal delay-200" ref={setRef}>Antes de decidir.</p>
-            <p className="reveal delay-300" ref={setRef}>Antes de desistir.</p>
-            <p className="reveal delay-400" ref={setRef}>Antes de levar o peso do dia para dentro de casa.</p>
+            <p className="reveal delay-100" ref={setRef}>{t('parallax.p1')}</p>
+            <p className="reveal delay-200" ref={setRef}>{t('parallax.p2')}</p>
+            <p className="reveal delay-300" ref={setRef}>{t('parallax.p3')}</p>
+            <p className="reveal delay-400" ref={setRef}>{t('parallax.p4')}</p>
           </div>
           <div className="parallax-conclusion reveal delay-500" ref={setRef}>
-            <h3>Três minutos para parar.<br/>Pensar.<br/>Escolher melhor.</h3>
+            <h3>
+              {t('parallax.conclusion').split('\\n').map((line: string, i: number) => (
+                <span key={i}>{line}<br/></span>
+              ))}
+            </h3>
           </div>
         </div>
       </section>
@@ -155,76 +165,76 @@ export function Mission() {
       <section className="mission-tension-section">
          <div className="tension-grid">
            <div className="tension-left">
-             <h2 className="tension-title">E se esses três minutos mudassem alguma coisa?</h2>
+             <h2 className="tension-title">{t('tension.title')}</h2>
            </div>
            <div className="tension-right">
-             <p>Talvez alguém escolha ouvir em vez de responder.</p>
-             <p>Talvez alguém volte para casa diferente.</p>
-             <p>Talvez uma conversa aconteça.</p>
-             <p>Talvez uma decisão seja tomada com mais sabedoria.</p>
-             <p>Talvez alguém encontre coragem para continuar.</p>
-             <p>Talvez alguém perceba que precisa mudar.</p>
+             <p>{t('tension.p1')}</p>
+             <p>{t('tension.p2')}</p>
+             <p>{t('tension.p3')}</p>
+             <p>{t('tension.p4')}</p>
+             <p>{t('tension.p5')}</p>
+             <p>{t('tension.p6')}</p>
            </div>
          </div>
          <div className="tension-conclusion">
-            <p>Não sabemos qual vida será alcançada.</p>
-            <p className="highlight">Mas sabemos que cada vida importa.</p>
+            <p>{t('tension.conclusion1')}</p>
+            <p className="highlight">{t('tension.conclusion2')}</p>
          </div>
       </section>
 
       {/* 4. UMA VIDA DE CADA VEZ */}
       <section className="mission-minimal-section">
-        <span className="minimal-id reveal" ref={setRef}>Uma vida de cada vez.</span>
+        <span className="minimal-id reveal" ref={setRef}>{t('minimal.id')}</span>
         <div className="minimal-statements">
-          <p className="reveal delay-100" ref={setRef}>Uma pessoa.</p>
-          <p className="reveal delay-200" ref={setRef}>Um dia.</p>
-          <p className="reveal delay-300" ref={setRef}>Três minutos.</p>
-          <p className="reveal delay-400" ref={setRef}>Uma pequena decisão.</p>
+          <p className="reveal delay-100" ref={setRef}>{t('minimal.p1')}</p>
+          <p className="reveal delay-200" ref={setRef}>{t('minimal.p2')}</p>
+          <p className="reveal delay-300" ref={setRef}>{t('minimal.p3')}</p>
+          <p className="reveal delay-400" ref={setRef}>{t('minimal.p4')}</p>
         </div>
         <div className="minimal-conclusion reveal delay-500" ref={setRef}>
-          <p>Grandes mudanças nem sempre começam com grandes acontecimentos.</p>
-          <p className="highlight">Às vezes começam com uma pessoa que decidiu parar por três minutos.</p>
+          <p>{t('minimal.conclusion1')}</p>
+          <p className="highlight">{t('minimal.conclusion2')}</p>
         </div>
       </section>
 
       {/* 5. A VISÃO DOS 100.000 */}
       <section className="mission-monumental-section">
-        <h2 className="monumental-title">Imagine 100.000 pessoas dedicando 3 minutos por dia para refletir sobre o que realmente importa.</h2>
+        <h2 className="monumental-title">{t('monumental.title')}</h2>
         
-        <p className="monumental-subtitle">São 300.000 minutos de reflexão diária.</p>
+        <p className="monumental-subtitle">{t('monumental.subtitle')}</p>
 
         <div className="monumental-text-block">
-          <p className="monumental-intro">Mas a missão nunca foi sobre números.</p>
-          <p className="monumental-core">É sobre o que acontece depois desses três minutos:</p>
+          <p className="monumental-intro">{t('monumental.intro')}</p>
+          <p className="monumental-core">{t('monumental.core')}</p>
           
           <div className="transformation-grid">
             <div className="transformation-card">
-              <p>uma escolha mais consciente</p>
+              <p>{t('monumental.card1')}</p>
             </div>
             <div className="transformation-card">
-              <p>uma conversa diferente</p>
+              <p>{t('monumental.card2')}</p>
             </div>
             <div className="transformation-card">
-              <p>uma família fortalecida</p>
+              <p>{t('monumental.card3')}</p>
             </div>
             <div className="transformation-card highlight">
-              <p>uma vida que encontra direção</p>
+              <p>{t('monumental.card4')}</p>
             </div>
           </div>
         </div>
 
         <div className="monumental-final">
-          <p>Porque não queremos apenas alcançar pessoas.</p>
-          <p className="highlight">Queremos transformar a forma como elas vivem.</p>
+          <p>{t('monumental.final1')}</p>
+          <p className="highlight">{t('monumental.final2')}</p>
         </div>
       </section>
 
       {/* 6. O CONVITE (A ponte) */}
       <section className="mission-bridge-section">
-        <h2 className="reveal" ref={setRef}>Faça parte da missão</h2>
+        <h2 className="reveal" ref={setRef}>{t('bridge.title')}</h2>
         <div className="bridge-text">
-          <p className="reveal delay-100" ref={setRef}>O 3 Minutos para a Vida é gratuito.</p>
-          <p className="reveal delay-200" ref={setRef}>Se este projeto fizer sentido para você, existem duas formas simples de ajudar a mantê-lo vivo e chegar a mais pessoas.</p>
+          <p className="reveal delay-100" ref={setRef}>{t('bridge.p1')}</p>
+          <p className="reveal delay-200" ref={setRef}>{t('bridge.p2')}</p>
         </div>
       </section>
 
@@ -233,37 +243,37 @@ export function Mission() {
         <div className="editorial-tiers simplified-tiers reveal delay-100" ref={setRef}>
           
           <div className="editorial-tier">
-            <h3 className="editorial-tier-name">Apoio mensal</h3>
+            <h3 className="editorial-tier-name">{t('editorial.monthlyTitle')}</h3>
             <div className="editorial-tier-price">
-              <span className="editorial-price-main">R$ 9,90<small>/mês</small></span>
-              <span className="editorial-price-sub">Uma pequena contribuição recorrente para sustentar a missão.</span>
+              <span className="editorial-price-main">{t('editorial.monthlyPriceMain')}<small>{t('editorial.monthlyPriceUnit')}</small></span>
+              <span className="editorial-price-sub">{t('editorial.monthlyDesc')}</span>
             </div>
             <button className="editorial-btn" onClick={() => handleCheckoutRedirect('apoio', 'mensal')}>
-              Apoiar mensalmente
+              {t('editorial.monthlyBtn')}
             </button>
           </div>
 
           <div className="editorial-tier highlight-tier">
-            <div className="editorial-tier-badge">Mais econômica</div>
-            <h3 className="editorial-tier-name">Apoio anual</h3>
+            <div className="editorial-tier-badge">{t('editorial.yearlyBadge')}</div>
+            <h3 className="editorial-tier-name">{t('editorial.yearlyTitle')}</h3>
             <div className="editorial-tier-price">
-              <span className="editorial-price-main">R$ 59,90<small>/ano</small></span>
-              <span className="editorial-price-sub">A forma mais econômica de apoiar continuamente o projeto.</span>
+              <span className="editorial-price-main">{t('editorial.yearlyPriceMain')}<small>{t('editorial.yearlyPriceUnit')}</small></span>
+              <span className="editorial-price-sub">{t('editorial.yearlyDesc')}</span>
             </div>
             <button className="editorial-btn primary" onClick={() => handleCheckoutRedirect('apoio', 'anual')}>
-              Apoiar anualmente
+              {t('editorial.yearlyBtn')}
             </button>
           </div>
 
         </div>
 
         <div className="editorial-free reveal delay-200" ref={setRef}>
-          <h3>Contribuição voluntária</h3>
-          <p>Quer contribuir com outro valor? Você escolhe quanto e como contribuir.</p>
+          <h3>{t('editorial.freeTitle')}</h3>
+          <p>{t('editorial.freeDesc')}</p>
           <div className="editorial-free-actions">
-            <button className="btn-text" onClick={() => handleCheckoutRedirect('livre', 'unica')}>Contribuição única</button>
+            <button className="btn-text" onClick={() => handleCheckoutRedirect('livre', 'unica')}>{t('editorial.freeBtnSingle')}</button>
             <span className="editorial-divider"></span>
-            <button className="btn-text" onClick={() => handleCheckoutRedirect('livre', 'mensal')}>Contribuição mensal</button>
+            <button className="btn-text" onClick={() => handleCheckoutRedirect('livre', 'mensal')}>{t('editorial.freeBtnMonthly')}</button>
           </div>
         </div>
       </section>
@@ -271,24 +281,24 @@ export function Mission() {
       {/* 8. FECHAMENTO */}
       <section className="mission-closing-section">
         <div className="closing-sequence">
-          <p className="reveal" ref={setRef}>Começa com uma pessoa.</p>
-          <p className="reveal delay-100" ref={setRef}>Depois outra.</p>
-          <p className="reveal delay-200" ref={setRef}>Depois outra.</p>
-          <p className="reveal delay-300" ref={setRef}>Até chegar a 100.000.</p>
+          <p className="reveal" ref={setRef}>{t('closing.p1')}</p>
+          <p className="reveal delay-100" ref={setRef}>{t('closing.p2')}</p>
+          <p className="reveal delay-200" ref={setRef}>{t('closing.p3')}</p>
+          <p className="reveal delay-300" ref={setRef}>{t('closing.p4')}</p>
         </div>
         
         <div className="closing-final reveal delay-400" ref={setRef}>
-          <p>Talvez a próxima pessoa seja alguém que você nunca conhecerá.</p>
-          <p>Alguém que precisava de uma pausa.</p>
-          <p>De uma palavra.</p>
-          <p>De uma nova perspectiva.</p>
-          <p>De três minutos.</p>
-          <p className="highlight" style={{marginTop: '4rem'}}>Ajude-nos a chegar até essa pessoa.</p>
+          <p>{t('closing.final1')}</p>
+          <p>{t('closing.final2')}</p>
+          <p>{t('closing.final3')}</p>
+          <p>{t('closing.final4')}</p>
+          <p>{t('closing.final5')}</p>
+          <p className="highlight" style={{marginTop: '4rem'}}>{t('closing.final6')}</p>
         </div>
 
         <div className="reveal delay-500" ref={setRef} style={{marginTop: '4rem', marginBottom: '8rem'}}>
           <button className="btn-primary large" onClick={() => openModal()}>
-            FAZER PARTE DA MISSÃO
+            {t('closing.btn')}
           </button>
         </div>
       </section>
@@ -297,24 +307,24 @@ export function Mission() {
       <footer className="mission-site-footer">
         <div className="footer-content">
           <div className="footer-brand">
-            <h3>3 Minutos para a Vida</h3>
-            <p>Um pequeno espaço de tempo. Um impacto para a eternidade. O projeto é mantido por pessoas que acreditam nessa missão, ajudando a sustentar a plataforma para que continue gratuita e alcance mais vidas.</p>
+            <h3>{t('footer.brandTitle')}</h3>
+            <p>{t('footer.brandDesc')}</p>
           </div>
           <div className="footer-links">
             <div className="footer-column">
-              <h4>Navegação</h4>
-              <a href="/">Página Inicial</a>
-              <a href="/missao">Nossa Missão</a>
+              <h4>{t('footer.navTitle')}</h4>
+              <a href="/">{t('footer.navHome')}</a>
+              <a href="/missao">{t('footer.navMission')}</a>
             </div>
             <div className="footer-column">
-              <h4>Legal</h4>
-              <a href="#">Termos de Uso</a>
-              <a href="#">Política de Privacidade</a>
+              <h4>{t('footer.legalTitle')}</h4>
+              <a href="#">{t('footer.terms')}</a>
+              <a href="#">{t('footer.privacy')}</a>
             </div>
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} 3 Minutos para a Vida. Todos os direitos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} {t('footer.copyright')}</p>
         </div>
       </footer>
 

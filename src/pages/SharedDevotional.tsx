@@ -4,8 +4,10 @@ import { AnalyticsService } from '../services/AnalyticsService';
 import type { Devotional } from '../types/Devotional';
 import { PrincipleView } from '../components/PrincipleView';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 export function SharedDevotional() {
+  const { i18n } = useTranslation();
   const [devotional, setDevotional] = useState<Devotional | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -43,7 +45,7 @@ export function SharedDevotional() {
     };
 
     fetchDevotionalAndSender();
-  }, []);
+  }, [i18n.language]);
 
   const handleSignupClick = () => {
     window.location.href = '/signup';

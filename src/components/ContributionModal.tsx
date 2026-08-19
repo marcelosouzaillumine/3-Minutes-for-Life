@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import '../pages/Mission.css';
 
 export type ContributionTier = 'apoio' | 'livre';
@@ -12,6 +13,7 @@ interface ContributionModalProps {
 }
 
 export function ContributionModal({ isOpen, onClose, initialTier = 'apoio', initialPeriodicity = 'mensal' }: ContributionModalProps) {
+  const { t } = useTranslation('contribution');
   const [tier, setTier] = useState<ContributionTier>(initialTier);
   const [periodicity, setPeriodicity] = useState<Periodicity>(initialPeriodicity);
   const [customValue, setCustomValue] = useState<string>('');
@@ -41,7 +43,7 @@ export function ContributionModal({ isOpen, onClose, initialTier = 'apoio', init
       window.open(checkoutUrl, '_blank');
       setIsSubmitting(false);
     } else {
-      alert('Link de pagamento não configurado para esta opção.');
+      alert(t('modal.errorNoLink'));
       setIsSubmitting(false);
     }
   };
@@ -51,39 +53,39 @@ export function ContributionModal({ isOpen, onClose, initialTier = 'apoio', init
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>&times;</button>
         
-        <h2 className="modal-title">Fazer parte da missão</h2>
+        <h2 className="modal-title">{t('modal.title')}</h2>
         <p className="modal-desc">
-          O 3 Minutos para a Vida é gratuito. Sua contribuição ajuda outra pessoa a receber também.
+          {t('modal.desc')}
         </p>
 
         <form className="modal-form" onSubmit={handleSubmit}>
           
           <div className="form-group">
-            <label>Tipo de Contribuição</label>
+            <label>{t('modal.typeLabel')}</label>
             <select value={tier} onChange={e => {
               const newTier = e.target.value as ContributionTier;
               setTier(newTier);
               if (newTier === 'apoio' && periodicity === 'unica') setPeriodicity('mensal');
               if (newTier === 'livre' && periodicity === 'anual') setPeriodicity('mensal');
             }}>
-              <option value="apoio">Apoio (R$ 9,90/mês ou R$ 59,90/ano)</option>
-              <option value="livre">Valor Livre</option>
+              <option value="apoio">{t('modal.options.apoio')}</option>
+              <option value="livre">{t('modal.options.livre')}</option>
             </select>
           </div>
 
           <div className="form-group">
-            <label>Periodicidade</label>
+            <label>{t('modal.periodicityLabel')}</label>
             <select value={periodicity} onChange={e => setPeriodicity(e.target.value as Periodicity)}>
               {tier === 'apoio' && (
                 <>
-                  <option value="mensal">Mensal (R$ 9,90)</option>
-                  <option value="anual">Anual (R$ 59,90)</option>
+                  <option value="mensal">{t('modal.options.mensal')}</option>
+                  <option value="anual">{t('modal.options.anual')}</option>
                 </>
               )}
               {tier === 'livre' && (
                 <>
-                  <option value="unica">Única</option>
-                  <option value="mensal">Mensal</option>
+                  <option value="unica">{t('modal.options.unicaLivre')}</option>
+                  <option value="mensal">{t('modal.options.mensalLivre')}</option>
                 </>
               )}
             </select>
@@ -91,12 +93,12 @@ export function ContributionModal({ isOpen, onClose, initialTier = 'apoio', init
 
           {tier === 'livre' && (
             <div className="form-group">
-              <label>Valor (R$)</label>
+              <label>{t('modal.valueLabel')}</label>
               <input 
                 type="number" 
                 min="5" 
                 step="1" 
-                placeholder="Ex: 50" 
+                placeholder={t('modal.valuePlaceholder')} 
                 value={customValue}
                 onChange={e => setCustomValue(e.target.value)}
                 required
@@ -105,12 +107,12 @@ export function ContributionModal({ isOpen, onClose, initialTier = 'apoio', init
           )}
 
           <button type="submit" className="btn-primary" disabled={isSubmitting}>
-            {isSubmitting ? 'Preparando checkout...' : 'Continuar'}
+            {isSubmitting ? t('modal.buttonLoading') : t('modal.button')}
           </button>
         </form>
 
         <p className="modal-footer">
-          Ambiente seguro. Você poderá cancelar sua contribuição mensal a qualquer momento.
+          {t('modal.footer')}
         </p>
       </div>
     </div>

@@ -1,0 +1,111 @@
+{
+  "nav": {
+    "howItWorks": "How it works",
+    "about": "About",
+    "start": "Get Started"
+  },
+  "hero": {
+    "title": "What if three minutes could change how someone lives their day?",
+    "statement1": "A pause.",
+    "statement2": "A reflection.",
+    "statement3": "A new perspective.",
+    "ctaBtn": "Join the mission",
+    "ctaSecondary": "Learn about the project"
+  },
+  "parallax": {
+    "title": "Three minutes.",
+    "p1": "Before responding.",
+    "p2": "Before deciding.",
+    "p3": "Before giving up.",
+    "p4": "Before carrying the weight of the day home.",
+    "conclusion": "Three minutes to pause.\\nThink.\\nChoose better."
+  },
+  "tension": {
+    "title": "What if those three minutes changed something?",
+    "p1": "Maybe someone chooses to listen instead of responding.",
+    "p2": "Maybe someone comes home differently.",
+    "p3": "Maybe a conversation happens.",
+    "p4": "Maybe a decision is made more wisely.",
+    "p5": "Maybe someone finds the courage to keep going.",
+    "p6": "Maybe someone realizes they need to change.",
+    "conclusion1": "We don't know which life will be reached.",
+    "conclusion2": "But we know every life matters."
+  },
+  "minimal": {
+    "id": "One life at a time.",
+    "p1": "One person.",
+    "p2": "One day.",
+    "p3": "Three minutes.",
+    "p4": "One small decision.",
+    "conclusion1": "Big changes don't always start with big events.",
+    "conclusion2": "Sometimes they start with one person who decided to pause for three minutes."
+  },
+  "monumental": {
+    "title": "Imagine 100,000 people dedicating 3 minutes a day to reflect on what really matters.",
+    "subtitle": "That's 300,000 minutes of daily reflection.",
+    "intro": "But the mission was never about numbers.",
+    "core": "It's about what happens after those three minutes:",
+    "card1": "a more conscious choice",
+    "card2": "a different conversation",
+    "card3": "a strengthened family",
+    "card4": "a life finding direction",
+    "final1": "Because we don't just want to reach people.",
+    "final2": "We want to transform how they live."
+  },
+  "bridge": {
+    "title": "Be part of the mission",
+    "p1": "3 Minutes for Life is free.",
+    "p2": "If this project makes sense to you, there are two simple ways to help keep it alive and reach more people."
+  },
+  "editorial": {
+    "monthlyTitle": "Monthly support",
+    "monthlyPriceMain": "$ 9.90",
+    "monthlyPriceUnit": "/mo",
+    "monthlyDesc": "A small recurring contribution to sustain the mission.",
+    "monthlyBtn": "Support monthly",
+    "yearlyBadge": "Best value",
+    "yearlyTitle": "Yearly support",
+    "yearlyPriceMain": "$ 59.90",
+    "yearlyPriceUnit": "/yr",
+    "yearlyDesc": "The most economical way to continuously support the project.",
+    "yearlyBtn": "Support yearly",
+    "freeTitle": "Voluntary contribution",
+    "freeDesc": "Want to contribute a different amount? You choose how much and how often.",
+    "freeBtnSingle": "One-time contribution",
+    "freeBtnMonthly": "Monthly contribution"
+  },
+  "closing": {
+    "p1": "It starts with one person.",
+    "p2": "Then another.",
+    "p3": "Then another.",
+    "p4": "Until we reach 100,000.",
+    "final1": "Maybe the next person is someone you will never meet.",
+    "final2": "Someone who needed a pause.",
+    "final3": "A word.",
+    "final4": "A new perspective.",
+    "final5": "Three minutes.",
+    "final6": "Help us reach that person.",
+    "btn": "JOIN THE MISSION"
+  },
+  "footer": {
+    "brandTitle": "3 Minutes for Life",
+    "brandDesc": "A small span of time. An impact for eternity. The project is maintained by people who believe in this mission, helping to sustain the platform so it remains free and reaches more lives.",
+    "navTitle": "Navigation",
+    "navHome": "Home",
+    "navMission": "Our Mission",
+    "legalTitle": "Legal",
+    "terms": "Terms of Use",
+    "privacy": "Privacy Policy",
+    "copyright": "3 Minutes for Life. All rights reserved."
+  },
+  "about": {
+    "title1": "A moment for you",
+    "p1": "A space created to slow down, reflect, and look at life with more clarity.",
+    "p2": "Every day, you'll find a new reflection on themes that are part of real life — choices, relationships, work, purpose, and faith.",
+    "p3": "The proposal is simple: a few minutes a day to pause, think, and transform a reflection into practical action.",
+    "p4": "You don't need to do much. Just be present for a few minutes.",
+    "title2": "A daily experience",
+    "p5": "Access once a day, read, reflect, and take with you what makes sense for your day.",
+    "p6": "The experience also works offline. For easier access, add the app to your home screen."
+  }
+}

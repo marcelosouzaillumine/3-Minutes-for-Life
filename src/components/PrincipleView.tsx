@@ -1,7 +1,9 @@
 import type { Devotional } from '../types/Devotional';
 import { JourneyService } from '../services/JourneyService';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ShareButton } from './ShareButton';
+import { HtmlRenderer } from './HtmlRenderer';
 
 interface PrincipleViewProps {
   devotional: Devotional;
@@ -10,6 +12,7 @@ interface PrincipleViewProps {
 }
 
 export function PrincipleView({ devotional, onBack, customAction }: PrincipleViewProps) {
+  const { t } = useTranslation();
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -60,7 +63,31 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
       <span className="label">{devotional.categories?.name || 'Devocional'}</span>
       
       <h1 className="principle-title">{devotional.title}</h1>
-      <p className="principle-statement">{devotional.reflection.split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)[0]}</p>
+      {devotional.subtitle && (
+        <h2 style={{ fontSize: '1.25rem', color: 'var(--color-text-light)', marginTop: '-0.5rem', marginBottom: '1.5rem', fontWeight: 500 }}>
+          {devotional.subtitle}
+        </h2>
+      )}
+      {devotional.principle_statement ? (
+        <>
+          <p className="principle-statement">{devotional.principle_statement}</p>
+          <HtmlRenderer html={devotional.reflection} className="principle-reflection" />
+        </>
+      ) : (
+        <>
+          <p className="principle-statement">{devotional.reflection.split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)[0]}</p>
+          <div className="principle-reflection">
+            {devotional.reflection
+              .split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)
+              .slice(1)
+              .map(paragraph => paragraph.trim())
+              .filter(Boolean)
+              .map((paragraph, index) => (
+                <p key={index} style={{ marginBottom: '1.5rem', lineHeight: '1.7' }}>{paragraph}</p>
+              ))}
+          </div>
+        </>
+      )}
       
       {devotional.audio_url && (
         <div style={{ marginBottom: '2rem' }}>
@@ -68,34 +95,44 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
         </div>
       )}
 
-      <div className="principle-reflection">
-        {devotional.reflection
-          .split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)
-          .slice(1) // Skip first block assuming it's the statement
-          .map(paragraph => paragraph.trim())
-          .filter(Boolean)
-          .map((paragraph, index) => (
-            <p key={index} style={{ marginBottom: '1.5rem', lineHeight: '1.7' }}>{paragraph}</p>
-          ))}
-      </div>
-
       <div className="application-section">
         <span className="label">Para praticar hoje</span>
         <div className="application-text">
           {devotional.practical_application ? (
-            devotional.practical_application
-              .split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)
-              .map(paragraph => paragraph.trim())
-              .filter(Boolean)
-              .map((paragraph, index) => (
-                <p key={index} style={{ marginBottom: '1rem' }}>{paragraph}</p>
-              ))
+            devotional.principle_statement ? (
+              <HtmlRenderer html={devotional.practical_application} />
+            ) : (
+              devotional.practical_application
+                .split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)
+                .map(paragraph => paragraph.trim())
+                .filter(Boolean)
+                .map((paragraph, index) => (
+                  <p key={index} style={{ marginBottom: '1rem' }}>{paragraph}</p>
+                ))
+            )
           ) : (
-            <p style={{ marginBottom: '1rem', fontStyle: 'italic', opacity: 0.7 }}>Aplicação em elaboração.</p>
+            <p style={{ marginBottom: '1rem', fontStyle: 'italic', opacity: 0.7 }}>{t('home.applicationPending')}</p>
           )}
         </div>
 
-        {/* Prayer logic removed as it's not in the canonical schema yet */}
+        {devotional.prayer && (
+          <div style={{ marginTop: '2rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
+            <span className="label">Oração</span>
+            <div className="application-text" style={{ fontStyle: 'italic' }}>
+              {devotional.principle_statement ? (
+                <HtmlRenderer html={devotional.prayer} />
+              ) : (
+                devotional.prayer
+                  .split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)
+                  .map(paragraph => paragraph.trim())
+                  .filter(Boolean)
+                  .map((paragraph, index) => (
+                    <p key={index} style={{ marginBottom: '1rem' }}>{paragraph}</p>
+                  ))
+              )}
+            </div>
+          </div>
+        )}
 
         {devotional.scripture_reference && (
           <div style={{ marginTop: '2rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>

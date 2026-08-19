@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { AdminService } from '../services/AdminService';
 import { AdminDashboard } from '../pages/admin/AdminDashboard';
+import { AdminDevotionals } from '../pages/admin/AdminDevotionals';
+import { AdminBottomNav } from '../components/AdminBottomNav';
 import '../styles/admin.css';
 
 export function AdminLayout() {
@@ -23,9 +25,11 @@ export function AdminLayout() {
 
   if (isChecking) {
     return (
-      <div className="admin-loading-state">
-        <div className="admin-spinner"></div>
-        <p>Verificando credenciais de acesso...</p>
+      <div className="app-container">
+        <main className="content-area" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+          <div className="admin-spinner"></div>
+          <p style={{ color: 'var(--color-text-light)' }}>Verificando credenciais de acesso...</p>
+        </main>
       </div>
     );
   }
@@ -39,51 +43,36 @@ export function AdminLayout() {
     
     // Future routes
     if (pathname === '/admin/devotionals') {
-      return <div className="admin-empty-state">Em breve: Gestão de Conteúdo</div>;
+      return <AdminDevotionals />;
     }
     
     if (pathname === '/admin/testimonials') {
-      return <div className="admin-empty-state">Em breve: Moderação de Testemunhos</div>;
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>Testemunhos</h2>
+          <p style={{ color: 'var(--color-text-light)' }}>Em breve: Moderação de Testemunhos</p>
+        </div>
+      );
     }
     
     if (pathname === '/admin/users') {
-      return <div className="admin-empty-state">Em breve: Diretório de Usuários</div>;
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>Comunidade</h2>
+          <p style={{ color: 'var(--color-text-light)' }}>Em breve: Diretório de Usuários</p>
+        </div>
+      );
     }
 
     return <AdminDashboard />;
   };
 
   return (
-    <div className="admin-layout">
-      <aside className="admin-sidebar">
-        <div className="admin-logo">
-          <h2>3M Admin</h2>
-          <span className="admin-badge">Intelligence</span>
-        </div>
-        
-        <nav className="admin-nav">
-          <a href="/admin/dashboard" className={`admin-nav-item ${pathname.includes('/dashboard') || pathname === '/admin' ? 'active' : ''}`}>
-            Dashboard
-          </a>
-          <a href="/admin/devotionals" className={`admin-nav-item ${pathname.includes('/devotionals') ? 'active' : ''}`}>
-            Conteúdo
-          </a>
-          <a href="/admin/testimonials" className={`admin-nav-item ${pathname.includes('/testimonials') ? 'active' : ''}`}>
-            Testemunhos
-          </a>
-          <a href="/admin/users" className={`admin-nav-item ${pathname.includes('/users') ? 'active' : ''}`}>
-            Comunidade
-          </a>
-        </nav>
-
-        <div className="admin-nav-footer">
-          <a href="/app" className="admin-nav-item">← Voltar ao App</a>
-        </div>
-      </aside>
-
-      <main className="admin-main">
+    <div className="app-container">
+      <main className="content-area">
         {renderAdminContent()}
       </main>
+      <AdminBottomNav />
     </div>
   );
 }

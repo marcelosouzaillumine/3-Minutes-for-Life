@@ -115,7 +115,7 @@ export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
                 Pare. Reflita. Pratique.
               </span>
               <span style={{ fontSize: '20px', color: '#666666', fontWeight: 500 }}>
-                3minutosforlife.com
+                3minutesforlife.com
               </span>
               <span style={{ fontSize: '20px', color: '#666666', fontWeight: 500 }}>
                 @3minutesforlife

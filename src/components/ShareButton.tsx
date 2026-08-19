@@ -3,6 +3,7 @@ import { AnalyticsService } from '../services/AnalyticsService';
 import { useAuth } from '../context/AuthContext';
 import type { Devotional } from '../types/Devotional';
 import { toBlob } from 'html-to-image';
+import { useTranslation } from 'react-i18next';
 import { VisualCard } from './VisualCard';
 
 interface ShareButtonProps {
@@ -11,6 +12,7 @@ interface ShareButtonProps {
 }
 
 export const ShareButton: React.FC<ShareButtonProps> = ({ devotional, asIcon }) => {
+  const { t } = useTranslation('common');
   const { session } = useAuth();
   const [isSharing, setIsSharing] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -18,7 +20,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ devotional, asIcon }) 
   const handleShare = async () => {
     // P0 Bugfix: Invalid or fallback ID
     if (!devotional.id || devotional.id.includes('fallback') || devotional.id === 'undefined') {
-      alert('Não é possível compartilhar este conteúdo no momento.');
+      alert(t('shareActions.invalidId'));
       console.error('Share error: Invalid devotional ID', devotional.id);
       return;
     }
@@ -55,7 +57,9 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ devotional, asIcon }) 
         : window.location.origin;
       const shareUrl = `${baseUrl}/r/${referralCode}?d=${devotional.id}`;
       
-      const text = `*${devotional.title}*\n\n${quoteText}\n\nUma reflexão de 3 minutos para parar, respirar e focar no que realmente importa hoje.\n\nLeia gratuitamente no app:\n👉 ${shareUrl}`;
+      const rawMsg = t('shareActions.message');
+      const textMsg = rawMsg.replace('{{url}}', shareUrl).replace(/\\n/g, '\n');
+      const text = `*${devotional.title}*\n\n${quoteText}\n\n${textMsg}`;
 
       let imageBlob: Blob | null = null;
       
@@ -88,7 +92,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ devotional, asIcon }) 
           try {
             await navigator.share({
               files: filesArray,
-              title: '3 Minutos para a Vida',
+              title: t('shareActions.title'),
               text: text
             });
             shared = true;
@@ -102,7 +106,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ devotional, asIcon }) 
         if (!shared && navigator.share) {
           try {
             await navigator.share({
-              title: '3 Minutos para a Vida',
+              title: t('shareActions.title'),
               text: text
             });
             shared = true;
@@ -124,7 +128,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ devotional, asIcon }) 
                 [imageBlob.type]: imageBlob
               })
             ]);
-            alert('Arte copiada! Ao abrir o WhatsApp Web, basta colar (Ctrl+V / Cmd+V) na conversa para enviar a imagem junto com o texto.');
+            alert(t('shareActions.desktopAlert'));
           } catch (err) {
             console.warn('Não foi possível copiar a imagem no Desktop:', err);
           }
@@ -139,10 +143,10 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ devotional, asIcon }) 
       if (!shared) {
         try {
           await navigator.clipboard.writeText(text);
-          alert('Conteúdo copiado para a área de transferência!');
+          alert(t('shareActions.copied'));
           shared = true;
         } catch (e) {
-          alert('Não foi possível compartilhar ou copiar o texto. O link é: ' + shareUrl);
+          alert(t('shareActions.copyError').replace('{{url}}', shareUrl));
         }
       }
 
@@ -181,7 +185,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ devotional, asIcon }) 
             <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
             <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
           </svg>
-          <span className="action-label">Compartilhar</span>
+          <span className="action-label">{t('shareActions.actionLabel')}</span>
         </button>
       ) : (
         <button 
@@ -197,7 +201,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ devotional, asIcon }) 
             <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
             <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
           </svg>
-          {isSharing ? 'Preparando...' : 'Compartilhar no WhatsApp'}
+          {isSharing ? t('shareActions.buttonLoading') : t('shareActions.button')}
         </button>
       )}
     </>
