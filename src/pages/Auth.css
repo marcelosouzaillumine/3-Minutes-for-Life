@@ -16,6 +16,27 @@
   width: 100%;
   max-width: 400px;
   text-align: center;
+  position: relative;
+}
+
+.auth-back-btn {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  background: none;
+  border: none;
+  color: #666;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 50%;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.auth-back-btn:hover {
+  background-color: #f3f4f6;
+  color: #111;
 }
 
 .auth-title {
@@ -32,7 +53,7 @@
 }
 
 .auth-logo {
-  height: 81.25px;
+  height: 73.125px;
   width: auto;
   display: block;
   margin: 0 auto 1.5rem auto;

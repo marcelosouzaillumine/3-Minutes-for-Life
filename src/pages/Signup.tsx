@@ -103,6 +103,11 @@ export const Signup: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-box">
+        <button className="auth-back-btn" onClick={() => window.location.href = '/'} aria-label="Voltar">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
         <img src="/logo.png" alt="3 Minutes for Life" className="auth-logo" />
         <h1 className="auth-title">{t('signup.title')}</h1>
         <p className="auth-subtitle">{t('signup.subtitle')}</p>

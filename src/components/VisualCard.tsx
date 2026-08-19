@@ -97,14 +97,14 @@ export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
               width: '100%'
             }}
           >
-            <div 
+            <img 
+              src={logoBase64} 
+              alt="3 Minutes for Life"
               style={{ 
                 height: '187px', 
                 width: '520px', 
-                backgroundImage: `url(${logoBase64})`,
-                backgroundSize: 'contain',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'left center'
+                objectFit: 'contain',
+                objectPosition: 'left center'
               }} 
             />
             
