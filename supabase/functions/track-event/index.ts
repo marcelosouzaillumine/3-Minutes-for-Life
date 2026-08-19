@@ -24,7 +24,8 @@ const ALLOWED_EVENTS = [
   'notification_sent',
   'notification_delivered',
   'notification_read',
-  'user_reactivated'
+  'user_reactivated',
+  'authentication_succeeded'
 ];
 
 serve(async (req) => {

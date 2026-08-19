@@ -1,0 +1,54 @@
+{
+  "stateRes": [
+    {
+      "event_count": 34,
+      "identity_state": "anonymous_only"
+    }
+  ],
+  "anonToUserRes": [
+    {
+      "anonymous_count": 3,
+      "classification": "0 users"
+    }
+  ],
+  "userToAnonRes": [],
+  "temporalAmbiguityRes": [],
+  "continuityRes": [
+    {
+      "anonymous_id": "1e73aa9b-0094-4c23-b633-0620b10517bf",
+      "first_auth_event": null,
+      "first_event": "2026-08-17 23:12:01.292166+00",
+      "first_user_id": null,
+      "num_associated_users": 0
+    },
+    {
+      "anonymous_id": "6ade26cc-dd60-43e6-9042-feb0d5f69c6d",
+      "first_auth_event": null,
+      "first_event": "2026-08-18 01:03:22.988431+00",
+      "first_user_id": null,
+      "num_associated_users": 0
+    },
+    {
+      "anonymous_id": "7832f6c2-ec1f-4f41-bdc3-f23277a8e6ae",
+      "first_auth_event": null,
+      "first_event": "2026-08-17 23:12:56.487158+00",
+      "first_user_id": null,
+      "num_associated_users": 0
+    }
+  ],
+  "authEventsRes": [
+    {
+      "count": 16,
+      "event_type": "referral_click"
+    },
+    {
+      "count": 14,
+      "event_type": "shared_devotional_viewed"
+    },
+    {
+      "count": 4,
+      "event_type": "share_initiated"
+    }
+  ],
+  "windowRes": []
+}
