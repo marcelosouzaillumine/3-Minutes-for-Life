@@ -327,53 +327,7 @@ export function AdminDevotionals() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
-            {languages.map(lang => {
-              const isActiveTab = currentLang === lang.iso_code;
-              // Find the most recent job for this language
-              const job = currentJobs.find(j => j.target_language === lang.iso_code);
-              let statusLabel = '';
-              let statusColor = '';
-              
-              if (!lang.is_source && editingId !== 'new') {
-                const trans = editForm?.translations?.[lang.iso_code];
-                if (job) {
-                  if (job.status === 'queued') { statusLabel = 'Fila'; statusColor = '#999'; }
-                  if (job.status === 'translating') { statusLabel = 'Processando...'; statusColor = '#0284c7'; }
-                  if (job.status === 'failed') { statusLabel = 'Falhou'; statusColor = '#dc2626'; }
-                }
-                if (trans && trans.status === 'published') { statusLabel = 'Publicado'; statusColor = '#059669'; }
-                if (trans && trans.status === 'draft') { statusLabel = 'Revisão'; statusColor = '#d97706'; }
-              }
 
-              return (
-                <button
-                  key={lang.iso_code}
-                  type="button"
-                  onClick={() => setCurrentLang(lang.iso_code)}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    fontWeight: 'bold',
-                    background: isActiveTab ? 'var(--color-primary)' : '#eee',
-                    color: isActiveTab ? 'white' : '#666',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}
-                >
-                  <div>{lang.flag_emoji} {lang.name}</div>
-                  {statusLabel && (
-                    <span style={{ fontSize: '0.7rem', color: isActiveTab ? 'white' : statusColor, opacity: 0.9 }}>
-                      {statusLabel}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
 
           {(() => {
             const isSource = languages.find(l => l.iso_code === currentLang)?.is_source;
@@ -417,7 +371,7 @@ export function AdminDevotionals() {
                 )}
 
                 <div>
-                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>Título ({currentLang})</label>
+                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>Título</label>
                   <input 
                     type="text" 
                     value={getValue('title')}
@@ -428,7 +382,7 @@ export function AdminDevotionals() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>Subtítulo ({currentLang})</label>
+                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>Subtítulo</label>
                   <input 
                     type="text" 
                     value={getValue('subtitle')}
@@ -438,7 +392,7 @@ export function AdminDevotionals() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>Destaque / Principle Statement ({currentLang})</label>
+                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>Destaque / Principle Statement</label>
                   <textarea 
                     value={getValue('principle_statement')}
                     onChange={(e) => setValue('principle_statement', e.target.value)}
@@ -449,7 +403,7 @@ export function AdminDevotionals() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>Reflexão ({currentLang})</label>
+                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>Reflexão</label>
                   <RichTextEditor 
                     key={`reflection-${currentLang}`}
                     value={getValue('reflection')}
@@ -458,7 +412,7 @@ export function AdminDevotionals() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>Aplicação Prática ({currentLang})</label>
+                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>Aplicação Prática</label>
                   <RichTextEditor 
                     key={`practical-${currentLang}`}
                     value={getValue('practical_application')}
@@ -467,7 +421,7 @@ export function AdminDevotionals() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>Oração ({currentLang})</label>
+                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>Oração</label>
                   <RichTextEditor 
                     key={`prayer-${currentLang}`}
                     value={getValue('prayer')}
