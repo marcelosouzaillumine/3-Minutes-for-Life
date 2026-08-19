@@ -2,7 +2,6 @@ export interface DevotionalTranslation {
   id: string;
   language: string;
   title: string;
-  subtitle?: string | null;
   principle_statement?: string | null;
   reflection: string;
   practical_application?: string | null;
@@ -16,7 +15,6 @@ export interface Devotional {
   legacy_id?: number;
   publication_date?: string;
   title: string;
-  subtitle?: string | null;
   principle_statement?: string | null;
   reflection: string;
   practical_application?: string | null;
@@ -34,6 +32,7 @@ export interface Devotional {
   isLanguageFallback?: boolean;
   isCached?: boolean;
   source?: 'supabase' | 'indexeddb' | 'legacy';
+  translationStatus?: 'available' | 'unavailable';
   requestedLanguage?: string;
   resolvedLanguage?: string;
   devotional_translations?: DevotionalTranslation[];

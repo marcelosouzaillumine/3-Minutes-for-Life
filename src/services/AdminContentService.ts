@@ -26,7 +26,6 @@ export const AdminContentService = {
       .select(`
         id,
         title,
-        subtitle,
         principle_statement,
         reflection,
         practical_application,

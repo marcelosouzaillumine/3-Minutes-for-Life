@@ -32,7 +32,7 @@ async function getGlossary(sourceLang: string, targetLang: string) {
   
   if (!data || data.length === 0) return '';
   return "Glossário Editorial (Sempre use estas traduções para estes termos):\n" + 
-    data.map(g => `- "${g.source_term}" -> "${g.target_term}"`).join('\n');
+    data.map((g: any) => `- "${g.source_term}" -> "${g.target_term}"`).join('\n');
 }
 
 async function callOpenAI(devotional: any, targetLang: string, glossaryContext: string) {
@@ -53,7 +53,6 @@ async function callOpenAI(devotional: any, targetLang: string, glossaryContext: 
   
   CONTEÚDO ORIGINAL:
   Title: ${devotional.title}
-  Subtitle: ${devotional.subtitle}
   Principle Statement: ${devotional.principle_statement}
   Reflection:
   ${devotional.reflection}
@@ -68,7 +67,7 @@ async function callOpenAI(devotional: any, targetLang: string, glossaryContext: 
   const response = await openai.createChatCompletion({
     model: TRANSLATION_MODEL,
     messages: [
-      { role: "system", content: "Você é um tradutor teológico profissional especializado em devocionais cristãos. Retorne apenas JSON válido contendo as chaves: title, subtitle, principle_statement, reflection, practical_application, prayer." },
+      { role: "system", content: "Você é um tradutor teológico profissional especializado em devocionais cristãos. Retorne apenas JSON válido contendo as chaves: title, principle_statement, reflection, practical_application, prayer." },
       { role: "user", content: prompt }
     ],
     temperature: 0.3,
@@ -86,10 +85,11 @@ function validateTranslation(original: any, translated: any) {
   const warnings = [];
   let isPass = true;
   
-  const requiredFields = ['title', 'subtitle', 'principle_statement', 'reflection', 'practical_application', 'prayer'];
+  const requiredFields = ['title', 'principle_statement', 'reflection'];
   for (const field of requiredFields) {
     if (!translated[field] || translated[field].trim() === '') {
-      throw new Error(`Missing required field in translation: ${field}`);
+      isPass = false;
+      warnings.push(`Missing required field in translation: ${field}`);
     }
   }
 
@@ -158,7 +158,6 @@ serve(async (req: Request) => {
             devotional_id: job.devotional_id,
             language: job.target_language,
             title: translatedData.title,
-            subtitle: translatedData.subtitle,
             principle_statement: translatedData.principle_statement,
             reflection: translatedData.reflection,
             practical_application: translatedData.practical_application,

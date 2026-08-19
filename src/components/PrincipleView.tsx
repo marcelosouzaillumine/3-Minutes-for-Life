@@ -103,10 +103,10 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
       <span className="label">{devotional.categories?.name || 'Devocional'}</span>
       
       <h1 className="principle-title">{devotional.title}</h1>
-      {devotional.subtitle && (
-        <h2 style={{ fontSize: '1.25rem', color: 'var(--color-text-light)', marginTop: '-0.5rem', marginBottom: '1.5rem', fontWeight: 500 }}>
-          {devotional.subtitle}
-        </h2>
+      {devotional.translationStatus === 'unavailable' && (
+        <div style={{ padding: '12px', background: 'var(--color-bg-secondary)', borderRadius: '8px', marginBottom: '16px', fontSize: '0.9rem', color: 'var(--color-text-light)', borderLeft: '4px solid #f59e0b' }}>
+          {t('translationUnavailable', 'A tradução para o seu idioma ainda não está pronta. Exibindo o original.')}
+        </div>
       )}
       {devotional.principle_statement ? (
         <>

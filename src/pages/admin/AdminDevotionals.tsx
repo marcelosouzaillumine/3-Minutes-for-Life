@@ -57,7 +57,6 @@ export function AdminDevotionals() {
           if (t.language !== 'pt-BR') {
             translationsMap[t.language] = {
               title: t.title,
-              subtitle: t.subtitle,
               principle_statement: t.principle_statement,
               reflection: t.reflection,
               practical_application: t.practical_application,
@@ -88,13 +87,12 @@ export function AdminDevotionals() {
     const initialTranslations: Record<string, any> = {};
     languages.forEach(lang => {
       if (!lang.is_source) {
-        initialTranslations[lang.iso_code] = { title: '', subtitle: '', principle_statement: '', reflection: '', practical_application: '', prayer: '' };
+        initialTranslations[lang.iso_code] = { title: '', principle_statement: '', reflection: '', practical_application: '', prayer: '' };
       }
     });
 
     setEditForm({
       title: '',
-      subtitle: '',
       principle_statement: '',
       reflection: '',
       practical_application: '',
@@ -127,7 +125,6 @@ export function AdminDevotionals() {
     // Remove empty optional fields that shouldn't be empty strings in db
     const payload = { ...editForm };
     if (!payload.category_id) payload.category_id = null;
-    if (!payload.subtitle) payload.subtitle = null;
     if (!payload.principle_statement) payload.principle_statement = null;
     if (!payload.prayer) payload.prayer = null;
 
@@ -372,16 +369,6 @@ export function AdminDevotionals() {
                     value={getValue('title')}
                     onChange={(e) => setValue('title', e.target.value)}
                     required={isSource}
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>Subtítulo</label>
-                  <input 
-                    type="text" 
-                    value={getValue('subtitle')}
-                    onChange={(e) => setValue('subtitle', e.target.value)}
                     style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd' }}
                   />
                 </div>
