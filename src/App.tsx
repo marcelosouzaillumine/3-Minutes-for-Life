@@ -62,6 +62,10 @@ function App() {
   const isAdminPath = pathname.startsWith('/admin');
 
   if (isAdminPath) {
+    if (!session) {
+      window.location.href = '/login';
+      return null;
+    }
     return <AdminLayout />;
   }
 
