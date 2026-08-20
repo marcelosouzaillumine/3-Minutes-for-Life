@@ -135,42 +135,17 @@ export function Home({ onExplore }: HomeProps) {
         </div>
       )}
 
-      {devotional.principle_statement ? (
-        <>
-          <p className="principle-statement">{devotional.principle_statement}</p>
-          <HtmlRenderer html={devotional.reflection} className="principle-reflection" />
-        </>
-      ) : (
-        <>
-          <p className="principle-statement">{devotional.reflection.split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)[0]}</p>
-          <div className="principle-reflection">
-            {devotional.reflection
-              .split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)
-              .slice(1) // Skip the first block which we assume is the statement
-              .map(paragraph => paragraph.trim())
-              .filter(Boolean)
-              .map((paragraph, index) => (
-                <p key={index} style={{ marginBottom: '1.5rem', lineHeight: '1.7' }}>{paragraph}</p>
-              ))}
-          </div>
-        </>
+      {devotional.principle_statement && (
+        <p className="principle-statement">{devotional.principle_statement}</p>
       )}
+      
+      <HtmlRenderer html={devotional.reflection} className="principle-reflection" />
 
       <div className="application-section">
         <span className="label">{t('home.practiceToday')}</span>
         <div className="application-text">
           {devotional.practical_application ? (
-            devotional.principle_statement ? (
-              <HtmlRenderer html={devotional.practical_application} />
-            ) : (
-              devotional.practical_application
-                .split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)
-                .map(paragraph => paragraph.trim())
-                .filter(Boolean)
-                .map((paragraph, index) => (
-                  <p key={index} style={{ marginBottom: '1rem' }}>{paragraph}</p>
-                ))
-            )
+            <HtmlRenderer html={devotional.practical_application} />
           ) : (
             <p style={{ marginBottom: '1rem', fontStyle: 'italic', opacity: 0.7 }}>{t('home.applicationPending')}</p>
           )}
@@ -184,7 +159,7 @@ export function Home({ onExplore }: HomeProps) {
             </p>
             {devotional.scripture_text && (
               <p style={{ marginTop: '0.5rem', lineHeight: '1.6', color: 'var(--color-text-light)', fontSize: '0.95rem' }}>
-                "{devotional.scripture_text}"
+                &ldquo;{devotional.scripture_text}&rdquo;
               </p>
             )}
           </div>
@@ -194,33 +169,23 @@ export function Home({ onExplore }: HomeProps) {
           <div style={{ marginTop: '2rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
             <span className="label">{t('home.prayer')}</span>
             <div className="application-text" style={{ fontStyle: 'italic' }}>
-              {devotional.principle_statement ? (
-                <HtmlRenderer html={devotional.prayer} />
-              ) : (
-                devotional.prayer
-                  .split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)
-                  .map(paragraph => paragraph.trim())
-                  .filter(Boolean)
-                  .map((paragraph, index) => (
-                    <p key={index} style={{ marginBottom: '1rem' }}>{paragraph}</p>
-                  ))
-              )}
+              <HtmlRenderer html={devotional.prayer} />
             </div>
           </div>
         )}
         
         {/* Minha reflexao - Secao de Reflexao Pessoal */}
         <div style={{ marginTop: '2.5rem', marginBottom: '2.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '2rem' }}>
-          <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: 600 }}>Minha reflexão</h3>
+          <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: 600 }}>{t('home.myReflection')}</h3>
           <p style={{ fontSize: '0.95rem', color: 'var(--color-text-light)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-            O que essa reflexão despertou em você?
+            {t('home.myReflectionPrompt')}
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <textarea
               value={reflectionContent}
               onChange={(e) => setReflectionContent(e.target.value)}
-              placeholder="Escreva aqui o que você gostaria de guardar deste momento."
+              placeholder={t('home.myReflectionPlaceholder')}
               style={{
                 width: '100%',
                 minHeight: '120px',
@@ -236,7 +201,7 @@ export function Home({ onExplore }: HomeProps) {
               }}
             />
             <p style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', marginTop: '-0.5rem', fontStyle: 'italic' }}>
-              Só você pode ver o que escreve aqui.
+              {t('home.myReflectionPrivate')}
             </p>
             
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
@@ -255,11 +220,11 @@ export function Home({ onExplore }: HomeProps) {
                   transition: 'opacity 0.2s'
                 }}
               >
-                {savingReflection ? 'Guardando...' : 'Guardar'}
+                {savingReflection ? t('home.savingReflection') : t('home.saveReflection')}
               </button>
               {savedReflectionSuccess && (
                 <span style={{ fontSize: '0.9rem', color: '#4CAF50', fontWeight: 500 }}>
-                  Guardado na sua jornada.
+                  {t('home.reflectionSaved')}
                 </span>
               )}
             </div>

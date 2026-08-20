@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { TestimonialService } from '../services/TestimonialService';
 import { DevotionalService } from '../services/DevotionalService';
 import type { Devotional } from '../types/Devotional';
@@ -11,6 +12,7 @@ interface TestimonialFormModalProps {
 }
 
 export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess }: TestimonialFormModalProps) {
+  const { t } = useTranslation(['common']);
   const [content, setContent] = useState('');
   const [selectedDevotionalId, setSelectedDevotionalId] = useState<string>(devotionalId || '');
   const [devotionals, setDevotionals] = useState<Devotional[]>([]);
@@ -38,7 +40,7 @@ export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (content.length < 20) {
-      alert("Por favor, escreva um pouco mais (mínimo de 20 caracteres).");
+      alert(t('testimonials.minCharsAlert', 'Por favor, escreva um pouco mais (mínimo de 20 caracteres).'));
       return;
     }
 
@@ -52,7 +54,7 @@ export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess 
       if (onSuccess) onSuccess();
     } catch (err) {
       console.error(err);
-      alert('Ocorreu um erro ao enviar sua história. Tente novamente.');
+      alert(t('testimonials.submitError', 'Ocorreu um erro ao enviar sua história. Tente novamente.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -79,29 +81,29 @@ export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess 
         {isSuccess ? (
           <div style={{ textAlign: 'center', padding: '2rem 0' }}>
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', marginBottom: '1rem', fontWeight: 400 }}>
-              Obrigado por compartilhar.
+              {t('testimonials.successTitle', 'Obrigado por compartilhar.')}
             </h2>
             <p style={{ color: 'var(--color-text-light)', marginBottom: '2rem', lineHeight: 1.6 }}>
-              Recebemos sua história. Ela foi enviada de forma privada para nossa equipe.
+              {t('testimonials.successBody', 'Recebemos sua história. Ela foi enviada de forma privada para nossa equipe.')}
             </p>
             <button className="btn-primary" onClick={onClose}>
-              Concluir
+              {t('testimonials.finishBtn', 'Concluir')}
             </button>
           </div>
         ) : (
           <>
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', marginBottom: '0.5rem', fontWeight: 400 }}>
-              Compartilhe sua história
+              {t('testimonials.modalTitle', 'Compartilhe sua história')}
             </h2>
             <p style={{ color: 'var(--color-text-light)', marginBottom: '2rem', lineHeight: 1.5 }}>
-              Queremos saber o que esta reflexão despertou em você. Conte, com suas palavras, algo que tenha marcado sua caminhada.
+              {t('testimonials.modalSubtitle', 'Queremos saber o que esta reflexão despertou em você. Conte, com suas palavras, algo que tenha marcado sua caminhada.')}
             </p>
 
             <form onSubmit={handleSubmit}>
               {!devotionalId && devotionals.length > 0 && (
                 <div style={{ marginBottom: '1.5rem' }}>
                   <label style={{ display: 'block', fontSize: '0.9rem', marginBottom: '0.5rem', color: 'var(--color-text-light)' }}>
-                    Relacionado a alguma reflexão? (Opcional)
+                    {t('testimonials.relatedPrompt', 'Relacionado a alguma reflexão? (Opcional)')}
                   </label>
                   <select 
                     value={selectedDevotionalId} 
@@ -112,7 +114,7 @@ export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess 
                       color: 'var(--color-text)', fontSize: '1rem'
                     }}
                   >
-                    <option value="">Não está relacionada a uma devocional específica</option>
+                    <option value="">{t('testimonials.noneRelated', 'Não está relacionada a uma devocional específica')}</option>
                     {devotionals.map(d => (
                       <option key={d.id} value={d.id}>{d.title}</option>
                     ))}
@@ -124,7 +126,7 @@ export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess 
                 <textarea
                   value={content}
                   onChange={e => setContent(e.target.value)}
-                  placeholder="Escreva aqui..."
+                  placeholder={t('testimonials.textareaPlaceholder', 'Escreva aqui...')}
                   rows={6}
                   maxLength={3000}
                   style={{ 
@@ -149,8 +151,8 @@ export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess 
                   <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                 </svg>
                 <p style={{ fontSize: '0.85rem', color: 'var(--color-text-light)', lineHeight: 1.4, margin: 0 }}>
-                  <strong>Seu relato é privado.</strong><br/>
-                  Ele não será exibido para outros usuários.
+                  <strong>{t('testimonials.privateNoticeTitle', 'Seu relato é privado.')}</strong><br/>
+                  {t('testimonials.privateNoticeBody', 'Ele não será exibido para outros usuários.')}
                 </p>
               </div>
 
@@ -159,7 +161,9 @@ export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess 
                 className="btn-primary" 
                 disabled={isSubmitting || content.length < 20}
               >
-                {isSubmitting ? 'Enviando...' : 'Compartilhar minha história'}
+                {isSubmitting 
+                  ? t('testimonials.submittingBtn', 'Enviando...') 
+                  : t('testimonials.submitBtn', 'Compartilhar minha história')}
               </button>
             </form>
           </>

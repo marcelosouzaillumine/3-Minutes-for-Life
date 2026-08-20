@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ReflectionService } from '../services/ReflectionService';
 import type { PersonalReflectionWithDevotional } from '../services/ReflectionService';
 
 export function ReflectionList() {
+  const { t, i18n } = useTranslation(['profile', 'common']);
   const [reflections, setReflections] = useState<PersonalReflectionWithDevotional[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,7 +25,11 @@ export function ReflectionList() {
   }, []);
 
   if (loading) {
-    return <div style={{ padding: '2rem 0', textAlign: 'center', color: 'var(--color-text-light)' }}>Carregando suas anotações...</div>;
+    return (
+      <div style={{ padding: '2rem 0', textAlign: 'center', color: 'var(--color-text-light)' }}>
+        {t('profile:loadingNotes', 'Carregando suas anotações...')}
+      </div>
+    );
   }
 
   if (reflections.length === 0) {
@@ -37,10 +43,10 @@ export function ReflectionList() {
         border: '1px dashed var(--color-border)'
       }}>
         <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: 500, color: 'var(--color-text)' }}>
-          Nenhuma anotação pessoal ainda.
+          {t('profile:emptyNotesTitle', 'Nenhuma anotação pessoal ainda.')}
         </h4>
         <p style={{ color: 'var(--color-text-light)', fontSize: '0.95rem', lineHeight: 1.6 }}>
-          As reflexões que você guarda para si mesmo nos devocionais aparecerão aqui.
+          {t('profile:emptyNotesBody', 'As reflexões que você guarda para si mesmo nos devocionais aparecerão aqui.')}
         </p>
       </div>
     );
@@ -63,10 +69,10 @@ export function ReflectionList() {
                 fontWeight: 600,
                 color: 'var(--color-text)'
               }}>
-                {r.devotionals?.title || 'Devocional'}
+                {r.devotionals?.title || t('common:categories.Devocional', 'Devocional')}
               </div>
               <div style={{ fontSize: '0.8rem', color: 'var(--color-text-light)' }}>
-                {new Date(r.created_at).toLocaleDateString('pt-BR')}
+                {new Date(r.created_at).toLocaleDateString(i18n.language || 'pt-BR')}
               </div>
             </div>
             

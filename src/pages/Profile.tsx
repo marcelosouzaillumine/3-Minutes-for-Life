@@ -50,7 +50,9 @@ export function Profile() {
           {t('common:back')}
         </button>
         <div className="about-content" style={{ marginTop: '2rem' }}>
-          <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--color-text)' }}>Anotações Pessoais</h3>
+          <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--color-text)' }}>
+            {t('profile:myNotes', 'Anotações Pessoais')}
+          </h3>
           <ReflectionList />
         </div>
       </div>
@@ -67,7 +69,9 @@ export function Profile() {
           {t('common:back')}
         </button>
         <div className="about-content" style={{ marginTop: '2rem' }}>
-          <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--color-text)' }}>Testemunhos</h3>
+          <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--color-text)' }}>
+            {t('profile:testimonials', 'Testemunhos')}
+          </h3>
           <TestimonialList />
         </div>
       </div>
@@ -102,7 +106,7 @@ export function Profile() {
           />
         </div>
         <div className="profile-details">
-          <p className="profile-name">{user?.user_metadata?.full_name || 'Usuário'}</p>
+          <p className="profile-name">{user?.user_metadata?.full_name || t('profile:userFallback', 'Usuário')}</p>
           <p className="profile-email">{user?.email}</p>
         </div>
       </div>
@@ -159,7 +163,7 @@ export function Profile() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
               </div>
-              <span>Anotações Pessoais</span>
+              <span>{t('profile:myNotes', 'Anotações Pessoais')}</span>
             </div>
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20" className="chevron-icon">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -172,7 +176,7 @@ export function Profile() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
                 </svg>
               </div>
-              <span>Testemunhos</span>
+              <span>{t('profile:testimonials', 'Testemunhos')}</span>
             </div>
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20" className="chevron-icon">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

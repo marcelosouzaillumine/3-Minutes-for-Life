@@ -38,11 +38,39 @@
     "back": "Voltar",
     "myReflection": "Minha reflexão",
     "myReflectionPrompt": "O que essa reflexão despertou em você?",
+    "myReflectionPlaceholder": "Escreva aqui o que você gostaria de guardar deste momento.",
     "myReflectionPrivate": "Só você pode ver o que escreve aqui.",
     "saveReflection": "Guardar",
     "savingReflection": "Guardando...",
     "reflectionSaved": "Guardado na sua jornada.",
     "loginToSave": "Entre para guardar sua reflexão"
+  },
+  "testimonials": {
+    "title": "Como essa reflexão tocou você?",
+    "subtitle": "Seu testemunho pode inspirar e abençoar outras pessoas que estão na mesma jornada.",
+    "writeBtn": "Escrever meu testemunho",
+    "modalTitle": "Compartilhe sua história",
+    "modalSubtitle": "Queremos saber o que esta reflexão despertou em você. Conte, com suas palavras, algo que tenha marcado sua caminhada.",
+    "relatedPrompt": "Relacionado a alguma reflexão? (Opcional)",
+    "noneRelated": "Não está relacionada a uma devocional específica",
+    "textareaPlaceholder": "Escreva aqui...",
+    "minCharsAlert": "Por favor, escreva um pouco mais (mínimo de 20 caracteres).",
+    "privateNoticeTitle": "Seu relato é privado.",
+    "privateNoticeBody": "Ele não será exibido para outros usuários.",
+    "submitBtn": "Compartilhar minha história",
+    "submittingBtn": "Enviando...",
+    "successTitle": "Obrigado por compartilhar.",
+    "successBody": "Recebemos sua história. Ela foi enviada de forma privada para nossa equipe.",
+    "finishBtn": "Concluir",
+    "submitError": "Ocorreu um erro ao enviar sua história. Tente novamente."
+  },
+  "shared": {
+    "senderShared": "{{name}} compartilhou esta reflexão com você.",
+    "someoneShared": "Alguém compartilhou esta reflexão com você.",
+    "ctaText": "Que estes três minutos não terminem aqui.",
+    "ctaSubtext": "Amanhã, uma nova reflexão espera por você.",
+    "ctaButton": "Quero continuar",
+    "ctaNote": "Gratuito, sempre."
   },
   "categories": {
     "Vida": "Vida",
@@ -52,7 +80,9 @@
     "Dinheiro": "Dinheiro",
     "Liderança": "Liderança",
     "Propósito": "Propósito",
-    "Fé": "Fé"
+    "Fé": "Fé",
+    "Devocional": "Devocional",
+    "Uma reflexão para hoje": "Uma reflexão para hoje"
   },
   "visualCard": {
     "header": "3 Minutos para a Vida",

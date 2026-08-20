@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 
 export function SharedDevotional() {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation(['common']);
   const { user } = useAuth();
   const [devotional, setDevotional] = useState<Devotional | null>(null);
   const [loading, setLoading] = useState(true);
@@ -64,7 +64,7 @@ export function SharedDevotional() {
   if (loading) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center' }}>
-        <span className="label" style={{ opacity: 0.5 }}>Carregando reflexão...</span>
+        <span className="label" style={{ opacity: 0.5 }}>{t('common:loading', 'Carregando reflexão...')}</span>
       </div>
     );
   }
@@ -83,17 +83,19 @@ export function SharedDevotional() {
 
       <div style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem 1rem' }}>
         <div className="perceived-statement" style={{ fontSize: '1.5rem', marginBottom: '2rem', marginTop: '2rem' }}>
-          {senderName ? `${senderName} compartilhou esta reflexão com você.` : 'Alguém compartilhou esta reflexão com você.'}
+          {senderName 
+            ? t('shared.senderShared', { name: senderName, defaultValue: `${senderName} compartilhou esta reflexão com você.` })
+            : t('shared.someoneShared', 'Alguém compartilhou esta reflexão com você.')}
         </div>
         
         <PrincipleView 
           devotional={devotional} 
           customAction={!user ? {
             variant: 'shared',
-            text: "Que estes três minutos não terminem aqui.",
-            subtext: "Amanhã, uma nova reflexão espera por você.",
-            label: "Quero continuar",
-            note: "Gratuito, sempre.",
+            text: t('shared.ctaText', 'Que estes três minutos não terminem aqui.'),
+            subtext: t('shared.ctaSubtext', 'Amanhã, uma nova reflexão espera por você.'),
+            label: t('shared.ctaButton', 'Quero continuar'),
+            note: t('shared.ctaNote', 'Gratuito, sempre.'),
             onClick: handleCtaClick
           } : undefined}
         />

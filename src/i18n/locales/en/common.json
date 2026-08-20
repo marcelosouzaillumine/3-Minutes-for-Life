@@ -38,11 +38,39 @@
     "back": "Back",
     "myReflection": "My reflection",
     "myReflectionPrompt": "What did this reflection stir in you?",
+    "myReflectionPlaceholder": "Write here what you would like to keep from this moment.",
     "myReflectionPrivate": "Only you can see what you write here.",
     "saveReflection": "Save",
     "savingReflection": "Saving...",
     "reflectionSaved": "Saved to your journey.",
     "loginToSave": "Sign in to save your reflection"
+  },
+  "testimonials": {
+    "title": "How did this reflection touch you?",
+    "subtitle": "Your story can inspire and encourage others walking the same path.",
+    "writeBtn": "Write my testimony",
+    "modalTitle": "Share your story",
+    "modalSubtitle": "We want to know what this reflection sparked in you. In your own words, tell something meaningful from your journey.",
+    "relatedPrompt": "Related to a specific reflection? (Optional)",
+    "noneRelated": "Not related to a specific devotional",
+    "textareaPlaceholder": "Write here...",
+    "minCharsAlert": "Please write a little more (minimum 20 characters).",
+    "privateNoticeTitle": "Your story is private.",
+    "privateNoticeBody": "It will not be displayed to other users.",
+    "submitBtn": "Share my story",
+    "submittingBtn": "Sending...",
+    "successTitle": "Thank you for sharing.",
+    "successBody": "We received your story. It was sent privately to our team.",
+    "finishBtn": "Done",
+    "submitError": "An error occurred while sending your story. Please try again."
+  },
+  "shared": {
+    "senderShared": "{{name}} shared this reflection with you.",
+    "someoneShared": "Someone shared this reflection with you.",
+    "ctaText": "May these three minutes not end here.",
+    "ctaSubtext": "Tomorrow, a fresh reflection awaits you.",
+    "ctaButton": "Continue my journey",
+    "ctaNote": "Always free."
   },
   "categories": {
     "Vida": "Life",
@@ -52,7 +80,9 @@
     "Dinheiro": "Money",
     "Liderança": "Leadership",
     "Propósito": "Purpose",
-    "Fé": "Faith"
+    "Fé": "Faith",
+    "Devocional": "Devotional",
+    "Uma reflexão para hoje": "A reflection for today"
   },
   "visualCard": {
     "header": "3 Minutes for Life",

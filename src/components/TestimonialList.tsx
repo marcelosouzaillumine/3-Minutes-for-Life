@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { TestimonialService } from '../services/TestimonialService';
 import type { Testimonial } from '../types/Testimonial';
 import { TestimonialFormModal } from './TestimonialFormModal';
 
 export function TestimonialList() {
+  const { t, i18n } = useTranslation(['profile', 'common']);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,9 +28,9 @@ export function TestimonialList() {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'pending': return 'Em análise';
-      case 'reviewed': return 'Lida pela equipe';
-      case 'archived': return 'Arquivada';
+      case 'pending': return t('profile:statusPending', 'Em análise');
+      case 'reviewed': return t('profile:statusReviewed', 'Lida pela equipe');
+      case 'archived': return t('profile:statusArchived', 'Arquivada');
       default: return status;
     }
   };
@@ -43,7 +45,11 @@ export function TestimonialList() {
   };
 
   if (loading) {
-    return <div style={{ padding: '2rem 0', textAlign: 'center', color: 'var(--color-text-light)' }}>Carregando sua história...</div>;
+    return (
+      <div style={{ padding: '2rem 0', textAlign: 'center', color: 'var(--color-text-light)' }}>
+        {t('profile:loadingTestimonials', 'Carregando sua história...')}
+      </div>
+    );
   }
 
   if (testimonials.length === 0) {
@@ -58,17 +64,17 @@ export function TestimonialList() {
           border: '1px dashed var(--color-border)'
         }}>
           <h4 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: 500, color: 'var(--color-text)' }}>
-            Nenhum testemunho registrado
+            {t('profile:emptyTestimonialsTitle', 'Nenhum testemunho registrado')}
           </h4>
           <p style={{ color: 'var(--color-text-light)', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '1.5rem' }}>
-            Compartilhe como as reflexões têm tocado a sua vida e inspirado sua jornada.
+            {t('profile:emptyTestimonialsBody', 'Compartilhe como as reflexões têm tocado a sua vida e inspirado sua jornada.')}
           </p>
           <button 
             className="btn-secondary" 
             onClick={() => setIsModalOpen(true)}
             style={{ width: 'auto', padding: '0.75rem 1.5rem' }}
           >
-            Compartilhar minha história
+            {t('profile:shareStoryBtn', 'Compartilhar minha história')}
           </button>
         </div>
 
@@ -104,13 +110,13 @@ export function TestimonialList() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Novo Testemunho
+            {t('profile:newTestimonialBtn', 'Novo Testemunho')}
           </button>
         </div>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {testimonials.map(t => (
-            <div key={t.id} style={{
+          {testimonials.map(item => (
+            <div key={item.id} style={{
               padding: '1.5rem',
               backgroundColor: 'var(--color-bg)',
               borderRadius: '12px',
@@ -123,16 +129,16 @@ export function TestimonialList() {
                   fontWeight: 600,
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
-                  color: getStatusColor(t.status),
-                  backgroundColor: `${getStatusColor(t.status)}15`,
+                  color: getStatusColor(item.status),
+                  backgroundColor: `${getStatusColor(item.status)}15`,
                   padding: '4px 10px',
                   borderRadius: '20px',
                   display: 'inline-block'
                 }}>
-                  {getStatusLabel(t.status)}
+                  {getStatusLabel(item.status)}
                 </div>
                 <div style={{ fontSize: '0.8rem', color: 'var(--color-text-light)' }}>
-                  {new Date(t.created_at).toLocaleDateString('pt-BR')}
+                  {new Date(item.created_at).toLocaleDateString(i18n.language || 'pt-BR')}
                 </div>
               </div>
               
@@ -145,7 +151,7 @@ export function TestimonialList() {
                 WebkitBoxOrient: 'vertical', 
                 overflow: 'hidden' 
               }}>
-                "{t.content}"
+                &ldquo;{item.content}&rdquo;
               </p>
             </div>
           ))}

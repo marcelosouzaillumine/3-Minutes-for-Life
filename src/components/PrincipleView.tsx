@@ -100,30 +100,19 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
         </button>
       )}
       
-      <span className="label">{devotional.categories?.name || 'Devocional'}</span>
+      <span className="label">
+        {devotional.categories?.name 
+          ? t(`categories.${devotional.categories.name}`, devotional.categories.name)
+          : t('categories.Devocional', 'Devocional')}
+      </span>
       
       <h1 className="principle-title">{devotional.title}</h1>
 
-      {devotional.principle_statement ? (
-        <>
-          <p className="principle-statement">{devotional.principle_statement}</p>
-          <HtmlRenderer html={devotional.reflection} className="principle-reflection" />
-        </>
-      ) : (
-        <>
-          <p className="principle-statement">{devotional.reflection.split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)[0]}</p>
-          <div className="principle-reflection">
-            {devotional.reflection
-              .split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)
-              .slice(1)
-              .map(paragraph => paragraph.trim())
-              .filter(Boolean)
-              .map((paragraph, index) => (
-                <p key={index} style={{ marginBottom: '1.5rem', lineHeight: '1.7' }}>{paragraph}</p>
-              ))}
-          </div>
-        </>
+      {devotional.principle_statement && (
+        <p className="principle-statement">{devotional.principle_statement}</p>
       )}
+      
+      <HtmlRenderer html={devotional.reflection} className="principle-reflection" />
       
       {devotional.audio_url && (
         <div style={{ marginBottom: '2rem' }}>
@@ -135,17 +124,7 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
         <span className="label">{t('home.practiceToday')}</span>
         <div className="application-text">
           {devotional.practical_application ? (
-            devotional.principle_statement ? (
-              <HtmlRenderer html={devotional.practical_application} />
-            ) : (
-              devotional.practical_application
-                .split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)
-                .map(paragraph => paragraph.trim())
-                .filter(Boolean)
-                .map((paragraph, index) => (
-                  <p key={index} style={{ marginBottom: '1rem' }}>{paragraph}</p>
-                ))
-            )
+            <HtmlRenderer html={devotional.practical_application} />
           ) : (
             <p style={{ marginBottom: '1rem', fontStyle: 'italic', opacity: 0.7 }}>{t('home.applicationPending')}</p>
           )}
@@ -155,17 +134,7 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
           <div style={{ marginTop: '2rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
             <span className="label">{t('home.prayer')}</span>
             <div className="application-text" style={{ fontStyle: 'italic' }}>
-              {devotional.principle_statement ? (
-                <HtmlRenderer html={devotional.prayer} />
-              ) : (
-                devotional.prayer
-                  .split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)
-                  .map(paragraph => paragraph.trim())
-                  .filter(Boolean)
-                  .map((paragraph, index) => (
-                    <p key={index} style={{ marginBottom: '1rem' }}>{paragraph}</p>
-                  ))
-              )}
+              <HtmlRenderer html={devotional.prayer} />
             </div>
           </div>
         )}

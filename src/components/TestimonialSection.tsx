@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { TestimonialFormModal } from './TestimonialFormModal';
 
 interface TestimonialSectionProps {
@@ -7,6 +8,7 @@ interface TestimonialSectionProps {
 }
 
 export function TestimonialSection({ devotionalId, onSuccess }: TestimonialSectionProps) {
+  const { t } = useTranslation(['common']);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -26,7 +28,7 @@ export function TestimonialSection({ devotionalId, onSuccess }: TestimonialSecti
           marginBottom: '0.5rem',
           color: 'var(--color-text)'
         }}>
-          Como essa reflexão tocou você?
+          {t('testimonials.title', 'Como essa reflexão tocou você?')}
         </h3>
         <p style={{
           fontSize: '1rem',
@@ -34,14 +36,14 @@ export function TestimonialSection({ devotionalId, onSuccess }: TestimonialSecti
           marginBottom: '1.5rem',
           lineHeight: 1.6
         }}>
-          Seu testemunho pode inspirar e abençoar outras pessoas que estão na mesma jornada.
+          {t('testimonials.subtitle', 'Seu testemunho pode inspirar e abençoar outras pessoas que estão na mesma jornada.')}
         </p>
         <button 
           className="btn-secondary" 
           onClick={() => setIsModalOpen(true)}
           style={{ width: 'auto', padding: '0.75rem 1.5rem' }}
         >
-          Escrever meu testemunho
+          {t('testimonials.writeBtn', 'Escrever meu testemunho')}
         </button>
       </div>
 
