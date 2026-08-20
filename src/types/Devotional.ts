@@ -8,6 +8,7 @@ export interface DevotionalTranslation {
   prayer?: string | null;
   status: 'draft' | 'scheduled' | 'published' | 'archived';
   source_content_hash?: string;
+  translation_source?: 'manual' | 'ai';
 }
 
 export interface Devotional {

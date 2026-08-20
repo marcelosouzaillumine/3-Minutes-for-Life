@@ -13,7 +13,7 @@ function isAuthError(err: any): boolean {
 }
 
 // --- LANGUAGE RESOLUTION HELPER --- //
-function resolveTranslation(
+export function resolveTranslation(
   devotional: any, 
   requestedLanguage: string,
   source: 'supabase' | 'indexeddb' | 'legacy' = 'supabase',
@@ -28,12 +28,26 @@ function resolveTranslation(
   }
 
   // If the requested language is not the base language (pt-BR), try to find its translation
+  // Resolution Priority:
+  // 1. Published Manual/Editorial Translation
+  // 2. Published AI/Automatic Translation
+  // 3. Fallback to Portuguese original
   if (targetLang !== 'pt-BR') {
-    const requestedTranslation = translations.find(
+    const manualTranslation = translations.find(
       t => t.language === targetLang && 
            t.status === 'published' && 
+           t.translation_source === 'manual' &&
            (!t.source_content_hash || t.source_content_hash === devotional.content_hash)
     );
+
+    const aiTranslation = !manualTranslation ? translations.find(
+      t => t.language === targetLang && 
+           t.status === 'published' && 
+           (t.translation_source === 'ai' || !t.translation_source) &&
+           (!t.source_content_hash || t.source_content_hash === devotional.content_hash)
+    ) : undefined;
+
+    const requestedTranslation = manualTranslation || aiTranslation;
 
     if (requestedTranslation) {
       return {
@@ -93,7 +107,8 @@ const selectQuery = `
     practical_application,
     prayer,
     status,
-    source_content_hash
+    source_content_hash,
+    translation_source
   )
 `;
 

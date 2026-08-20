@@ -42,11 +42,11 @@ export function Landing() {
   const setRef = useIntersectionObserver();
 
   const demoPrinciple = {
-    id: 9999,
-    title: 'Você está brigando com a realidade?',
-    principle: 'A mudança começa quando reconhecemos a realidade como ela é.',
-    reflection: 'Todos nós já gastamos energia desejando que uma situação fosse diferente. Ficamos pensando no que poderia ter acontecido, no que alguém deveria ter feito ou em como gostaríamos que as coisas fossem.\n\nEnquanto isso, a realidade continua diante de nós, esperando que a encaremos e decidamos o que fazer.\n\nAceitar a realidade não significa gostar dela, concordar com ela ou desistir de mudá-la. Significa reconhecer onde estamos para descobrir o que podemos fazer a partir daí.\n\nSó que nem tudo está sob nosso controle. E é justamente nesse limite que a fé pode nos ensinar um novo caminho.\n\nA fé cristã nos lembra que não precisamos controlar tudo para seguir em frente. Podemos entregar a Deus aquilo que não conseguimos mudar e voltar nossa atenção para aquilo que está ao nosso alcance.\n\nPor isso, a pergunta de hoje pode ser simples:\n\nO que posso fazer a partir daqui?',
-    application: 'Pense em uma situação que tem trazido frustração. Separe o que você pode mudar daquilo que não está sob seu controle.\n\nEscolha uma coisa que está ao seu alcance e dê hoje um pequeno passo.',
+    id: 1,
+    title: 'Você está dando atenção ao que importa?',
+    principle: 'Aquilo que recebe sua atenção ganha espaço na sua vida.',
+    reflection: 'Todos os dias, muitas coisas disputam nossa atenção. Mensagens, notícias, redes sociais, trabalho, problemas e preocupações. Sem nos darmos conta, podemos passar tanto tempo olhando para tudo isso que deixamos de perceber o que realmente importa.\n\nE como não conseguimos dar atenção a tudo, nossas escolhas fazem diferença. O que recebe nosso olhar com frequência influencia a maneira como vivemos.\n\nPor isso, vale a pena parar e perguntar: o que tem ocupado a minha atenção?\n\nNo meio de tantas demandas, Jesus nos chama a olhar para Deus e confiar nele. Quando fazemos isso, lembramos que nossa vida não depende de tudo o que acontece à nossa volta. Ela está segura em suas mãos.\n\nHoje, antes de seguir de uma tarefa para outra, pare por alguns minutos. Respire, fique em silêncio e perceba o que tem ocupado seus pensamentos.',
+    application: 'Escolha um momento do dia para ficar alguns minutos longe do celular e de outras distrações.\n\nFique em silêncio, agradeça pela vida e entregue a Deus aquilo que tem ocupado sua mente. Depois, pergunte a si mesmo: o que realmente merece minha atenção hoje?',
     category: 'Uma reflexão para hoje',
     date: new Date().toISOString()
   };

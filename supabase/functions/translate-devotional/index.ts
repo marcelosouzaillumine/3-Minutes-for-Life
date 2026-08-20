@@ -165,8 +165,9 @@ serve(async (req: Request) => {
             prayer: translatedData.prayer,
             source_content_hash: devotional.content_hash,
             status: validation.pass ? 'published' : 'draft',
-            validation_warnings: validation.warnings.length > 0 ? validation.warnings : null
-          }, { onConflict: 'devotional_id,language' });
+            validation_warnings: validation.warnings.length > 0 ? validation.warnings : null,
+            translation_source: 'ai'
+          }, { onConflict: 'devotional_id,language,translation_source' });
 
         if (upsertError) throw upsertError;
 

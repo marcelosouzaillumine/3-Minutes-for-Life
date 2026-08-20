@@ -5,9 +5,11 @@ import type { Devotional } from '../types/Devotional';
 import { PrincipleView } from '../components/PrincipleView';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../context/AuthContext';
 
 export function SharedDevotional() {
   const { i18n } = useTranslation();
+  const { user } = useAuth();
   const [devotional, setDevotional] = useState<Devotional | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -55,8 +57,8 @@ export function SharedDevotional() {
     fetchDevotionalAndSender();
   }, [i18n.language]);
 
-  const handleSignupClick = () => {
-    window.location.href = '/signup';
+  const handleCtaClick = () => {
+    window.location.href = '/login';
   };
 
   if (loading) {
@@ -86,14 +88,14 @@ export function SharedDevotional() {
         
         <PrincipleView 
           devotional={devotional} 
-          customAction={{
+          customAction={!user ? {
             variant: 'shared',
             text: "Que estes três minutos não terminem aqui.",
             subtext: "Amanhã, uma nova reflexão espera por você.",
             label: "Quero continuar",
             note: "Gratuito, sempre.",
-            onClick: handleSignupClick
-          }}
+            onClick: handleCtaClick
+          } : undefined}
         />
       </div>
     </div>
