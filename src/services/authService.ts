@@ -30,11 +30,12 @@ export const authService = {
     return data;
   },
 
-  async signInWithOAuth(provider: 'google' | 'apple') {
+  async signInWithOAuth(provider: 'google' | 'apple', redirectTo?: string) {
+    const destination = redirectTo || '/app';
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: window.location.origin + '/app'
+        redirectTo: window.location.origin + destination
       }
     });
     if (error) throw error;

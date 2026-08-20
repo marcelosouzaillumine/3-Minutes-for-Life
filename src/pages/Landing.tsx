@@ -54,7 +54,7 @@ export function Landing() {
 
 
   const startApp = () => {
-    window.location.href = '/signup';
+    window.location.href = '/login';
   };
 
   return (

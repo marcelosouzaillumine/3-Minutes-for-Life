@@ -173,6 +173,11 @@
   border-color: #d1d5db;
 }
 
+.social-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .social-icon {
   width: 20px;
   height: 20px;
