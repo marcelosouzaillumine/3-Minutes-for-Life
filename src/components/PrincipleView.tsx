@@ -7,6 +7,8 @@ import { HtmlRenderer } from './HtmlRenderer';
 import { useAuth } from '../context/AuthContext';
 import { ReflectionService } from '../services/ReflectionService';
 import { TestimonialSection } from './TestimonialSection';
+import { PrayerRequestSection } from './PrayerRequestSection';
+import { CtaEngine } from '../services/CtaEngine';
 interface PrincipleViewProps {
   devotional: Devotional;
   onBack?: () => void;
@@ -21,7 +23,7 @@ interface PrincipleViewProps {
 }
 
 export function PrincipleView({ devotional, onBack, customAction }: PrincipleViewProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const [saved, setSaved] = useState(false);
   const [reflectionContent, setReflectionContent] = useState('');
@@ -112,7 +114,10 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
         <p className="principle-statement">{devotional.principle_statement}</p>
       )}
       
-      <HtmlRenderer html={devotional.reflection} className="principle-reflection" />
+      <HtmlRenderer 
+        html={CtaEngine.composeReflection(devotional.reflection, { user, language: i18n.language })} 
+        className="principle-reflection" 
+      />
       
       {devotional.audio_url && (
         <div style={{ marginBottom: '2rem' }}>
@@ -302,6 +307,7 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
         </div>
 
         <TestimonialSection devotionalId={devotional.id} />
+        <PrayerRequestSection devotionalId={devotional.id} />
       </div>
     </div>
   );

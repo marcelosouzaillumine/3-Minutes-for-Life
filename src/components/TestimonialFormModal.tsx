@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../context/AuthContext';
 import { TestimonialService } from '../services/TestimonialService';
 import { DevotionalService } from '../services/DevotionalService';
 import type { Devotional } from '../types/Devotional';
@@ -13,6 +14,7 @@ interface TestimonialFormModalProps {
 
 export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess }: TestimonialFormModalProps) {
   const { t } = useTranslation(['common']);
+  const { user } = useAuth();
   const [content, setContent] = useState('');
   const [selectedDevotionalId, setSelectedDevotionalId] = useState<string>(devotionalId || '');
   const [devotionals, setDevotionals] = useState<Devotional[]>([]);
@@ -60,8 +62,18 @@ export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess 
     }
   };
 
+  const handleAuthGateRedirect = () => {
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('intent', 'testimony');
+    if (selectedDevotionalId || devotionalId) {
+      currentUrl.searchParams.set('d', selectedDevotionalId || devotionalId || '');
+    }
+    const returnPath = currentUrl.pathname + currentUrl.search;
+    window.location.href = `/login?redirectTo=${encodeURIComponent(returnPath)}`;
+  };
+
   return (
-    <div className="modal-overlay" onClick={onClose} style={{
+    <div className="modal-overlay" onClick={onClose} role="dialog" aria-modal="true" style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
       backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, 
       display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
@@ -71,14 +83,59 @@ export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess 
         width: '100%', maxWidth: '500px', position: 'relative',
         maxHeight: '90vh', overflowY: 'auto'
       }}>
-        <button onClick={onClose} style={{
+        <button onClick={onClose} aria-label={t('testimonials.cancelBtn', 'Fechar')} style={{
           position: 'absolute', top: '1rem', right: '1rem', fontSize: '1.5rem', 
-          color: 'var(--color-text-light)', border: 'none', background: 'none', cursor: 'pointer'
+          color: 'var(--color-text-light)', border: 'none', background: 'none', cursor: 'pointer',
+          lineHeight: 1
         }}>
           &times;
         </button>
 
-        {isSuccess ? (
+        {/* ── CENÁRIO A: VISITANTE ANÔNIMO → AUTHENTICATION GATE ── */}
+        {!user ? (
+          <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+            <div style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '50%',
+              background: 'rgba(196, 109, 83, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1.5rem',
+            }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c46d53" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            </div>
+
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', marginBottom: '0.75rem', fontWeight: 400 }}>
+              {t('testimonials.authGateTitle', 'Entre para compartilhar seu testemunho')}
+            </h2>
+            <p style={{ color: 'var(--color-text-light)', marginBottom: '2rem', lineHeight: 1.6, fontSize: '0.95rem' }}>
+              {t('testimonials.authGateDescription', 'Para que nossa equipe possa receber seu relato e cuidar dele com responsabilidade, você precisa estar conectado à sua conta.')}
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={handleAuthGateRedirect}
+              >
+                {t('testimonials.authGateButton', 'Entrar ou criar conta')}
+              </button>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={onClose}
+              >
+                {t('testimonials.cancelBtn', 'Agora não')}
+              </button>
+            </div>
+          </div>
+        ) : isSuccess ? (
+          /* ── CENÁRIO B: CONFIRMAÇÃO DE SUCESSO ── */
           <div style={{ textAlign: 'center', padding: '2rem 0' }}>
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', marginBottom: '1rem', fontWeight: 400 }}>
               {t('testimonials.successTitle', 'Obrigado por compartilhar.')}
@@ -91,6 +148,7 @@ export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess 
             </button>
           </div>
         ) : (
+          /* ── CENÁRIO C: FORMULÁRIO DE TESTEMUNHO AUTENTICADO ── */
           <>
             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', marginBottom: '0.5rem', fontWeight: 400 }}>
               {t('testimonials.modalTitle', 'Compartilhe sua história')}

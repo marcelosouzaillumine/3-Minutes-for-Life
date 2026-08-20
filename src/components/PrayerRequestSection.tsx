@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import { TestimonialFormModal } from './TestimonialFormModal';
+import { PrayerRequestModal } from './PrayerRequestModal';
 
-interface TestimonialSectionProps {
+interface PrayerRequestSectionProps {
   devotionalId?: string;
   onSuccess?: () => void;
 }
 
-export function TestimonialSection({ devotionalId, onSuccess }: TestimonialSectionProps) {
+export function PrayerRequestSection({ devotionalId }: PrayerRequestSectionProps) {
   const { t } = useTranslation(['common']);
   const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,7 +16,7 @@ export function TestimonialSection({ devotionalId, onSuccess }: TestimonialSecti
   useEffect(() => {
     const handleCtaAction = (e: Event) => {
       const customEvent = e as CustomEvent<{ action?: string }>;
-      if (customEvent.detail?.action === 'testimony') {
+      if (customEvent.detail?.action === 'prayer_request') {
         setIsModalOpen(true);
       }
     };
@@ -30,7 +30,7 @@ export function TestimonialSection({ devotionalId, onSuccess }: TestimonialSecti
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const params = new URLSearchParams(window.location.search);
-    if (params.get('intent') === 'testimony' && user) {
+    if (params.get('intent') === 'prayer_request' && user) {
       setIsModalOpen(true);
       params.delete('intent');
       const newSearch = params.toString() ? `?${params.toString()}` : '';
@@ -41,7 +41,7 @@ export function TestimonialSection({ devotionalId, onSuccess }: TestimonialSecti
   return (
     <>
       <div style={{
-        marginTop: '3rem',
+        marginTop: '1.5rem',
         padding: '2rem',
         backgroundColor: 'var(--color-bg)',
         border: '1px solid var(--color-border)',
@@ -55,7 +55,7 @@ export function TestimonialSection({ devotionalId, onSuccess }: TestimonialSecti
           marginBottom: '0.5rem',
           color: 'var(--color-text)'
         }}>
-          {t('testimonials.title', 'Como essa reflexão tocou você?')}
+          {t('prayerRequest.title', 'Podemos orar por você?')}
         </h3>
         <p style={{
           fontSize: '1rem',
@@ -63,22 +63,21 @@ export function TestimonialSection({ devotionalId, onSuccess }: TestimonialSecti
           marginBottom: '1.5rem',
           lineHeight: 1.6
         }}>
-          {t('testimonials.subtitle', 'Seu relato pode ajudar nossa equipe a compreender o que Deus está fazendo na vida de quem caminha com o 3 Minutes for Life.')}
+          {t('prayerRequest.description', 'Compartilhe seu pedido de oração com nossa equipe. Vamos recebê-lo com cuidado e colocá-lo diante de Deus.')}
         </p>
         <button 
           className="btn-secondary" 
           onClick={() => setIsModalOpen(true)}
           style={{ width: 'auto', padding: '0.75rem 1.5rem' }}
         >
-          {t('testimonials.writeBtn', 'Compartilhar meu testemunho')}
+          {t('prayerRequest.submitBtn', 'Enviar meu pedido de oração')}
         </button>
       </div>
 
-      <TestimonialFormModal 
+      <PrayerRequestModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         devotionalId={devotionalId}
-        onSuccess={onSuccess}
       />
     </>
   );

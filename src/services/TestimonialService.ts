@@ -2,6 +2,8 @@ import { supabase } from '../lib/supabase';
 import type { Testimonial, TestimonialInsert, TestimonialUserUpdate } from '../types/Testimonial';
 import { AnalyticsService } from './AnalyticsService';
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export const TestimonialService = {
   async createTestimonial(data: TestimonialInsert): Promise<Testimonial> {
     const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -9,11 +11,15 @@ export const TestimonialService = {
       throw new Error("User not authenticated");
     }
 
+    const validDevotionalId = (data.devotional_id && UUID_REGEX.test(data.devotional_id)) 
+      ? data.devotional_id 
+      : null;
+
     const { data: testimonial, error } = await supabase
       .from('testimonials')
       .insert([{
         user_id: userData.user.id,
-        devotional_id: data.devotional_id,
+        devotional_id: validDevotionalId,
         content: data.content,
         // Status is inherently 'pending' by default in DB, no need to send it.
       }])

@@ -47,8 +47,8 @@
   },
   "testimonials": {
     "title": "¿Cómo te tocó esta reflexión?",
-    "subtitle": "Tu testimonio puede inspirar y bendecir a otras personas en el mismo camino.",
-    "writeBtn": "Escribir mi testimonio",
+    "subtitle": "Tu experiencia puede ayudar a nuestro equipo a comprender lo que Dios está haciendo en la vida de quienes caminan con 3 Minutes for Life.",
+    "writeBtn": "Compartir mi testimonio",
     "modalTitle": "Comparte tu historia",
     "modalSubtitle": "Queremos saber qué despertó esta reflexión en ti. Cuenta, con tus palabras, algo significativo de tu camino.",
     "relatedPrompt": "¿Relacionado con alguna reflexión? (Opcional)",
@@ -62,7 +62,11 @@
     "successTitle": "Gracias por compartir.",
     "successBody": "Recibimos tu historia. Fue enviada de forma privada a nuestro equipo.",
     "finishBtn": "Completar",
-    "submitError": "Ocurrió un error al enviar tu historia. Inténtalo de nuevo."
+    "submitError": "Ocurrió un error al enviar tu historia. Inténtalo de nuevo.",
+    "authGateTitle": "Inicia sesión para compartir tu testimonio",
+    "authGateDescription": "Para que nuestro equipo pueda recibir tu relato y cuidarlo con responsabilidad, debes iniciar sesión en tu cuenta.",
+    "authGateButton": "Iniciar sesión o crear cuenta",
+    "cancelBtn": "Ahora no"
   },
   "shared": {
     "senderShared": "{{name}} compartió esta reflexión contigo.",
@@ -87,5 +91,21 @@
   "visualCard": {
     "header": "3 Minutos para la Vida",
     "footer": "Detente. Reflexiona. Practica."
+  },
+  "prayerRequest": {
+    "title": "¿Podemos orar por ti?",
+    "description": "Si hay algo que quieres poner delante de Dios, compártelo con nuestro equipo. Recibiremos tu petición con cuidado y la presentaremos ante Él en oración.",
+    "fieldLabel": "Tu petición de oración",
+    "placeholder": "Escribe lo que quieres compartir...",
+    "submitBtn": "Enviar mi petición de oración",
+    "submittingBtn": "Enviando...",
+    "submitError": "Ocurrió un error al enviar tu petición de oración. Inténtalo de nuevo.",
+    "cancelBtn": "Ahora no",
+    "authGateTitle": "Inicia sesión para compartir tu petición de oración",
+    "authGateDescription": "Para que nuestro equipo pueda recibir tu petición y cuidarla con responsabilidad, debes iniciar sesión en tu cuenta.",
+    "authGateButton": "Iniciar sesión o crear cuenta",
+    "successTitle": "Hemos recibido tu petición.",
+    "successBody": "La recibiremos con cuidado y la presentaremos ante Dios.",
+    "closeBtn": "Cerrar"
   }
 }

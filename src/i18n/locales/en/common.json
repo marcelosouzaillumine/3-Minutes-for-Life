@@ -47,8 +47,8 @@
   },
   "testimonials": {
     "title": "How did this reflection touch you?",
-    "subtitle": "Your story can inspire and encourage others walking the same path.",
-    "writeBtn": "Write my testimony",
+    "subtitle": "Your story can help our team understand what God is doing in the lives of those walking with 3 Minutes for Life.",
+    "writeBtn": "Share my testimony",
     "modalTitle": "Share your story",
     "modalSubtitle": "We want to know what this reflection sparked in you. In your own words, tell something meaningful from your journey.",
     "relatedPrompt": "Related to a specific reflection? (Optional)",
@@ -62,7 +62,11 @@
     "successTitle": "Thank you for sharing.",
     "successBody": "We received your story. It was sent privately to our team.",
     "finishBtn": "Done",
-    "submitError": "An error occurred while sending your story. Please try again."
+    "submitError": "An error occurred while sending your story. Please try again.",
+    "authGateTitle": "Sign in to share your story",
+    "authGateDescription": "To allow our team to receive your story and care for it responsibly, you need to be signed in to your account.",
+    "authGateButton": "Sign in or create account",
+    "cancelBtn": "Not now"
   },
   "shared": {
     "senderShared": "{{name}} shared this reflection with you.",
@@ -87,5 +91,21 @@
   "visualCard": {
     "header": "3 Minutes for Life",
     "footer": "Stop. Reflect. Practice."
+  },
+  "prayerRequest": {
+    "title": "Can we pray for you?",
+    "description": "If there is something you would like to place before God, share it with our team. We will receive your request with care and bring it before Him in prayer.",
+    "fieldLabel": "Your prayer request",
+    "placeholder": "Write what you would like to share...",
+    "submitBtn": "Send my prayer request",
+    "submittingBtn": "Sending...",
+    "submitError": "An error occurred while sending your prayer request. Please try again.",
+    "cancelBtn": "Not now",
+    "authGateTitle": "Sign in to share your prayer request",
+    "authGateDescription": "To allow our team to receive your request and care for it responsibly, you need to be signed in to your account.",
+    "authGateButton": "Sign in or create account",
+    "successTitle": "We received your request.",
+    "successBody": "We will receive it with care and bring it before God.",
+    "closeBtn": "Close"
   }
 }

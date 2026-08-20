@@ -48,9 +48,11 @@ function App() {
     return null;
   }
 
-  // Se tentar acessar o login ou signup com sessão, joga pro /app
+  // Se tentar acessar o login ou signup com sessão, redireciona para redirectTo ou /app
   if ((isLoginPath || isSignupPath) && session) {
-    window.location.href = '/app';
+    const searchParams = new URLSearchParams(window.location.search);
+    const redirectTo = searchParams.get('redirectTo') || '/app';
+    window.location.href = redirectTo;
     return null;
   }
 

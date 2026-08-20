@@ -5,11 +5,13 @@ import { useState, useEffect } from 'react';
 import type { Devotional } from '../types/Devotional';
 import { ShareButton } from '../components/ShareButton';
 import { TestimonialSection } from '../components/TestimonialSection';
+import { PrayerRequestSection } from '../components/PrayerRequestSection';
 import { useTranslation } from 'react-i18next';
 import { HtmlRenderer } from '../components/HtmlRenderer';
 import { useAuth } from '../context/AuthContext';
 import { ReflectionService } from '../services/ReflectionService';
 import { AnalyticsService } from '../services/AnalyticsService';
+import { CtaEngine } from '../services/CtaEngine';
 
 interface HomeProps {
   onExplore: () => void;
@@ -27,50 +29,48 @@ export function Home({ onExplore }: HomeProps) {
   const [savedReflectionSuccess, setSavedReflectionSuccess] = useState(false);
 
   useEffect(() => {
-    setLoading(true);
-    // 1. Fetch Canonical Content
-    // To deterministically fetch today's devotional, we pass the current date in Sao Paulo timezone.
-    const todayStr = getTodayInSaoPaulo();
-    
-    // Pass i18n.language to resolve the Content Language
-    DevotionalService.getDailyDevotional(todayStr, i18n.language)
-      .then(canonicalData => {
-        setDevotional(canonicalData);
-        setLoading(false);
-        
-        // Track the opening event for the new metrics system
-        AnalyticsService.trackEvent('devotional_opened', { devotional_id: canonicalData.id, channel: 'home' });
-        
-        // 2. Fetch Journey State
-        JourneyService.start(canonicalData.id).catch(console.error);
-
-        JourneyService.listFavorites()
-          .then(ids => setSaved(ids.includes(canonicalData.id)))
-          .catch(console.error);
+    let mounted = true;
+    const fetchDaily = async () => {
+      try {
+        setLoading(true);
+        const todayStr = getTodayInSaoPaulo();
+        const data = await DevotionalService.getDailyDevotional(todayStr, i18n.language);
+        if (mounted) {
+          setDevotional(data);
+          // Check saved status
+          const favorites = await JourneyService.listFavorites();
+          setSaved(favorites.includes(data.id));
           
-        if (user) {
-          ReflectionService.getReflection(canonicalData.id).then(content => {
-            if (content) setReflectionContent(content);
+          // Track devotional view
+          AnalyticsService.trackEvent('devotional_view', { 
+            devotional_id: data.id,
+            title: data.title 
           });
         }
-      })
-      .catch(err => {
+      } catch (err: any) {
         console.error("Failed to load daily devotional:", err);
-        setError(err);
-        setLoading(false);
-      });
+        if (mounted) {
+          setError(err);
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchDaily();
+
+    return () => {
+      mounted = false;
+    };
   }, [i18n.language]);
 
   const toggleSave = async () => {
     if (!devotional) return;
     try {
-      if (saved) {
-        await JourneyService.toggleFavorite(devotional.id);
-        setSaved(false);
-      } else {
-        await JourneyService.toggleFavorite(devotional.id);
-        setSaved(true);
-      }
+      const isSaved = await JourneyService.toggleFavorite(devotional.id);
+      setSaved(isSaved);
     } catch (err) {
       console.error(err);
       alert(t('home.saveError'));
@@ -89,14 +89,15 @@ export function Home({ onExplore }: HomeProps) {
 
   const handleSaveReflection = async () => {
     if (!devotional || !reflectionContent.trim()) return;
-    setSavingReflection(true);
     try {
-      await ReflectionService.saveReflection(devotional.id, reflectionContent);
+      setSavingReflection(true);
+      await ReflectionService.saveReflection(devotional.id, reflectionContent.trim());
       setSavedReflectionSuccess(true);
+      setReflectionContent('');
       setTimeout(() => setSavedReflectionSuccess(false), 3000);
     } catch (err) {
       console.error('Failed to save reflection:', err);
-      alert('Erro ao salvar sua reflexão.');
+      alert(t('home.saveError', 'Erro ao salvar reflexão.'));
     } finally {
       setSavingReflection(false);
     }
@@ -104,19 +105,21 @@ export function Home({ onExplore }: HomeProps) {
 
   if (loading) {
     return (
-      <div className="page-home">
-        <span className="label" style={{ opacity: 0.5 }}>{t('loading')}</span>
-        <div className="skeleton-title" style={{ height: '2rem', width: '80%', backgroundColor: 'var(--color-bg-secondary)', marginTop: '1rem', borderRadius: '4px' }} />
-        <div className="skeleton-subtitle" style={{ height: '1.2rem', width: '90%', backgroundColor: 'var(--color-bg-secondary)', marginTop: '1rem', borderRadius: '4px' }} />
-        <div className="skeleton-body" style={{ height: '100px', width: '100%', backgroundColor: 'var(--color-bg-secondary)', marginTop: '2rem', borderRadius: '4px' }} />
+      <div className="page-home" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+        <p style={{ color: 'var(--color-text-light)' }}>{t('loading')}</p>
       </div>
     );
   }
 
   if (error || !devotional) {
     return (
-      <div className="page-home">
-        <p>{t('error')}</p>
+      <div className="page-home" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: '50vh', textAlign: 'center' }}>
+        <p style={{ color: 'var(--color-text-light)', marginBottom: '1rem' }}>
+          {t('error')}
+        </p>
+        <button className="btn-primary" onClick={() => window.location.reload()}>
+          {t('continue')}
+        </button>
       </div>
     );
   }
@@ -126,8 +129,6 @@ export function Home({ onExplore }: HomeProps) {
       <span className="label">{t('home.todayPrinciple')}</span>
       
       <h1 className="principle-title">{devotional.title}</h1>
-      
-
       
       {devotional.audio_url && (
         <div style={{ marginBottom: '2rem' }}>
@@ -139,7 +140,10 @@ export function Home({ onExplore }: HomeProps) {
         <p className="principle-statement">{devotional.principle_statement}</p>
       )}
       
-      <HtmlRenderer html={devotional.reflection} className="principle-reflection" />
+      <HtmlRenderer 
+        html={CtaEngine.composeReflection(devotional.reflection, { user, language: i18n.language })} 
+        className="principle-reflection" 
+      />
 
       <div className="application-section">
         <span className="label">{t('home.practiceToday')}</span>
@@ -251,6 +255,7 @@ export function Home({ onExplore }: HomeProps) {
         </div>
 
         <TestimonialSection devotionalId={devotional.id} />
+        <PrayerRequestSection devotionalId={devotional.id} />
         
         <div style={{ marginTop: '1rem' }}>
           <button className="btn-secondary" onClick={onExplore}>
