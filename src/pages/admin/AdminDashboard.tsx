@@ -263,7 +263,7 @@ export function AdminDashboard() {
               <tbody>
                 {metrics.top_content.map((item, index) => (
                   <tr key={index}>
-                    <td>{item.content_id.split('-').slice(0, 3).join('-')}...</td>
+                    <td>{item.content_id ? item.content_id.split('-').slice(0, 3).join('-') + '...' : '—'}</td>
                     <td>{item.opens}</td>
                   </tr>
                 ))}

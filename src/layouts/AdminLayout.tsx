@@ -3,6 +3,7 @@ import { AdminService } from '../services/AdminService';
 import { AdminDashboard } from '../pages/admin/AdminDashboard';
 import { AdminDevotionals } from '../pages/admin/AdminDevotionals';
 import { AdminTranslations } from '../pages/admin/AdminTranslations';
+import { AdminIdentity } from '../pages/admin/AdminIdentity';
 import { AdminBottomNav } from '../components/AdminBottomNav';
 import '../styles/admin.css';
 
@@ -57,6 +58,10 @@ export function AdminLayout() {
           <p style={{ color: 'var(--color-text-light)' }}>Em breve: Moderação de Testemunhos</p>
         </div>
       );
+    }
+    
+    if (pathname === '/admin/identity' || pathname === '/admin/telemetry') {
+      return <AdminIdentity />;
     }
     
     if (pathname === '/admin/users') {
