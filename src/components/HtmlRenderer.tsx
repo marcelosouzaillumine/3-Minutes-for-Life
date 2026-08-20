@@ -1,4 +1,3 @@
-import React from 'react';
 import { sanitizeHtml } from '../lib/sanitizer';
 import { extractStructure } from '../lib/contentStructure';
 import { CtaBlock } from './CtaBlock';

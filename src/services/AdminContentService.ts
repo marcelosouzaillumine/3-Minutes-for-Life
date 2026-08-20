@@ -1,6 +1,5 @@
 import { supabase } from '../lib/supabase';
 import { sanitizeHtml } from '../lib/sanitizer';
-import { translatePreservingStructure } from '../lib/contentStructure';
 
 export const AdminContentService = {
   async getLanguages(): Promise<any[]> {

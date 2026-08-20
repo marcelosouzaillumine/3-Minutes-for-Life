@@ -1,5 +1,3 @@
-import React from 'react';
-import { useTranslation } from 'react-i18next';
 import type { CtaAttrs } from '../lib/contentStructure';
 
 interface CtaBlockProps {
@@ -14,8 +12,6 @@ interface CtaBlockProps {
  * the block renders in a "pending translation" state — never hidden.
  */
 export function CtaBlock({ attrs }: CtaBlockProps) {
-  const { t } = useTranslation();
-
   const isPending = !attrs.title && !attrs.description && !attrs.label;
 
   const handleClick = () => {

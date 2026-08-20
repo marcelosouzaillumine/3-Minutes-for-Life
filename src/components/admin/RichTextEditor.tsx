@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useEditor, EditorContent, NodeViewWrapper } from '@tiptap/react';
-import { NodeViewProps } from '@tiptap/react';
+import React, { useEffect, useState } from 'react';
+import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import { CtaNode, type CtaNodeAttrs } from './tiptap/CtaNode';

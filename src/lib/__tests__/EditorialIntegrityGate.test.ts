@@ -5,8 +5,7 @@ import {
   buildTranslationPayload,
   applyTranslations,
   translatePreservingStructure,
-  validateStructuralIntegrity,
-  type StructuralBlock
+  validateStructuralIntegrity
 } from '../contentStructure';
 
 describe('Editorial Integrity Gate — Tradução & Invariantes de CTA', () => {
@@ -208,7 +207,9 @@ describe('Editorial Integrity Gate — Tradução & Invariantes de CTA', () => {
     const blocks = extractStructure(result);
     expect(blocks).toHaveLength(1);
     expect(blocks[0].type).toBe('html');
-    expect(blocks[0].content).toContain('devotional');
+    if (blocks[0].type === 'html') {
+      expect(blocks[0].content).toContain('devotional');
+    }
   });
 
   // 10. Detecção de violação estrutural pelo Gate
@@ -247,7 +248,7 @@ describe('Editorial Integrity Gate — Tradução & Invariantes de CTA', () => {
     expect(segments).toHaveLength(9); // 3 html blocks + 2 CTAs * 3 text fields each = 3 + 6 = 9 segments
 
     // Step 3: Simulated AI Translator into Spanish
-    const simulatedTranslations = segments.map((seg, idx) => {
+    const simulatedTranslations = segments.map((seg) => {
       if (seg.startsWith('<p>')) return seg.replace('A vida', 'La vida').replace('Quando', 'Cuando').replace('Que seu dia', 'Que tu día');
       return `[ES] ${seg}`;
     });
