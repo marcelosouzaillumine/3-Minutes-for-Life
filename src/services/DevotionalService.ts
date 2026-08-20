@@ -13,6 +13,14 @@ function isAuthError(err: any): boolean {
 }
 
 // --- LANGUAGE RESOLUTION HELPER --- //
+export function normalizeLanguage(lang?: string): string {
+  if (!lang) return 'pt-BR';
+  if (lang === 'pt-BR' || lang === 'pt' || lang.startsWith('pt')) return 'pt-BR';
+  if (lang.startsWith('en')) return 'en';
+  if (lang.startsWith('es')) return 'es';
+  return lang;
+}
+
 export function resolveTranslation(
   devotional: any, 
   requestedLanguage: string,
@@ -20,12 +28,7 @@ export function resolveTranslation(
   isCached: boolean = false
 ): Devotional {
   const translations: DevotionalTranslation[] = devotional.devotional_translations || [];
-  
-  // Extract base language (e.g., 'en' from 'en-US') to match DB ISO codes ('en', 'es', 'pt-BR')
-  let targetLang = requestedLanguage;
-  if (requestedLanguage !== 'pt-BR' && requestedLanguage.includes('-')) {
-    targetLang = requestedLanguage.split('-')[0];
-  }
+  const targetLang = normalizeLanguage(requestedLanguage);
 
   // If the requested language is not the base language (pt-BR), try to find its translation
   // Resolution Priority:
@@ -123,18 +126,12 @@ const selectQuery = `
 export const DevotionalService = {
 
   async getDailyDevotional(dateStr: string, requestedLanguage?: string): Promise<Devotional> {
-    const contentLanguage = requestedLanguage || i18n.language || 'pt-BR';
+    const rawLanguage = requestedLanguage || i18n.language || 'pt-BR';
+    const contentLanguage = normalizeLanguage(rawLanguage);
     try {
       const { data, error } = await supabase
         .from('devotionals')
         .select(selectQuery)
-        // To avoid fetching all translations, we use PostgREST embedded filter string.
-        // E.g., devotional_translations!inner(language.in.(es,pt-BR)) - wait, supabase JS doesn't support this cleanly without custom strings.
-        // So we filter in JS, but we fetch all since it's just max 3 languages.
-        // Note: The user requested to fetch only requested + pt-BR. Supabase JS has a way:
-        // .eq('devotional_translations.language', 'pt-BR') is an inner join.
-        // We will fetch all translations (which is at most 3 rows) to avoid inner join bugs, 
-        // as the user rule 1 can be technically challenging with Supabase's JS syntax without breaking LEFT JOIN.
         .eq('status', 'published')
         .eq('publication_date', dateStr)
         .order('created_at', { ascending: false })
@@ -148,7 +145,9 @@ export const DevotionalService = {
       const resolvedDevotional = resolveTranslation(data, contentLanguage, 'supabase', false);
 
       const p = principles.find(p => p.title === data.title);
-      resolvedDevotional.share_quote = p?.principle || resolvedDevotional.title;
+      resolvedDevotional.share_quote = contentLanguage === 'pt-BR' 
+        ? (p?.principle || resolvedDevotional.principle_statement || resolvedDevotional.title)
+        : (resolvedDevotional.principle_statement || resolvedDevotional.title);
       
       await ContentCacheService.setDaily(dateStr, resolvedDevotional, contentLanguage);
       
@@ -168,7 +167,8 @@ export const DevotionalService = {
   },
 
   async getDevotional(id: string, requestedLanguage?: string): Promise<Devotional> {
-    const contentLanguage = requestedLanguage || i18n.language || 'pt-BR';
+    const rawLanguage = requestedLanguage || i18n.language || 'pt-BR';
+    const contentLanguage = normalizeLanguage(rawLanguage);
     try {
       const today = getTodayInSaoPaulo();
     
@@ -186,7 +186,9 @@ export const DevotionalService = {
     const resolvedDevotional = resolveTranslation(data, contentLanguage, 'supabase', false);
 
     const p = principles.find(p => p.title === data.title);
-    resolvedDevotional.share_quote = p?.principle || resolvedDevotional.title;
+    resolvedDevotional.share_quote = contentLanguage === 'pt-BR'
+      ? (p?.principle || resolvedDevotional.principle_statement || resolvedDevotional.title)
+      : (resolvedDevotional.principle_statement || resolvedDevotional.title);
     
     await ContentCacheService.setDevotional(resolvedDevotional, contentLanguage);
     
@@ -206,7 +208,8 @@ export const DevotionalService = {
   },
 
   async getDevotionals(requestedLanguage?: string): Promise<Devotional[]> {
-    const contentLanguage = requestedLanguage || i18n.language || 'pt-BR';
+    const rawLanguage = requestedLanguage || i18n.language || 'pt-BR';
+    const contentLanguage = normalizeLanguage(rawLanguage);
     try {
       const today = getTodayInSaoPaulo();
     
@@ -222,7 +225,10 @@ export const DevotionalService = {
     const resolvedList = (data as any[]).map(d => {
       const resolvedDevotional = resolveTranslation(d, contentLanguage, 'supabase', false);
       const p = principles.find(p => p.title === d.title);
-      return { ...resolvedDevotional, share_quote: p?.principle || resolvedDevotional.title };
+      const quote = contentLanguage === 'pt-BR'
+        ? (p?.principle || resolvedDevotional.principle_statement || resolvedDevotional.title)
+        : (resolvedDevotional.principle_statement || resolvedDevotional.title);
+      return { ...resolvedDevotional, share_quote: quote };
     });
 
     await ContentCacheService.setLibrary(resolvedList, contentLanguage);

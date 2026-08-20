@@ -36,7 +36,7 @@ describe('Separação Arquitetural: Captação no Meio da Reflexão & Relacionam
 
       expect(ctaBlocks).toHaveLength(1);
       if (ctaBlocks[0].type === 'cta') {
-        expect(ctaBlocks[0].attrs.title).toBe('Que estes três minutos não terminem aqui.');
+        expect(ctaBlocks[0].attrs.title).toBe('Continue essa jornada com a gente.');
         expect(ctaBlocks[0].attrs.label).toBe('Quero continuar');
         expect(ctaBlocks[0].attrs.url).toBe('/signup');
       }
@@ -163,7 +163,7 @@ describe('Separação Arquitetural: Captação no Meio da Reflexão & Relacionam
       const ctaBlocks = blocks.filter(b => b.type === 'cta');
       expect(ctaBlocks).toHaveLength(1);
       if (ctaBlocks[0].type === 'cta') {
-        expect(ctaBlocks[0].attrs.title).toBe('Que estes três minutos não terminem aqui.');
+        expect(ctaBlocks[0].attrs.title).toBe('Continue essa jornada com a gente.');
       }
     });
 

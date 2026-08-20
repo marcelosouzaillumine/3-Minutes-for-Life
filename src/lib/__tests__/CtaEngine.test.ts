@@ -95,7 +95,7 @@ describe('CtaEngine Unit Tests — CTA de Captação e Continuidade no Meio da R
       const ctaBlocks = blocks.filter(b => b.type === 'cta');
       expect(ctaBlocks).toHaveLength(1);
       if (ctaBlocks[0].type === 'cta') {
-        expect(ctaBlocks[0].attrs.title).toBe('Que estes três minutos não terminem aqui.');
+        expect(ctaBlocks[0].attrs.title).toBe('Continue essa jornada com a gente.');
         expect(ctaBlocks[0].attrs.label).toBe('Quero continuar');
         expect(ctaBlocks[0].attrs.url).toBe('/signup');
       }
@@ -126,7 +126,7 @@ describe('CtaEngine Unit Tests — CTA de Captação e Continuidade no Meio da R
   describe('4. Internacionalização — PT-BR', () => {
     it('CTA de captação em português para pt-BR', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'pt-BR' });
-      expect(output).toContain('Que estes três minutos não terminem aqui.');
+      expect(output).toContain('Continue essa jornada com a gente.');
       expect(output).toContain('Amanhã, uma nova reflexão espera por você. Entre ou crie sua conta para guardar suas anotações e acompanhar sua jornada.');
       expect(output).toContain('Quero continuar');
     });
@@ -137,22 +137,22 @@ describe('CtaEngine Unit Tests — CTA de Captação e Continuidade no Meio da R
   describe('5. Internacionalização — EN', () => {
     it('CTA de captação em inglês para language=en', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'en' });
-      expect(output).toContain('May these three minutes not end here.');
+      expect(output).toContain('Continue this journey with us.');
       expect(output).toContain('Tomorrow, a fresh reflection awaits you. Sign in or create your account to save personal notes and track your journey.');
-      expect(output).toContain('Continue my journey');
+      expect(output).toContain('Keep going');
     });
 
     it('Nenhum texto português aparece no modo en', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'en' });
-      expect(output).not.toContain('Que estes três minutos');
+      expect(output).not.toContain('Continue essa jornada com a gente.');
       expect(output).not.toContain('Quero continuar');
     });
 
     it('en-US é mapeado para inglês', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'en-US' });
-      expect(output).toContain('May these three minutes not end here.');
-      expect(output).toContain('Continue my journey');
-      expect(output).not.toContain('Que estes três minutos');
+      expect(output).toContain('Continue this journey with us.');
+      expect(output).toContain('Keep going');
+      expect(output).not.toContain('Continue essa jornada com a gente.');
     });
   });
 
@@ -161,22 +161,22 @@ describe('CtaEngine Unit Tests — CTA de Captação e Continuidade no Meio da R
   describe('6. Internacionalização — ES', () => {
     it('CTA de captação em espanhol para language=es', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'es' });
-      expect(output).toContain('Que estos tres minutos no terminen aquí.');
+      expect(output).toContain('Continúa este camino con nosotros.');
       expect(output).toContain('Mañana, una nueva reflexión te espera. Inicia sesión o crea tu cuenta para guardar tus notas y seguir tu camino.');
       expect(output).toContain('Quiero continuar');
     });
 
     it('Nenhum texto português aparece no modo es', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'es' });
-      expect(output).not.toContain('Que estes três minutos');
+      expect(output).not.toContain('Continue essa jornada com a gente.');
       expect(output).not.toContain('Quero continuar');
     });
 
     it('es-ES é mapeado para espanhol', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'es-ES' });
-      expect(output).toContain('Que estos tres minutos no terminen aquí.');
+      expect(output).toContain('Continúa este camino con nosotros.');
       expect(output).toContain('Quiero continuar');
-      expect(output).not.toContain('Que estes três minutos');
+      expect(output).not.toContain('Continue essa jornada com a gente.');
     });
   });
 
@@ -260,7 +260,7 @@ describe('CtaEngine Unit Tests — CTA de Captação e Continuidade no Meio da R
       const ctaBlocks = composed.filter(b => b.type === 'cta');
       expect(ctaBlocks).toHaveLength(1);
       if (ctaBlocks[0].type === 'cta') {
-        expect(ctaBlocks[0].attrs.title).toBe('Que estes três minutos não terminem aqui.');
+        expect(ctaBlocks[0].attrs.title).toBe('Continue essa jornada com a gente.');
       }
     });
 

@@ -29,17 +29,17 @@ export const CTA_LIBRARY: Record<string, CtaDefinition> = {
     url: '/signup',
     translations: {
       'pt-BR': {
-        title: 'Que estes três minutos não terminem aqui.',
+        title: 'Continue essa jornada com a gente.',
         description: 'Amanhã, uma nova reflexão espera por você. Entre ou crie sua conta para guardar suas anotações e acompanhar sua jornada.',
         label: 'Quero continuar',
       },
       'en': {
-        title: 'May these three minutes not end here.',
+        title: 'Continue this journey with us.',
         description: 'Tomorrow, a fresh reflection awaits you. Sign in or create your account to save personal notes and track your journey.',
-        label: 'Continue my journey',
+        label: 'Keep going',
       },
       'es': {
-        title: 'Que estos tres minutos no terminen aquí.',
+        title: 'Continúa este camino con nosotros.',
         description: 'Mañana, una nueva reflexión te espera. Inicia sesión o crea tu cuenta para guardar tus notas y seguir tu camino.',
         label: 'Quiero continuar',
       },
