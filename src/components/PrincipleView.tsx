@@ -63,7 +63,7 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
   const markComplete = async () => {
     try {
       await JourneyService.complete(devotional.id);
-      alert('Concluído!');
+      alert(t('completed'));
     } catch (err) {
       console.error(err);
     }
@@ -96,7 +96,7 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
           <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Voltar
+          {t('home.back')}
         </button>
       )}
       
@@ -132,7 +132,7 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
       )}
 
       <div className="application-section">
-        <span className="label">Para praticar hoje</span>
+        <span className="label">{t('home.practiceToday')}</span>
         <div className="application-text">
           {devotional.practical_application ? (
             devotional.principle_statement ? (
@@ -153,7 +153,7 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
 
         {devotional.prayer && (
           <div style={{ marginTop: '2rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
-            <span className="label">Oração</span>
+            <span className="label">{t('home.prayer')}</span>
             <div className="application-text" style={{ fontStyle: 'italic' }}>
               {devotional.principle_statement ? (
                 <HtmlRenderer html={devotional.prayer} />
@@ -172,13 +172,13 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
 
         {devotional.scripture_reference && (
           <div style={{ marginTop: '2rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
-            <span className="label">Referência bíblica</span>
+            <span className="label">{t('home.scriptureReference')}</span>
             <p style={{ fontWeight: 500 }}>
               {devotional.scripture_reference}
             </p>
             {devotional.scripture_text && (
               <p style={{ marginTop: '0.5rem', lineHeight: '1.6', color: 'var(--color-text-light)', fontSize: '0.95rem' }}>
-                "{devotional.scripture_text}"
+                &ldquo;{devotional.scripture_text}&rdquo;
               </p>
             )}
           </div>
@@ -186,9 +186,9 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
         
         {/* Minha reflexao - Secao de Reflexao Pessoal */}
         <div style={{ marginTop: '2.5rem', marginBottom: '2.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '2rem' }}>
-          <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: 600 }}>Minha reflexão</h3>
+          <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: 600 }}>{t('home.myReflection')}</h3>
           <p style={{ fontSize: '0.95rem', color: 'var(--color-text-light)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-            O que essa reflexão despertou em você? {user ? '' : 'Se quiser, guarde aqui.'}
+            {t('home.myReflectionPrompt')}
           </p>
 
           {user ? (
@@ -196,7 +196,7 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
               <textarea
                 value={reflectionContent}
                 onChange={(e) => setReflectionContent(e.target.value)}
-                placeholder="Escreva aqui o que você gostaria de guardar deste momento."
+                placeholder={t('home.myReflectionPrompt')}
                 style={{
                   width: '100%',
                   minHeight: '120px',
@@ -212,7 +212,7 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
                 }}
               />
               <p style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', marginTop: '-0.5rem', fontStyle: 'italic' }}>
-                Só você pode ver o que escreve aqui.
+                {t('home.myReflectionPrivate')}
               </p>
               
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
@@ -231,11 +231,11 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
                     transition: 'opacity 0.2s'
                   }}
                 >
-                  {savingReflection ? 'Guardando...' : 'Guardar'}
+                  {savingReflection ? t('home.savingReflection') : t('home.saveReflection')}
                 </button>
                 {savedReflectionSuccess && (
                   <span style={{ fontSize: '0.9rem', color: '#4CAF50', fontWeight: 500 }}>
-                    Guardado na sua jornada.
+                    {t('home.reflectionSaved')}
                   </span>
                 )}
               </div>
@@ -261,7 +261,7 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
                   fontSize: '0.95rem'
                 }}
               >
-                Entre para guardar sua reflexão
+                {t('home.loginToSave')}
               </button>
             </div>
           )}
@@ -316,7 +316,7 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                 </svg>
-                <span className="action-label">{saved ? 'Salvo' : 'Salvar'}</span>
+                <span className="action-label">{saved ? t('saved') : t('save')}</span>
               </button>
 
               <button className="action-btn" onClick={markComplete}>
@@ -324,7 +324,7 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                   <polyline points="22 4 12 14.01 9 11.01" />
                 </svg>
-                <span className="action-label">Concluir</span>
+                <span className="action-label">{t('complete')}</span>
               </button>
             </>
           ) : null}

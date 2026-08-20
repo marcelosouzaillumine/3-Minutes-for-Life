@@ -33,7 +33,16 @@
     "applicationPending": "Aplicación pendiente.",
     "scriptureReference": "Referencia Bíblica",
     "exploreMore": "Explorar más principios",
-    "saveError": "Error al actualizar favorito."
+    "saveError": "Error al actualizar favorito.",
+    "prayer": "Oración",
+    "back": "Volver",
+    "myReflection": "Mi reflexión",
+    "myReflectionPrompt": "¿Qué despertó esta reflexión en ti?",
+    "myReflectionPrivate": "Solo tú puedes ver lo que escribes aquí.",
+    "saveReflection": "Guardar",
+    "savingReflection": "Guardando...",
+    "reflectionSaved": "Guardado en tu jornada.",
+    "loginToSave": "Inicia sesión para guardar tu reflexión"
   },
   "categories": {
     "Vida": "Vida",

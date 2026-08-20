@@ -1,8 +1,10 @@
 :root {
   --color-bg: #ffffff;
+  --color-surface: #ffffff;
   --color-text: #1a1a1a;
   --color-text-light: #666666;
   --color-accent: #c46d53;
+  --color-primary: #c46d53;
   --color-border: #eaeaea;
   
   --spacing-xs: 0.5rem;

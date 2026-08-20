@@ -243,13 +243,13 @@ export const ManualTranslationList: React.FC<ManualTranslationListProps> = ({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {filteredDevotionals.map((devo, idx) => {
           const isTranslated = devo.translationState !== 'none';
-          const buttonLabel = devo.translationState === 'none' ? 'Traduzir' : 'Editar';
+          const buttonLabel = devo.translationState === 'none' ? 'Inserir tradução' : 'Editar tradução';
 
           return (
             <div
               key={devo.id}
               style={{
-                background: 'var(--color-surface)',
+                background: 'var(--color-surface, #ffffff)',
                 borderRadius: '12px',
                 padding: '16px 20px',
                 boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
@@ -289,12 +289,13 @@ export const ManualTranslationList: React.FC<ManualTranslationListProps> = ({
                   style={{
                     padding: '8px 16px',
                     borderRadius: '8px',
-                    border: '1px solid var(--color-primary)',
-                    background: devo.translationState === 'none' ? 'var(--color-primary)' : 'transparent',
-                    color: devo.translationState === 'none' ? 'white' : 'var(--color-primary)',
-                    fontWeight: 'bold',
+                    border: '1px solid #c46d53',
+                    background: devo.translationState === 'none' ? '#c46d53' : '#fdf8f6',
+                    color: devo.translationState === 'none' ? '#ffffff' : '#c46d53',
+                    fontWeight: 700,
                     fontSize: '0.85rem',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   {buttonLabel}

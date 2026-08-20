@@ -46,29 +46,36 @@ async function callOpenAI(devotional: any, targetLang: string, glossaryContext: 
   3. Não adicione ideias inexistentes e não remova conceitos importantes.
   
   REGRAS ESTRUTURAIS:
-  1. Você DEVE devolver a tradução como um JSON estrito.
-  2. Preserve TODAS as tags HTML exatas do conteúdo (como <p>, <strong>, <em>).
-  3. Não traduza nomes de classes ou atributos de HTML.
+  1. Você DEVE devolver a tradução como um JSON estrito com as chaves: title, principle_statement, scripture_reference, scripture_text, reflection, practical_application, prayer.
+  2. Preserve TODAS as tags HTML exatas do conteúdo (como <p>, <strong>, <em>, <u>, <h2>, <h3>, <blockquote>).
+  3. Não traduza nomes de classes ou atributos de HTML técnicos.
+  4. Se houver blocos estruturais de CTA no formato <div data-type="cta" data-title="..." data-description="..." data-label="..." data-url="..." data-action="..."></div>:
+     - Preserve a tag <div> e sua posição exata dentro do texto.
+     - Traduza apenas os valores de data-title, data-description e data-label.
+     - NUNCA altere ou traduza os valores de data-type, data-url e data-action.
+     - NUNCA remova, recrie ou reposicione o bloco de CTA.
   
   ${glossaryContext}
   
   CONTEÚDO ORIGINAL:
   Title: ${devotional.title}
-  Principle Statement: ${devotional.principle_statement}
+  Principle Statement: ${devotional.principle_statement || ''}
+  Scripture Reference: ${devotional.scripture_reference || ''}
+  Scripture Text: ${devotional.scripture_text || ''}
   Reflection:
-  ${devotional.reflection}
+  ${devotional.reflection || ''}
   
   Practical Application:
-  ${devotional.practical_application}
+  ${devotional.practical_application || ''}
   
   Prayer:
-  ${devotional.prayer}
+  ${devotional.prayer || ''}
   `;
 
   const response = await openai.createChatCompletion({
     model: TRANSLATION_MODEL,
     messages: [
-      { role: "system", content: "Você é um tradutor teológico profissional especializado em devocionais cristãos. Retorne apenas JSON válido contendo as chaves: title, principle_statement, reflection, practical_application, prayer." },
+      { role: "system", content: "Você é um tradutor teológico profissional especializado em devocionais cristãos. Retorne apenas JSON válido contendo as chaves: title, principle_statement, scripture_reference, scripture_text, reflection, practical_application, prayer." },
       { role: "user", content: prompt }
     ],
     temperature: 0.3,
@@ -160,6 +167,8 @@ serve(async (req: Request) => {
             language: job.target_language,
             title: translatedData.title,
             principle_statement: translatedData.principle_statement,
+            scripture_reference: translatedData.scripture_reference || devotional.scripture_reference || null,
+            scripture_text: translatedData.scripture_text || devotional.scripture_text || null,
             reflection: translatedData.reflection,
             practical_application: translatedData.practical_application,
             prayer: translatedData.prayer,

@@ -6,6 +6,8 @@ export interface DevotionalTranslation {
   reflection: string;
   practical_application?: string | null;
   prayer?: string | null;
+  scripture_reference?: string | null;
+  scripture_text?: string | null;
   status: 'draft' | 'scheduled' | 'published' | 'archived';
   source_content_hash?: string;
   translation_source?: 'manual' | 'ai';

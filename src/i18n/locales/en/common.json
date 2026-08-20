@@ -33,7 +33,16 @@
     "applicationPending": "Application pending.",
     "scriptureReference": "Scripture Reference",
     "exploreMore": "Explore more principles",
-    "saveError": "Error updating favorite."
+    "saveError": "Error updating favorite.",
+    "prayer": "Prayer",
+    "back": "Back",
+    "myReflection": "My reflection",
+    "myReflectionPrompt": "What did this reflection stir in you?",
+    "myReflectionPrivate": "Only you can see what you write here.",
+    "saveReflection": "Save",
+    "savingReflection": "Saving...",
+    "reflectionSaved": "Saved to your journey.",
+    "loginToSave": "Sign in to save your reflection"
   },
   "categories": {
     "Vida": "Life",

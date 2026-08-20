@@ -192,7 +192,7 @@ export function Home({ onExplore }: HomeProps) {
 
         {devotional.prayer && (
           <div style={{ marginTop: '2rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
-            <span className="label">Oração</span>
+            <span className="label">{t('home.prayer')}</span>
             <div className="application-text" style={{ fontStyle: 'italic' }}>
               {devotional.principle_statement ? (
                 <HtmlRenderer html={devotional.prayer} />

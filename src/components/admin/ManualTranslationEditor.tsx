@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AdminContentService } from '../../services/AdminContentService';
 import { RichTextEditor } from './RichTextEditor';
 import { PrincipleView } from '../PrincipleView';
+import { HtmlRenderer } from '../HtmlRenderer';
 
 interface ManualTranslationEditorProps {
   devotional: any;
@@ -27,6 +28,8 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
   const [form, setForm] = useState({
     title: initialSource.title || '',
     principle_statement: initialSource.principle_statement || '',
+    scripture_reference: initialSource.scripture_reference || '',
+    scripture_text: initialSource.scripture_text || '',
     reflection: initialSource.reflection || '',
     practical_application: initialSource.practical_application || '',
     prayer: initialSource.prayer || '',
@@ -49,6 +52,8 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
         language: language.iso_code,
         title: form.title,
         principle_statement: form.principle_statement || null,
+        scripture_reference: form.scripture_reference || null,
+        scripture_text: form.scripture_text || null,
         reflection: form.reflection,
         practical_application: form.practical_application || null,
         prayer: form.prayer || null,
@@ -88,6 +93,8 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
         language: language.iso_code,
         title: form.title,
         principle_statement: form.principle_statement,
+        scripture_reference: form.scripture_reference || null,
+        scripture_text: form.scripture_text || null,
         reflection: form.reflection,
         practical_application: form.practical_application || null,
         prayer: form.prayer || null,
@@ -110,6 +117,8 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
     ...devotional,
     title: form.title || devotional.title,
     principle_statement: form.principle_statement || devotional.principle_statement,
+    scripture_reference: form.scripture_reference !== '' ? form.scripture_reference : devotional.scripture_reference,
+    scripture_text: form.scripture_text !== '' ? form.scripture_text : devotional.scripture_text,
     reflection: form.reflection || devotional.reflection,
     practical_application: form.practical_application || devotional.practical_application,
     prayer: form.prayer || devotional.prayer,
@@ -179,7 +188,7 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
           style={{
             background: 'none',
             border: 'none',
-            color: 'var(--color-primary)',
+            color: '#c46d53',
             fontWeight: 'bold',
             cursor: 'pointer',
             padding: 0,
@@ -194,8 +203,8 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
             type="button"
             onClick={() => setShowPreview(true)}
             style={{
-              background: 'var(--color-surface)',
-              color: 'var(--color-text)',
+              background: '#ffffff',
+              color: '#1a1a1a',
               border: '1px solid #ddd',
               borderRadius: '8px',
               padding: '8px 14px',
@@ -230,12 +239,12 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
             onClick={handlePublish}
             disabled={saving || publishing}
             style={{
-              background: 'var(--color-primary)',
-              color: 'white',
-              border: 'none',
+              background: '#c46d53',
+              color: '#ffffff',
+              border: '1px solid #c46d53',
               borderRadius: '8px',
               padding: '8px 18px',
-              fontWeight: 'bold',
+              fontWeight: 700,
               fontSize: '0.85rem',
               cursor: 'pointer'
             }}
@@ -247,7 +256,7 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
 
       {/* Title and metadata */}
       <div style={{
-        background: 'var(--color-surface)',
+        background: '#ffffff',
         padding: '16px 20px',
         borderRadius: '12px',
         marginBottom: '20px',
@@ -262,7 +271,7 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
           <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: '0 0 4px 0' }}>
             {devotional.title}
           </h2>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-text-light)', display: 'flex', gap: '12px' }}>
+          <div style={{ fontSize: '0.85rem', color: '#666666', display: 'flex', gap: '12px' }}>
             <span>DEVOCIONAL #{devotional.legacy_id || devotional.id.slice(0, 8)}</span>
             <span>📅 {devotional.publication_date}</span>
             {devotional.categories?.name && <span>🏷️ {devotional.categories.name}</span>}
@@ -270,7 +279,7 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '0.85rem', color: 'var(--color-text-light)' }}>Destino:</span>
+          <span style={{ fontSize: '0.85rem', color: '#666666' }}>Destino:</span>
           <span style={{ fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
             {language.flag_emoji} {language.name}
           </span>
@@ -344,6 +353,7 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
             <strong style={{ fontSize: '0.95rem', color: '#334155' }}>PORTUGUÊS — ORIGINAL</strong>
           </div>
 
+          {/* 1. Título */}
           <div>
             <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>
               Título
@@ -360,6 +370,7 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
             </div>
           </div>
 
+          {/* 2. Destaque / Principle Statement */}
           {devotional.principle_statement && (
             <div>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>
@@ -378,6 +389,42 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
             </div>
           )}
 
+          {/* 3. Referência Bíblica */}
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>
+              Referência Bíblica
+            </label>
+            <div style={{
+              background: 'white',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              border: '1px solid #cbd5e1',
+              color: '#1e293b',
+              fontWeight: 500
+            }}>
+              {devotional.scripture_reference || <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Não informada</span>}
+            </div>
+          </div>
+
+          {/* 4. Texto Bíblico */}
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>
+              Texto Bíblico
+            </label>
+            <div style={{
+              background: 'white',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              border: '1px solid #cbd5e1',
+              color: '#1e293b',
+              fontSize: '0.9rem',
+              lineHeight: 1.5
+            }}>
+              {devotional.scripture_text ? `"${devotional.scripture_text}"` : <span style={{ color: '#94a3b8', fontStyle: 'italic' }}>Não informado</span>}
+            </div>
+          </div>
+
+          {/* 5. Reflexão */}
           <div>
             <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>
               Reflexão
@@ -394,10 +441,12 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
                 maxHeight: '400px',
                 overflowY: 'auto'
               }}
-              dangerouslySetInnerHTML={{ __html: devotional.reflection || '' }}
-            />
+            >
+              <HtmlRenderer html={devotional.reflection || ''} />
+            </div>
           </div>
 
+          {/* 6. Aplicação Prática */}
           {devotional.practical_application && (
             <div>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>
@@ -413,11 +462,13 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
                   fontSize: '0.95rem',
                   lineHeight: 1.6
                 }}
-                dangerouslySetInnerHTML={{ __html: devotional.practical_application || '' }}
-              />
+              >
+                <HtmlRenderer html={devotional.practical_application || ''} />
+              </div>
             </div>
           )}
 
+          {/* 7. Oração */}
           {devotional.prayer && (
             <div>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>
@@ -433,26 +484,8 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
                   fontSize: '0.95rem',
                   lineHeight: 1.6
                 }}
-                dangerouslySetInnerHTML={{ __html: devotional.prayer || '' }}
-              />
-            </div>
-          )}
-
-          {(devotional.scripture_text || devotional.scripture_reference) && (
-            <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>
-                Escritura de Referência
-              </label>
-              <div style={{
-                background: 'white',
-                padding: '10px 14px',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                fontSize: '0.85rem',
-                color: '#475569'
-              }}>
-                {devotional.scripture_reference && <strong>{devotional.scripture_reference}: </strong>}
-                {devotional.scripture_text}
+              >
+                <HtmlRenderer html={devotional.prayer || ''} />
               </div>
             </div>
           )}
@@ -460,7 +493,7 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
 
         {/* RIGHT COLUMN: TARGET LANGUAGE EDITABLE TRANSLATION */}
         <div style={{
-          background: 'var(--color-surface)',
+          background: '#ffffff',
           padding: '20px',
           borderRadius: '12px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
@@ -474,14 +507,15 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
             alignItems: 'center',
             gap: '8px',
             paddingBottom: '12px',
-            borderBottom: '2px solid var(--color-primary)'
+            borderBottom: '2px solid #c46d53'
           }}>
             <span>{language.flag_emoji}</span>
-            <strong style={{ fontSize: '0.95rem', color: 'var(--color-text)' }}>
+            <strong style={{ fontSize: '0.95rem', color: '#1a1a1a' }}>
               {language.name.toUpperCase()} — TRADUÇÃO MANUAL
             </strong>
           </div>
 
+          {/* 1. Título */}
           <div>
             <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', fontWeight: 'bold' }}>
               Título *
@@ -497,11 +531,12 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
                 borderRadius: '8px',
                 border: '1px solid #ddd',
                 fontSize: '0.95rem',
-                color: 'var(--color-text)'
+                color: '#1a1a1a'
               }}
             />
           </div>
 
+          {/* 2. Destaque / Principle Statement */}
           <div>
             <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', fontWeight: 'bold' }}>
               Destaque / Principle Statement *
@@ -517,12 +552,56 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
                 borderRadius: '8px',
                 border: '1px solid #ddd',
                 fontSize: '0.95rem',
-                color: 'var(--color-text)',
+                color: '#1a1a1a',
                 resize: 'vertical'
               }}
             />
           </div>
 
+          {/* 3. Referência Bíblica */}
+          <div>
+            <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+              Referência Bíblica
+            </label>
+            <input
+              type="text"
+              value={form.scripture_reference}
+              onChange={(e) => setForm({ ...form, scripture_reference: e.target.value })}
+              placeholder={`Ex: ${language.iso_code === 'en' ? 'Philippians 4:6-7' : 'Filipenses 4:6-7'}`}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '8px',
+                border: '1px solid #ddd',
+                fontSize: '0.95rem',
+                color: '#1a1a1a'
+              }}
+            />
+          </div>
+
+          {/* 4. Texto Bíblico */}
+          <div>
+            <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+              Texto Bíblico
+            </label>
+            <textarea
+              value={form.scripture_text}
+              onChange={(e) => setForm({ ...form, scripture_text: e.target.value })}
+              rows={3}
+              placeholder={`Texto bíblico no idioma ${language.name}...`}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '8px',
+                border: '1px solid #ddd',
+                fontSize: '0.95rem',
+                color: '#1a1a1a',
+                resize: 'vertical'
+              }}
+            />
+          </div>
+
+          {/* 5. Reflexão */}
           <div>
             <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', fontWeight: 'bold' }}>
               Reflexão *
@@ -534,6 +613,7 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
             />
           </div>
 
+          {/* 6. Aplicação Prática */}
           <div>
             <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', fontWeight: 'bold' }}>
               Aplicação Prática
@@ -545,6 +625,7 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
             />
           </div>
 
+          {/* 7. Oração */}
           <div>
             <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', fontWeight: 'bold' }}>
               Oração
@@ -585,10 +666,10 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
                 flex: 1,
                 padding: '14px',
                 borderRadius: '8px',
-                border: 'none',
-                background: 'var(--color-primary)',
-                color: 'white',
-                fontWeight: 'bold',
+                border: '1px solid #c46d53',
+                background: '#c46d53',
+                color: '#ffffff',
+                fontWeight: 700,
                 fontSize: '0.95rem',
                 cursor: 'pointer'
               }}

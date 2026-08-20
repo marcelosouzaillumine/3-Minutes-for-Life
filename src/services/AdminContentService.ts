@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { sanitizeHtml } from '../lib/sanitizer';
+import { translatePreservingStructure } from '../lib/contentStructure';
 
 export const AdminContentService = {
   async getLanguages(): Promise<any[]> {
@@ -175,6 +176,8 @@ export const AdminContentService = {
     language: string;
     title: string;
     principle_statement?: string | null;
+    scripture_reference?: string | null;
+    scripture_text?: string | null;
     reflection: string;
     practical_application?: string | null;
     prayer?: string | null;
@@ -185,6 +188,8 @@ export const AdminContentService = {
       language,
       title,
       principle_statement,
+      scripture_reference,
+      scripture_text,
       reflection,
       practical_application,
       prayer,
@@ -200,49 +205,28 @@ export const AdminContentService = {
       }
     }
 
-    const payload: Record<string, any> = {
+    const payload = {
       devotional_id,
       language,
       translation_source: 'manual',
       title: title?.trim() || '',
       principle_statement: principle_statement?.trim() || null,
+      scripture_reference: scripture_reference?.trim() || null,
+      scripture_text: scripture_text?.trim() || null,
       reflection: reflection ? sanitizeHtml(reflection) : '',
       practical_application: practical_application ? sanitizeHtml(practical_application) : null,
       prayer: prayer ? sanitizeHtml(prayer) : null,
-      status
+      status,
+      updated_at: new Date().toISOString()
     };
 
-    // Check if an existing manual translation record exists for this devotional & language
-    const { data: existing } = await supabase
+    const { data, error } = await supabase
       .from('devotional_translations')
-      .select('id')
-      .eq('devotional_id', devotional_id)
-      .eq('language', language)
-      .eq('translation_source', 'manual')
-      .maybeSingle();
+      .upsert(payload, { onConflict: 'devotional_id,language,translation_source' })
+      .select()
+      .single();
 
-    if (existing?.id) {
-      const { data, error } = await supabase
-        .from('devotional_translations')
-        .update({
-          ...payload,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', existing.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    } else {
-      const { data, error } = await supabase
-        .from('devotional_translations')
-        .insert([payload])
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    }
+    if (error) throw error;
+    return data;
   }
 };

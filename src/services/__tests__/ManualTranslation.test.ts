@@ -18,6 +18,8 @@ describe('Translation Center — Manual Editorial Translation System', () => {
     legacy_id: 10,
     title: 'Título em Português',
     principle_statement: 'Princípio em Português',
+    scripture_reference: 'Filipenses 4:6-7',
+    scripture_text: 'Não andeis ansiosos por coisa alguma...',
     reflection: '<p>Reflexão em Português</p>',
     practical_application: '<p>Aplicação em Português</p>',
     prayer: '<p>Oração em Português</p>',
@@ -30,25 +32,19 @@ describe('Translation Center — Manual Editorial Translation System', () => {
     vi.clearAllMocks();
   });
 
-  // Test 1 — criação: Administrador consegue criar tradução manual
+  // Test 1 — criação
   it('Teste 1 — criação: Salva tradução manual com translation_source="manual"', async () => {
     const mockSingle = vi.fn().mockResolvedValue({
       data: { id: 'trans-manual-1', translation_source: 'manual', status: 'draft' },
       error: null
     });
     const mockSelect = vi.fn().mockReturnValue({ single: mockSingle });
-    const mockInsert = vi.fn().mockReturnValue({ select: mockSelect });
-    const mockMaybeSingle = vi.fn().mockResolvedValue({ data: null, error: null });
-    const mockEq3 = vi.fn().mockReturnValue({ maybeSingle: mockMaybeSingle });
-    const mockEq2 = vi.fn().mockReturnValue({ eq: mockEq3 });
-    const mockEq1 = vi.fn().mockReturnValue({ eq: mockEq2 });
-    const mockSelectExisting = vi.fn().mockReturnValue({ eq: mockEq1 });
+    const mockUpsert = vi.fn().mockReturnValue({ select: mockSelect });
 
     (supabase.from as any).mockImplementation((table: string) => {
       if (table === 'devotional_translations') {
         return {
-          select: mockSelectExisting,
-          insert: mockInsert
+          upsert: mockUpsert
         };
       }
       return {};
@@ -63,38 +59,32 @@ describe('Translation Center — Manual Editorial Translation System', () => {
       status: 'draft'
     });
 
-    expect(mockInsert).toHaveBeenCalledWith([
+    expect(mockUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
         devotional_id: 'devo-123',
         language: 'en',
         translation_source: 'manual',
         title: 'Manual Title',
         status: 'draft'
-      })
-    ]);
+      }),
+      { onConflict: 'devotional_id,language,translation_source' }
+    );
     expect(result.translation_source).toBe('manual');
   });
 
-  // Test 2 — edição: Administrador consegue editar tradução manual existente
+  // Test 2 — edição
   it('Teste 2 — edição: Atualiza registro de tradução manual existente mantendo a origem manual', async () => {
     const mockSingle = vi.fn().mockResolvedValue({
-      data: { id: 'trans-manual-1', translation_source: 'manual', title: 'Updated Manual Title' },
+      data: { id: 'trans-manual-1', translation_source: 'manual', title: 'Updated Manual Title', status: 'published' },
       error: null
     });
     const mockSelect = vi.fn().mockReturnValue({ single: mockSingle });
-    const mockEqUpdate = vi.fn().mockReturnValue({ select: mockSelect });
-    const mockUpdate = vi.fn().mockReturnValue({ eq: mockEqUpdate });
-    const mockMaybeSingle = vi.fn().mockResolvedValue({ data: { id: 'trans-manual-1' }, error: null });
-    const mockEq3 = vi.fn().mockReturnValue({ maybeSingle: mockMaybeSingle });
-    const mockEq2 = vi.fn().mockReturnValue({ eq: mockEq3 });
-    const mockEq1 = vi.fn().mockReturnValue({ eq: mockEq2 });
-    const mockSelectExisting = vi.fn().mockReturnValue({ eq: mockEq1 });
+    const mockUpsert = vi.fn().mockReturnValue({ select: mockSelect });
 
     (supabase.from as any).mockImplementation((table: string) => {
       if (table === 'devotional_translations') {
         return {
-          select: mockSelectExisting,
-          update: mockUpdate
+          upsert: mockUpsert
         };
       }
       return {};
@@ -106,21 +96,21 @@ describe('Translation Center — Manual Editorial Translation System', () => {
       title: 'Updated Manual Title',
       principle_statement: 'Updated Principle',
       reflection: '<p>Updated Reflection</p>',
-      status: 'draft'
+      status: 'published'
     });
 
-    expect(mockUpdate).toHaveBeenCalledWith(
+    expect(mockUpsert).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'Updated Manual Title',
         translation_source: 'manual',
-        status: 'draft'
-      })
+        status: 'published'
+      }),
+      { onConflict: 'devotional_id,language,translation_source' }
     );
-    expect(mockEqUpdate).toHaveBeenCalledWith('id', 'trans-manual-1');
-    expect(result.title).toBe('Updated Manual Title');
+    expect(result.status).toBe('published');
   });
 
-  // Test 3 — rascunho: Rascunho não aparece para usuários finais
+  // Test 3 — rascunho
   it('Teste 3 — rascunho: Tradução manual em rascunho (status="draft") é ignorada no resolveTranslation e faz fallback', () => {
     const devotionalWithDraft = {
       ...baseDevotional,
@@ -138,13 +128,12 @@ describe('Translation Center — Manual Editorial Translation System', () => {
     };
 
     const resolved = resolveTranslation(devotionalWithDraft, 'en');
-    // Deve ignorar o rascunho e fazer fallback para o original em português
     expect(resolved.title).toBe('Título em Português');
     expect(resolved.resolvedLanguage).toBe('pt-BR');
     expect(resolved.isLanguageFallback).toBe(true);
   });
 
-  // Test 4 — publicação: Tradução publicada aparece para usuários
+  // Test 4 — publicação
   it('Teste 4 — publicação: Tradução manual com status="published" é entregue ao usuário', () => {
     const devotionalWithPublishedManual = {
       ...baseDevotional,
@@ -168,7 +157,7 @@ describe('Translation Center — Manual Editorial Translation System', () => {
     expect(resolved.isLanguageFallback).toBe(false);
   });
 
-  // Test 5 — prioridade: Se existir IA publicada + Manual publicada, a MANUAL sempre vence
+  // Test 5 — prioridade
   it('Teste 5 — prioridade: Tradução manual publicada SEMPRE prevalece sobre a tradução automática da IA', () => {
     const devotionalWithBoth = {
       ...baseDevotional,
@@ -201,7 +190,7 @@ describe('Translation Center — Manual Editorial Translation System', () => {
     expect(resolved.resolvedLanguage).toBe('en');
   });
 
-  // Test 6 — fallback: Se não existir tradução publicada, o original em português deve ser retornado
+  // Test 6 — fallback
   it('Teste 6 — fallback: Sem tradução para o idioma, retorna os dados originais em pt-BR', () => {
     const devotionalWithoutTrans = {
       ...baseDevotional,
@@ -216,7 +205,7 @@ describe('Translation Center — Manual Editorial Translation System', () => {
     expect(resolved.translationStatus).toBe('unavailable');
   });
 
-  // Test 7 — isolamento: Uma tradução em English não é usada para Spanish
+  // Test 7 — isolamento
   it('Teste 7 — isolamento: Tradução em English não é usada como tradução para Spanish', () => {
     const devotionalEnOnly = {
       ...baseDevotional,
@@ -239,7 +228,7 @@ describe('Translation Center — Manual Editorial Translation System', () => {
     expect(resolvedSpanish.isLanguageFallback).toBe(true);
   });
 
-  // Test 8 — autorização / validação: Falha ao tentar publicar sem campos obrigatórios
+  // Test 8 — validação
   it('Teste 8 — validação de publicação: Rejeita publicação manual sem título ou reflexão ou destaque', async () => {
     await expect(
       AdminContentService.saveManualTranslation({
@@ -275,28 +264,18 @@ describe('Translation Center — Manual Editorial Translation System', () => {
     ).rejects.toThrow('A reflexão é obrigatória');
   });
 
-  // Test 9 — IA: O fluxo manual não realiza chamadas para a API OpenAI nem enfileira jobs
+  // Test 9 — sem chamadas IA
   it('Teste 9 — sem chamadas de IA: Fluxo manual salva diretamente no banco sem criar translation_jobs', async () => {
-    const mockInsert = vi.fn().mockReturnValue({
+    const mockUpsert = vi.fn().mockReturnValue({
       select: vi.fn().mockReturnValue({
         single: vi.fn().mockResolvedValue({ data: { id: 'trans-1' }, error: null })
-      })
-    });
-    const mockSelectExisting = vi.fn().mockReturnValue({
-      eq: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null })
-          })
-        })
       })
     });
 
     (supabase.from as any).mockImplementation((table: string) => {
       if (table === 'devotional_translations') {
         return {
-          select: mockSelectExisting,
-          insert: mockInsert
+          upsert: mockUpsert
         };
       }
       if (table === 'translation_jobs') {
@@ -314,10 +293,10 @@ describe('Translation Center — Manual Editorial Translation System', () => {
       status: 'draft'
     });
 
-    expect(mockInsert).toHaveBeenCalledTimes(1);
+    expect(mockUpsert).toHaveBeenCalledTimes(1);
   });
 
-  // Test 10 — compartilhamento e links públicos: Devocional compartilhado respeita resolução
+  // Test 10 — compartilhamento
   it('Teste 10 — compartilhamento e links públicos: Resolução funciona deterministamente para requisições com código de idioma', () => {
     const devotionalWithManualSpanish = {
       ...baseDevotional,
@@ -334,7 +313,6 @@ describe('Translation Center — Manual Editorial Translation System', () => {
       ]
     };
 
-    // Shared devotional requested with lang 'es' or 'es-ES'
     const resolvedDirect = resolveTranslation(devotionalWithManualSpanish, 'es');
     expect(resolvedDirect.title).toBe('Título Editorial en Español');
     expect(resolvedDirect.resolvedLanguage).toBe('es');
@@ -342,5 +320,183 @@ describe('Translation Center — Manual Editorial Translation System', () => {
     const resolvedLocale = resolveTranslation(devotionalWithManualSpanish, 'es-ES');
     expect(resolvedLocale.title).toBe('Título Editorial en Español');
     expect(resolvedLocale.resolvedLanguage).toBe('es');
+  });
+
+  // --- SCRIPTURE FIELDS TESTS (Testes A - H) ---
+
+  // Teste A: Salvar referência bíblica manualmente
+  it('Teste A: Salva referência bíblica manualmente com scripture_reference', async () => {
+    const mockSingle = vi.fn().mockResolvedValue({
+      data: { id: 'trans-1', scripture_reference: 'Philippians 4:6-7', status: 'draft' },
+      error: null
+    });
+    const mockSelect = vi.fn().mockReturnValue({ single: mockSingle });
+    const mockUpsert = vi.fn().mockReturnValue({ select: mockSelect });
+
+    (supabase.from as any).mockImplementation((table: string) => {
+      if (table === 'devotional_translations') return { upsert: mockUpsert };
+      return {};
+    });
+
+    const result = await AdminContentService.saveManualTranslation({
+      devotional_id: 'devo-123',
+      language: 'en',
+      title: 'Title',
+      principle_statement: 'Principle',
+      scripture_reference: 'Philippians 4:6-7',
+      reflection: '<p>Reflection</p>',
+      status: 'draft'
+    });
+
+    expect(mockUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        scripture_reference: 'Philippians 4:6-7'
+      }),
+      { onConflict: 'devotional_id,language,translation_source' }
+    );
+    expect(result.scripture_reference).toBe('Philippians 4:6-7');
+  });
+
+  // Teste B: Salvar texto bíblico manualmente
+  it('Teste B: Salva texto bíblico manualmente com scripture_text', async () => {
+    const mockSingle = vi.fn().mockResolvedValue({
+      data: { id: 'trans-1', scripture_text: 'Do not be anxious about anything...', status: 'draft' },
+      error: null
+    });
+    const mockSelect = vi.fn().mockReturnValue({ single: mockSingle });
+    const mockUpsert = vi.fn().mockReturnValue({ select: mockSelect });
+
+    (supabase.from as any).mockImplementation((table: string) => {
+      if (table === 'devotional_translations') return { upsert: mockUpsert };
+      return {};
+    });
+
+    const result = await AdminContentService.saveManualTranslation({
+      devotional_id: 'devo-123',
+      language: 'en',
+      title: 'Title',
+      principle_statement: 'Principle',
+      scripture_text: 'Do not be anxious about anything...',
+      reflection: '<p>Reflection</p>',
+      status: 'draft'
+    });
+
+    expect(mockUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        scripture_text: 'Do not be anxious about anything...'
+      }),
+      { onConflict: 'devotional_id,language,translation_source' }
+    );
+    expect(result.scripture_text).toBe('Do not be anxious about anything...');
+  });
+
+  // Teste C & D: Salvar ambos em rascunho e publicar ambos
+  it('Teste C & D: Salva e publica scripture_reference e scripture_text com status="published"', async () => {
+    const mockSingle = vi.fn().mockResolvedValue({
+      data: {
+        id: 'trans-1',
+        scripture_reference: 'Philippians 4:6-7',
+        scripture_text: 'Do not be anxious about anything...',
+        status: 'published',
+        translation_source: 'manual'
+      },
+      error: null
+    });
+    const mockSelect = vi.fn().mockReturnValue({ single: mockSingle });
+    const mockUpsert = vi.fn().mockReturnValue({ select: mockSelect });
+
+    (supabase.from as any).mockImplementation((table: string) => {
+      if (table === 'devotional_translations') return { upsert: mockUpsert };
+      return {};
+    });
+
+    const result = await AdminContentService.saveManualTranslation({
+      devotional_id: 'devo-123',
+      language: 'en',
+      title: 'Title',
+      principle_statement: 'Principle',
+      scripture_reference: 'Philippians 4:6-7',
+      scripture_text: 'Do not be anxious about anything...',
+      reflection: '<p>Reflection</p>',
+      status: 'published'
+    });
+
+    expect(result.status).toBe('published');
+    expect(result.scripture_reference).toBe('Philippians 4:6-7');
+    expect(result.scripture_text).toBe('Do not be anxious about anything...');
+  });
+
+  // Teste E & F: Usuário recebe a referência e o texto bíblico traduzidos
+  it('Teste E & F: resolveTranslation entrega a referência e o texto bíblico traduzidos na versão manual', () => {
+    const devotionalWithScripture = {
+      ...baseDevotional,
+      devotional_translations: [
+        {
+          id: 'trans-1',
+          language: 'en',
+          title: 'English Title',
+          principle_statement: 'English Principle',
+          scripture_reference: 'Philippians 4:6-7',
+          scripture_text: 'Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God.',
+          reflection: '<p>English Reflection</p>',
+          status: 'published',
+          translation_source: 'manual'
+        }
+      ]
+    };
+
+    const resolved = resolveTranslation(devotionalWithScripture, 'en');
+    expect(resolved.scripture_reference).toBe('Philippians 4:6-7');
+    expect(resolved.scripture_text).toBe('Do not be anxious about anything, but in every situation, by prayer and petition, with thanksgiving, present your requests to God.');
+    expect(resolved.resolvedLanguage).toBe('en');
+  });
+
+  // Teste G: Tradução manual prevalece sobre tradução IA para campos bíblicos
+  it('Teste G: Tradução manual prevalece sobre tradução de IA para scripture_reference e scripture_text', () => {
+    const devotionalWithBothScripture = {
+      ...baseDevotional,
+      devotional_translations: [
+        {
+          id: 'trans-ai',
+          language: 'es',
+          title: 'IA Title',
+          principle_statement: 'IA Principle',
+          scripture_reference: 'Filipenses 4:6 (IA)',
+          scripture_text: 'Texto de la IA...',
+          reflection: '<p>IA Reflection</p>',
+          status: 'published',
+          translation_source: 'ai'
+        },
+        {
+          id: 'trans-manual',
+          language: 'es',
+          title: 'Manual Title',
+          principle_statement: 'Manual Principle',
+          scripture_reference: 'Filipenses 4:6-7 (Editorial)',
+          scripture_text: 'Por nada estéis afanosos, sino sean conocidas vuestras peticiones delante de Dios en toda oración y ruego, con acción de gracias.',
+          reflection: '<p>Manual Reflection</p>',
+          status: 'published',
+          translation_source: 'manual'
+        }
+      ]
+    };
+
+    const resolved = resolveTranslation(devotionalWithBothScripture, 'es');
+    expect(resolved.scripture_reference).toBe('Filipenses 4:6-7 (Editorial)');
+    expect(resolved.scripture_text).toBe('Por nada estéis afanosos, sino sean conocidas vuestras peticiones delante de Dios en toda oración y ruego, con acción de gracias.');
+  });
+
+  // Teste H: Fallback para campos bíblicos originais quando não houver tradução publicada
+  it('Teste H: Fallback entrega referência e texto bíblico originais (pt-BR) quando não houver tradução publicada', () => {
+    const devotionalWithoutScriptureTrans = {
+      ...baseDevotional,
+      devotional_translations: []
+    };
+
+    const resolved = resolveTranslation(devotionalWithoutScriptureTrans, 'es');
+    expect(resolved.scripture_reference).toBe('Filipenses 4:6-7');
+    expect(resolved.scripture_text).toBe('Não andeis ansiosos por coisa alguma...');
+    expect(resolved.resolvedLanguage).toBe('pt-BR');
+    expect(resolved.isLanguageFallback).toBe(true);
   });
 });

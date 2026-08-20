@@ -194,40 +194,40 @@ export function AdminTranslations() {
                   {!lang.is_active && <span style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', marginLeft: '8px' }}>(Inativo)</span>}
                 </h3>
 
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  <button 
-                    onClick={() => handleOpenManualTranslation(lang)}
-                    style={{
-                      background: 'var(--color-primary)',
-                      color: 'white',
-                      border: 'none',
-                      padding: '8px 14px',
-                      borderRadius: '8px',
-                      fontSize: '0.85rem',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}
-                  >
-                    ✍️ Traduzir manualmente
-                  </button>
-
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
                   <button 
                     onClick={() => handleTranslateAcervo(lang.iso_code)}
                     style={{
-                      background: 'none',
+                      background: 'var(--color-surface, #ffffff)',
                       border: '1px solid #ddd',
                       padding: '8px 12px',
                       borderRadius: '8px',
                       fontSize: '0.85rem',
                       fontWeight: 'bold',
                       cursor: 'pointer',
-                      color: 'var(--color-text)'
+                      color: 'var(--color-text, #1a1a1a)'
                     }}
                   >
-                    Traduzir Acervo Existente (IA)
+                    Traduzir com IA
+                  </button>
+
+                  <button 
+                    onClick={() => handleOpenManualTranslation(lang)}
+                    style={{
+                      background: '#c46d53',
+                      color: '#ffffff',
+                      border: '1px solid #c46d53',
+                      padding: '8px 14px',
+                      borderRadius: '8px',
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    ✍️ Inserir tradução
                   </button>
                 </div>
               </div>

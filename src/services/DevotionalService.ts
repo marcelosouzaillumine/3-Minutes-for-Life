@@ -57,6 +57,12 @@ export function resolveTranslation(
         reflection: requestedTranslation.reflection,
         practical_application: requestedTranslation.practical_application || null,
         prayer: requestedTranslation.prayer || null,
+        scripture_reference: (requestedTranslation.scripture_reference !== undefined && requestedTranslation.scripture_reference !== null)
+          ? requestedTranslation.scripture_reference
+          : (devotional.scripture_reference || null),
+        scripture_text: (requestedTranslation.scripture_text !== undefined && requestedTranslation.scripture_text !== null)
+          ? requestedTranslation.scripture_text
+          : (devotional.scripture_text || null),
         requestedLanguage,
         resolvedLanguage: targetLang,
         translationStatus: 'available',
@@ -106,6 +112,8 @@ const selectQuery = `
     reflection,
     practical_application,
     prayer,
+    scripture_reference,
+    scripture_text,
     status,
     source_content_hash,
     translation_source
