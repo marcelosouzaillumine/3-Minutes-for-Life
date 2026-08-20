@@ -107,5 +107,87 @@
     "successTitle": "We received your request.",
     "successBody": "We will receive it with care and bring it before God.",
     "closeBtn": "Close"
+  },
+  "admin": {
+    "relationship": {
+      "title": "Relationship Management Center",
+      "subtitle": "A space to accompany, with care and responsibility, what people share with us.",
+      "loadingOverview": "Loading Relationship Center...",
+      "loadingTestimonials": "Loading testimonies...",
+      "loadingPrayers": "Loading prayer requests...",
+      "errorLoading": "Could not load relationship information.",
+      "tryAgain": "Try Again",
+      "updating": "Updating...",
+      "errorUpdatingStatus": "Error updating status.",
+      "anonymousUser": "Community Member",
+      "generalDevotional": "General",
+      "noActivity": "We have not received testimonies or prayer requests yet.",
+      "noTestimonials": "No testimonies received yet.",
+      "noPrayerRequests": "No prayer requests received yet.",
+      "noResultsFiltered": "No records match the selected filters.",
+      "recentActivityTitle": "Recent Activity",
+      "latestEntries": "latest entries",
+      "testimonialsTitle": "Testimonies Management",
+      "testimonialsSubtitle": "Follow stories and testimonies shared by the community.",
+      "prayerRequestsTitle": "Prayer Requests Management",
+      "prayerRequestsSubtitle": "Receive and accompany prayer requests entrusted by the community.",
+      "searchPlaceholder": "Search in testimony...",
+      "searchPrayerPlaceholder": "Search in request...",
+      "privacyHeader": "Private content submitted by a user.",
+      "privacyDescription": "Use this information exclusively for pastoral care and follow-up. Do not publish, share, or use this content without specific authorization.",
+      "prayerPrivacyHeader": "Private request submitted for care and prayer.",
+      "prayerPrivacyDescription": "Use this information exclusively for pastoral care and prayer accompaniment. Do not publish, share, or use this content without specific authorization.",
+      "tabs": {
+        "overview": "Overview",
+        "testimonials": "Testimonies",
+        "prayerRequests": "Prayer Requests"
+      },
+      "cards": {
+        "pendingTestimonials": "Pending Testimonies",
+        "awaitingReview": "Awaiting pastoral review",
+        "totalTestimonials": "Received Testimonies",
+        "pendingPrayers": "Pending Prayer Requests",
+        "awaitingPrayer": "Awaiting prayer care",
+        "totalPrayers": "Received Prayer Requests"
+      },
+      "badge": {
+        "testimonial": "Testimony",
+        "prayer": "Prayer Request"
+      },
+      "status": {
+        "pending": "Pending",
+        "reviewed": "Reviewed",
+        "prayed": "In prayer",
+        "archived": "Archived"
+      },
+      "actions": {
+        "viewReport": "View story",
+        "viewPrayer": "View request",
+        "markReviewed": "Mark as reviewed",
+        "markPrayed": "Mark as in prayer",
+        "archive": "Archive",
+        "backToPending": "Back to pending",
+        "restoreToPending": "Restore to pending"
+      },
+      "filters": {
+        "allStatuses": "All Statuses",
+        "allLanguages": "All Languages",
+        "allPeriod": "All Time",
+        "periodLabel": "Period",
+        "clear": "Clear filters",
+        "today": "Today",
+        "last7d": "Last 7 days",
+        "last30d": "Last 30 days"
+      },
+      "columns": {
+        "date": "Date",
+        "user": "User",
+        "devotional": "Devotional",
+        "language": "Language",
+        "preview": "Content",
+        "status": "Status",
+        "action": "Action"
+      }
+    }
   }
 }

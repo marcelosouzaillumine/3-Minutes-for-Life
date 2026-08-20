@@ -107,5 +107,87 @@
     "successTitle": "Hemos recibido tu petición.",
     "successBody": "La recibiremos con cuidado y la presentaremos ante Dios.",
     "closeBtn": "Cerrar"
+  },
+  "admin": {
+    "relationship": {
+      "title": "Centro de Relación",
+      "subtitle": "Un espacio para acompañar, con cuidado y responsabilidad, lo que las personas comparten con nosotros.",
+      "loadingOverview": "Cargando Centro de Relación...",
+      "loadingTestimonials": "Cargando testimonios...",
+      "loadingPrayers": "Cargando peticiones de oración...",
+      "errorLoading": "No fue posible cargar la información de relación.",
+      "tryAgain": "Intentar de Nuevo",
+      "updating": "Actualizando...",
+      "errorUpdatingStatus": "Error al actualizar el estado.",
+      "anonymousUser": "Miembro de la Comunidad",
+      "generalDevotional": "General",
+      "noActivity": "Aún no hemos recibido relatos o peticiones.",
+      "noTestimonials": "Aún no hemos recibido testimonios.",
+      "noPrayerRequests": "Aún no hemos recibido peticiones de oración.",
+      "noResultsFiltered": "Ningún registro coincide con los filtros seleccionados.",
+      "recentActivityTitle": "Actividad Reciente",
+      "latestEntries": "últimos registros",
+      "testimonialsTitle": "Gestión de Testimonios",
+      "testimonialsSubtitle": "Acompaña relatos y testimonios compartidos por la comunidad.",
+      "prayerRequestsTitle": "Gestión de Peticiones de Oración",
+      "prayerRequestsSubtitle": "Recibe y acompaña las peticiones de oración confiadas por la comunidad.",
+      "searchPlaceholder": "Buscar en el relato...",
+      "searchPrayerPlaceholder": "Buscar en la petición...",
+      "privacyHeader": "Contenido privado enviado por un usuario.",
+      "privacyDescription": "Usa esta información exclusivamente para el cuidado y acompañamiento pastoral. No publiques, compartas ni utilices este contenido sin autorización específica.",
+      "prayerPrivacyHeader": "Petición privada enviada para cuidado y oración.",
+      "prayerPrivacyDescription": "Usa esta información exclusivamente para el cuidado y acompañamiento en oración. No publiques, compartas ni utilices este contenido sin autorización específica.",
+      "tabs": {
+        "overview": "Visión General",
+        "testimonials": "Testimonios",
+        "prayerRequests": "Peticiones de Oración"
+      },
+      "cards": {
+        "pendingTestimonials": "Testimonios Pendientes",
+        "awaitingReview": "Esperando revisión pastoral",
+        "totalTestimonials": "Testimonios Recibidos",
+        "pendingPrayers": "Peticiones de Oración Pendientes",
+        "awaitingPrayer": "Esperando cuidado pastoral",
+        "totalPrayers": "Peticiones de Oración Recibidas"
+      },
+      "badge": {
+        "testimonial": "Testimonio",
+        "prayer": "Petición de Oración"
+      },
+      "status": {
+        "pending": "Pendiente",
+        "reviewed": "Revisado",
+        "prayed": "En oración",
+        "archived": "Archivado"
+      },
+      "actions": {
+        "viewReport": "Ver relato",
+        "viewPrayer": "Ver petición",
+        "markReviewed": "Marcar como revisado",
+        "markPrayed": "Poner en oración",
+        "archive": "Archivar",
+        "backToPending": "Volver a pendiente",
+        "restoreToPending": "Restaurar a pendiente"
+      },
+      "filters": {
+        "allStatuses": "Todos los Estados",
+        "allLanguages": "Todos los Idiomas",
+        "allPeriod": "Todo el Período",
+        "periodLabel": "Período",
+        "clear": "Limpiar filtros",
+        "today": "Hoy",
+        "last7d": "Últimos 7 días",
+        "last30d": "Últimos 30 días"
+      },
+      "columns": {
+        "date": "Fecha",
+        "user": "Usuario",
+        "devotional": "Devocional",
+        "language": "Idioma",
+        "preview": "Contenido",
+        "status": "Estado",
+        "action": "Acción"
+      }
+    }
   }
 }

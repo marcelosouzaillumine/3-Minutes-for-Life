@@ -4,6 +4,9 @@ import { AdminDashboard } from '../pages/admin/AdminDashboard';
 import { AdminDevotionals } from '../pages/admin/AdminDevotionals';
 import { AdminTranslations } from '../pages/admin/AdminTranslations';
 import { AdminIdentity } from '../pages/admin/AdminIdentity';
+import { RelationshipOverview } from '../pages/admin/relationship/RelationshipOverview';
+import { RelationshipTestimonials } from '../pages/admin/relationship/RelationshipTestimonials';
+import { RelationshipPrayerRequests } from '../pages/admin/relationship/RelationshipPrayerRequests';
 import { AdminBottomNav } from '../components/AdminBottomNav';
 import '../styles/admin.css';
 
@@ -50,14 +53,17 @@ export function AdminLayout() {
     if (pathname === '/admin/translations') {
       return <AdminTranslations />;
     }
-    
-    if (pathname === '/admin/testimonials') {
-      return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-          <h2 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>Testemunhos</h2>
-          <p style={{ color: 'var(--color-text-light)' }}>Em breve: Moderação de Testemunhos</p>
-        </div>
-      );
+
+    if (pathname === '/admin/relationship' || pathname === '/admin/relationship/overview') {
+      return <RelationshipOverview />;
+    }
+
+    if (pathname === '/admin/relationship/testimonials' || pathname === '/admin/testimonials') {
+      return <RelationshipTestimonials />;
+    }
+
+    if (pathname === '/admin/relationship/prayer-requests') {
+      return <RelationshipPrayerRequests />;
     }
     
     if (pathname === '/admin/identity' || pathname === '/admin/telemetry') {
