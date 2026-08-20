@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { CtaEngine, calculateSemanticInsertionIndex, CTA_LIBRARY } from '../../services/CtaEngine';
 import { extractStructure } from '../contentStructure';
 
-describe('CtaEngine Unit Tests — CTAs de Relacionamento (Testemunho + Pedido de Oração)', () => {
+describe('CtaEngine Unit Tests — CTA de Captação e Continuidade no Meio da Reflexão', () => {
 
   // ─── Fixtures ───────────────────────────────────────────────────────────────
 
@@ -14,7 +14,7 @@ describe('CtaEngine Unit Tests — CTAs de Relacionamento (Testemunho + Pedido d
   const sampleMedium = [
     '<p>Primeiro parágrafo de introdução.</p>',
     '<p>Segundo parágrafo desenvolvendo a ideia.</p>',
-    '<p>Terceiro parágrafo com aplicação.</p>',
+    '<p>Terceiro parágrafo com aplicação prática.</p>',
     '<p>Quarto parágrafo finalizando o pensamento.</p>'
   ].join('\n');
 
@@ -62,154 +62,121 @@ describe('CtaEngine Unit Tests — CTAs de Relacionamento (Testemunho + Pedido d
     });
   });
 
-  // ─── 2. CTA_LIBRARY — Definições e Classificação ────────────────────────────
+  // ─── 2. CTA_LIBRARY — Definição de Captação ────────────────────────────────
 
-  describe('2. CTA_LIBRARY — Definições e Classificação', () => {
-    it('TESTIMONY é classificado como type=relationship e targetAudience=all', () => {
-      const def = CTA_LIBRARY.TESTIMONY;
-      expect(def.id).toBe('anonymous_testimony');
-      expect(def.type).toBe('relationship');
-      expect(def.action).toBe('testimony');
-      expect(def.targetAudience).toBe('all');
+  describe('2. CTA_LIBRARY — Definição de Captação/Continuidade', () => {
+    it('ANONYMOUS_ACQUISITION é classificado como type=auth_acquisition e targetAudience=anonymous', () => {
+      const def = CTA_LIBRARY.ANONYMOUS_ACQUISITION;
+      expect(def.id).toBe('anonymous_acquisition');
+      expect(def.type).toBe('auth_acquisition');
+      expect(def.targetAudience).toBe('anonymous');
+      expect(def.url).toBe('/signup');
     });
 
-    it('PRAYER_REQUEST é classificado como type=relationship e targetAudience=all', () => {
-      const def = CTA_LIBRARY.PRAYER_REQUEST;
-      expect(def.id).toBe('anonymous_prayer_request');
-      expect(def.type).toBe('relationship');
-      expect(def.action).toBe('prayer_request');
-      expect(def.targetAudience).toBe('all');
-    });
-
-    it('Nenhum CTA de relacionamento é classificado como auth_acquisition', () => {
-      expect(CTA_LIBRARY.TESTIMONY.type).not.toBe('auth_acquisition');
-      expect(CTA_LIBRARY.PRAYER_REQUEST.type).not.toBe('auth_acquisition');
-    });
-
-    it('TESTIMONY possui traduções para pt-BR, en e es', () => {
-      const def = CTA_LIBRARY.TESTIMONY;
+    it('ANONYMOUS_ACQUISITION possui traduções para pt-BR, en e es', () => {
+      const def = CTA_LIBRARY.ANONYMOUS_ACQUISITION;
       expect(def.translations['pt-BR']).toBeDefined();
       expect(def.translations['en']).toBeDefined();
       expect(def.translations['es']).toBeDefined();
     });
 
-    it('PRAYER_REQUEST possui traduções para pt-BR, en e es', () => {
-      const def = CTA_LIBRARY.PRAYER_REQUEST;
-      expect(def.translations['pt-BR']).toBeDefined();
-      expect(def.translations['en']).toBeDefined();
-      expect(def.translations['es']).toBeDefined();
-    });
-
-    it('Testemunho pt-BR não menciona publicação pública', () => {
-      const text = JSON.stringify(CTA_LIBRARY.TESTIMONY.translations['pt-BR']);
-      expect(text).not.toContain('inspirar');
-      expect(text).not.toContain('abençoar');
-      expect(text).not.toContain('outras pessoas');
+    it('CtaEngine NÃO contém Testemunho ou Oração como CTAs de reflexão', () => {
+      expect(CTA_LIBRARY.TESTIMONY).toBeUndefined();
+      expect(CTA_LIBRARY.PRAYER_REQUEST).toBeUndefined();
     });
   });
 
-  // ─── 3. Visibilidade Universal (Anônimo e Autenticado) ──────────────────────
+  // ─── 3. Segmentação de Audiência (Anônimo vs Autenticado) ───────────────────
 
-  describe('3. Visibilidade dos CTAs de Relacionamento (Anônimo vs Autenticado)', () => {
-    it('Visitante anônimo recebe exatamente 2 CTAs de relacionamento', () => {
+  describe('3. Segmentação de Audiência (Anônimo vs Autenticado)', () => {
+    it('Visitante anônimo recebe exatamente 1 CTA de captação no meio da reflexão', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'pt-BR' });
       const blocks = extractStructure(output);
       const ctaBlocks = blocks.filter(b => b.type === 'cta');
-      expect(ctaBlocks).toHaveLength(2);
-      if (ctaBlocks[0].type === 'cta') expect(ctaBlocks[0].attrs.action).toBe('testimony');
-      if (ctaBlocks[1].type === 'cta') expect(ctaBlocks[1].attrs.action).toBe('prayer_request');
+      expect(ctaBlocks).toHaveLength(1);
+      if (ctaBlocks[0].type === 'cta') {
+        expect(ctaBlocks[0].attrs.title).toBe('Que estes três minutos não terminem aqui.');
+        expect(ctaBlocks[0].attrs.label).toBe('Quero continuar');
+        expect(ctaBlocks[0].attrs.url).toBe('/signup');
+      }
     });
 
-    it('Usuário autenticado TAMBÉM recebe os 2 CTAs de relacionamento (visibilidade universal)', () => {
+    it('Usuário autenticado NÃO recebe CTA de captação no meio da reflexão', () => {
       const output = CtaEngine.composeReflection(sampleMedium, {
         user: { id: 'user-123', email: 'auth@test.com' },
         language: 'pt-BR'
       });
+      expect(output).not.toContain('data-type="cta"');
+      expect(output).toBe(sampleMedium);
       const blocks = extractStructure(output);
-      const ctaBlocks = blocks.filter(b => b.type === 'cta');
-      expect(ctaBlocks).toHaveLength(2);
-      if (ctaBlocks[0].type === 'cta') expect(ctaBlocks[0].attrs.action).toBe('testimony');
-      if (ctaBlocks[1].type === 'cta') expect(ctaBlocks[1].attrs.action).toBe('prayer_request');
+      expect(blocks.some(b => b.type === 'cta')).toBe(false);
     });
 
-    it('Ordem obrigatória: Testemunho seguido de Pedido de Oração', () => {
+    it('CtaEngine NÃO injeta Testemunho nem Pedido de Oração dentro da reflexão', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'pt-BR' });
-      const blocks = extractStructure(output);
-      const ctaBlocks = blocks.filter(b => b.type === 'cta');
-      if (ctaBlocks[0].type === 'cta' && ctaBlocks[1].type === 'cta') {
-        expect(ctaBlocks[0].attrs.action).toBe('testimony');
-        expect(ctaBlocks[1].attrs.action).toBe('prayer_request');
-      }
+      expect(output).not.toContain('Como essa reflexão tocou você?');
+      expect(output).not.toContain('Podemos orar por você?');
+      expect(output).not.toContain('Compartilhar meu testemunho');
+      expect(output).not.toContain('Enviar meu pedido de oração');
     });
   });
 
-  // ─── 4. PT-BR ────────────────────────────────────────────────────────────────
+  // ─── 4. Internacionalização — PT-BR ─────────────────────────────────────────
 
   describe('4. Internacionalização — PT-BR', () => {
-    it('Ambos os CTAs em português para pt-BR', () => {
+    it('CTA de captação em português para pt-BR', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'pt-BR' });
-      expect(output).toContain('Como essa reflexão tocou você?');
-      expect(output).toContain('Compartilhar meu testemunho');
-      expect(output).toContain('Podemos orar por você?');
-      expect(output).toContain('Enviar meu pedido de oração');
-    });
-
-    it('Textos pt-BR não afirmam publicação do testemunho', () => {
-      const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'pt-BR' });
-      expect(output).not.toContain('inspirar e abençoar');
-      expect(output).not.toContain('outras pessoas que estão na mesma jornada');
+      expect(output).toContain('Que estes três minutos não terminem aqui.');
+      expect(output).toContain('Amanhã, uma nova reflexão espera por você. Entre ou crie sua conta para guardar suas anotações e acompanhar sua jornada.');
+      expect(output).toContain('Quero continuar');
     });
   });
 
-  // ─── 5. EN ───────────────────────────────────────────────────────────────────
+  // ─── 5. Internacionalização — EN ─────────────────────────────────────────────
 
   describe('5. Internacionalização — EN', () => {
-    it('Ambos os CTAs em inglês para language=en', () => {
+    it('CTA de captação em inglês para language=en', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'en' });
-      expect(output).toContain('How did this reflection speak to you?');
-      expect(output).toContain('Share my testimony');
-      expect(output).toContain('Can we pray for you?');
-      expect(output).toContain('Send my prayer request');
+      expect(output).toContain('May these three minutes not end here.');
+      expect(output).toContain('Tomorrow, a fresh reflection awaits you. Sign in or create your account to save personal notes and track your journey.');
+      expect(output).toContain('Continue my journey');
     });
 
     it('Nenhum texto português aparece no modo en', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'en' });
-      expect(output).not.toContain('Como essa reflexão');
-      expect(output).not.toContain('Podemos orar');
-      expect(output).not.toContain('Compartilhar meu testemunho');
+      expect(output).not.toContain('Que estes três minutos');
+      expect(output).not.toContain('Quero continuar');
     });
 
     it('en-US é mapeado para inglês', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'en-US' });
-      expect(output).toContain('How did this reflection speak to you?');
-      expect(output).toContain('Can we pray for you?');
-      expect(output).not.toContain('Como essa reflexão');
+      expect(output).toContain('May these three minutes not end here.');
+      expect(output).toContain('Continue my journey');
+      expect(output).not.toContain('Que estes três minutos');
     });
   });
 
-  // ─── 6. ES ───────────────────────────────────────────────────────────────────
+  // ─── 6. Internacionalização — ES ─────────────────────────────────────────────
 
   describe('6. Internacionalização — ES', () => {
-    it('Ambos os CTAs em espanhol para language=es', () => {
+    it('CTA de captação em espanhol para language=es', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'es' });
-      expect(output).toContain('¿Cómo te habló esta reflexión?');
-      expect(output).toContain('Compartir mi testimonio');
-      expect(output).toContain('¿Podemos orar por ti?');
-      expect(output).toContain('Enviar mi petición de oración');
+      expect(output).toContain('Que estos tres minutos no terminen aquí.');
+      expect(output).toContain('Mañana, una nueva reflexión te espera. Inicia sesión o crea tu cuenta para guardar tus notas y seguir tu camino.');
+      expect(output).toContain('Quiero continuar');
     });
 
     it('Nenhum texto português aparece no modo es', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'es' });
-      expect(output).not.toContain('Como essa reflexão');
-      expect(output).not.toContain('Podemos orar por você');
-      expect(output).not.toContain('Compartilhar meu testemunho');
+      expect(output).not.toContain('Que estes três minutos');
+      expect(output).not.toContain('Quero continuar');
     });
 
     it('es-ES é mapeado para espanhol', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'es-ES' });
-      expect(output).toContain('¿Cómo te habló esta reflexión?');
-      expect(output).toContain('¿Podemos orar por ti?');
-      expect(output).not.toContain('Como essa reflexão');
+      expect(output).toContain('Que estos tres minutos no terminen aquí.');
+      expect(output).toContain('Quiero continuar');
+      expect(output).not.toContain('Que estes três minutos');
     });
   });
 
@@ -219,8 +186,7 @@ describe('CtaEngine Unit Tests — CTAs de Relacionamento (Testemunho + Pedido d
     it('CTA manual existente permanece; nenhum CTA automático adicional é inserido', () => {
       const output = CtaEngine.composeReflection(manualCtaHtml, { user: null, language: 'pt-BR' });
       expect(output).toContain('CTA Manual Específico');
-      expect(output).not.toContain('Como essa reflexão tocou você?');
-      expect(output).not.toContain('Podemos orar por você?');
+      expect(output).not.toContain('Que estes três minutos não terminem aqui.');
       const blocks = extractStructure(output);
       const ctaBlocks = blocks.filter(b => b.type === 'cta');
       expect(ctaBlocks).toHaveLength(1);
@@ -232,7 +198,7 @@ describe('CtaEngine Unit Tests — CTAs de Relacionamento (Testemunho + Pedido d
     it('CTA manual é preservado também para usuário autenticado', () => {
       const output = CtaEngine.composeReflection(manualCtaHtml, { user: { id: 'u1' }, language: 'pt-BR' });
       expect(output).toContain('CTA Manual Específico');
-      expect(output).not.toContain('Como essa reflexão tocou você?');
+      expect(output).not.toContain('Que estes três minutos');
       const blocks = extractStructure(output);
       expect(blocks.filter(b => b.type === 'cta')).toHaveLength(1);
     });
@@ -241,93 +207,49 @@ describe('CtaEngine Unit Tests — CTAs de Relacionamento (Testemunho + Pedido d
   // ─── 8. Conteúdo Curto ───────────────────────────────────────────────────────
 
   describe('8. Posicionamento — Conteúdo Curto', () => {
-    it('Parágrafo único: ambos os CTAs aparecem ao final', () => {
+    it('Parágrafo único: CTA de captação aparece ao final', () => {
       const output = CtaEngine.composeReflection(sampleSingleParagraph, { user: null, language: 'pt-BR' });
       const blocks = extractStructure(output);
       const ctaBlocks = blocks.filter(b => b.type === 'cta');
-      expect(ctaBlocks).toHaveLength(2);
-      const lastHtmlIndex = blocks.reduce((acc, b, i) => b.type === 'html' ? i : acc, -1);
-      const firstCtaIndex = blocks.findIndex(b => b.type === 'cta');
-      expect(firstCtaIndex).toBeGreaterThan(lastHtmlIndex);
+      expect(ctaBlocks).toHaveLength(1);
+      expect(blocks[1].type).toBe('cta');
     });
 
-    it('2 parágrafos: ambos os CTAs aparecem ao final', () => {
+    it('2 parágrafos: CTA de captação aparece ao final', () => {
       const output = CtaEngine.composeReflection(sampleShort, { user: null, language: 'pt-BR' });
       const blocks = extractStructure(output);
-      expect(blocks.filter(b => b.type === 'cta')).toHaveLength(2);
+      expect(blocks.filter(b => b.type === 'cta')).toHaveLength(1);
     });
   });
 
   // ─── 9. Conteúdo Longo ───────────────────────────────────────────────────────
 
   describe('9. Posicionamento — Conteúdo Longo (8 parágrafos)', () => {
-    it('Os dois CTAs são inseridos juntos em ~65% do conteúdo', () => {
+    it('CTA de captação é inserido em ~65% do conteúdo (após parágrafo 5)', () => {
       const output = CtaEngine.composeReflection(sampleLong, { user: null, language: 'pt-BR' });
       const blocks = extractStructure(output);
 
-      expect(blocks.length).toBe(4);
+      expect(blocks.length).toBe(3);
       expect(blocks[0].type).toBe('html');
       expect(blocks[1].type).toBe('cta');
-      expect(blocks[2].type).toBe('cta');
-      expect(blocks[3].type).toBe('html');
+      expect(blocks[2].type).toBe('html');
 
       if (blocks[0].type === 'html') {
         expect(blocks[0].content).toContain('Parágrafo 1');
         expect(blocks[0].content).toContain('Parágrafo 5');
         expect(blocks[0].content).not.toContain('Parágrafo 6');
       }
-      if (blocks[3].type === 'html') {
-        expect(blocks[3].content).toContain('Parágrafo 6');
-        expect(blocks[3].content).toContain('Parágrafo 8');
-      }
-    });
-
-    it('Os dois CTAs são consecutivos (mesmo ponto semântico)', () => {
-      const output = CtaEngine.composeReflection(sampleLong, { user: null, language: 'pt-BR' });
-      const blocks = extractStructure(output);
-      const ctaIndices = blocks.reduce<number[]>((acc, b, i) => b.type === 'cta' ? [...acc, i] : acc, []);
-      expect(ctaIndices.length).toBe(2);
-      expect(ctaIndices[1] - ctaIndices[0]).toBe(1);
-    });
-  });
-
-  // ─── 10. Estrutura Completa via extractStructure ─────────────────────────────
-
-  describe('10. Verificação Estrutural — extractStructure', () => {
-    it('extractStructure identifica os dois CTAs individualmente', () => {
-      const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'pt-BR' });
-      const blocks = extractStructure(output);
-      expect(blocks.filter(b => b.type === 'cta')).toHaveLength(2);
-    });
-
-    it('Atributos do CTA de testemunho são preservados', () => {
-      const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'pt-BR' });
-      const blocks = extractStructure(output);
-      const testimony = blocks.find(b => b.type === 'cta' && b.attrs.action === 'testimony');
-      expect(testimony).toBeDefined();
-      if (testimony?.type === 'cta') {
-        expect(testimony.attrs.title).toBe('Como essa reflexão tocou você?');
-        expect(testimony.attrs.description).toContain('Seu relato pode ajudar nossa equipe');
-        expect(testimony.attrs.label).toBe('Compartilhar meu testemunho');
-      }
-    });
-
-    it('Atributos do CTA de pedido de oração são preservados', () => {
-      const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'pt-BR' });
-      const blocks = extractStructure(output);
-      const prayer = blocks.find(b => b.type === 'cta' && b.attrs.action === 'prayer_request');
-      expect(prayer).toBeDefined();
-      if (prayer?.type === 'cta') {
-        expect(prayer.attrs.title).toBe('Podemos orar por você?');
-        expect(prayer.attrs.label).toBe('Enviar meu pedido de oração');
+      if (blocks[2].type === 'html') {
+        expect(blocks[2].content).toContain('Parágrafo 6');
+        expect(blocks[2].content).toContain('Parágrafo 8');
       }
     });
   });
 
-  // ─── 11. composeBlocks ───────────────────────────────────────────────────────
+  // ─── 10. composeBlocks ───────────────────────────────────────────────────────
 
-  describe('11. composeBlocks — composição em nível de bloco', () => {
-    it('Insere os dois CTAs consecutivos para visitante anônimo', () => {
+  describe('10. composeBlocks — composição em nível de bloco', () => {
+    it('Insere 1 CTA de captação para visitante anônimo', () => {
       const htmlBlocks = [
         { type: 'html' as const, content: '<p>P1</p>' },
         { type: 'html' as const, content: '<p>P2</p>' },
@@ -336,21 +258,19 @@ describe('CtaEngine Unit Tests — CTAs de Relacionamento (Testemunho + Pedido d
       ];
       const composed = CtaEngine.composeBlocks(htmlBlocks, { user: null, language: 'pt-BR' });
       const ctaBlocks = composed.filter(b => b.type === 'cta');
-      expect(ctaBlocks).toHaveLength(2);
-      if (ctaBlocks[0].type === 'cta' && ctaBlocks[1].type === 'cta') {
-        expect(ctaBlocks[0].attrs.action).toBe('testimony');
-        expect(ctaBlocks[1].attrs.action).toBe('prayer_request');
+      expect(ctaBlocks).toHaveLength(1);
+      if (ctaBlocks[0].type === 'cta') {
+        expect(ctaBlocks[0].attrs.title).toBe('Que estes três minutos não terminem aqui.');
       }
     });
 
-    it('Insere os dois CTAs consecutivos também para usuário autenticado', () => {
+    it('NÃO insere CTA de captação para usuário autenticado', () => {
       const htmlBlocks = [
         { type: 'html' as const, content: '<p>P1</p>' },
         { type: 'html' as const, content: '<p>P2</p>' },
       ];
       const composed = CtaEngine.composeBlocks(htmlBlocks, { user: { id: 'u1' }, language: 'pt-BR' });
-      const ctaBlocks = composed.filter(b => b.type === 'cta');
-      expect(ctaBlocks).toHaveLength(2);
+      expect(composed.some(b => b.type === 'cta')).toBe(false);
     });
 
     it('Preserva CTA manual e não insere automáticos via composeBlocks', () => {

@@ -15,52 +15,33 @@ export interface CtaDefinition {
 }
 
 /**
- * Standard CTA Library for automated platform-driven relationship & engagement.
+ * Standard CTA Library for automated platform-driven acquisition & continuity.
+ *
+ * NOTE: Relationship CTAs (Testimony & Prayer Request) belong strictly to the
+ * Relationship area at the bottom of the devotional and are not inserted into
+ * editorial reflection content by the CtaEngine.
  */
 export const CTA_LIBRARY: Record<string, CtaDefinition> = {
-  TESTIMONY: {
-    id: 'anonymous_testimony',
-    type: 'relationship',
-    targetAudience: 'all',
-    action: 'testimony',
+  ANONYMOUS_ACQUISITION: {
+    id: 'anonymous_acquisition',
+    type: 'auth_acquisition',
+    targetAudience: 'anonymous',
+    url: '/signup',
     translations: {
       'pt-BR': {
-        title: 'Como essa reflexão tocou você?',
-        description: 'Seu relato pode ajudar nossa equipe a compreender o que Deus está fazendo na vida de quem caminha com o 3 Minutes for Life.',
-        label: 'Compartilhar meu testemunho',
+        title: 'Que estes três minutos não terminem aqui.',
+        description: 'Amanhã, uma nova reflexão espera por você. Entre ou crie sua conta para guardar suas anotações e acompanhar sua jornada.',
+        label: 'Quero continuar',
       },
       'en': {
-        title: 'How did this reflection speak to you?',
-        description: 'Your story can help our team understand what God is doing in the lives of those walking with 3 Minutes for Life.',
-        label: 'Share my testimony',
+        title: 'May these three minutes not end here.',
+        description: 'Tomorrow, a fresh reflection awaits you. Sign in or create your account to save personal notes and track your journey.',
+        label: 'Continue my journey',
       },
       'es': {
-        title: '¿Cómo te habló esta reflexión?',
-        description: 'Tu experiencia puede ayudar a nuestro equipo a comprender lo que Dios está haciendo en la vida de quienes caminan con 3 Minutes for Life.',
-        label: 'Compartir mi testimonio',
-      },
-    },
-  },
-  PRAYER_REQUEST: {
-    id: 'anonymous_prayer_request',
-    type: 'relationship',
-    targetAudience: 'all',
-    action: 'prayer_request',
-    translations: {
-      'pt-BR': {
-        title: 'Podemos orar por você?',
-        description: 'Compartilhe seu pedido de oração com nossa equipe. Vamos recebê-lo com cuidado e colocá-lo diante de Deus.',
-        label: 'Enviar meu pedido de oração',
-      },
-      'en': {
-        title: 'Can we pray for you?',
-        description: 'Share your prayer request with our team. We will receive it with care and bring it before God.',
-        label: 'Send my prayer request',
-      },
-      'es': {
-        title: '¿Podemos orar por ti?',
-        description: 'Comparte tu motivo de oración con nuestro equipo. Lo recibiremos con cuidado y lo presentaremos ante Dios.',
-        label: 'Enviar mi petición de oración',
+        title: 'Que estos tres minutos no terminen aquí.',
+        description: 'Mañana, una nueva reflexión te espera. Inicia sesión o crea tu cuenta para guardar tus notas y seguir tu camino.',
+        label: 'Quiero continuar',
       },
     },
   },
@@ -72,7 +53,7 @@ export interface CtaEngineOptions {
 }
 
 /**
- * Calculates the semantic target index where the CTAs should be placed.
+ * Calculates the semantic target index where the CTA should be placed.
  *
  * Rules:
  *  - 1–2 paragraphs: after paragraph 1 or 2 (at the end)
@@ -106,9 +87,9 @@ function normalizeLangKey(lang?: string): 'pt-BR' | 'en' | 'es' {
 
 export const CtaEngine = {
   /**
-   * Composes editorial content by injecting automated relationship CTAs
-   * ([Testimony] ↓ [Prayer Request]) for all visitors (anonymous + authenticated)
-   * while respecting manual CTAs, paragraph semantics, and localization.
+   * Composes editorial content by injecting a single automated acquisition CTA
+   * for anonymous visitors while respecting manual CTAs, paragraph semantics, and localization.
+   * Authenticated users receive pure editorial content without automated acquisition CTAs.
    */
   composeReflection(rawHtml?: string | null, options: CtaEngineOptions = {}): string {
     if (!rawHtml) return '';
@@ -123,18 +104,19 @@ export const CtaEngine = {
       return normalized;
     }
 
-    // 2. Obtain localized definitions for both CTAs (Relationship CTAs are visible to all audiences)
+    // 2. Audience Segmentation: Authenticated users NEVER receive the acquisition CTA in reflection
+    if (options.user) {
+      return normalized;
+    }
+
+    // 3. Obtain localized definition for the Acquisition / Continuity CTA
     const langKey = normalizeLangKey(options.language);
-    const tDef = CTA_LIBRARY.TESTIMONY;
-    const pDef = CTA_LIBRARY.PRAYER_REQUEST;
-    const tLoc = tDef.translations[langKey] || tDef.translations['pt-BR'];
-    const pLoc = pDef.translations[langKey] || pDef.translations['pt-BR'];
+    const ctaDef = CTA_LIBRARY.ANONYMOUS_ACQUISITION;
+    const loc = ctaDef.translations[langKey] || ctaDef.translations['pt-BR'];
 
-    const testimonyDiv = `<div data-type="cta" data-title="${tLoc.title}" data-description="${tLoc.description}" data-label="${tLoc.label}" data-url="${tDef.url || ''}" data-action="${tDef.action || ''}"></div>`;
-    const prayerDiv = `<div data-type="cta" data-title="${pLoc.title}" data-description="${pLoc.description}" data-label="${pLoc.label}" data-url="${pDef.url || ''}" data-action="${pDef.action || ''}"></div>`;
-    const ctaSequence = `${testimonyDiv}\n${prayerDiv}`;
+    const ctaDiv = `<div data-type="cta" data-title="${loc.title}" data-description="${loc.description}" data-label="${loc.label}" data-url="${ctaDef.url || '/signup'}" data-action=""></div>`;
 
-    // 3. Parse paragraphs semantically
+    // 4. Parse paragraphs semantically
     const paragraphRegex = /<p\b[^>]*>[\s\S]*?<\/p>/gi;
     const paragraphs: string[] = [];
     let match;
@@ -145,19 +127,19 @@ export const CtaEngine = {
 
     // If no <p> tags were matched, append at the end
     if (paragraphs.length === 0) {
-      return `${normalized}\n${ctaSequence}`;
+      return `${normalized}\n${ctaDiv}`;
     }
 
     const insertionPoint = calculateSemanticInsertionIndex(paragraphs.length);
 
-    // Insert CTA sequence after the calculated paragraph
+    // Insert CTA after the calculated paragraph
     const before = paragraphs.slice(0, insertionPoint).join('\n');
     const after = paragraphs.slice(insertionPoint).join('\n');
 
     if (after) {
-      return `${before}\n${ctaSequence}\n${after}`;
+      return `${before}\n${ctaDiv}\n${after}`;
     }
-    return `${before}\n${ctaSequence}`;
+    return `${before}\n${ctaDiv}`;
   },
 
   /**
@@ -165,48 +147,33 @@ export const CtaEngine = {
    */
   composeBlocks(blocks: StructuralBlock[], options: CtaEngineOptions = {}): StructuralBlock[] {
     const hasManualCta = blocks.some((b) => b.type === 'cta');
-    if (hasManualCta) {
+    if (hasManualCta || options.user) {
       return blocks;
     }
 
     const langKey = normalizeLangKey(options.language);
-    const tDef = CTA_LIBRARY.TESTIMONY;
-    const pDef = CTA_LIBRARY.PRAYER_REQUEST;
-    const tLoc = tDef.translations[langKey] || tDef.translations['pt-BR'];
-    const pLoc = pDef.translations[langKey] || pDef.translations['pt-BR'];
+    const ctaDef = CTA_LIBRARY.ANONYMOUS_ACQUISITION;
+    const loc = ctaDef.translations[langKey] || ctaDef.translations['pt-BR'];
 
-    const testimonyBlock: StructuralBlock = {
+    const acquisitionBlock: StructuralBlock = {
       type: 'cta',
       attrs: {
-        title: tLoc.title,
-        description: tLoc.description,
-        label: tLoc.label,
-        url: tDef.url || '',
-        action: tDef.action || '',
+        title: loc.title,
+        description: loc.description,
+        label: loc.label,
+        url: ctaDef.url || '/signup',
+        action: '',
       },
       index: 0,
     };
 
-    const prayerBlock: StructuralBlock = {
-      type: 'cta',
-      attrs: {
-        title: pLoc.title,
-        description: pLoc.description,
-        label: pLoc.label,
-        url: pDef.url || '',
-        action: pDef.action || '',
-      },
-      index: 1,
-    };
-
-    // If there's only 1 or 2 blocks, insert at the end
     if (blocks.length <= 2) {
-      return [...blocks, testimonyBlock, prayerBlock];
+      return [...blocks, acquisitionBlock];
     }
 
     const insertIdx = calculateSemanticInsertionIndex(blocks.length);
     const result = [...blocks];
-    result.splice(insertIdx, 0, testimonyBlock, prayerBlock);
+    result.splice(insertIdx, 0, acquisitionBlock);
     return result;
   },
 };

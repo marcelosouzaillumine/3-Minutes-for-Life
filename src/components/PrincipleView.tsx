@@ -6,8 +6,7 @@ import { ShareButton } from './ShareButton';
 import { HtmlRenderer } from './HtmlRenderer';
 import { useAuth } from '../context/AuthContext';
 import { ReflectionService } from '../services/ReflectionService';
-import { TestimonialSection } from './TestimonialSection';
-import { PrayerRequestSection } from './PrayerRequestSection';
+import { RelationshipSection } from './RelationshipSection';
 import { CtaEngine } from '../services/CtaEngine';
 interface PrincipleViewProps {
   devotional: Devotional;
@@ -306,8 +305,7 @@ export function PrincipleView({ devotional, onBack, customAction }: PrincipleVie
           <ShareButton devotional={devotional} asIcon={true} />
         </div>
 
-        <TestimonialSection devotionalId={devotional.id} />
-        <PrayerRequestSection devotionalId={devotional.id} />
+        <RelationshipSection devotionalId={devotional.id} />
       </div>
     </div>
   );

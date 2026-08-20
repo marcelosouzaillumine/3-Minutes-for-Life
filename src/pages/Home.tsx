@@ -4,8 +4,7 @@ import { getTodayInSaoPaulo } from '../utils/date';
 import { useState, useEffect } from 'react';
 import type { Devotional } from '../types/Devotional';
 import { ShareButton } from '../components/ShareButton';
-import { TestimonialSection } from '../components/TestimonialSection';
-import { PrayerRequestSection } from '../components/PrayerRequestSection';
+import { RelationshipSection } from '../components/RelationshipSection';
 import { useTranslation } from 'react-i18next';
 import { HtmlRenderer } from '../components/HtmlRenderer';
 import { useAuth } from '../context/AuthContext';
@@ -254,8 +253,7 @@ export function Home({ onExplore }: HomeProps) {
           <ShareButton devotional={devotional} asIcon={true} />
         </div>
 
-        <TestimonialSection devotionalId={devotional.id} />
-        <PrayerRequestSection devotionalId={devotional.id} />
+        <RelationshipSection devotionalId={devotional.id} />
         
         <div style={{ marginTop: '1rem' }}>
           <button className="btn-secondary" onClick={onExplore}>

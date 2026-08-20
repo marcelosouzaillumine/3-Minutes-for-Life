@@ -5,7 +5,7 @@ import ptCommon from '../../i18n/locales/pt-BR/common.json';
 import enCommon from '../../i18n/locales/en/common.json';
 import esCommon from '../../i18n/locales/es/common.json';
 
-describe('Fase 3 — Relationship CTA Authentication Gate & Prayer Request Flow', () => {
+describe('Separação Arquitetural: Captação no Meio da Reflexão & Relacionamento no Final', () => {
 
   const originalDoc = (globalThis as any).document;
 
@@ -19,74 +19,80 @@ describe('Fase 3 — Relationship CTA Authentication Gate & Prayer Request Flow'
     (globalThis as any).document = originalDoc;
   });
 
-  // ─── 1. Modelo Conceitual: Visibilidade Universal vs Autorização ────────────
+  const sampleReflection = [
+    '<p>Primeiro parágrafo de introdução.</p>',
+    '<p>Segundo parágrafo desenvolvendo a ideia.</p>',
+    '<p>Terceiro parágrafo com aplicação prática.</p>',
+    '<p>Quarto parágrafo concluindo o raciocínio.</p>'
+  ].join('\n');
 
-  describe('1. Modelo Conceitual: Relationship CTAs Visíveis para Todos', () => {
-    const sampleReflection = [
-      '<p>Primeiro parágrafo de introdução.</p>',
-      '<p>Segundo parágrafo desenvolvendo a ideia.</p>',
-      '<p>Terceiro parágrafo com aplicação prática.</p>'
-    ].join('\n');
+  // ─── 1. Regra de Separação: CtaEngine (Meio) vs Relacionamento (Final) ────────
 
-    it('Visitante anônimo vê ambos os CTAs de relacionamento na reflexão', () => {
+  describe('1. Regra de Separação: CtaEngine vs RelationshipSection', () => {
+    it('Anônimo recebe SOMENTE 1 CTA de captação/continuidade na reflexão (NUNCA testemunho ou oração)', () => {
       const output = CtaEngine.composeReflection(sampleReflection, { user: null, language: 'pt-BR' });
       const blocks = extractStructure(output);
       const ctaBlocks = blocks.filter(b => b.type === 'cta');
-      expect(ctaBlocks).toHaveLength(2);
-      if (ctaBlocks[0].type === 'cta') expect(ctaBlocks[0].attrs.action).toBe('testimony');
-      if (ctaBlocks[1].type === 'cta') expect(ctaBlocks[1].attrs.action).toBe('prayer_request');
+
+      expect(ctaBlocks).toHaveLength(1);
+      if (ctaBlocks[0].type === 'cta') {
+        expect(ctaBlocks[0].attrs.title).toBe('Que estes três minutos não terminem aqui.');
+        expect(ctaBlocks[0].attrs.label).toBe('Quero continuar');
+        expect(ctaBlocks[0].attrs.url).toBe('/signup');
+      }
+
+      expect(output).not.toContain('Como essa reflexão tocou você?');
+      expect(output).not.toContain('Podemos orar por você?');
     });
 
-    it('Usuário autenticado TAMBÉM vê ambos os CTAs de relacionamento (visibilidade não depende de auth)', () => {
+    it('Usuário autenticado NÃO recebe nenhum CTA dentro da reflexão', () => {
       const output = CtaEngine.composeReflection(sampleReflection, {
         user: { id: 'auth-user-1', email: 'user@test.com' },
         language: 'pt-BR'
       });
-      const blocks = extractStructure(output);
-      const ctaBlocks = blocks.filter(b => b.type === 'cta');
-      expect(ctaBlocks).toHaveLength(2);
-      if (ctaBlocks[0].type === 'cta') expect(ctaBlocks[0].attrs.action).toBe('testimony');
-      if (ctaBlocks[1].type === 'cta') expect(ctaBlocks[1].attrs.action).toBe('prayer_request');
+      expect(output).not.toContain('data-type="cta"');
+      expect(output).toBe(sampleReflection);
     });
   });
 
-  // ─── 2. Authentication Gate: Textos e Direcionamento ────────────────────────
+  // ─── 2. Área de Relacionamento no Final: Textos e Authentication Gate ────────
 
-  describe('2. Authentication Gate: Textos Localizados e Parâmetros de Retorno', () => {
+  describe('2. Área de Relacionamento no Final: Textos e Authentication Gate', () => {
     it('PT-BR: contém mensagens de acolhimento pastoral para login obrigatório', () => {
       const pr = ptCommon.prayerRequest;
+      expect(pr.title).toBe('Podemos orar por você?');
+      expect(pr.submitBtn).toBe('Enviar meu pedido de oração');
       expect(pr.authGateTitle).toBe('Entre para compartilhar seu pedido de oração');
       expect(pr.authGateDescription).toContain('Para que nossa equipe possa receber seu pedido e cuidar dele com responsabilidade');
-      expect(pr.authGateButton).toBe('Entrar ou criar conta');
 
       const tm = ptCommon.testimonials;
+      expect(tm.title).toBe('Como essa reflexão tocou você?');
+      expect(tm.writeBtn).toBe('Compartilhar meu testemunho');
       expect(tm.authGateTitle).toBe('Entre para compartilhar seu testemunho');
-      expect(tm.authGateDescription).toContain('Para que nossa equipe possa receber seu relato e cuidar dele com responsabilidade');
-      expect(tm.authGateButton).toBe('Entrar ou criar conta');
     });
 
-    it('EN: contém mensagens equivalentes em inglês sem textos em português', () => {
+    it('EN: contém mensagens equivalentes em inglês sem resquícios de português', () => {
       const pr = enCommon.prayerRequest;
+      expect(pr.title).toBe('Can we pray for you?');
+      expect(pr.submitBtn).toBe('Send my prayer request');
       expect(pr.authGateTitle).toBe('Sign in to share your prayer request');
-      expect(pr.authGateDescription).toContain('To allow our team to receive your request and care for it responsibly');
-      expect(pr.authGateButton).toBe('Sign in or create account');
 
       const tm = enCommon.testimonials;
+      expect(tm.title).toBe('How did this reflection touch you?');
+      expect(tm.writeBtn).toBe('Share my testimony');
       expect(tm.authGateTitle).toBe('Sign in to share your story');
-      expect(tm.authGateDescription).toContain('To allow our team to receive your story and care for it responsibly');
-      expect(tm.authGateButton).toBe('Sign in or create account');
     });
 
-    it('ES: contém mensagens equivalentes em espanhol sem textos em português', () => {
+    it('ES: contém mensagens equivalentes em espanhol sem resquícios de português', () => {
       const pr = esCommon.prayerRequest;
+      expect(pr.title).toBe('¿Podemos orar por ti?');
+      expect(pr.submitBtn).toBe('Enviar mi petición de oración');
       expect(pr.authGateTitle).toBe('Inicia sesión para compartir tu petición de oración');
-      expect(pr.authGateDescription).toContain('Para que nuestro equipo pueda recibir tu petición y cuidarla con responsabilidad');
-      expect(pr.authGateButton).toBe('Iniciar sesión o crear cuenta');
 
       const tm = esCommon.testimonials;
+      expect(tm.title).toBe('¿Cómo te tocó esta reflexión?');
+      expect(tm.writeBtn).toBe('Compartir mi testimonio');
       expect(tm.authGateTitle).toBe('Inicia sesión para compartir tu testimonio');
-      expect(tm.authGateDescription).toContain('Para que nuestro equipo pueda recibir tu relato y cuidarlo con responsabilidad');
-      expect(tm.authGateButton).toBe('Iniciar sesión o crear cuenta');
     });
 
     it('Gera URL de retorno correta com intent e devotional_id preservados', () => {
@@ -141,36 +147,33 @@ describe('Fase 3 — Relationship CTA Authentication Gate & Prayer Request Flow'
       expect(payload.request).toBe(requestText);
       expect(payload.status).toBe('pending');
     });
-
-    it('mensagem de confirmação de oração expressa acolhimento pastoral', () => {
-      const successBody = ptCommon.prayerRequest.successBody;
-      expect(successBody).toContain('Vamos recebê-lo com cuidado e colocá-lo diante de Deus');
-    });
   });
 
-  // ─── 4. Simulação End-to-End no Link Compartilhado (/r/:code?d=:id) ─────────
+  // ─── 4. Shared Devotional (/r/:code?d=:id) ─────────────────────────────────
 
-  describe('4. Simulação End-to-End no Link Compartilhado (/r/:code?d=:id)', () => {
+  describe('4. Shared Devotional (/r/:code?d=:id)', () => {
     const sharedReflection = [
       '<p>Quando a jornada parece pesada, lembre-se de que cada passo conta.</p>',
       '<p>A graça nos encontra exatamente onde estamos.</p>'
     ].join('\n');
 
-    it('Link compartilhado renderiza ambos os CTAs para visitante anônimo', () => {
+    it('Link compartilhado para anônimo recebe CTA de captação na reflexão', () => {
       const output = CtaEngine.composeReflection(sharedReflection, { user: null, language: 'pt-BR' });
       const blocks = extractStructure(output);
       const ctaBlocks = blocks.filter(b => b.type === 'cta');
-      expect(ctaBlocks).toHaveLength(2);
+      expect(ctaBlocks).toHaveLength(1);
+      if (ctaBlocks[0].type === 'cta') {
+        expect(ctaBlocks[0].attrs.title).toBe('Que estes três minutos não terminem aqui.');
+      }
     });
 
-    it('Link compartilhado renderiza ambos os CTAs para usuário autenticado', () => {
+    it('Link compartilhado para autenticado NÃO recebe CTA de captação na reflexão', () => {
       const output = CtaEngine.composeReflection(sharedReflection, {
         user: { id: 'shared-user-1' },
         language: 'pt-BR'
       });
       const blocks = extractStructure(output);
-      const ctaBlocks = blocks.filter(b => b.type === 'cta');
-      expect(ctaBlocks).toHaveLength(2);
+      expect(blocks.some(b => b.type === 'cta')).toBe(false);
     });
   });
 });
