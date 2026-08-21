@@ -7,19 +7,6 @@ interface VisualCardProps {
 }
 
 /**
- * Computes an adaptive font size and line-height for the title
- * based on character length, so short and long titles both look
- * balanced at 1080 × 1350 px.
- */
-function getTitleStyle(length: number): { fontSize: string; lineHeight: number } {
-  if (length < 35)  return { fontSize: '88px', lineHeight: 1.10 };
-  if (length < 55)  return { fontSize: '76px', lineHeight: 1.12 };
-  if (length < 80)  return { fontSize: '64px', lineHeight: 1.20 };
-  if (length < 110) return { fontSize: '54px', lineHeight: 1.25 };
-  return                    { fontSize: '46px', lineHeight: 1.30 };
-}
-
-/**
  * Wraps the quote with proper typographic curly quotes, but only if
  * the content doesn't already start/end with a quote character.
  */
@@ -35,68 +22,56 @@ export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
   ({ title, quote }, ref) => {
     const { t } = useTranslation('common');
 
-    const titleStyle = getTitleStyle(title.length);
     const quoteFinal = wrapWithQuotes(quote);
 
     return (
-      /* Off-screen wrapper — invisible, never interactive */
-      <div
-        style={{
-          position: 'absolute',
-          width: 0,
-          height: 0,
-          overflow: 'hidden',
-          pointerEvents: 'none',
-          zIndex: -9999,
-        }}
-      >
-        {/* ── Card root — 1080 × 1350 px ── */}
+      <div style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: -9999 }}>
         <div
           ref={ref}
           style={{
             width: '1080px',
             height: '1350px',
-            backgroundColor: '#F8F7F4',  /* warm off-white, less clinical than pure #FAFAFA */
-            color: '#0a0a0a',
-            padding: '120px 110px 100px 110px',
+            backgroundColor: '#FAFAFA',
+            color: '#1a1a1a',
+            padding: '140px 120px',
             display: 'flex',
             flexDirection: 'column',
-            fontFamily: '"Georgia", "Times New Roman", serif',
-            boxSizing: 'border-box',
+            fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
+            boxSizing: 'border-box'
           }}
         >
 
           {/* ── HEADER — typographic brand mark ── */}
-          <div style={{ marginBottom: '90px', flexShrink: 0 }}>
-            <span
-              style={{
-                fontFamily: '"Helvetica Neue", Arial, sans-serif',
-                fontSize: '22px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.20em',
-                fontWeight: 500,
-                color: '#999999',
-              }}
-            >
-              {t('visualCard.header', { defaultValue: '3 Minutos para a Vida' })}
-            </span>
+          <div
+            style={{
+              fontSize: '18px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.20em',
+              color: '#999999',
+              fontWeight: 500,
+              marginBottom: '48px'
+            }}
+          >
+            {t('visualCard.header', { defaultValue: '3 MINUTES FOR LIFE' })}
           </div>
 
           {/* ── TITLE — primary visual element ── */}
           <h1
             style={{
-              fontFamily: '"Georgia", "Times New Roman", serif',
-              fontSize: titleStyle.fontSize,
-              lineHeight: titleStyle.lineHeight,
-              fontWeight: 400,
-              color: '#0a0a0a',
+              fontFamily: '"Georgia", serif',
+              // título adaptativo
+              ...(() => {
+                const len = title.length;
+                if (len < 35) return { fontSize: '82px', lineHeight: '1.1', marginBottom: '36px', maxWidth: '95%' };
+                if (len < 55) return { fontSize: '76px', lineHeight: '1.12', marginBottom: '36px', maxWidth: '96%' };
+                if (len < 80) return { fontSize: '70px', lineHeight: '1.14', marginBottom: '36px', maxWidth: '98%' };
+                if (len < 110) return { fontSize: '58px', lineHeight: '1.26', marginBottom: '36px', maxWidth: '100%' };
+                return { fontSize: '52px', lineHeight: '1.30', marginBottom: '36px', maxWidth: '100%' };
+              })(),
+              color: '#000000',
               letterSpacing: '-0.02em',
-              margin: '0 0 56px 0',
-              maxWidth: '900px',
               flexShrink: 0,
-              wordBreak: 'break-word',
-              overflowWrap: 'break-word',
-              hyphens: 'auto',
+              margin: '0 0 36px 0'
             }}
           >
             {title}
@@ -105,11 +80,11 @@ export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
           {/* ── DIVIDER — thin editorial rule ── */}
           <div
             style={{
-              width: '88px',
+              width: '80px',
               height: '1px',
-              backgroundColor: '#BBBBBB',
-              marginBottom: '56px',
-              flexShrink: 0,
+              backgroundColor: '#CCCCCC',
+              marginBottom: '40px',
+              flexShrink: 0
             }}
           />
 
@@ -117,17 +92,17 @@ export const VisualCard = forwardRef<HTMLDivElement, VisualCardProps>(
           <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start' }}>
             <p
               style={{
-                fontFamily: '"Georgia", "Times New Roman", serif',
-                fontSize: '46px',
-                fontWeight: 400,
-                fontStyle: 'italic',
-                lineHeight: 1.50,
-                color: '#2a2a2a',
-                maxWidth: '820px',
-                margin: 0,
-                wordBreak: 'break-word',
-                overflowWrap: 'break-word',
-              }}
+  fontFamily: '"Georgia", serif',
+  fontSize: '40px',
+  fontWeight: 400,
+  fontStyle: 'italic',
+  lineHeight: 1.45,
+  color: '#2a2a2a',
+  maxWidth: '860px',
+  margin: 0,
+  wordBreak: 'break-word',
+  overflowWrap: 'break-word',
+}}
             >
               {quoteFinal}
             </p>

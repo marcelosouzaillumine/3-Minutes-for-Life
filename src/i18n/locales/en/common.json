@@ -23,7 +23,9 @@
     "desktopAlert": "Artwork copied! Open WhatsApp Web and paste (Ctrl+V / Cmd+V) to send the image with the text.",
     "button": "Share on WhatsApp",
     "buttonLoading": "Preparing...",
-    "actionLabel": "Share"
+    "actionLabel": "Share",
+    "complementary": "A reflection to pause, breathe, and focus on what truly matters today.",
+    "readFree": "Read for free:"
   },
   "loadingFavorites": "Loading favorites...",
   "noFavorites": "You haven't saved any devotional yet.",

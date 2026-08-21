@@ -23,7 +23,9 @@
     "desktopAlert": "Arte copiada! Ao abrir o WhatsApp Web, basta colar (Ctrl+V / Cmd+V) na conversa para enviar a imagem junto com o texto.",
     "button": "Compartilhar no WhatsApp",
     "buttonLoading": "Preparando...",
-    "actionLabel": "Compartilhar"
+    "actionLabel": "Compartilhar",
+    "complementary": "Uma reflexão para parar, respirar e focar no que realmente importa hoje.",
+    "readFree": "Leia gratuitamente:"
   },
   "loadingFavorites": "Carregando favoritos...",
   "noFavorites": "Você ainda não salvou nenhum devocional.",

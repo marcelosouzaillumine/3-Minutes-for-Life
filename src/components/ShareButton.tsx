@@ -48,18 +48,23 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ devotional, asIcon }) 
         channel: 'whatsapp'
       });
 
-      // Obter a frase central para o Card e texto
-      const quoteText = devotional.principle_statement || devotional.share_quote || devotional.title;
-      
-      // Construir o link e o texto editorial
-      const baseUrl = window.location.hostname.includes('3minutosforlife.com')
-        ? 'https://3minutosforlife.com'
-        : window.location.origin;
+      // Construir o link de compartilhamento
+      const baseUrl = window.location.hostname === 'localhost'
+        ? window.location.origin
+        : 'https://www.3minutesforlife.com';
       const shareUrl = `${baseUrl}/r/${referralCode}?d=${devotional.id}&lang=${i18n.language}`;
-      
-      const rawMsg = t('shareActions.message');
-      const textMsg = rawMsg.replace('{{url}}', shareUrl).replace(/\\n/g, '\n');
-      const text = `*${devotional.title}*\n\n${quoteText}\n\n${textMsg}`;
+
+      // Hierarquia de fallback para frase de destaque editorial
+      const quoteText = devotional.principle_statement || devotional.share_quote || '';
+
+      // Compor mensagem automática sem título separado, sem saudação
+      let text: string;
+      if (quoteText) {
+        text = `${quoteText}\n\n${t('shareActions.complementary')}\n\n${t('shareActions.readFree')}\n👉 ${shareUrl}`;
+      } else {
+        // Fallback nível 3: sem frase — apenas CTA + link
+        text = `${t('shareActions.readFree')}\n👉 ${shareUrl}`;
+      }
 
       let imageBlob: Blob | null = null;
       

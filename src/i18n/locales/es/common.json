@@ -23,7 +23,9 @@
     "desktopAlert": "¡Arte copiado! Abre WhatsApp Web y pega (Ctrl+V / Cmd+V) para enviar la imagen junto con el texto.",
     "button": "Compartir en WhatsApp",
     "buttonLoading": "Preparando...",
-    "actionLabel": "Compartir"
+    "actionLabel": "Compartir",
+    "complementary": "Una reflexión para detenerte, respirar y enfocarte en lo que realmente importa hoy.",
+    "readFree": "Léela gratis:"
   },
   "loadingFavorites": "Cargando favoritos...",
   "noFavorites": "Aún no has guardado ningún devocional.",
