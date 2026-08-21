@@ -124,7 +124,7 @@ export function SharedDevotional() {
           className="landing-logo-img"
           style={{
             marginTop: '1rem',
-            height: '75px',
+            height: '90px',
             width: 'auto',
             display: 'block',
           }}
