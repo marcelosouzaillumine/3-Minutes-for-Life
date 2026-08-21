@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import type { Devotional, DevotionalTranslation } from '../types/Devotional';
+import type { Devotional, DevotionalTranslation, DevotionalShareAsset, ResolvedShareAsset } from '../types/Devotional';
 import { principles } from '../data/principles';
 import { getTodayInSaoPaulo } from '../utils/date';
 import { ContentCacheService } from './ContentCacheService';
@@ -19,6 +19,23 @@ export function normalizeLanguage(lang?: string): string {
   if (lang.startsWith('en')) return 'en';
   if (lang.startsWith('es')) return 'es';
   return lang;
+}
+
+export function resolveShareAssets(
+  requestedLanguage: string,
+  assets: DevotionalShareAsset[]
+): ResolvedShareAsset {
+  const targetLang = normalizeLanguage(requestedLanguage);
+  const shareAssetsList = assets || [];
+
+  const targetAsset = shareAssetsList.find(sa => sa.language_code === targetLang);
+
+  return {
+    whatsapp_text: targetAsset?.whatsapp_text || null,
+    whatsapp_image_url: targetAsset?.whatsapp_image_url || null,
+    feed_image_url: targetAsset?.feed_image_url || null,
+    story_image_url: targetAsset?.story_image_url || null
+  };
 }
 
 export function resolveTranslation(
@@ -107,6 +124,14 @@ const selectQuery = `
   categories (
     name
   ),
+  devotional_share_assets (
+    id,
+    language_code,
+    whatsapp_text,
+    whatsapp_image_url,
+    feed_image_url,
+    story_image_url
+  ),
   devotional_translations (
     id,
     language,
@@ -143,6 +168,8 @@ export const DevotionalService = {
 
       // Resolve translation
       const resolvedDevotional = resolveTranslation(data, contentLanguage, 'supabase', false);
+      resolvedDevotional.share_assets = resolveShareAssets(contentLanguage, data.devotional_share_assets || []);
+      delete (resolvedDevotional as any).devotional_share_assets;
 
       const p = principles.find(p => p.title === data.title);
       resolvedDevotional.share_quote = contentLanguage === 'pt-BR' 
@@ -172,39 +199,41 @@ export const DevotionalService = {
     try {
       const today = getTodayInSaoPaulo();
     
-    const { data, error } = await supabase
-      .from('devotionals')
-      .select(selectQuery)
-      .eq('id', id)
-      .eq('status', 'published')
-      .lte('publication_date', today)
-      .single() as any;
+      const { data, error } = await supabase
+        .from('devotionals')
+        .select(selectQuery)
+        .eq('id', id)
+        .eq('status', 'published')
+        .lte('publication_date', today)
+        .single() as any;
 
-    if (error) throw error;
-    if (!data) throw new Error("Devotional not found or not published yet");
+      if (error) throw error;
+      if (!data) throw new Error("Devotional not found or not published yet");
 
-    const resolvedDevotional = resolveTranslation(data, contentLanguage, 'supabase', false);
+      const resolvedDevotional = resolveTranslation(data, contentLanguage, 'supabase', false);
+      resolvedDevotional.share_assets = resolveShareAssets(contentLanguage, data.devotional_share_assets || []);
+      delete (resolvedDevotional as any).devotional_share_assets;
 
-    const p = principles.find(p => p.title === data.title);
-    resolvedDevotional.share_quote = contentLanguage === 'pt-BR'
-      ? (p?.principle || resolvedDevotional.principle_statement || resolvedDevotional.title)
-      : (resolvedDevotional.principle_statement || resolvedDevotional.title);
-    
-    await ContentCacheService.setDevotional(resolvedDevotional, contentLanguage);
-    
-    return resolvedDevotional;
-  } catch (err: any) {
-    if (isAuthError(err)) {
-      console.error("Authorization error fetching devotional by ID. Not falling back to cache.", err);
+      const p = principles.find(p => p.title === data.title);
+      resolvedDevotional.share_quote = contentLanguage === 'pt-BR'
+        ? (p?.principle || resolvedDevotional.principle_statement || resolvedDevotional.title)
+        : (resolvedDevotional.principle_statement || resolvedDevotional.title);
+      
+      await ContentCacheService.setDevotional(resolvedDevotional, contentLanguage);
+      
+      return resolvedDevotional;
+    } catch (err: any) {
+      if (isAuthError(err)) {
+        console.error("Authorization error fetching devotional by ID. Not falling back to cache.", err);
+        throw err;
+      }
+      console.warn("Canonical fetch failed (network/server), attempting cache:", err);
+      const cached = await ContentCacheService.getDevotional(id, contentLanguage);
+      if (cached) {
+        return { ...cached, isCached: true, source: 'indexeddb' };
+      }
       throw err;
     }
-    console.warn("Canonical fetch failed (network/server), attempting cache:", err);
-    const cached = await ContentCacheService.getDevotional(id, contentLanguage);
-    if (cached) {
-      return { ...cached, isCached: true, source: 'indexeddb' };
-    }
-    throw err;
-  }
   },
 
   async getDevotionals(requestedLanguage?: string): Promise<Devotional[]> {
@@ -213,38 +242,40 @@ export const DevotionalService = {
     try {
       const today = getTodayInSaoPaulo();
     
-    const { data, error } = await supabase
-      .from('devotionals')
-      .select(selectQuery)
-      .eq('status', 'published')
-      .lte('publication_date', today)
-      .order('publication_date', { ascending: true }) as any;
+      const { data, error } = await supabase
+        .from('devotionals')
+        .select(selectQuery)
+        .eq('status', 'published')
+        .lte('publication_date', today)
+        .order('publication_date', { ascending: true }) as any;
 
-    if (error) throw error;
-    
-    const resolvedList = (data as any[]).map(d => {
-      const resolvedDevotional = resolveTranslation(d, contentLanguage, 'supabase', false);
-      const p = principles.find(p => p.title === d.title);
-      const quote = contentLanguage === 'pt-BR'
-        ? (p?.principle || resolvedDevotional.principle_statement || resolvedDevotional.title)
-        : (resolvedDevotional.principle_statement || resolvedDevotional.title);
-      return { ...resolvedDevotional, share_quote: quote };
-    });
+      if (error) throw error;
+      
+      const resolvedList = (data as any[]).map(d => {
+        const resolvedDevotional = resolveTranslation(d, contentLanguage, 'supabase', false);
+        resolvedDevotional.share_assets = resolveShareAssets(contentLanguage, d.devotional_share_assets || []);
+        delete (resolvedDevotional as any).devotional_share_assets;
+        const p = principles.find(p => p.title === d.title);
+        const quote = contentLanguage === 'pt-BR'
+          ? (p?.principle || resolvedDevotional.principle_statement || resolvedDevotional.title)
+          : (resolvedDevotional.principle_statement || resolvedDevotional.title);
+        return { ...resolvedDevotional, share_quote: quote };
+      });
 
-    await ContentCacheService.setLibrary(resolvedList, contentLanguage);
+      await ContentCacheService.setLibrary(resolvedList, contentLanguage);
 
-    return resolvedList;
-  } catch (err: any) {
-    if (isAuthError(err)) {
-      console.error("Authorization error fetching devotional library. Not falling back to cache.", err);
+      return resolvedList;
+    } catch (err: any) {
+      if (isAuthError(err)) {
+        console.error("Authorization error fetching devotional library. Not falling back to cache.", err);
+        throw err;
+      }
+      console.warn("Canonical fetch failed (network/server), attempting cache:", err);
+      const cached = await ContentCacheService.getLibrary(contentLanguage);
+      if (cached) {
+        return cached.map(d => ({ ...d, isCached: true, source: 'indexeddb' }));
+      }
       throw err;
     }
-    console.warn("Canonical fetch failed (network/server), attempting cache:", err);
-    const cached = await ContentCacheService.getLibrary(contentLanguage);
-    if (cached) {
-      return cached.map(d => ({ ...d, isCached: true, source: 'indexeddb' }));
-    }
-    throw err;
-  }
   }
 };

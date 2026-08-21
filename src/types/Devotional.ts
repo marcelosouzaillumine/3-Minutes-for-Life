@@ -13,6 +13,25 @@ export interface DevotionalTranslation {
   translation_source?: 'manual' | 'ai';
 }
 
+export interface DevotionalShareAsset {
+  id: string;
+  devotional_id: string;
+  language_code: string;
+  whatsapp_text: string | null;
+  whatsapp_image_url: string | null;
+  feed_image_url: string | null;
+  story_image_url: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ResolvedShareAsset {
+  whatsapp_text: string | null;
+  whatsapp_image_url: string | null;
+  feed_image_url: string | null;
+  story_image_url: string | null;
+}
+
 export interface Devotional {
   id: string;
   legacy_id?: number;
@@ -30,6 +49,7 @@ export interface Devotional {
   categories?: { name: string } | null;
   share_quote?: string;
   content_hash?: string;
+  share_assets?: ResolvedShareAsset | null;
   
   // i18n
   isLanguageFallback?: boolean;

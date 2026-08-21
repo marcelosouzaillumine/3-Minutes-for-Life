@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg'],
+      includeAssets: ['branding/pwa-icon-192x192.png', 'branding/pwa-icon-512x512.png'],
       manifest: {
         name: '3 Minutes for Life',
         short_name: '3 Minutes',
@@ -17,10 +17,14 @@ export default defineConfig({
         display: 'standalone',
         icons: [
           {
-            src: 'icon.svg',
-            sizes: '192x192 512x512',
-            type: 'image/svg+xml',
-            purpose: 'any maskable'
+            src: 'branding/pwa-icon-192x192.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: 'branding/pwa-icon-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
           }
         ]
       }

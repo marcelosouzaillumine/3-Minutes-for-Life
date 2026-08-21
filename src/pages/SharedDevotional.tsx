@@ -6,6 +6,7 @@ import { PrincipleView } from '../components/PrincipleView';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
+import { BrandLogo } from '../components/BrandLogo';
 
 export function SharedDevotional() {
   const { t, i18n } = useTranslation(['common']);
@@ -78,7 +79,7 @@ export function SharedDevotional() {
   return (
     <div className="shared-devotional-page">
       <header className="landing-header" style={{ position: 'relative', background: 'transparent', justifyContent: 'center' }}>
-        <img src="/logo.png" alt="3 Minutes for Life" className="landing-logo-img" style={{ marginTop: '1rem', height: '62.5px' }} />
+        <BrandLogo variant="light" className="landing-logo-img" style={{ marginTop: '1rem', height: '62.5px' }} />
       </header>
 
       <div style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem 1rem' }}>

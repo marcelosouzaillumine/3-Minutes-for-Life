@@ -227,5 +227,78 @@ export const AdminContentService = {
 
     if (error) throw error;
     return data;
-  }
+  },
+
+  // ─── Share Assets ──────────────────────────────────────────────────────────
+
+  async getShareAssets(devotionalId: string): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('devotional_share_assets')
+      .select('*')
+      .eq('devotional_id', devotionalId)
+      .order('language_code', { ascending: true });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  async saveShareAsset(asset: {
+    devotional_id: string;
+    language_code: string;
+    whatsapp_text?: string | null;
+    whatsapp_image_url?: string | null;
+    feed_image_url?: string | null;
+    story_image_url?: string | null;
+  }): Promise<any> {
+    const payload = {
+      devotional_id: asset.devotional_id,
+      language_code: asset.language_code,
+      whatsapp_text: asset.whatsapp_text ?? null,
+      whatsapp_image_url: asset.whatsapp_image_url ?? null,
+      feed_image_url: asset.feed_image_url ?? null,
+      story_image_url: asset.story_image_url ?? null,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { data, error } = await supabase
+      .from('devotional_share_assets')
+      .upsert(payload, { onConflict: 'devotional_id,language_code' })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async uploadShareAsset(
+    devotionalId: string,
+    languageCode: string,
+    type: 'feed' | 'story' | 'whatsapp',
+    file: File
+  ): Promise<string> {
+    const ext = file.name.split('.').pop() || 'jpg';
+    const timestamp = Date.now();
+    const path = `${devotionalId}/${languageCode}/${type}-${timestamp}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('share-assets')
+      .upload(path, file, { upsert: true, contentType: file.type });
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage.from('share-assets').getPublicUrl(path);
+    return data.publicUrl;
+  },
+
+  async deleteShareAssetFile(url: string): Promise<void> {
+    // Extract relative path: everything after /share-assets/
+    const marker = '/share-assets/';
+    const idx = url.indexOf(marker);
+    if (idx === -1) throw new Error('URL inválida para o bucket share-assets.');
+
+    const path = url.slice(idx + marker.length).split('?')[0]; // strip query string if present
+
+    const { error } = await supabase.storage.from('share-assets').remove([path]);
+    if (error) throw error;
+  },
 };

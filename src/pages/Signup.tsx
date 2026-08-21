@@ -5,6 +5,7 @@ import { LocationService } from '../services/LocationService';
 import type { State, City } from '../services/LocationService';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
+import { BrandLogo } from '../components/BrandLogo';
 import './Auth.css';
 
 export const Signup: React.FC = () => {
@@ -24,9 +25,8 @@ export const Signup: React.FC = () => {
   const [states, setStates] = useState<State[]>([]);
   const [cities, setCities] = useState<City[]>([]);
   const [loadingLocation, setLoadingLocation] = useState(true);
-
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const searchParams = new URLSearchParams(window.location.search);
   const redirectTo = searchParams.get('redirectTo') || '/app';
@@ -123,7 +123,7 @@ export const Signup: React.FC = () => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <img src="/logo.png" alt="3 Minutes for Life" className="auth-logo" />
+        <BrandLogo variant="light" className="auth-logo" />
         <h1 className="auth-title">{t('signup.title')}</h1>
         <p className="auth-subtitle">{t('signup.subtitle')}</p>
         

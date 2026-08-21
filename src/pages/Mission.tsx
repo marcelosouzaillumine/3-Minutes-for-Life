@@ -6,6 +6,7 @@ import { ContributionModal } from '../components/ContributionModal';
 import type { ContributionTier, Periodicity } from '../components/ContributionModal';
 import { MissionProgress } from '../components/MissionProgress';
 import { MissionService } from '../services/MissionService';
+import { BrandLogo } from '../components/BrandLogo';
 
 function useIntersectionObserver() {
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -84,7 +85,7 @@ export function Mission() {
       {/* Header */}
       <header className={`landing-header ${isMenuOpen ? 'menu-open' : ''}`} style={{ backgroundColor: 'var(--landing-bg)' }}>
         <a href="/">
-          <img src="/logo.png" alt="3 Minutes for Life" className="landing-logo-img" />
+          <BrandLogo variant="light" className="landing-logo-img" />
         </a>
         
         <button 

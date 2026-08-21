@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { authService } from '../services/authService';
 import { useTranslation } from 'react-i18next';
+import { BrandLogo } from '../components/BrandLogo';
 import './Auth.css';
 
 export const Login: React.FC = () => {
@@ -23,7 +24,6 @@ export const Login: React.FC = () => {
     } catch (err: any) {
       console.error(err);
       setError(t('login.errorIncorrect'));
-    } finally {
       setLoading(false);
     }
   };
@@ -50,7 +50,7 @@ export const Login: React.FC = () => {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <img src="/logo.png" alt="3 Minutes for Life" className="auth-logo" />
+        <BrandLogo variant="light" className="auth-logo" />
         <h1 className="auth-title">{t('login.title')}</h1>
         <p className="auth-subtitle">{t('login.subtitle')}</p>
 
