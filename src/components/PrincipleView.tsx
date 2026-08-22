@@ -1,8 +1,7 @@
 import type { Devotional } from '../types/Devotional';
 import { JourneyService } from '../services/JourneyService';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-
 import { ShareButton } from './ShareButton';
 import { HtmlRenderer } from './HtmlRenderer';
 import { useAuth } from '../context/AuthContext';
@@ -14,6 +13,7 @@ import { BrandLogo } from './BrandLogo';
 interface PrincipleViewProps {
   devotional: Devotional;
   onBack?: () => void;
+  showLogo?: boolean;
   customAction?: {
     label: string;
     onClick: () => void;
@@ -27,85 +27,63 @@ interface PrincipleViewProps {
 export function PrincipleView({
   devotional,
   onBack,
+  showLogo = true,
   customAction,
 }: PrincipleViewProps) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
 
   const [saved, setSaved] = useState(false);
-
-  const [reflectionContent, setReflectionContent] =
-    useState('');
-
-  const [savingReflection, setSavingReflection] =
-    useState(false);
-
+  const [reflectionContent, setReflectionContent] = useState('');
+  const [savingReflection, setSavingReflection] = useState(false);
   const [savedReflectionSuccess, setSavedReflectionSuccess] =
     useState(false);
 
   /*
    * ============================================================
-   * INITIALIZE DEVOTIONAL
+   * INITIALIZATION
    * ============================================================
    */
 
   useEffect(() => {
     let mounted = true;
 
-    const initialize = async () => {
-      try {
-        /*
-         * Start journey using canonical devotional UUID.
-         */
-        await JourneyService.start(devotional.id);
-      } catch (error) {
-        console.error(
-          'Failed to start devotional journey:',
-          error
-        );
-      }
+    /*
+     * Start devotional journey.
+     */
+    JourneyService.start(devotional.id).catch(console.error);
 
-      /*
-       * Load favorite status.
-       */
-      try {
-        const ids = await JourneyService.listFavorites();
-
+    /*
+     * Check favorite status.
+     */
+    JourneyService.listFavorites()
+      .then((ids) => {
         if (mounted) {
           setSaved(ids.includes(devotional.id));
         }
-      } catch (error) {
-        console.error(
-          'Failed to load favorite status:',
-          error
-        );
-      }
+      })
+      .catch(console.error);
 
-      /*
-       * Load existing personal reflection.
-       */
-      if (user) {
-        try {
-          const content =
-            await ReflectionService.getReflection(
-              devotional.id
-            );
-
-          if (mounted) {
-            setReflectionContent(content || '');
+    /*
+     * Load existing personal reflection.
+     *
+     * Reflections are only available for authenticated users.
+     */
+    if (user) {
+      ReflectionService.getReflection(devotional.id)
+        .then((content) => {
+          if (mounted && content) {
+            setReflectionContent(content);
           }
-        } catch (error) {
-          console.error(
-            'Failed to load existing reflection:',
-            error
-          );
-        }
-      } else if (mounted) {
-        setReflectionContent('');
-      }
-    };
-
-    initialize();
+        })
+        .catch(console.error);
+    } else {
+      /*
+       * Prevent a previous user's reflection from remaining
+       * in local component state if authentication changes.
+       */
+      setReflectionContent('');
+    }
 
     return () => {
       mounted = false;
@@ -120,18 +98,13 @@ export function PrincipleView({
 
   const toggleSave = async () => {
     try {
-      const isSaved =
-        await JourneyService.toggleFavorite(
-          devotional.id
-        );
-
-      setSaved(isSaved);
-    } catch (error) {
-      console.error(
-        'Failed to update favorite:',
-        error
+      const isSaved = await JourneyService.toggleFavorite(
+        devotional.id
       );
 
+      setSaved(isSaved);
+    } catch (err) {
+      console.error(err);
       alert(
         t(
           'home.saveError',
@@ -149,38 +122,30 @@ export function PrincipleView({
 
   const markComplete = async () => {
     try {
-      await JourneyService.complete(
-        devotional.id
-      );
+      await JourneyService.complete(devotional.id);
 
       alert(t('completed'));
-    } catch (error) {
-      console.error(
-        'Failed to complete devotional:',
-        error
-      );
+    } catch (err) {
+      console.error(err);
     }
   };
 
   /*
    * ============================================================
-   * SAVE PERSONAL REFLECTION
+   * PERSONAL REFLECTION
    * ============================================================
    */
 
   const handleSaveReflection = async () => {
-    if (!user) {
-      handleLoginForReflection();
+    const content = reflectionContent.trim();
+
+    if (!content || !user) {
       return;
     }
 
-    const content = reflectionContent.trim();
-
-    if (!content) return;
+    setSavingReflection(true);
 
     try {
-      setSavingReflection(true);
-
       await ReflectionService.saveReflection(
         devotional.id,
         content
@@ -188,13 +153,13 @@ export function PrincipleView({
 
       setSavedReflectionSuccess(true);
 
-      window.setTimeout(() => {
+      setTimeout(() => {
         setSavedReflectionSuccess(false);
       }, 3000);
-    } catch (error) {
+    } catch (err) {
       console.error(
         'Failed to save reflection:',
-        error
+        err
       );
 
       alert(
@@ -219,8 +184,7 @@ export function PrincipleView({
       window.location.href
     );
 
-    window.location.href =
-      `/login?redirectTo=${currentUrl}`;
+    window.location.href = `/login?redirectTo=${currentUrl}`;
   };
 
   /*
@@ -234,15 +198,43 @@ export function PrincipleView({
 
       {/* ========================================================
           HEADER / LOGO
+
+          A logo é exibida normalmente em páginas que utilizam
+          PrincipleView diretamente.
+
+          Em SharedDevotional, showLogo={false} evita uma segunda
+          logo, pois aquela página já possui sua própria identidade
+          visual no topo.
       ========================================================= */}
 
-      <header className="principle-view-header">
-        <BrandLogo
-          variant="light"
-          alt="3 Minutes for Life"
-          className="landing-logo-img"
-        />
-      </header>
+      {showLogo && (
+        <header
+          className="principle-view-header"
+          style={{
+            position: 'relative',
+            background: 'transparent',
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'flex-start',
+            alignItems: 'flex-start',
+            margin: '0',
+            padding: '0',
+          }}
+        >
+          <BrandLogo
+            variant="light"
+            alt="3 Minutes for Life"
+            className="landing-logo-img"
+            style={{
+              marginTop: '1.25rem',
+              marginBottom: '2.5rem',
+              width: '120px',
+              height: 'auto',
+              display: 'block',
+            }}
+          />
+        </header>
+      )}
 
       {/* ========================================================
           BACK
@@ -250,9 +242,14 @@ export function PrincipleView({
 
       {onBack && (
         <button
-          type="button"
-          className="principle-view-back"
           onClick={onBack}
+          style={{
+            marginBottom: '2rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            color: 'var(--color-text-light)',
+          }}
         >
           <svg
             width="20"
@@ -270,12 +267,12 @@ export function PrincipleView({
             />
           </svg>
 
-          <span>{t('home.back')}</span>
+          {t('home.back')}
         </button>
       )}
 
       {/* ========================================================
-          CATEGORY
+          DEVOTIONAL CATEGORY
       ========================================================= */}
 
       <span className="label">
@@ -328,11 +325,18 @@ export function PrincipleView({
       ========================================================= */}
 
       {devotional.audio_url && (
-        <div className="principle-view-audio">
+        <div
+          style={{
+            marginBottom: '2rem',
+          }}
+        >
           <audio
             controls
             src={devotional.audio_url}
-            aria-label={devotional.title}
+            style={{
+              width: '100%',
+              height: '40px',
+            }}
           />
         </div>
       )}
@@ -350,12 +354,16 @@ export function PrincipleView({
         <div className="application-text">
           {devotional.practical_application ? (
             <HtmlRenderer
-              html={
-                devotional.practical_application
-              }
+              html={devotional.practical_application}
             />
           ) : (
-            <p className="application-pending">
+            <p
+              style={{
+                marginBottom: '1rem',
+                fontStyle: 'italic',
+                opacity: 0.7,
+              }}
+            >
               {t(
                 'home.applicationPending'
               )}
@@ -365,15 +373,27 @@ export function PrincipleView({
 
         {/* ======================================================
             PRAYER
-        ====================================================== */}
+        ======================================================= */}
 
         {devotional.prayer && (
-          <div className="content-section">
+          <div
+            style={{
+              marginTop: '2rem',
+              borderTop:
+                '1px solid var(--color-border)',
+              paddingTop: '1.5rem',
+            }}
+          >
             <span className="label">
               {t('home.prayer')}
             </span>
 
-            <div className="application-text prayer-text">
+            <div
+              className="application-text"
+              style={{
+                fontStyle: 'italic',
+              }}
+            >
               <HtmlRenderer
                 html={devotional.prayer}
               />
@@ -383,22 +403,41 @@ export function PrincipleView({
 
         {/* ======================================================
             SCRIPTURE
-        ====================================================== */}
+        ======================================================= */}
 
         {devotional.scripture_reference && (
-          <div className="content-section">
+          <div
+            style={{
+              marginTop: '2rem',
+              borderTop:
+                '1px solid var(--color-border)',
+              paddingTop: '1.5rem',
+            }}
+          >
             <span className="label">
               {t(
                 'home.scriptureReference'
               )}
             </span>
 
-            <p className="scripture-reference">
+            <p
+              style={{
+                fontWeight: 500,
+              }}
+            >
               {devotional.scripture_reference}
             </p>
 
             {devotional.scripture_text && (
-              <p className="scripture-text">
+              <p
+                style={{
+                  marginTop: '0.5rem',
+                  lineHeight: '1.6',
+                  color:
+                    'var(--color-text-light)',
+                  fontSize: '0.95rem',
+                }}
+              >
                 &ldquo;
                 {devotional.scripture_text}
                 &rdquo;
@@ -408,48 +447,108 @@ export function PrincipleView({
         )}
 
         {/* ======================================================
-            PERSONAL REFLECTION
-        ====================================================== */}
+            MY REFLECTION
+        ======================================================= */}
 
-        <div className="personal-reflection-section">
-
-          <h3 className="personal-reflection-title">
+        <div
+          style={{
+            marginTop: '2.5rem',
+            marginBottom: '2.5rem',
+            borderTop:
+              '1px solid var(--color-border)',
+            paddingTop: '2rem',
+          }}
+        >
+          <h3
+            style={{
+              fontSize: '1.2rem',
+              marginBottom: '0.5rem',
+              fontWeight: 600,
+            }}
+          >
             {t('home.myReflection')}
           </h3>
 
-          <p className="personal-reflection-prompt">
-            {t('home.myReflectionPrompt')}
+          <p
+            style={{
+              fontSize: '0.95rem',
+              color:
+                'var(--color-text-light)',
+              marginBottom: '1.5rem',
+              lineHeight: 1.5,
+            }}
+          >
+            {t(
+              'home.myReflectionPrompt'
+            )}
           </p>
 
-          {user ? (
-            <div className="personal-reflection-form">
+          {/* ====================================================
+              AUTHENTICATED USER
+          ===================================================== */}
 
+          {user ? (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
+              }}
+            >
               <textarea
                 value={reflectionContent}
-                onChange={(event) =>
+                onChange={(e) =>
                   setReflectionContent(
-                    event.target.value
+                    e.target.value
                   )
                 }
                 placeholder={t(
-                  'home.myReflectionPlaceholder'
+                  'home.myReflectionPlaceholder',
+                  'Escreva aqui o que esta reflexão despertou em você...'
                 )}
-                className="personal-reflection-input"
-                aria-label={t(
-                  'home.myReflection'
-                )}
+                style={{
+                  width: '100%',
+                  minHeight: '120px',
+                  padding: '1rem',
+                  borderRadius: '12px',
+                  border:
+                    '1px solid var(--color-border)',
+                  background:
+                    'var(--color-bg)',
+                  color:
+                    'var(--color-text)',
+                  fontSize: '1rem',
+                  lineHeight: '1.5',
+                  resize: 'vertical',
+                  fontFamily: 'inherit',
+                  boxSizing: 'border-box',
+                }}
               />
 
-              <p className="personal-reflection-private">
+              <p
+                style={{
+                  fontSize: '0.8rem',
+                  color:
+                    'var(--color-text-light)',
+                  marginTop: '-0.5rem',
+                  fontStyle: 'italic',
+                }}
+              >
                 {t(
                   'home.myReflectionPrivate'
                 )}
               </p>
 
-              <div className="personal-reflection-actions">
-
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  marginTop: '0.5rem',
+                  flexWrap: 'wrap',
+                }}
+              >
                 <button
-                  type="button"
                   onClick={
                     handleSaveReflection
                   }
@@ -457,7 +556,29 @@ export function PrincipleView({
                     savingReflection ||
                     !reflectionContent.trim()
                   }
-                  className="personal-reflection-save"
+                  style={{
+                    padding:
+                      '0.75rem 1.5rem',
+                    borderRadius: '24px',
+                    border: 'none',
+                    background:
+                      'var(--color-text)',
+                    color:
+                      'var(--color-bg)',
+                    fontWeight: 600,
+                    cursor:
+                      savingReflection ||
+                        !reflectionContent.trim()
+                        ? 'not-allowed'
+                        : 'pointer',
+                    opacity:
+                      savingReflection ||
+                        !reflectionContent.trim()
+                        ? 0.5
+                        : 1,
+                    transition:
+                      'opacity 0.2s',
+                  }}
                 >
                   {savingReflection
                     ? t(
@@ -469,92 +590,167 @@ export function PrincipleView({
                 </button>
 
                 {savedReflectionSuccess && (
-                  <span className="personal-reflection-success">
+                  <span
+                    style={{
+                      fontSize: '0.9rem',
+                      color: '#4CAF50',
+                      fontWeight: 500,
+                    }}
+                  >
                     {t(
                       'home.reflectionSaved'
                     )}
                   </span>
                 )}
-
               </div>
             </div>
           ) : (
-            <div className="personal-reflection-login">
+            /* ==================================================
+               VISITOR / NOT AUTHENTICATED
+            =================================================== */
 
-              <p>
-                {t(
-                  'home.loginToSave',
-                  'Entre para salvar sua reflexão.'
-                )}
-              </p>
-
+            <div
+              style={{
+                padding: '1.5rem',
+                borderRadius: '12px',
+                border:
+                  '1px solid var(--color-border)',
+                background:
+                  'rgba(0, 0, 0, 0.02)',
+                textAlign: 'center',
+              }}
+            >
               <button
-                type="button"
-                className="btn-secondary"
                 onClick={
                   handleLoginForReflection
                 }
+                style={{
+                  padding:
+                    '0.75rem 1.5rem',
+                  borderRadius: '24px',
+                  border:
+                    '1px solid var(--color-text)',
+                  background: 'transparent',
+                  color:
+                    'var(--color-text)',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontSize: '0.95rem',
+                }}
               >
                 {t(
-                  'home.login',
-                  'Entrar'
+                  'home.loginToSave'
                 )}
               </button>
-
             </div>
           )}
         </div>
 
         {/* ======================================================
             SHARED CTA
-        ====================================================== */}
+        ======================================================= */}
 
         {customAction?.variant ===
           'shared' && (
-            <div className="shared-devotional-cta">
-
+            <div
+              style={{
+                marginTop: '3rem',
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '1.5rem',
+                background:
+                  'var(--color-bg)',
+                padding: '2rem 1.5rem',
+                borderRadius: '16px',
+                border:
+                  '1px solid var(--color-border)',
+                boxSizing: 'border-box',
+                width: '100%',
+              }}
+            >
               {customAction.text && (
-                <p className="shared-devotional-cta-text">
+                <p
+                  style={{
+                    fontSize: '1.25rem',
+                    color:
+                      'var(--color-text)',
+                    lineHeight: 1.5,
+                    fontWeight: 500,
+                  }}
+                >
                   {customAction.text}
                 </p>
               )}
 
               {customAction.subtext && (
-                <p className="shared-devotional-cta-subtext">
+                <p
+                  style={{
+                    fontSize: '1.1rem',
+                    color:
+                      'var(--color-text-light)',
+                    marginTop: '-1rem',
+                  }}
+                >
                   {customAction.subtext}
                 </p>
               )}
 
               <button
-                type="button"
-                className="shared-devotional-cta-button"
                 onClick={
                   customAction.onClick
                 }
+                style={{
+                  padding:
+                    '1rem 2rem',
+                  borderRadius: '30px',
+                  border: 'none',
+                  background:
+                    'var(--color-text)',
+                  color:
+                    'var(--color-bg)',
+                  fontWeight: 600,
+                  fontSize: '1.1rem',
+                  cursor: 'pointer',
+                  transition:
+                    'opacity 0.2s',
+                  width: '100%',
+                  maxWidth: '300px',
+                }}
               >
                 {customAction.label}
               </button>
 
               {customAction.note && (
-                <p className="shared-devotional-cta-note">
+                <p
+                  style={{
+                    fontSize: '0.9rem',
+                    color:
+                      'var(--color-text-light)',
+                    marginTop: '-0.5rem',
+                  }}
+                >
                   {customAction.note}
                 </p>
               )}
-
             </div>
           )}
 
         {/* ======================================================
             ACTION BAR
-        ====================================================== */}
+        ======================================================= */}
 
         <div className="action-bar">
+
+          {/* ====================================================
+              CUSTOM ACTION
+          =================================================== */}
 
           {customAction &&
             customAction.variant !==
             'shared' ? (
             <button
-              type="button"
               className="action-btn"
               onClick={
                 customAction.onClick
@@ -581,18 +777,14 @@ export function PrincipleView({
             </button>
           ) : !customAction ? (
             <>
-              {/* SAVE */}
+              {/* ================================================
+                  SAVE
+              ================================================= */}
 
               <button
-                type="button"
                 className={`action-btn ${saved ? 'active' : ''
                   }`}
                 onClick={toggleSave}
-                aria-label={
-                  saved
-                    ? t('saved')
-                    : t('save')
-                }
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -610,15 +802,13 @@ export function PrincipleView({
                 </span>
               </button>
 
-              {/* COMPLETE */}
+              {/* ================================================
+                  COMPLETE
+              ================================================= */}
 
               <button
-                type="button"
                 className="action-btn"
                 onClick={markComplete}
-                aria-label={t(
-                  'complete'
-                )}
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -638,23 +828,23 @@ export function PrincipleView({
             </>
           ) : null}
 
-          {/* SHARE */}
+          {/* ====================================================
+              SHARE
+          =================================================== */}
 
           <ShareButton
             devotional={devotional}
             asIcon={true}
           />
-
         </div>
 
         {/* ======================================================
             RELATIONSHIP
-        ====================================================== */}
+        ======================================================= */}
 
         <RelationshipSection
           devotionalId={devotional.id}
         />
-
       </div>
     </div>
   );
