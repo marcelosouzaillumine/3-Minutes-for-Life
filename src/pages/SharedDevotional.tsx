@@ -12,23 +12,15 @@ export function SharedDevotional() {
   const { t, i18n } = useTranslation(['common']);
   const { user } = useAuth();
 
-  const [devotional, setDevotional] =
-    useState<Devotional | null>(null);
-
+  const [devotional, setDevotional] = useState<Devotional | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const [error, setError] =
-    useState<Error | null>(null);
-
-  const [senderName, setSenderName] =
-    useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [senderName, setSenderName] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
 
-    const searchParams = new URLSearchParams(
-      window.location.search
-    );
+    const searchParams = new URLSearchParams(window.location.search);
 
     const devotionalId = searchParams.get('d');
     const urlLang = searchParams.get('lang');
@@ -42,102 +34,55 @@ export function SharedDevotional() {
 
     const loadSharedDevotional = async () => {
       try {
-        setLoading(true);
-        setError(null);
-
         if (!devotionalId) {
           throw new Error('No devotional ID found');
         }
 
         /*
-         * ========================================================
-         * LANGUAGE
-         * ========================================================
-         *
-         * O idioma definido no link possui prioridade.
-         *
-         * Exemplo:
-         * /r/ABC123?d=xxx&lang=en
-         *
-         * Isso garante que o conteúdo compartilhado seja aberto
-         * no idioma em que foi originalmente compartilhado.
+         * O idioma informado no link possui prioridade.
+         * Caso não exista, utiliza o idioma atual da aplicação.
          */
+        const targetLang = urlLang || i18n.language;
 
-        const targetLang =
-          urlLang || i18n.language;
-
-        if (
-          urlLang &&
-          i18n.language !== urlLang
-        ) {
+        if (urlLang && i18n.language !== urlLang) {
           await i18n.changeLanguage(urlLang);
         }
 
-        /*
-         * ========================================================
-         * DEVOTIONAL
-         * ========================================================
-         */
+        const data = await DevotionalService.getDevotional(
+          devotionalId,
+          targetLang
+        );
 
-        const data =
-          await DevotionalService.getDevotional(
-            devotionalId,
-            targetLang
-          );
-
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
 
         setDevotional(data);
 
         /*
-         * ========================================================
-         * ANALYTICS
-         * ========================================================
+         * Analytics
          */
-
-        AnalyticsService.trackEvent(
-          'devotional_opened',
-          {
-            devotional_id: devotionalId,
-            channel: 'shared_link',
-            language: targetLang,
-          }
-        );
+        AnalyticsService.trackEvent('devotional_opened', {
+          devotional_id: devotionalId,
+          channel: 'shared_link',
+          language: targetLang,
+        });
 
         /*
-         * ========================================================
-         * REFERRER
-         * ========================================================
-         *
-         * Recupera o nome da pessoa que compartilhou
-         * o devocional.
+         * Recupera o nome de quem compartilhou.
          */
-
         if (code) {
           const {
             data: referrerName,
             error: referrerError,
-          } = await supabase.rpc(
-            'get_referrer_name',
-            {
-              p_referral_code: code,
-            }
-          );
+          } = await supabase.rpc('get_referrer_name', {
+            p_referral_code: code,
+          });
 
-          if (!mounted) {
-            return;
-          }
+          if (!mounted) return;
 
-          if (
-            !referrerError &&
-            referrerName
-          ) {
-            const firstName =
-              referrerName
-                .trim()
-                .split(/\s+/)[0];
+          if (!referrerError && referrerName) {
+            const firstName = referrerName
+              .trim()
+              .split(/\s+/)[0];
 
             if (firstName) {
               setSenderName(firstName);
@@ -154,9 +99,7 @@ export function SharedDevotional() {
           setError(
             err instanceof Error
               ? err
-              : new Error(
-                'Failed to load devotional'
-              )
+              : new Error('Failed to load devotional')
           );
         }
       } finally {
@@ -171,13 +114,7 @@ export function SharedDevotional() {
     return () => {
       mounted = false;
     };
-  }, [i18n.language]);
-
-  /*
-   * ============================================================
-   * CTA
-   * ============================================================
-   */
+  }, [i18n]);
 
   const handleCtaClick = () => {
     window.location.href = '/login';
@@ -192,11 +129,24 @@ export function SharedDevotional() {
   if (loading) {
     return (
       <div className="shared-devotional-page">
-        <header className="principle-view-header">
+        <header
+          className="principle-view-header"
+          style={{
+            width: '100%',
+            margin: '0',
+            padding: '0',
+          }}
+        >
           <BrandLogo
             variant="light"
             alt="3 Minutes for Life"
             className="landing-logo-img"
+            style={{
+              width: '120px',
+              height: 'auto',
+              display: 'block',
+              marginTop: '1.25rem',
+            }}
           />
         </header>
 
@@ -248,19 +198,34 @@ export function SharedDevotional() {
     <div className="shared-devotional-page">
 
       {/* ========================================================
-          HEADER
+          LOGO PRINCIPAL
+          
+          A página compartilhada possui UMA ÚNICA logo.
+          Ela fica acima da mensagem de compartilhamento.
       ========================================================= */}
 
-      <header className="principle-view-header">
+      <header
+        className="principle-view-header"
+        style={{
+          position: 'relative',
+          background: 'transparent',
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'flex-start',
+          alignItems: 'flex-start',
+          margin: '0',
+          padding: '0',
+        }}
+      >
         <BrandLogo
           variant="light"
           alt="3 Minutes for Life"
           className="landing-logo-img"
           style={{
-            marginTop: '1rem',
-            width: '90px',
+            width: '120px',
             height: 'auto',
             display: 'block',
+            marginTop: '1.25rem',
           }}
         />
       </header>
@@ -280,19 +245,15 @@ export function SharedDevotional() {
           style={{
             fontSize: '1.5rem',
             lineHeight: 1.4,
-            marginTop: '2rem',
-            marginBottom: '2rem',
+            marginTop: '2.5rem',
+            marginBottom: '2.5rem',
           }}
         >
           {senderName
-            ? t(
-              'shared.senderShared',
-              {
-                name: senderName,
-                defaultValue:
-                  `${senderName} compartilhou esta reflexão com você.`,
-              }
-            )
+            ? t('shared.senderShared', {
+              name: senderName,
+              defaultValue: `${senderName} compartilhou esta reflexão com você.`,
+            })
             : t(
               'shared.someoneShared',
               'Alguém compartilhou esta reflexão com você.'
@@ -301,10 +262,14 @@ export function SharedDevotional() {
 
         {/* ======================================================
             DEVOTIONAL
+
+            A PrincipleView não renderiza sua própria logo aqui.
+            A logo já foi exibida acima da mensagem do remetente.
         ======================================================= */}
 
         <PrincipleView
           devotional={devotional}
+          showLogo={false}
           customAction={
             !user
               ? {
@@ -335,7 +300,6 @@ export function SharedDevotional() {
               : undefined
           }
         />
-
       </main>
     </div>
   );
