@@ -90,9 +90,17 @@ a {
   margin: 0 auto;
 }
 
+/*
+ * Devocional do dia
+ *
+ * Aumentamos somente o espaço superior para criar
+ * um pouco mais de respiro entre a logo e o título.
+ *
+ * A logo não é alterada aqui.
+ */
 .content-area {
   flex: 1;
-  padding: var(--spacing-lg) var(--spacing-md);
+  padding: 3rem var(--spacing-md) var(--spacing-lg);
 }
 
 /* =========================================================
@@ -451,14 +459,6 @@ h4 {
   margin-bottom: 4px;
 }
 
-/*
- * Preview limitado visualmente a aproximadamente
- * duas linhas sem utilizar -webkit-line-clamp.
- *
- * Isso evita problemas de compatibilidade/lint
- * relacionados à propriedade -webkit-line-clamp.
- */
-
 .principle-list-preview {
   font-size: 0.9rem;
   color: var(--color-text-light);
@@ -495,16 +495,180 @@ h4 {
 }
 
 /* =========================================================
+   HOME — LOGO
+========================================================= */
+
+.page-home .home-logo {
+  height: 90px !important;
+  width: auto !important;
+  max-height: 90px !important;
+  max-width: 220px !important;
+  display: block !important;
+  object-fit: contain !important;
+}
+
+/* =========================================================
+   SHARED DEVOTIONAL
+   Layout completamente isolado
+========================================================= */
+
+.shared-devotional-page {
+  position: relative;
+
+  width: 100%;
+  min-height: 100vh;
+
+  background: var(--color-bg);
+  color: var(--color-text);
+
+  isolation: isolate;
+
+  box-sizing: border-box;
+
+  z-index: 1;
+}
+
+.shared-devotional-container {
+  position: relative;
+
+  width: 100%;
+  max-width: 600px;
+  min-height: 100vh;
+
+  margin: 0 auto;
+
+  box-sizing: border-box;
+
+  z-index: 2;
+}
+
+/* =========================================================
+   SHARED DEVOTIONAL — HEADER / LOGO
+========================================================= */
+
+.shared-devotional-header {
+  position: relative;
+
+  width: 100%;
+  height: 90px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 var(--spacing-md);
+
+  box-sizing: border-box;
+
+  z-index: 10;
+}
+
+.shared-devotional-logo {
+  display: block;
+
+  width: auto !important;
+  height: 90px !important;
+
+  max-width: 220px !important;
+  max-height: 90px !important;
+
+  object-fit: contain !important;
+
+  flex-shrink: 0;
+}
+
+/* =========================================================
+   SHARED DEVOTIONAL — CONTENT
+========================================================= */
+
+.shared-devotional-content {
+  position: relative;
+
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: var(--spacing-lg) var(--spacing-md);
+
+  z-index: 2;
+}
+
+.shared-devotional-sender {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  margin-bottom: var(--spacing-lg);
+
+  color: var(--color-text-light);
+
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.shared-devotional-principle {
+  position: relative;
+
+  width: 100%;
+
+  box-sizing: border-box;
+
+  z-index: 3;
+}
+
+/* =========================================================
+   SHARED DEVOTIONAL — LOADING
+========================================================= */
+
+.shared-devotional-loading {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: var(--spacing-xl) var(--spacing-md);
+
+  text-align: center;
+}
+
+/* =========================================================
+   ESCONDER NAVEGAÇÃO GLOBAL NO SHARED
+========================================================= */
+
+/*
+ * Caso o bottom-nav esteja dentro da página,
+ * ele não deve sobrepor o conteúdo compartilhado.
+ */
+.shared-devotional-page .bottom-nav {
+  display: none;
+}
+
+/*
+ * Caso o bottom-nav seja irmão do SharedDevotional,
+ * mantemos a regra de segurança.
+ */
+.shared-devotional-page~.bottom-nav {
+  display: none;
+}
+
+/* =========================================================
    RESPONSIVE
 ========================================================= */
 
 @media (max-width: 480px) {
+
+  /* -------------------------------------------------------
+     APP
+  ------------------------------------------------------- */
+
   .app-container {
     padding-bottom: 96px;
   }
 
+  /*
+   * Devocional do dia:
+   * mais 0,5rem de respiro entre logo e título.
+   */
   .content-area {
-    padding: 2rem 1.25rem;
+    padding: 2.5rem 1.25rem;
   }
 
   .principle-title {
@@ -525,6 +689,34 @@ h4 {
 
   .bottom-nav {
     width: calc(100% - 1.5rem);
+  }
+
+  /* -------------------------------------------------------
+     SHARED DEVOTIONAL
+  ------------------------------------------------------- */
+
+  .shared-devotional-container {
+    max-width: 100%;
+  }
+
+  .shared-devotional-header {
+    height: 90px;
+
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .shared-devotional-logo {
+    width: auto !important;
+    height: 90px !important;
+
+    max-width: 220px !important;
+    max-height: 90px !important;
+  }
+
+  .shared-devotional-content {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
   }
 }
 
@@ -548,181 +740,11 @@ a:focus-visible {
   *::before,
   *::after {
     scroll-behavior: auto !important;
+
     transition-duration: 0.01ms !important;
+
     animation-duration: 0.01ms !important;
+
     animation-iteration-count: 1 !important;
-  }
-}
-
-/* =========================================================
-   HOME — LOGO
-========================================================= */
-
-.page-home .home-logo {
-  height: 90px !important;
-  width: auto !important;
-  max-height: 90px !important;
-  max-width: 220px !important;
-  display: block !important;
-  object-fit: contain !important;
-}
-
-/* =========================================================
-   SHARED DEVOTIONAL
-   Garante que a página compartilhada fique acima
-   dos elementos globais da aplicação.
-========================================================= */
-
-.shared-devotional-page {
-  position: relative;
-  z-index: 1;
-  min-height: 100vh;
-  isolation: isolate;
-}
-
-.shared-devotional-container {
-  position: relative;
-  z-index: 2;
-}
-
-.shared-devotional-header {
-  position: relative;
-  z-index: 10;
-}
-
-.shared-devotional-content {
-  position: relative;
-  z-index: 2;
-}
-
-.shared-devotional-principle {
-  position: relative;
-  z-index: 3;
-}
-
-/*
- * A navegação inferior da aplicação não deve
- * sobrepor a página pública compartilhada.
- */
-.shared-devotional-page~.bottom-nav,
-.shared-devotional-page .bottom-nav {
-  display: none;
-}
-
-/* =========================================================
-   SHARED DEVOTIONAL
-   Layout isolado — não herda o container do app
-========================================================= */
-
-.shared-devotional-page {
-  width: 100%;
-  min-height: 100vh;
-  background: var(--color-bg);
-  color: var(--color-text);
-  box-sizing: border-box;
-}
-
-.shared-devotional-container {
-  width: 100%;
-  max-width: 600px;
-  min-height: 100vh;
-  margin: 0 auto;
-  box-sizing: border-box;
-}
-
-/* =========================================================
-   HEADER / LOGO
-========================================================= */
-
-.shared-devotional-header {
-  width: 100%;
-  height: 90px;
-
-  display: flex;
-  align-items: center;
-
-  padding: 0 var(--spacing-md);
-
-  box-sizing: border-box;
-}
-
-.shared-devotional-logo {
-  display: block;
-
-  width: auto !important;
-  height: 90px !important;
-
-  max-width: 220px !important;
-  max-height: 90px !important;
-
-  object-fit: contain;
-  flex-shrink: 0;
-}
-
-/* =========================================================
-   CONTENT
-========================================================= */
-
-.shared-devotional-content {
-  width: 100%;
-  box-sizing: border-box;
-
-  padding: var(--spacing-lg) var(--spacing-md);
-}
-
-.shared-devotional-sender {
-  width: 100%;
-  box-sizing: border-box;
-
-  margin-bottom: var(--spacing-lg);
-
-  color: var(--color-text-light);
-
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-.shared-devotional-principle {
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* =========================================================
-   LOADING
-========================================================= */
-
-.shared-devotional-loading {
-  width: 100%;
-  box-sizing: border-box;
-
-  padding: var(--spacing-xl) var(--spacing-md);
-
-  text-align: center;
-}
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 480px) {
-  .shared-devotional-container {
-    max-width: 100%;
-  }
-
-  .shared-devotional-header {
-    height: 90px;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-  }
-
-  .shared-devotional-logo {
-    height: 90px !important;
-    max-height: 90px !important;
-    max-width: 220px !important;
-  }
-
-  .shared-devotional-content {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
   }
 }
