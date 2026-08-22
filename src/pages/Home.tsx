@@ -117,7 +117,12 @@ export function Home({ onExplore }: HomeProps) {
       setSaved(isSaved);
     } catch (err) {
       console.error(err);
-      alert(t('home.saveError'));
+      alert(
+        t(
+          'home.saveError',
+          'Erro ao atualizar favorito.'
+        )
+      );
     }
   };
 
@@ -181,6 +186,11 @@ export function Home({ onExplore }: HomeProps) {
   /*
    * ============================================================
    * LOGO
+   *
+   * Página principal possui fundo claro.
+   * Portanto, utiliza explicitamente a variante "dark",
+   * evitando que o componente escolha uma versão inadequada
+   * em dispositivos móveis.
    * ============================================================
    */
 
@@ -197,15 +207,16 @@ export function Home({ onExplore }: HomeProps) {
       }}
     >
       <BrandLogo
-        variant="light"
+        variant="dark"
         alt="3 Minutes for Life"
         className="landing-logo-img"
         style={{
-          height: '90px',
-          width: 'auto',
+          width: '120px',
+          height: 'auto',
           display: 'block',
           marginTop: '1rem',
           marginBottom: '2.5rem',
+          flexShrink: 0,
         }}
       />
     </header>
