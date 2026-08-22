@@ -1,6 +1,6 @@
+import { useEffect, useState } from 'react';
 import type { Devotional } from '../types/Devotional';
 import { JourneyService } from '../services/JourneyService';
-import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ShareButton } from './ShareButton';
 import { HtmlRenderer } from './HtmlRenderer';
@@ -34,10 +34,8 @@ export function PrincipleView({
   const { user } = useAuth();
 
   const [saved, setSaved] = useState(false);
-  const [reflectionContent, setReflectionContent] =
-    useState('');
-  const [savingReflection, setSavingReflection] =
-    useState(false);
+  const [reflectionContent, setReflectionContent] = useState('');
+  const [savingReflection, setSavingReflection] = useState(false);
   const [savedReflectionSuccess, setSavedReflectionSuccess] =
     useState(false);
 
@@ -50,14 +48,8 @@ export function PrincipleView({
   useEffect(() => {
     let mounted = true;
 
-    /*
-     * Start devotional journey.
-     */
     JourneyService.start(devotional.id).catch(console.error);
 
-    /*
-     * Check favorite status.
-     */
     JourneyService.listFavorites()
       .then((ids) => {
         if (mounted) {
@@ -66,9 +58,6 @@ export function PrincipleView({
       })
       .catch(console.error);
 
-    /*
-     * Load existing personal reflection.
-     */
     if (user) {
       ReflectionService.getReflection(devotional.id)
         .then((content) => {
@@ -94,10 +83,9 @@ export function PrincipleView({
 
   const toggleSave = async () => {
     try {
-      const isSaved =
-        await JourneyService.toggleFavorite(
-          devotional.id
-        );
+      const isSaved = await JourneyService.toggleFavorite(
+        devotional.id
+      );
 
       setSaved(isSaved);
     } catch (err) {
@@ -120,10 +108,7 @@ export function PrincipleView({
 
   const markComplete = async () => {
     try {
-      await JourneyService.complete(
-        devotional.id
-      );
-
+      await JourneyService.complete(devotional.id);
       alert(t('completed'));
     } catch (err) {
       console.error(err);
@@ -137,8 +122,7 @@ export function PrincipleView({
    */
 
   const handleSaveReflection = async () => {
-    const content =
-      reflectionContent.trim();
+    const content = reflectionContent.trim();
 
     if (!content || !user) {
       return;
@@ -181,10 +165,9 @@ export function PrincipleView({
    */
 
   const handleLoginForReflection = () => {
-    const currentUrl =
-      encodeURIComponent(
-        window.location.href
-      );
+    const currentUrl = encodeURIComponent(
+      window.location.href
+    );
 
     window.location.href =
       `/login?redirectTo=${currentUrl}`;
@@ -197,60 +180,50 @@ export function PrincipleView({
    */
 
   return (
-    <div
+    <article
       className="principle-view"
       style={{
         width: '100%',
         maxWidth: '100%',
         minWidth: 0,
+        margin: 0,
+        padding: 0,
         boxSizing: 'border-box',
-        overflowWrap: 'break-word',
         overflowX: 'hidden',
+        overflowWrap: 'break-word',
       }}
     >
-
       {/* ========================================================
           HEADER / LOGO
-          
-          Esta página possui fundo claro.
-          
-          Portanto:
-          variant="light" = logo para fundo claro.
-          
-          SharedDevotional pode usar:
-          showLogo={false}
-          
-          Nesse caso, nenhuma logo será renderizada aqui.
-      ========================================================= */}
+          ======================================================== */}
 
       {showLogo && (
         <header
           className="principle-view-header"
           style={{
-            position: 'relative',
             width: '100%',
             maxWidth: '100%',
             minWidth: 0,
-            display: 'flex',
-            justifyContent: 'flex-start',
-            alignItems: 'flex-start',
             margin: 0,
             padding: 0,
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'flex-start',
             boxSizing: 'border-box',
-            overflow: 'hidden',
+            overflow: 'visible',
           }}
         >
           <BrandLogo
             variant="light"
             alt="3 Minutes for Life"
-            className="landing-logo-img"
+            className="principle-view-logo"
             style={{
               width: '160px',
               height: 'auto',
+              maxWidth: '160px',
               display: 'block',
-              flexShrink: 0,
-              marginTop: '1.25rem',
-              marginBottom: '2.5rem',
+              flex: '0 0 auto',
+              margin: '1rem 0 2.5rem 0',
             }}
           />
         </header>
@@ -258,19 +231,20 @@ export function PrincipleView({
 
       {/* ========================================================
           BACK
-      ========================================================= */}
+          ======================================================== */}
 
       {onBack && (
         <button
+          type="button"
           onClick={onBack}
           style={{
-            marginBottom: '2rem',
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            color:
-              'var(--color-text-light)',
+            margin: '0 0 2rem 0',
+            padding: 0,
             maxWidth: '100%',
+            color: 'var(--color-text-light)',
             boxSizing: 'border-box',
           }}
         >
@@ -296,21 +270,23 @@ export function PrincipleView({
 
       {/* ========================================================
           DEVOTIONAL CONTENT
-      ========================================================= */}
+          ======================================================== */}
 
       <div
+        className="principle-view-content"
         style={{
           width: '100%',
           maxWidth: '100%',
           minWidth: 0,
+          margin: 0,
+          padding: 0,
           boxSizing: 'border-box',
           overflowWrap: 'break-word',
         }}
       >
-
         {/* ======================================================
             CATEGORY
-        ======================================================= */}
+            ====================================================== */}
 
         <span className="label">
           {devotional.categories?.name
@@ -326,12 +302,14 @@ export function PrincipleView({
 
         {/* ======================================================
             TITLE
-        ======================================================= */}
+            ====================================================== */}
 
         <h1
           className="principle-title"
           style={{
+            width: '100%',
             maxWidth: '100%',
+            margin: 0,
             overflowWrap: 'break-word',
             wordBreak: 'break-word',
           }}
@@ -341,12 +319,13 @@ export function PrincipleView({
 
         {/* ======================================================
             PRINCIPLE STATEMENT
-        ======================================================= */}
+            ====================================================== */}
 
         {devotional.principle_statement && (
           <p
             className="principle-statement"
             style={{
+              width: '100%',
               maxWidth: '100%',
               overflowWrap: 'break-word',
               wordBreak: 'break-word',
@@ -358,9 +337,10 @@ export function PrincipleView({
 
         {/* ======================================================
             REFLECTION
-        ======================================================= */}
+            ====================================================== */}
 
         <div
+          className="principle-reflection-wrapper"
           style={{
             width: '100%',
             maxWidth: '100%',
@@ -383,10 +363,11 @@ export function PrincipleView({
 
         {/* ======================================================
             AUDIO
-        ======================================================= */}
+            ====================================================== */}
 
         {devotional.audio_url && (
           <div
+            className="principle-audio"
             style={{
               width: '100%',
               maxWidth: '100%',
@@ -410,9 +391,9 @@ export function PrincipleView({
 
         {/* ======================================================
             APPLICATION
-        ======================================================= */}
+            ====================================================== */}
 
-        <div
+        <section
           className="application-section"
           style={{
             width: '100%',
@@ -421,7 +402,6 @@ export function PrincipleView({
             boxSizing: 'border-box',
           }}
         >
-
           <span className="label">
             {t('home.practiceToday')}
           </span>
@@ -429,16 +409,16 @@ export function PrincipleView({
           <div
             className="application-text"
             style={{
+              width: '100%',
               maxWidth: '100%',
               overflowWrap: 'break-word',
               wordBreak: 'break-word',
+              boxSizing: 'border-box',
             }}
           >
             {devotional.practical_application ? (
               <HtmlRenderer
-                html={
-                  devotional.practical_application
-                }
+                html={devotional.practical_application}
               />
             ) : (
               <p
@@ -448,28 +428,27 @@ export function PrincipleView({
                   opacity: 0.7,
                 }}
               >
-                {t(
-                  'home.applicationPending'
-                )}
+                {t('home.applicationPending')}
               </p>
             )}
           </div>
 
           {/* ====================================================
               PRAYER
-          ===================================================== */}
+              ==================================================== */}
 
           {devotional.prayer && (
             <div
+              className="principle-secondary-section"
               style={{
                 width: '100%',
                 maxWidth: '100%',
                 minWidth: 0,
-                boxSizing: 'border-box',
                 marginTop: '2rem',
+                paddingTop: '1.5rem',
                 borderTop:
                   '1px solid var(--color-border)',
-                paddingTop: '1.5rem',
+                boxSizing: 'border-box',
               }}
             >
               <span className="label">
@@ -479,8 +458,9 @@ export function PrincipleView({
               <div
                 className="application-text"
                 style={{
-                  fontStyle: 'italic',
+                  width: '100%',
                   maxWidth: '100%',
+                  fontStyle: 'italic',
                   overflowWrap: 'break-word',
                   wordBreak: 'break-word',
                 }}
@@ -494,19 +474,20 @@ export function PrincipleView({
 
           {/* ====================================================
               SCRIPTURE
-          ===================================================== */}
+              ==================================================== */}
 
           {devotional.scripture_reference && (
             <div
+              className="principle-secondary-section"
               style={{
                 width: '100%',
                 maxWidth: '100%',
                 minWidth: 0,
-                boxSizing: 'border-box',
                 marginTop: '2rem',
+                paddingTop: '1.5rem',
                 borderTop:
                   '1px solid var(--color-border)',
-                paddingTop: '1.5rem',
+                boxSizing: 'border-box',
               }}
             >
               <span className="label">
@@ -517,26 +498,24 @@ export function PrincipleView({
 
               <p
                 style={{
-                  fontWeight: 500,
                   maxWidth: '100%',
+                  fontWeight: 500,
                   overflowWrap: 'break-word',
                   wordBreak: 'break-word',
                 }}
               >
-                {
-                  devotional.scripture_reference
-                }
+                {devotional.scripture_reference}
               </p>
 
               {devotional.scripture_text && (
                 <p
                   style={{
+                    maxWidth: '100%',
                     marginTop: '0.5rem',
-                    lineHeight: '1.6',
+                    lineHeight: 1.6,
                     color:
                       'var(--color-text-light)',
                     fontSize: '0.95rem',
-                    maxWidth: '100%',
                     overflowWrap: 'break-word',
                     wordBreak: 'break-word',
                   }}
@@ -551,28 +530,28 @@ export function PrincipleView({
 
           {/* ====================================================
               MY REFLECTION
-          ===================================================== */}
+              ==================================================== */}
 
-          <div
+          <section
+            className="my-reflection-section"
             style={{
               width: '100%',
               maxWidth: '100%',
               minWidth: 0,
-              boxSizing: 'border-box',
               marginTop: '2.5rem',
               marginBottom: '2.5rem',
+              paddingTop: '2rem',
               borderTop:
                 '1px solid var(--color-border)',
-              paddingTop: '2rem',
+              boxSizing: 'border-box',
             }}
           >
-
             <h3
               style={{
-                fontSize: '1.2rem',
-                marginBottom: '0.5rem',
-                fontWeight: 600,
                 maxWidth: '100%',
+                marginBottom: '0.5rem',
+                fontSize: '1.2rem',
+                fontWeight: 600,
                 overflowWrap: 'break-word',
               }}
             >
@@ -581,23 +560,21 @@ export function PrincipleView({
 
             <p
               style={{
+                maxWidth: '100%',
+                marginBottom: '1.5rem',
                 fontSize: '0.95rem',
                 color:
                   'var(--color-text-light)',
-                marginBottom: '1.5rem',
                 lineHeight: 1.5,
-                maxWidth: '100%',
                 overflowWrap: 'break-word',
               }}
             >
-              {t(
-                'home.myReflectionPrompt'
-              )}
+              {t('home.myReflectionPrompt')}
             </p>
 
             {/* ==================================================
                 AUTHENTICATED USER
-            =================================================== */}
+                ================================================== */}
 
             {user ? (
               <div
@@ -611,12 +588,11 @@ export function PrincipleView({
                   boxSizing: 'border-box',
                 }}
               >
-
                 <textarea
                   value={reflectionContent}
-                  onChange={(e) =>
+                  onChange={(event) =>
                     setReflectionContent(
-                      e.target.value
+                      event.target.value
                     )
                   }
                   placeholder={t(
@@ -630,15 +606,15 @@ export function PrincipleView({
                     minWidth: 0,
                     minHeight: '120px',
                     padding: '1rem',
-                    borderRadius: '12px',
                     border:
                       '1px solid var(--color-border)',
+                    borderRadius: '12px',
                     background:
                       'var(--color-bg)',
                     color:
                       'var(--color-text)',
                     fontSize: '1rem',
-                    lineHeight: '1.5',
+                    lineHeight: 1.5,
                     resize: 'vertical',
                     fontFamily: 'inherit',
                     boxSizing: 'border-box',
@@ -647,12 +623,12 @@ export function PrincipleView({
 
                 <p
                   style={{
+                    maxWidth: '100%',
+                    marginTop: '-0.5rem',
                     fontSize: '0.8rem',
                     color:
                       'var(--color-text-light)',
-                    marginTop: '-0.5rem',
                     fontStyle: 'italic',
-                    maxWidth: '100%',
                     overflowWrap: 'break-word',
                   }}
                 >
@@ -666,14 +642,14 @@ export function PrincipleView({
                     display: 'flex',
                     alignItems: 'center',
                     gap: '1rem',
-                    marginTop: '0.5rem',
                     flexWrap: 'wrap',
                     maxWidth: '100%',
                     minWidth: 0,
+                    marginTop: '0.5rem',
                   }}
                 >
-
                   <button
+                    type="button"
                     onClick={
                       handleSaveReflection
                     }
@@ -682,10 +658,11 @@ export function PrincipleView({
                       !reflectionContent.trim()
                     }
                     style={{
+                      maxWidth: '100%',
                       padding:
                         '0.75rem 1.5rem',
-                      borderRadius: '24px',
                       border: 'none',
+                      borderRadius: '24px',
                       background:
                         'var(--color-text)',
                       color:
@@ -703,7 +680,7 @@ export function PrincipleView({
                           : 1,
                       transition:
                         'opacity 0.2s',
-                      maxWidth: '100%',
+                      boxSizing: 'border-box',
                     }}
                   >
                     {savingReflection
@@ -718,10 +695,10 @@ export function PrincipleView({
                   {savedReflectionSuccess && (
                     <span
                       style={{
+                        maxWidth: '100%',
                         fontSize: '0.9rem',
                         color: '#4CAF50',
                         fontWeight: 500,
-                        maxWidth: '100%',
                         overflowWrap:
                           'break-word',
                       }}
@@ -734,45 +711,45 @@ export function PrincipleView({
                 </div>
               </div>
             ) : (
-
-              /* ================================================
+              /* ==================================================
                  VISITOR
-              ================================================= */
+                 ================================================== */
 
               <div
                 style={{
                   width: '100%',
                   maxWidth: '100%',
                   minWidth: 0,
-                  boxSizing: 'border-box',
                   padding: '1.5rem',
-                  borderRadius: '12px',
                   border:
                     '1px solid var(--color-border)',
+                  borderRadius: '12px',
                   background:
                     'rgba(0, 0, 0, 0.02)',
                   textAlign: 'center',
+                  boxSizing: 'border-box',
                 }}
               >
                 <button
+                  type="button"
                   onClick={
                     handleLoginForReflection
                   }
                   style={{
                     maxWidth: '100%',
-                    boxSizing: 'border-box',
                     padding:
                       '0.75rem 1.5rem',
-                    borderRadius: '24px',
                     border:
                       '1px solid var(--color-text)',
+                    borderRadius: '24px',
                     background:
                       'transparent',
                     color:
                       'var(--color-text)',
                     fontWeight: 600,
-                    cursor: 'pointer',
                     fontSize: '0.95rem',
+                    cursor: 'pointer',
+                    boxSizing: 'border-box',
                   }}
                 >
                   {t(
@@ -781,122 +758,121 @@ export function PrincipleView({
                 </button>
               </div>
             )}
-          </div>
+          </section>
 
           {/* ====================================================
               SHARED CTA
-          ===================================================== */}
+              ==================================================== */}
 
-          {customAction?.variant ===
-            'shared' && (
-              <div
-                style={{
-                  width: '100%',
-                  maxWidth: '100%',
-                  minWidth: 0,
-                  boxSizing: 'border-box',
-                  marginTop: '3rem',
-                  padding: '2rem 1.5rem',
-                  borderRadius: '16px',
-                  border:
-                    '1px solid var(--color-border)',
-                  background:
-                    'var(--color-bg)',
-                  textAlign: 'center',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '1.5rem',
-                  overflow: 'hidden',
-                }}
-              >
-
-                {customAction.text && (
-                  <p
-                    style={{
-                      width: '100%',
-                      maxWidth: '100%',
-                      margin: 0,
-                      fontSize: '1.25rem',
-                      color:
-                        'var(--color-text)',
-                      lineHeight: 1.5,
-                      fontWeight: 500,
-                      overflowWrap:
-                        'break-word',
-                      wordBreak: 'break-word',
-                    }}
-                  >
-                    {customAction.text}
-                  </p>
-                )}
-
-                {customAction.subtext && (
-                  <p
-                    style={{
-                      width: '100%',
-                      maxWidth: '100%',
-                      margin: 0,
-                      fontSize: '1.1rem',
-                      color:
-                        'var(--color-text-light)',
-                      overflowWrap:
-                        'break-word',
-                      wordBreak: 'break-word',
-                    }}
-                  >
-                    {customAction.subtext}
-                  </p>
-                )}
-
-                <button
-                  onClick={
-                    customAction.onClick
-                  }
+          {customAction?.variant === 'shared' && (
+            <section
+              className="shared-cta"
+              style={{
+                width: '100%',
+                maxWidth: '100%',
+                minWidth: 0,
+                marginTop: '3rem',
+                padding: '2rem 1.5rem',
+                border:
+                  '1px solid var(--color-border)',
+                borderRadius: '16px',
+                background:
+                  'var(--color-bg)',
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '1.5rem',
+                boxSizing: 'border-box',
+                overflow: 'hidden',
+              }}
+            >
+              {customAction.text && (
+                <p
                   style={{
                     width: '100%',
-                    maxWidth: '300px',
-                    boxSizing: 'border-box',
-                    padding: '1rem 2rem',
-                    borderRadius: '30px',
-                    border: 'none',
-                    background:
-                      'var(--color-text)',
+                    maxWidth: '100%',
+                    margin: 0,
+                    fontSize: '1.25rem',
                     color:
-                      'var(--color-bg)',
-                    fontWeight: 600,
-                    fontSize: '1.1rem',
-                    cursor: 'pointer',
-                    transition:
-                      'opacity 0.2s',
+                      'var(--color-text)',
+                    lineHeight: 1.5,
+                    fontWeight: 500,
+                    overflowWrap: 'break-word',
+                    wordBreak: 'break-word',
                   }}
                 >
-                  {customAction.label}
-                </button>
+                  {customAction.text}
+                </p>
+              )}
 
-                {customAction.note && (
-                  <p
-                    style={{
-                      width: '100%',
-                      maxWidth: '100%',
-                      margin: 0,
-                      fontSize: '0.9rem',
-                      color:
-                        'var(--color-text-light)',
-                      overflowWrap:
-                        'break-word',
-                      wordBreak: 'break-word',
-                    }}
-                  >
-                    {customAction.note}
-                  </p>
-                )}
-              </div>
-            )}
+              {customAction.subtext && (
+                <p
+                  style={{
+                    width: '100%',
+                    maxWidth: '100%',
+                    margin: 0,
+                    fontSize: '1.1rem',
+                    color:
+                      'var(--color-text-light)',
+                    lineHeight: 1.5,
+                    overflowWrap: 'break-word',
+                    wordBreak: 'break-word',
+                  }}
+                >
+                  {customAction.subtext}
+                </p>
+              )}
+
+              <button
+                type="button"
+                onClick={
+                  customAction.onClick
+                }
+                style={{
+                  width: '100%',
+                  maxWidth: '300px',
+                  padding: '1rem 2rem',
+                  border: 'none',
+                  borderRadius: '30px',
+                  background:
+                    'var(--color-text)',
+                  color:
+                    'var(--color-bg)',
+                  fontWeight: 600,
+                  fontSize: '1.1rem',
+                  cursor: 'pointer',
+                  transition:
+                    'opacity 0.2s',
+                  boxSizing: 'border-box',
+                }}
+              >
+                {customAction.label}
+              </button>
+
+              {customAction.note && (
+                <p
+                  style={{
+                    width: '100%',
+                    maxWidth: '100%',
+                    margin: 0,
+                    fontSize: '0.9rem',
+                    color:
+                      'var(--color-text-light)',
+                    lineHeight: 1.5,
+                    overflowWrap: 'break-word',
+                    wordBreak: 'break-word',
+                  }}
+                >
+                  {customAction.note}
+                </p>
+              )}
+            </section>
+          )}
 
           {/* ====================================================
               ACTION BAR
-          ===================================================== */}
+              ==================================================== */}
 
           <div
             className="action-bar"
@@ -905,19 +881,17 @@ export function PrincipleView({
               maxWidth: '100%',
               minWidth: 0,
               boxSizing: 'border-box',
-              overflow: 'hidden',
+              overflow: 'visible',
             }}
           >
-
             {/* ==================================================
                 CUSTOM ACTION
-            =================================================== */}
+                ================================================== */}
 
             {customAction &&
-              customAction.variant !==
-              'shared' ? (
-
+              customAction.variant !== 'shared' ? (
               <button
+                type="button"
                 className="action-btn"
                 onClick={
                   customAction.onClick
@@ -942,15 +916,14 @@ export function PrincipleView({
                   {customAction.label}
                 </span>
               </button>
-
             ) : !customAction ? (
-
               <>
                 {/* ==========================================
                     SAVE
-                =========================================== */}
+                    ========================================== */}
 
                 <button
+                  type="button"
                   className={`action-btn ${saved ? 'active' : ''
                     }`}
                   onClick={toggleSave}
@@ -973,9 +946,10 @@ export function PrincipleView({
 
                 {/* ==========================================
                     COMPLETE
-                =========================================== */}
+                    ========================================== */}
 
                 <button
+                  type="button"
                   className="action-btn"
                   onClick={markComplete}
                 >
@@ -999,7 +973,7 @@ export function PrincipleView({
 
             {/* ==================================================
                 SHARE
-            =================================================== */}
+                ================================================== */}
 
             <ShareButton
               devotional={devotional}
@@ -1009,26 +983,24 @@ export function PrincipleView({
 
           {/* ====================================================
               RELATIONSHIP
-          ===================================================== */}
+              ==================================================== */}
 
           <div
+            className="relationship-section-wrapper"
             style={{
               width: '100%',
               maxWidth: '100%',
               minWidth: 0,
               boxSizing: 'border-box',
-              overflow: 'hidden',
+              overflow: 'visible',
             }}
           >
             <RelationshipSection
-              devotionalId={
-                devotional.id
-              }
+              devotionalId={devotional.id}
             />
           </div>
-
-        </div>
+        </section>
       </div>
-    </div>
+    </article>
   );
 }
