@@ -51,7 +51,8 @@ export function Home({ onExplore }: HomeProps) {
         setLoading(true);
         setError(null);
 
-        const todayStr = getTodayInSaoPaulo();
+        const todayStr =
+          getTodayInSaoPaulo();
 
         const data =
           await DevotionalService.getDailyDevotional(
@@ -66,16 +67,20 @@ export function Home({ onExplore }: HomeProps) {
         /*
          * Check saved status
          */
+
         const favorites =
           await JourneyService.listFavorites();
 
         if (!mounted) return;
 
-        setSaved(favorites.includes(data.id));
+        setSaved(
+          favorites.includes(data.id)
+        );
 
         /*
          * Track devotional view
          */
+
         AnalyticsService.trackEvent(
           'devotional_view',
           {
@@ -211,47 +216,27 @@ export function Home({ onExplore }: HomeProps) {
    * LOGO
    * ============================================================
    *
-   * IMPORTANTE:
+   * A Home possui fundo claro.
    *
-   * Esta página possui fundo CLARO.
+   * A logo possui classe própria:
    *
-   * Portanto:
+   *   home-logo
    *
-   *   light = logo para fundo claro
-   *   dark  = logo para fundo escuro
+   * Não usamos:
    *
-   * Nunca usar "auto" aqui, porque a interface da aplicação
-   * não deve trocar a identidade visual apenas porque o celular
-   * está configurado em modo escuro.
+   *   landing-logo-img
+   *
+   * porque essa classe pertence ao sistema visual da Landing
+   * e possui regras próprias de tamanho.
    * ============================================================
    */
 
   const renderLogo = () => (
-    <header
-      className="principle-view-header"
-      style={{
-        width: '100%',
-        display: 'flex',
-        justifyContent: 'flex-start',
-        alignItems: 'flex-start',
-        padding: 0,
-        margin: 0,
-        background: 'transparent',
-      }}
-    >
+    <header className="home-header">
       <BrandLogo
         variant="light"
         alt="3 Minutes for Life"
-        className="landing-logo-img"
-        style={{
-          width: '120px',
-          height: 'auto',
-          display: 'block',
-          marginTop: '1rem',
-          marginBottom: '2.5rem',
-          flexShrink: 0,
-          maxWidth: '120px',
-        }}
+        className="home-logo"
       />
     </header>
   );
@@ -264,33 +249,11 @@ export function Home({ onExplore }: HomeProps) {
 
   if (loading) {
     return (
-      <div
-        className="page-home"
-        style={{
-          minHeight: '50vh',
-          display: 'flex',
-          flexDirection: 'column',
-          width: '100%',
-          maxWidth: '100%',
-          overflowX: 'hidden',
-        }}
-      >
+      <div className="page-home home-state">
         {renderLogo()}
 
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <p
-            style={{
-              color:
-                'var(--color-text-light)',
-            }}
-          >
+        <div className="home-loading">
+          <p>
             {t('loading')}
           </p>
         </div>
@@ -306,37 +269,11 @@ export function Home({ onExplore }: HomeProps) {
 
   if (error || !devotional) {
     return (
-      <div
-        className="page-home"
-        style={{
-          minHeight: '50vh',
-          display: 'flex',
-          flexDirection: 'column',
-          width: '100%',
-          maxWidth: '100%',
-          overflowX: 'hidden',
-        }}
-      >
+      <div className="page-home home-state">
         {renderLogo()}
 
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            textAlign: 'center',
-            width: '100%',
-          }}
-        >
-          <p
-            style={{
-              color:
-                'var(--color-text-light)',
-              marginBottom: '1rem',
-            }}
-          >
+        <div className="home-error">
+          <p>
             {t('error')}
           </p>
 
@@ -360,24 +297,17 @@ export function Home({ onExplore }: HomeProps) {
    */
 
   return (
-    <div
-      className="page-home"
-      style={{
-        width: '100%',
-        maxWidth: '100%',
-        overflowX: 'hidden',
-      }}
-    >
+    <div className="page-home">
 
-      {/* ========================================================
+      {/* ======================================================
           HEADER / LOGO
-      ========================================================= */}
+      ======================================================= */}
 
       {renderLogo()}
 
-      {/* ========================================================
+      {/* ======================================================
           DAILY PRINCIPLE
-      ========================================================= */}
+      ======================================================= */}
 
       <span className="label">
         {t('home.todayPrinciple')}
@@ -387,33 +317,22 @@ export function Home({ onExplore }: HomeProps) {
         {devotional.title}
       </h1>
 
-      {/* ========================================================
+      {/* ======================================================
           AUDIO
-      ========================================================= */}
+      ======================================================= */}
 
       {devotional.audio_url && (
-        <div
-          style={{
-            width: '100%',
-            maxWidth: '100%',
-            marginBottom: '2rem',
-          }}
-        >
+        <div className="home-audio">
           <audio
             controls
             src={devotional.audio_url}
-            style={{
-              width: '100%',
-              maxWidth: '100%',
-              height: '40px',
-            }}
           />
         </div>
       )}
 
-      {/* ========================================================
+      {/* ======================================================
           PRINCIPLE STATEMENT
-      ========================================================= */}
+      ======================================================= */}
 
       {devotional.principle_statement && (
         <p className="principle-statement">
@@ -421,9 +340,9 @@ export function Home({ onExplore }: HomeProps) {
         </p>
       )}
 
-      {/* ========================================================
+      {/* ======================================================
           REFLECTION
-      ========================================================= */}
+      ======================================================= */}
 
       <HtmlRenderer
         html={CtaEngine.composeReflection(
@@ -436,9 +355,9 @@ export function Home({ onExplore }: HomeProps) {
         className="principle-reflection"
       />
 
-      {/* ========================================================
+      {/* ======================================================
           APPLICATION SECTION
-      ========================================================= */}
+      ======================================================= */}
 
       <div className="application-section">
 
@@ -468,21 +387,13 @@ export function Home({ onExplore }: HomeProps) {
           )}
         </div>
 
-        {/* ======================================================
+        {/* ====================================================
             SCRIPTURE
-        ======================================================= */}
+        ===================================================== */}
 
         {devotional.scripture_reference && (
-          <div
-            style={{
-              marginTop: '2rem',
-              borderTop:
-                '1px solid var(--color-border)',
-              paddingTop: '1.5rem',
-              width: '100%',
-              maxWidth: '100%',
-            }}
-          >
+          <div className="home-content-section">
+
             <span className="label">
               {t(
                 'home.scriptureReference'
@@ -518,24 +429,17 @@ export function Home({ onExplore }: HomeProps) {
                 &rdquo;
               </p>
             )}
+
           </div>
         )}
 
-        {/* ======================================================
+        {/* ====================================================
             PRAYER
-        ======================================================= */}
+        ===================================================== */}
 
         {devotional.prayer && (
-          <div
-            style={{
-              marginTop: '2rem',
-              borderTop:
-                '1px solid var(--color-border)',
-              paddingTop: '1.5rem',
-              width: '100%',
-              maxWidth: '100%',
-            }}
-          >
+          <div className="home-content-section">
+
             <span className="label">
               {t('home.prayer')}
             </span>
@@ -550,58 +454,28 @@ export function Home({ onExplore }: HomeProps) {
                 html={devotional.prayer}
               />
             </div>
+
           </div>
         )}
 
-        {/* ======================================================
+        {/* ====================================================
             MY REFLECTION
-        ======================================================= */}
+        ===================================================== */}
 
-        <div
-          style={{
-            marginTop: '2.5rem',
-            marginBottom: '2.5rem',
-            borderTop:
-              '1px solid var(--color-border)',
-            paddingTop: '2rem',
-            width: '100%',
-            maxWidth: '100%',
-            minWidth: 0,
-          }}
-        >
-          <h3
-            style={{
-              fontSize: '1.2rem',
-              marginBottom: '0.5rem',
-              fontWeight: 600,
-            }}
-          >
+        <div className="home-reflection">
+
+          <h3>
             {t('home.myReflection')}
           </h3>
 
-          <p
-            style={{
-              fontSize: '0.95rem',
-              color:
-                'var(--color-text-light)',
-              marginBottom: '1.5rem',
-              lineHeight: 1.5,
-            }}
-          >
+          <p className="home-reflection-description">
             {t(
               'home.myReflectionPrompt'
             )}
           </p>
 
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem',
-              width: '100%',
-              minWidth: 0,
-            }}
-          >
+          <div className="home-reflection-form">
+
             <textarea
               value={reflectionContent}
               onChange={(e) =>
@@ -612,51 +486,16 @@ export function Home({ onExplore }: HomeProps) {
               placeholder={t(
                 'home.myReflectionPlaceholder'
               )}
-              style={{
-                width: '100%',
-                maxWidth: '100%',
-                minWidth: 0,
-                minHeight: '120px',
-                padding: '1rem',
-                borderRadius: '12px',
-                border:
-                  '1px solid var(--color-border)',
-                background:
-                  'var(--color-bg)',
-                color:
-                  'var(--color-text)',
-                fontSize: '1rem',
-                lineHeight: '1.5',
-                resize: 'vertical',
-                fontFamily: 'inherit',
-                boxSizing: 'border-box',
-              }}
             />
 
-            <p
-              style={{
-                fontSize: '0.8rem',
-                color:
-                  'var(--color-text-light)',
-                marginTop: '-0.5rem',
-                fontStyle: 'italic',
-              }}
-            >
+            <p className="home-reflection-private">
               {t(
                 'home.myReflectionPrivate'
               )}
             </p>
 
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
-                marginTop: '0.5rem',
-                flexWrap: 'wrap',
-                minWidth: 0,
-              }}
-            >
+            <div className="home-reflection-actions">
+
               <button
                 onClick={
                   handleSaveReflection
@@ -665,29 +504,7 @@ export function Home({ onExplore }: HomeProps) {
                   savingReflection ||
                   !reflectionContent.trim()
                 }
-                style={{
-                  padding:
-                    '0.75rem 1.5rem',
-                  borderRadius: '24px',
-                  border: 'none',
-                  background:
-                    'var(--color-text)',
-                  color:
-                    'var(--color-bg)',
-                  fontWeight: 600,
-                  cursor:
-                    savingReflection ||
-                      !reflectionContent.trim()
-                      ? 'not-allowed'
-                      : 'pointer',
-                  opacity:
-                    savingReflection ||
-                      !reflectionContent.trim()
-                      ? 0.5
-                      : 1,
-                  transition:
-                    'opacity 0.2s',
-                }}
+                className="home-save-reflection"
               >
                 {savingReflection
                   ? t(
@@ -699,25 +516,22 @@ export function Home({ onExplore }: HomeProps) {
               </button>
 
               {savedReflectionSuccess && (
-                <span
-                  style={{
-                    fontSize: '0.9rem',
-                    color: '#4CAF50',
-                    fontWeight: 500,
-                  }}
-                >
+                <span className="home-reflection-success">
                   {t(
                     'home.reflectionSaved'
                   )}
                 </span>
               )}
+
             </div>
+
           </div>
+
         </div>
 
-        {/* ======================================================
+        {/* ====================================================
             ACTION BAR
-        ======================================================= */}
+        ===================================================== */}
 
         <div className="action-bar">
 
@@ -771,27 +585,22 @@ export function Home({ onExplore }: HomeProps) {
             devotional={devotional}
             asIcon={true}
           />
+
         </div>
 
-        {/* ======================================================
+        {/* ====================================================
             RELATIONSHIP
-        ======================================================= */}
+        ===================================================== */}
 
         <RelationshipSection
           devotionalId={devotional.id}
         />
 
-        {/* ======================================================
+        {/* ====================================================
             EXPLORE MORE
-        ======================================================= */}
+        ===================================================== */}
 
-        <div
-          style={{
-            marginTop: '1rem',
-            width: '100%',
-            maxWidth: '100%',
-          }}
-        >
+        <div className="home-explore">
           <button
             className="btn-secondary"
             onClick={onExplore}

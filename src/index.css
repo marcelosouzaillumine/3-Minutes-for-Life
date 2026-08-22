@@ -553,3 +553,16 @@ a:focus-visible {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* =========================================================
+   HOME — LOGO
+========================================================= */
+
+.page-home .home-logo {
+  height: 90px !important;
+  width: auto !important;
+  max-height: 90px !important;
+  max-width: 220px !important;
+  display: block !important;
+  object-fit: contain !important;
+}

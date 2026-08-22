@@ -1,15 +1,71 @@
 /* =========================================================
-   Mission.css - Premium Editorial Design
+   Mission.css
+   Premium Editorial Design
+   Sistema de alinhamento unificado
+   ========================================================= */
+
+
+/* =========================================================
+   0. DESIGN SYSTEM — CONTAINER GLOBAL
    ========================================================= */
 
 .mission-page {
+  /*
+   * A Mission deve respeitar o mesmo eixo horizontal
+   * utilizado pelo restante da aplicação.
+   *
+   * O conteúdo nunca deve criar margens próprias diferentes
+   * em cada seção.
+   */
+  --mission-content-width: 1200px;
+  --mission-side-padding: clamp(1.25rem, 4vw, 3rem);
+
   font-family: var(--font-family);
   color: var(--landing-text);
   background-color: var(--landing-bg);
+
   min-height: 100vh;
   line-height: 1.6;
+
   overflow-x: hidden;
+  box-sizing: border-box;
 }
+
+.mission-page *,
+.mission-page *::before,
+.mission-page *::after {
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   CONTAINER PRINCIPAL
+   ========================================================= */
+
+/*
+ * ESTE É O ÚNICO SISTEMA HORIZONTAL DA MISSION.
+ *
+ * Todas as seções devem utilizar .mission-content
+ * quando precisarem limitar a largura do conteúdo.
+ */
+
+.mission-page .mission-content {
+  width: 100%;
+  max-width: var(--mission-content-width);
+
+  margin-left: auto;
+  margin-right: auto;
+
+  padding-left: var(--mission-side-padding);
+  padding-right: var(--mission-side-padding);
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   TIPOGRAFIA GLOBAL
+   ========================================================= */
 
 .mission-page h1,
 .mission-page h2,
@@ -20,39 +76,15 @@
   color: var(--landing-text);
 }
 
-/* =========================================================
-   SISTEMA GLOBAL DE MARGENS
-   Mantém o mesmo alinhamento horizontal da Home
-   ========================================================= */
-
-.mission-page {
-  --mission-content-width: 1200px;
-  --mission-side-padding: clamp(1.5rem, 5vw, 4rem);
+.mission-page p {
+  margin-top: 0;
 }
-
-.mission-page>section {
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.mission-page .mission-content {
-  width: 100%;
-  max-width: var(--mission-content-width);
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: var(--mission-side-padding);
-  padding-right: var(--mission-side-padding);
-  box-sizing: border-box;
-}
-
-/* =========================================================
-   Base Typographic helpers
-   ========================================================= */
 
 .highlight {
   color: var(--landing-text) !important;
   font-weight: 500;
 }
+
 
 /* =========================================================
    BUTTONS
@@ -61,14 +93,23 @@
 .btn-primary {
   background-color: var(--landing-accent);
   color: #fff;
+
   padding: 1.2rem 3rem;
+
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.15em;
+
   border-radius: 2px;
   border: none;
+
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  transition:
+    background-color 0.4s ease,
+    transform 0.4s ease,
+    box-shadow 0.4s ease;
+
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -77,21 +118,35 @@
 .btn-primary:hover {
   background-color: var(--landing-accent-hover);
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(196, 109, 83, 0.2);
+
+  box-shadow:
+    0 10px 20px rgba(196, 109, 83, 0.2);
 }
+
 
 .btn-secondary {
   background: transparent;
+
   border: 1px solid var(--landing-border);
+
   color: var(--landing-text);
+
   padding: 1.2rem 3rem;
+
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.15em;
+
   border-radius: 2px;
+
   cursor: pointer;
-  transition: all 0.4s ease;
+
+  transition:
+    border-color 0.4s ease,
+    color 0.4s ease;
+
   text-decoration: none;
+
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -101,15 +156,23 @@
   border-color: var(--landing-text);
 }
 
+
 .btn-text {
   background: transparent;
+
   border: none;
+
   color: var(--landing-text-light);
+
   font-size: 0.9rem;
+
   text-transform: uppercase;
   letter-spacing: 0.1em;
+
   cursor: pointer;
+
   transition: color 0.3s;
+
   padding: 0.5rem;
 }
 
@@ -117,60 +180,78 @@
   color: var(--landing-text);
 }
 
+
 /* =========================================================
    1. HERO
    ========================================================= */
 
 .mission-hero {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  width: 100%;
 
-  /*
-   * Mantemos o espaço do header sem alterar
-   * a tipografia ou a escala da Hero.
-   */
+  min-height: 100vh;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr) minmax(0, 1fr);
+
   padding-top: 5rem;
 
-  width: 100%;
   box-sizing: border-box;
 }
 
+
+/* ---------------------------------------------------------
+   HERO — TEXT
+   --------------------------------------------------------- */
+
 .mission-hero-text {
   /*
-   * Mesmo sistema lateral utilizado pelo restante da página.
+   * O conteúdo começa exatamente no mesmo eixo horizontal
+   * definido pelo container global.
    */
+  padding-left: max(var(--mission-side-padding),
+      calc((100vw - var(--mission-content-width)) / 2 + var(--mission-side-padding)));
+
+  padding-right: clamp(2rem, 4vw, 5rem);
+
   padding-top: 4rem;
   padding-bottom: 4rem;
-  padding-left: var(--mission-side-padding);
-  padding-right: clamp(2rem, 4vw, 5rem);
 
   display: flex;
   flex-direction: column;
   justify-content: center;
 
+  min-width: 0;
+
   box-sizing: border-box;
 }
 
+
 .mission-id {
-  /*
-   * O elemento continua existindo no TSX,
-   * mas não aparece acima do título.
-   */
   display: none;
 }
 
+
 .mission-hero-title {
   font-size: clamp(3rem, 5vw, 4.5rem);
+
   line-height: 1.1;
+
+  margin-top: 0;
   margin-bottom: 4rem;
 }
 
+
 .mission-hero-statements {
   font-size: clamp(1.2rem, 2vw, 1.5rem);
+
   font-family: var(--font-serif);
+
   color: var(--landing-text);
+
   margin-bottom: 4rem;
+
   opacity: 0.9;
 }
 
@@ -178,37 +259,46 @@
   margin-bottom: 0.5rem;
 }
 
+
 .mission-hero-pill-wrapper {
   margin-bottom: 4rem;
 }
 
+
 .mission-hero-cta {
   display: flex;
+
   gap: 1.5rem;
+
   flex-wrap: wrap;
 }
 
-/*
- * IMAGEM DA HERO
- *
- * A imagem fica menor visualmente sem alterar
- * o alinhamento lateral da página.
- */
+
+/* ---------------------------------------------------------
+   HERO — VISUAL
+   --------------------------------------------------------- */
+
 .mission-hero-visual {
-  background-image: url('https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=2000&auto=format&fit=crop');
+  background-image:
+    url('https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=2000&auto=format&fit=crop'
+    );
 
   background-size: cover;
   background-position: center;
 
-  height: calc(100% - 2rem);
-  width: calc(100% - 2rem);
+  width: calc(100% - var(--mission-side-padding));
 
-  margin-right: 1rem;
+  height: calc(100% - 2rem);
+
   margin-top: 1rem;
   margin-bottom: 1rem;
+  margin-right: var(--mission-side-padding);
 
   border-radius: 2px;
+
+  min-width: 0;
 }
+
 
 /* =========================================================
    2. PARALLAX SECTION
@@ -216,9 +306,14 @@
 
 .mission-parallax-section {
   position: relative;
+
+  width: 100%;
+
   min-height: 80vh;
 
-  background-image: url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2000&auto=format&fit=crop');
+  background-image:
+    url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2000&auto=format&fit=crop'
+    );
 
   background-attachment: fixed;
   background-size: cover;
@@ -228,51 +323,82 @@
   align-items: center;
   justify-content: center;
 
-  padding: 8rem var(--mission-side-padding);
+  padding-top: 8rem;
+  padding-bottom: 8rem;
 
   color: #fff;
+
   text-align: center;
 
   box-sizing: border-box;
 }
 
+
 .parallax-overlay {
   position: absolute;
+
   inset: 0;
 
-  background-color: rgba(28, 25, 23, 0.85);
+  background-color:
+    rgba(28, 25, 23, 0.85);
 }
+
 
 .parallax-content {
   position: relative;
+
   z-index: 2;
 
   width: 100%;
+
   max-width: 900px;
+
+  margin-left: auto;
+  margin-right: auto;
+
+  padding-left: var(--mission-side-padding);
+  padding-right: var(--mission-side-padding);
+
+  box-sizing: border-box;
 }
+
 
 .parallax-content h2 {
   color: #fff;
+
   font-size: clamp(3rem, 6vw, 5rem);
+
+  margin-top: 0;
   margin-bottom: 6rem;
 }
 
+
 .parallax-list p {
   color: rgba(255, 255, 255, 0.8);
+
   font-size: clamp(1.8rem, 4vw, 3rem);
+
   font-family: var(--font-serif);
+
   margin-bottom: 2rem;
 }
+
 
 .parallax-conclusion {
   margin-top: 8rem;
 }
 
+
 .parallax-conclusion h3 {
   color: #fff;
+
   font-size: clamp(2.5rem, 5vw, 4rem);
+
   line-height: 1.3;
+
+  margin-top: 0;
 }
+
 
 /* =========================================================
    3. TENSION SECTION
@@ -280,50 +406,76 @@
 
 .mission-tension-section {
   width: 100%;
-  box-sizing: border-box;
 
   padding-top: 8rem;
   padding-bottom: 8rem;
 
+  box-sizing: border-box;
+}
+
+
+/*
+ * IMPORTANTE:
+ *
+ * A largura agora é controlada pelo mesmo container global.
+ */
+
+.mission-tension-section .tension-grid {
+  width: 100%;
+  max-width: var(--mission-content-width);
+
+  margin-left: auto;
+  margin-right: auto;
+
   padding-left: var(--mission-side-padding);
   padding-right: var(--mission-side-padding);
 
-  max-width: 1280px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.tension-grid {
   display: flex;
+
   flex-direction: row;
+
   justify-content: space-between;
 
   gap: 4rem;
+
   align-items: flex-start;
 
-  width: 100%;
+  box-sizing: border-box;
 }
+
 
 .tension-left {
-  flex: 0 0 45%;
+  flex: 0 0 calc(50% - 2rem);
+
   min-width: 0;
 }
 
+
 .tension-right {
-  flex: 0 0 45%;
+  flex: 0 0 calc(50% - 2rem);
+
   min-width: 0;
 }
+
 
 .tension-title {
   font-size: clamp(2rem, 4vw, 3.5rem);
+
   line-height: 1.2;
+
   word-break: break-word;
+
   white-space: normal;
+
+  margin-top: 0;
 }
+
 
 .tension-right p {
   font-size: clamp(1.2rem, 2vw, 1.8rem);
+
   font-family: var(--font-serif);
+
   color: var(--landing-text) !important;
 
   margin-bottom: 1.5rem;
@@ -331,25 +483,37 @@
   line-height: 1.5;
 
   opacity: 1 !important;
+
   visibility: visible !important;
+
   display: block !important;
 }
 
+
 .tension-conclusion {
-  margin-top: 5rem;
-  text-align: center;
+  width: 100%;
+
   max-width: 800px;
+
+  margin-top: 5rem;
 
   margin-left: auto;
   margin-right: auto;
+
+  text-align: center;
 }
+
 
 .tension-conclusion p {
   font-size: clamp(1.8rem, 3vw, 2.5rem);
+
   font-family: var(--font-serif);
+
   color: var(--landing-text-light);
+
   line-height: 1.4;
 }
+
 
 /* =========================================================
    4. MINIMAL SECTION
@@ -357,7 +521,6 @@
 
 .mission-minimal-section {
   width: 100%;
-  box-sizing: border-box;
 
   background-color: var(--landing-border);
 
@@ -368,50 +531,67 @@
   padding-right: var(--mission-side-padding);
 
   text-align: center;
+
+  box-sizing: border-box;
 }
 
+
 .minimal-id {
+  display: block;
+
   font-size: 0.85rem;
+
   text-transform: uppercase;
+
   letter-spacing: 0.2em;
+
   color: var(--landing-text-light);
 
   margin-bottom: 6rem;
-
-  display: block;
 }
+
 
 .minimal-statements {
   width: 100%;
+
   max-width: 1000px;
 
   margin-left: auto;
   margin-right: auto;
 }
 
+
 .minimal-statements p {
   font-size: clamp(2.5rem, 5vw, 4rem);
+
   font-family: var(--font-serif);
+
   color: var(--landing-text);
 
   margin-bottom: 1.5rem;
 }
 
+
 .minimal-conclusion {
-  margin-top: 8rem;
+  width: 100%;
 
   max-width: 700px;
+
+  margin-top: 8rem;
 
   margin-left: auto;
   margin-right: auto;
 }
 
+
 .minimal-conclusion p {
   font-size: clamp(1.2rem, 2vw, 1.5rem);
+
   color: var(--landing-text-light);
 
   margin-bottom: 1.5rem;
 }
+
 
 /* =========================================================
    5. MONUMENTAL TEXT SECTION
@@ -419,7 +599,6 @@
 
 .mission-monumental-section {
   width: 100%;
-  box-sizing: border-box;
 
   padding-top: 10rem;
   padding-bottom: 10rem;
@@ -429,11 +608,17 @@
 
   text-align: center;
 
+  box-sizing: border-box;
+}
+
+
+.mission-monumental-section>* {
   max-width: 1200px;
 
   margin-left: auto;
   margin-right: auto;
 }
+
 
 .monumental-title {
   font-size: clamp(2.5rem, 5vw, 4rem);
@@ -447,10 +632,12 @@
   color: var(--landing-text);
 }
 
+
 .monumental-subtitle {
   font-size: clamp(1rem, 1.5vw, 1.2rem);
 
   text-transform: uppercase;
+
   letter-spacing: 0.1em;
 
   color: var(--landing-accent);
@@ -460,14 +647,17 @@
   margin-bottom: 8rem;
 }
 
+
 .monumental-text-block {
   margin-bottom: 8rem;
 
   display: flex;
+
   flex-direction: column;
 
   gap: 1.5rem;
 }
+
 
 .monumental-intro {
   font-size: clamp(3rem, 6vw, 5rem);
@@ -478,6 +668,7 @@
 
   line-height: 1.1;
 }
+
 
 .monumental-core {
   font-size: clamp(1.5rem, 2vw, 1.8rem);
@@ -491,16 +682,18 @@
   margin-bottom: 4rem;
 }
 
+
 .transformation-grid {
   display: grid;
 
-  grid-template-columns: repeat(auto-fit,
-      minmax(280px, 1fr));
+  grid-template-columns:
+    repeat(auto-fit, minmax(280px, 1fr));
 
   gap: 2rem;
 
   width: 100%;
 }
+
 
 .transformation-card {
   background-color: #fff;
@@ -512,10 +705,13 @@
   padding: 3rem 2rem;
 
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.03);
 
   transition:
     transform 0.3s ease,
@@ -524,11 +720,14 @@
   min-height: 150px;
 }
 
+
 .transformation-card:hover {
   transform: translateY(-5px);
 
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.06);
 }
+
 
 .transformation-card p {
   font-size: clamp(1.4rem, 2vw, 1.8rem);
@@ -542,14 +741,18 @@
   line-height: 1.4;
 }
 
+
 .transformation-card.highlight {
   background-color: var(--landing-text);
+
   border-color: var(--landing-text);
 }
+
 
 .transformation-card.highlight p {
   color: #fff;
 }
+
 
 .monumental-final {
   font-size: clamp(1.8rem, 3vw, 2.5rem);
@@ -565,9 +768,11 @@
   border-top: 1px solid var(--landing-border);
 }
 
+
 .monumental-final .highlight {
   color: var(--landing-accent);
 }
+
 
 /* =========================================================
    6. BRIDGE SECTION
@@ -575,7 +780,6 @@
 
 .mission-bridge-section {
   width: 100%;
-  box-sizing: border-box;
 
   background-color: var(--landing-text);
 
@@ -588,13 +792,17 @@
   padding-right: var(--mission-side-padding);
 
   text-align: center;
+
+  box-sizing: border-box;
 }
+
 
 .mission-bridge-section h2 {
   color: var(--landing-bg);
 
   font-size: clamp(2.5rem, 4vw, 3.5rem);
 
+  margin-top: 0;
   margin-bottom: 6rem;
 
   max-width: 800px;
@@ -602,6 +810,7 @@
   margin-left: auto;
   margin-right: auto;
 }
+
 
 .bridge-text p {
   font-size: clamp(1.2rem, 2vw, 1.5rem);
@@ -616,9 +825,11 @@
   margin-right: auto;
 }
 
+
 .bridge-highlight {
   margin-top: 8rem;
 }
+
 
 .bridge-highlight p {
   font-family: var(--font-serif);
@@ -630,13 +841,13 @@
   line-height: 1.4;
 }
 
+
 /* =========================================================
    7. EDITORIAL PRICING
    ========================================================= */
 
 .mission-editorial-pricing {
   width: 100%;
-  box-sizing: border-box;
 
   padding-top: 8rem;
   padding-bottom: 8rem;
@@ -644,13 +855,21 @@
   padding-left: var(--mission-side-padding);
   padding-right: var(--mission-side-padding);
 
+  text-align: center;
+
+  box-sizing: border-box;
+}
+
+
+.mission-editorial-pricing>* {
+  width: 100%;
+
   max-width: 1280px;
 
   margin-left: auto;
   margin-right: auto;
-
-  text-align: center;
 }
+
 
 .mission-editorial-pricing h2 {
   font-size: clamp(2.5rem, 4vw, 3.5rem);
@@ -661,6 +880,7 @@
 
   margin-bottom: 2rem;
 }
+
 
 .editorial-tiers {
   display: grid;
@@ -673,6 +893,7 @@
   margin-bottom: 6rem;
 }
 
+
 .editorial-tier {
   background-color: #fff;
 
@@ -683,6 +904,7 @@
   padding: 4rem 2.5rem;
 
   display: flex;
+
   flex-direction: column;
 
   position: relative;
@@ -695,6 +917,7 @@
     0 10px 30px rgba(0, 0, 0, 0.02);
 }
 
+
 .editorial-tier:hover {
   transform: translateY(-8px);
 
@@ -702,12 +925,14 @@
     0 20px 40px rgba(0, 0, 0, 0.06);
 }
 
+
 .editorial-tier.highlight-tier {
   border-color: var(--landing-accent);
 
   box-shadow:
     0 15px 35px rgba(196, 109, 83, 0.1);
 }
+
 
 .editorial-tier-badge {
   position: absolute;
@@ -737,18 +962,21 @@
   white-space: nowrap;
 }
 
+
 .simplified-tiers {
-  max-width: 800px;
+  max-width: 800px !important;
 
   margin-left: auto;
   margin-right: auto;
 }
+
 
 @media (min-width: 768px) {
   .simplified-tiers {
     grid-template-columns: 1fr 1fr;
   }
 }
+
 
 .editorial-tier-name {
   font-size: 2rem;
@@ -760,6 +988,7 @@
   text-align: center;
 }
 
+
 .editorial-tier-price {
   margin-bottom: 4rem;
 
@@ -767,6 +996,7 @@
 
   text-align: center;
 }
+
 
 .editorial-price-main {
   font-family: var(--font-serif);
@@ -790,6 +1020,7 @@
   white-space: nowrap;
 }
 
+
 .editorial-price-main small {
   font-size: clamp(1rem, 1.2vw, 1.2rem);
 
@@ -800,11 +1031,13 @@
   margin-left: 0;
 }
 
+
 .editorial-price-sub {
   font-size: 1rem;
 
   color: var(--landing-text-light);
 }
+
 
 .editorial-btn {
   background: transparent;
@@ -836,11 +1069,13 @@
   outline: none;
 }
 
+
 .editorial-btn:hover {
   border-color: var(--landing-accent);
 
   color: var(--landing-accent);
 }
+
 
 .editorial-btn.primary {
   background-color: var(--landing-accent);
@@ -850,6 +1085,7 @@
   border: 1px solid var(--landing-accent);
 }
 
+
 .editorial-btn.primary:hover {
   background-color: var(--landing-accent-hover);
 
@@ -858,17 +1094,20 @@
   color: #fff;
 }
 
+
 .editorial-free {
   text-align: center;
 
   margin-top: 8rem;
 }
 
+
 .editorial-free h3 {
   font-size: 1.2rem;
 
   margin-bottom: 2rem;
 }
+
 
 .editorial-free-actions {
   display: flex;
@@ -880,6 +1119,7 @@
   gap: 2rem;
 }
 
+
 .editorial-divider {
   width: 1px;
 
@@ -888,13 +1128,13 @@
   background-color: var(--landing-border);
 }
 
+
 /* =========================================================
    8. FECHAMENTO
    ========================================================= */
 
 .mission-closing-section {
   width: 100%;
-  box-sizing: border-box;
 
   padding-top: 8rem;
   padding-bottom: 0;
@@ -904,13 +1144,18 @@
 
   text-align: center;
 
+  box-sizing: border-box;
+}
+
+
+.closing-sequence {
+  width: 100%;
+
   max-width: 1000px;
 
   margin-left: auto;
   margin-right: auto;
-}
 
-.closing-sequence {
   font-size: clamp(2.5rem, 5vw, 4rem);
 
   font-family: var(--font-serif);
@@ -922,11 +1167,20 @@
   margin-bottom: 8rem;
 }
 
+
 .closing-sequence p {
   margin: 2rem 0;
 }
 
+
 .closing-final {
+  width: 100%;
+
+  max-width: 900px;
+
+  margin-left: auto;
+  margin-right: auto;
+
   font-size: clamp(1.5rem, 3vw, 2.2rem);
 
   font-family: var(--font-serif);
@@ -936,9 +1190,11 @@
   color: var(--landing-text-light);
 }
 
+
 .closing-final p {
   margin-bottom: 1.5rem;
 }
+
 
 .closing-final .highlight {
   font-size: clamp(2rem, 4vw, 3rem);
@@ -948,13 +1204,13 @@
   margin-top: 4rem;
 }
 
+
 /* =========================================================
    9. FOOTER
    ========================================================= */
 
 .mission-site-footer {
   width: 100%;
-  box-sizing: border-box;
 
   background-color: var(--landing-text);
 
@@ -967,11 +1223,15 @@
   padding-right: var(--mission-side-padding);
 
   margin-top: 8rem;
+
+  box-sizing: border-box;
 }
+
 
 .footer-content {
   width: 100%;
-  max-width: 1200px;
+
+  max-width: var(--mission-content-width);
 
   margin-left: auto;
   margin-right: auto;
@@ -987,6 +1247,7 @@
   margin-bottom: 4rem;
 }
 
+
 .footer-brand {
   flex: 1;
 
@@ -994,6 +1255,7 @@
 
   max-width: 500px;
 }
+
 
 .footer-brand h3 {
   font-family: var(--font-serif);
@@ -1005,6 +1267,7 @@
   color: #fff;
 }
 
+
 .footer-brand p {
   color: rgba(255, 255, 255, 0.7);
 
@@ -1012,6 +1275,7 @@
 
   font-size: 1rem;
 }
+
 
 .footer-links {
   display: flex;
@@ -1021,6 +1285,7 @@
   flex-wrap: wrap;
 }
 
+
 .footer-column {
   display: flex;
 
@@ -1028,6 +1293,7 @@
 
   gap: 1rem;
 }
+
 
 .footer-column h4 {
   font-size: 0.85rem;
@@ -1041,6 +1307,7 @@
   margin-bottom: 1rem;
 }
 
+
 .footer-column a {
   color: rgba(255, 255, 255, 0.8);
 
@@ -1051,18 +1318,22 @@
   transition: color 0.3s ease;
 }
 
+
 .footer-column a:hover {
   color: #fff;
 }
 
+
 .footer-bottom {
   width: 100%;
-  max-width: 1200px;
+
+  max-width: var(--mission-content-width);
 
   margin-left: auto;
   margin-right: auto;
 
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top:
+    1px solid rgba(255, 255, 255, 0.1);
 
   padding-top: 2rem;
 
@@ -1072,6 +1343,7 @@
 
   font-size: 0.85rem;
 }
+
 
 /* =========================================================
    10. MODAL
@@ -1087,7 +1359,6 @@
   display: flex;
 
   align-items: center;
-
   justify-content: center;
 
   z-index: 1000;
@@ -1096,6 +1367,7 @@
 
   padding: 1.5rem;
 }
+
 
 .modal-content {
   background: var(--landing-bg);
@@ -1114,11 +1386,11 @@
     0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
+
 .modal-close {
   position: absolute;
 
   top: 1.5rem;
-
   right: 1.5rem;
 
   font-size: 2rem;
@@ -1136,9 +1408,11 @@
   transition: color 0.3s;
 }
 
+
 .modal-close:hover {
   color: var(--landing-accent);
 }
+
 
 .modal-title {
   font-size: 2.2rem;
@@ -1150,6 +1424,7 @@
   color: var(--landing-text);
 }
 
+
 .modal-desc {
   font-size: 1.1rem;
 
@@ -1160,6 +1435,7 @@
   line-height: 1.5;
 }
 
+
 .modal-form .form-group {
   display: flex;
 
@@ -1169,6 +1445,7 @@
 
   margin-bottom: 1.5rem;
 }
+
 
 .modal-form label {
   font-size: 0.85rem;
@@ -1181,6 +1458,7 @@
 
   color: var(--landing-text);
 }
+
 
 .modal-form select,
 .modal-form input {
@@ -1201,10 +1479,12 @@
   transition: border-color 0.3s;
 }
 
+
 .modal-form select:focus,
 .modal-form input:focus {
   border-color: var(--landing-accent);
 }
+
 
 .modal-submit {
   background: var(--landing-accent);
@@ -1234,15 +1514,18 @@
   transition: background-color 0.3s;
 }
 
+
 .modal-submit:hover:not(:disabled) {
   background: var(--landing-accent-hover);
 }
+
 
 .modal-submit:disabled {
   opacity: 0.7;
 
   cursor: not-allowed;
 }
+
 
 .modal-secure {
   text-align: center;
@@ -1254,140 +1537,188 @@
   margin-top: 1.5rem;
 }
 
+
 /* =========================================================
-   LOGO DO MENU — MISSION
+   11. LOGO DO MENU — MISSION
    ========================================================= */
 
-/*
- * 90px reais de altura.
- * O max-height anterior de 48px no TSX era conflitante.
- */
 .mission-page .landing-logo-img {
   height: 90px !important;
+
   width: auto !important;
+
   max-height: 90px !important;
+
   max-width: 240px !important;
+
   display: block;
+
   object-fit: contain;
 }
 
+
 /* =========================================================
-   DESKTOP
+   12. DESKTOP
    ========================================================= */
 
 @media (min-width: 901px) {
+
   .mission-hero-text {
     /*
-     * A borda esquerda do texto passa a obedecer
-     * exatamente ao mesmo sistema lateral.
+     * Alinhamento calculado com o mesmo container global.
      */
-    padding-left: var(--mission-side-padding);
+    padding-left: max(var(--mission-side-padding),
+        calc((100vw - var(--mission-content-width)) / 2 + var(--mission-side-padding)));
   }
 
   .mission-hero-visual {
-    /*
-     * Não deixa a imagem alterar o alinhamento do conteúdo.
-     */
-    margin-right: var(--mission-side-padding);
+    margin-right:
+      max(var(--mission-side-padding),
+        calc((100vw - var(--mission-content-width)) / 2 + var(--mission-side-padding)));
   }
 }
 
+
 /* =========================================================
-   TABLET / MOBILE
+   13. TABLET
    ========================================================= */
 
 @media (max-width: 900px) {
+
+  .mission-page {
+    --mission-side-padding: 1.5rem;
+  }
+
+
   .mission-hero {
     grid-template-columns: 1fr;
 
-    grid-template-rows: 40vh auto;
+    grid-template-rows:
+      40vh auto;
 
     padding-top: 2rem;
   }
+
 
   .mission-hero-text {
     padding-top: 2rem;
+
     padding-bottom: 2rem;
 
     padding-left: var(--mission-side-padding);
+
     padding-right: var(--mission-side-padding);
   }
+
 
   .mission-hero-visual {
     order: -1;
 
-    width: calc(100% - 2 * var(--mission-side-padding));
+    width:
+      calc(100% - (2 * var(--mission-side-padding)));
 
     margin-left: var(--mission-side-padding);
+
     margin-right: var(--mission-side-padding);
 
     margin-top: 0.5rem;
+
     margin-bottom: 0.5rem;
 
     height: 100%;
   }
 
-  .tension-grid {
+
+  .mission-tension-section .tension-grid {
     flex-direction: column;
 
     gap: 3rem;
   }
 
+
   .tension-left,
   .tension-right {
     flex: 0 0 100%;
+
     width: 100%;
   }
 
+
   .tension-title {
     position: relative;
+
     top: 0;
   }
 }
 
+
+/* =========================================================
+   14. MOBILE
+   ========================================================= */
+
 @media (max-width: 768px) {
+
   .mission-page {
     --mission-side-padding: 1.5rem;
   }
 
+
   .mission-hero-title {
-    font-size: clamp(2.5rem, 8vw, 3rem);
+    font-size:
+      clamp(2.5rem, 8vw, 3rem);
   }
+
 
   .mission-parallax-section {
     padding-top: 6rem;
+
     padding-bottom: 6rem;
+
+    background-attachment: scroll;
   }
+
 
   .mission-tension-section {
     padding-top: 6rem;
+
     padding-bottom: 6rem;
   }
+
 
   .mission-minimal-section {
     padding-top: 6rem;
+
     padding-bottom: 6rem;
   }
+
 
   .mission-monumental-section {
     padding-top: 6rem;
+
     padding-bottom: 6rem;
   }
+
 
   .monumental-math {
     gap: 1rem;
+
     margin-bottom: 5rem;
   }
 
+
   .mission-bridge-section {
     padding-top: 6rem;
+
     padding-bottom: 6rem;
   }
 
+
   .mission-editorial-pricing {
     padding-top: 6rem;
+
     padding-bottom: 6rem;
   }
+
 
   .editorial-tiers {
     grid-template-columns: 1fr;
@@ -1395,9 +1726,11 @@
     gap: 3rem;
   }
 
+
   .editorial-tier {
     padding: 2rem 0;
   }
+
 
   .editorial-free-actions {
     flex-direction: column;
@@ -1405,20 +1738,25 @@
     gap: 1rem;
   }
 
+
   .editorial-divider {
     width: 20px;
 
     height: 1px;
   }
 
+
   .mission-closing-section {
     padding-top: 6rem;
+
     padding-bottom: 3rem;
   }
+
 
   .mission-site-footer {
     padding-top: 5rem;
   }
+
 
   .footer-content {
     flex-direction: column;
@@ -1427,25 +1765,35 @@
   }
 }
 
+
 /* =========================================================
-   EXTRA SMALL DEVICES
+   15. EXTRA SMALL DEVICES
    ========================================================= */
 
 @media (max-width: 480px) {
+
   .mission-page {
     --mission-side-padding: 1.25rem;
   }
 
+
   .mission-hero {
-    grid-template-rows: 35vh auto;
+    grid-template-rows:
+      35vh auto;
   }
+
 
   .mission-hero-visual {
-    width: calc(100% - 2 * var(--mission-side-padding));
+    width:
+      calc(100% - (2 * var(--mission-side-padding)));
 
-    margin-left: var(--mission-side-padding);
-    margin-right: var(--mission-side-padding);
+    margin-left:
+      var(--mission-side-padding);
+
+    margin-right:
+      var(--mission-side-padding);
   }
+
 
   .mission-hero-cta {
     flex-direction: column;
@@ -1453,27 +1801,38 @@
     align-items: stretch;
   }
 
+
   .btn-primary,
   .btn-secondary {
     width: 100%;
+
     box-sizing: border-box;
   }
+
 
   .editorial-price-main {
     white-space: normal;
   }
 
+
   .editorial-free-actions {
     width: 100%;
   }
+
 
   .footer-brand {
     min-width: 0;
   }
 
+
   .footer-links {
     flex-direction: column;
 
     gap: 2.5rem;
+  }
+
+
+  .modal-content {
+    padding: 2rem 1.5rem;
   }
 }
