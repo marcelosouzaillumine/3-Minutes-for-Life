@@ -21,13 +21,19 @@ export function Home({ onExplore }: HomeProps) {
   const { t, i18n } = useTranslation(['common']);
   const { user } = useAuth();
 
-  const [devotional, setDevotional] = useState<Devotional | null>(null);
+  const [devotional, setDevotional] =
+    useState<Devotional | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [saved, setSaved] = useState(false);
 
-  const [reflectionContent, setReflectionContent] = useState('');
-  const [savingReflection, setSavingReflection] = useState(false);
+  const [reflectionContent, setReflectionContent] =
+    useState('');
+
+  const [savingReflection, setSavingReflection] =
+    useState(false);
+
   const [savedReflectionSuccess, setSavedReflectionSuccess] =
     useState(false);
 
@@ -47,10 +53,11 @@ export function Home({ onExplore }: HomeProps) {
 
         const todayStr = getTodayInSaoPaulo();
 
-        const data = await DevotionalService.getDailyDevotional(
-          todayStr,
-          i18n.language
-        );
+        const data =
+          await DevotionalService.getDailyDevotional(
+            todayStr,
+            i18n.language
+          );
 
         if (!mounted) return;
 
@@ -59,7 +66,8 @@ export function Home({ onExplore }: HomeProps) {
         /*
          * Check saved status
          */
-        const favorites = await JourneyService.listFavorites();
+        const favorites =
+          await JourneyService.listFavorites();
 
         if (!mounted) return;
 
@@ -68,11 +76,14 @@ export function Home({ onExplore }: HomeProps) {
         /*
          * Track devotional view
          */
-        AnalyticsService.trackEvent('devotional_view', {
-          devotional_id: data.id,
-          title: data.title,
-          language: i18n.language,
-        });
+        AnalyticsService.trackEvent(
+          'devotional_view',
+          {
+            devotional_id: data.id,
+            title: data.title,
+            language: i18n.language,
+          }
+        );
       } catch (err) {
         console.error(
           'Failed to load daily devotional:',
@@ -83,7 +94,9 @@ export function Home({ onExplore }: HomeProps) {
           setError(
             err instanceof Error
               ? err
-              : new Error('Failed to load devotional')
+              : new Error(
+                'Failed to load devotional'
+              )
           );
         }
       } finally {
@@ -110,13 +123,15 @@ export function Home({ onExplore }: HomeProps) {
     if (!devotional) return;
 
     try {
-      const isSaved = await JourneyService.toggleFavorite(
-        devotional.id
-      );
+      const isSaved =
+        await JourneyService.toggleFavorite(
+          devotional.id
+        );
 
       setSaved(isSaved);
     } catch (err) {
       console.error(err);
+
       alert(
         t(
           'home.saveError',
@@ -136,7 +151,10 @@ export function Home({ onExplore }: HomeProps) {
     if (!devotional) return;
 
     try {
-      await JourneyService.complete(devotional.id);
+      await JourneyService.complete(
+        devotional.id
+      );
+
       alert(t('completed'));
     } catch (err) {
       console.error(err);
@@ -150,7 +168,12 @@ export function Home({ onExplore }: HomeProps) {
    */
 
   const handleSaveReflection = async () => {
-    if (!devotional || !reflectionContent.trim()) return;
+    if (
+      !devotional ||
+      !reflectionContent.trim()
+    ) {
+      return;
+    }
 
     try {
       setSavingReflection(true);
@@ -186,11 +209,20 @@ export function Home({ onExplore }: HomeProps) {
   /*
    * ============================================================
    * LOGO
+   * ============================================================
    *
-   * Página principal possui fundo claro.
-   * Portanto, utiliza explicitamente a variante "dark",
-   * evitando que o componente escolha uma versão inadequada
-   * em dispositivos móveis.
+   * IMPORTANTE:
+   *
+   * Esta página possui fundo CLARO.
+   *
+   * Portanto:
+   *
+   *   light = logo para fundo claro
+   *   dark  = logo para fundo escuro
+   *
+   * Nunca usar "auto" aqui, porque a interface da aplicação
+   * não deve trocar a identidade visual apenas porque o celular
+   * está configurado em modo escuro.
    * ============================================================
    */
 
@@ -204,10 +236,11 @@ export function Home({ onExplore }: HomeProps) {
         alignItems: 'flex-start',
         padding: 0,
         margin: 0,
+        background: 'transparent',
       }}
     >
       <BrandLogo
-        variant="dark"
+        variant="light"
         alt="3 Minutes for Life"
         className="landing-logo-img"
         style={{
@@ -217,6 +250,7 @@ export function Home({ onExplore }: HomeProps) {
           marginTop: '1rem',
           marginBottom: '2.5rem',
           flexShrink: 0,
+          maxWidth: '120px',
         }}
       />
     </header>
@@ -236,6 +270,9 @@ export function Home({ onExplore }: HomeProps) {
           minHeight: '50vh',
           display: 'flex',
           flexDirection: 'column',
+          width: '100%',
+          maxWidth: '100%',
+          overflowX: 'hidden',
         }}
       >
         {renderLogo()}
@@ -250,7 +287,8 @@ export function Home({ onExplore }: HomeProps) {
         >
           <p
             style={{
-              color: 'var(--color-text-light)',
+              color:
+                'var(--color-text-light)',
             }}
           >
             {t('loading')}
@@ -274,6 +312,9 @@ export function Home({ onExplore }: HomeProps) {
           minHeight: '50vh',
           display: 'flex',
           flexDirection: 'column',
+          width: '100%',
+          maxWidth: '100%',
+          overflowX: 'hidden',
         }}
       >
         {renderLogo()}
@@ -286,11 +327,13 @@ export function Home({ onExplore }: HomeProps) {
             justifyContent: 'center',
             alignItems: 'center',
             textAlign: 'center',
+            width: '100%',
           }}
         >
           <p
             style={{
-              color: 'var(--color-text-light)',
+              color:
+                'var(--color-text-light)',
               marginBottom: '1rem',
             }}
           >
@@ -299,7 +342,9 @@ export function Home({ onExplore }: HomeProps) {
 
           <button
             className="btn-primary"
-            onClick={() => window.location.reload()}
+            onClick={() =>
+              window.location.reload()
+            }
           >
             {t('continue')}
           </button>
@@ -315,7 +360,14 @@ export function Home({ onExplore }: HomeProps) {
    */
 
   return (
-    <div className="page-home">
+    <div
+      className="page-home"
+      style={{
+        width: '100%',
+        maxWidth: '100%',
+        overflowX: 'hidden',
+      }}
+    >
 
       {/* ========================================================
           HEADER / LOGO
@@ -342,6 +394,8 @@ export function Home({ onExplore }: HomeProps) {
       {devotional.audio_url && (
         <div
           style={{
+            width: '100%',
+            maxWidth: '100%',
             marginBottom: '2rem',
           }}
         >
@@ -350,6 +404,7 @@ export function Home({ onExplore }: HomeProps) {
             src={devotional.audio_url}
             style={{
               width: '100%',
+              maxWidth: '100%',
               height: '40px',
             }}
           />
@@ -394,7 +449,9 @@ export function Home({ onExplore }: HomeProps) {
         <div className="application-text">
           {devotional.practical_application ? (
             <HtmlRenderer
-              html={devotional.practical_application}
+              html={
+                devotional.practical_application
+              }
             />
           ) : (
             <p
@@ -404,7 +461,9 @@ export function Home({ onExplore }: HomeProps) {
                 opacity: 0.7,
               }}
             >
-              {t('home.applicationPending')}
+              {t(
+                'home.applicationPending'
+              )}
             </p>
           )}
         </div>
@@ -420,18 +479,26 @@ export function Home({ onExplore }: HomeProps) {
               borderTop:
                 '1px solid var(--color-border)',
               paddingTop: '1.5rem',
+              width: '100%',
+              maxWidth: '100%',
             }}
           >
             <span className="label">
-              {t('home.scriptureReference')}
+              {t(
+                'home.scriptureReference'
+              )}
             </span>
 
             <p
               style={{
                 fontWeight: 500,
+                overflowWrap: 'anywhere',
+                wordBreak: 'break-word',
               }}
             >
-              {devotional.scripture_reference}
+              {
+                devotional.scripture_reference
+              }
             </p>
 
             {devotional.scripture_text && (
@@ -442,6 +509,8 @@ export function Home({ onExplore }: HomeProps) {
                   color:
                     'var(--color-text-light)',
                   fontSize: '0.95rem',
+                  overflowWrap: 'anywhere',
+                  wordBreak: 'break-word',
                 }}
               >
                 &ldquo;
@@ -463,6 +532,8 @@ export function Home({ onExplore }: HomeProps) {
               borderTop:
                 '1px solid var(--color-border)',
               paddingTop: '1.5rem',
+              width: '100%',
+              maxWidth: '100%',
             }}
           >
             <span className="label">
@@ -493,6 +564,9 @@ export function Home({ onExplore }: HomeProps) {
             borderTop:
               '1px solid var(--color-border)',
             paddingTop: '2rem',
+            width: '100%',
+            maxWidth: '100%',
+            minWidth: 0,
           }}
         >
           <h3
@@ -514,7 +588,9 @@ export function Home({ onExplore }: HomeProps) {
               lineHeight: 1.5,
             }}
           >
-            {t('home.myReflectionPrompt')}
+            {t(
+              'home.myReflectionPrompt'
+            )}
           </p>
 
           <div
@@ -522,6 +598,8 @@ export function Home({ onExplore }: HomeProps) {
               display: 'flex',
               flexDirection: 'column',
               gap: '1rem',
+              width: '100%',
+              minWidth: 0,
             }}
           >
             <textarea
@@ -536,6 +614,8 @@ export function Home({ onExplore }: HomeProps) {
               )}
               style={{
                 width: '100%',
+                maxWidth: '100%',
+                minWidth: 0,
                 minHeight: '120px',
                 padding: '1rem',
                 borderRadius: '12px',
@@ -574,10 +654,13 @@ export function Home({ onExplore }: HomeProps) {
                 gap: '1rem',
                 marginTop: '0.5rem',
                 flexWrap: 'wrap',
+                minWidth: 0,
               }}
             >
               <button
-                onClick={handleSaveReflection}
+                onClick={
+                  handleSaveReflection
+                }
                 disabled={
                   savingReflection ||
                   !reflectionContent.trim()
@@ -649,6 +732,7 @@ export function Home({ onExplore }: HomeProps) {
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
+              aria-hidden="true"
             >
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
@@ -670,6 +754,7 @@ export function Home({ onExplore }: HomeProps) {
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
+              aria-hidden="true"
             >
               <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
               <polyline points="22 4 12 14.01 9 11.01" />
@@ -686,7 +771,6 @@ export function Home({ onExplore }: HomeProps) {
             devotional={devotional}
             asIcon={true}
           />
-
         </div>
 
         {/* ======================================================
@@ -704,6 +788,8 @@ export function Home({ onExplore }: HomeProps) {
         <div
           style={{
             marginTop: '1rem',
+            width: '100%',
+            maxWidth: '100%',
           }}
         >
           <button
