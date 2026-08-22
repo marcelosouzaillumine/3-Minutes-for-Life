@@ -566,3 +566,45 @@ a:focus-visible {
   display: block !important;
   object-fit: contain !important;
 }
+
+/* =========================================================
+   SHARED DEVOTIONAL
+   Garante que a página compartilhada fique acima
+   dos elementos globais da aplicação.
+========================================================= */
+
+.shared-devotional-page {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  isolation: isolate;
+}
+
+.shared-devotional-container {
+  position: relative;
+  z-index: 2;
+}
+
+.shared-devotional-header {
+  position: relative;
+  z-index: 10;
+}
+
+.shared-devotional-content {
+  position: relative;
+  z-index: 2;
+}
+
+.shared-devotional-principle {
+  position: relative;
+  z-index: 3;
+}
+
+/*
+ * A navegação inferior da aplicação não deve
+ * sobrepor a página pública compartilhada.
+ */
+.shared-devotional-page~.bottom-nav,
+.shared-devotional-page .bottom-nav {
+  display: none;
+}
