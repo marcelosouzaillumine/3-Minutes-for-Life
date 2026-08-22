@@ -211,15 +211,16 @@ export function PrincipleView({
 
       {/* ========================================================
           HEADER / LOGO
-
-          A logo só aparece quando showLogo=true.
-
-          IMPORTANT:
-          variant="dark" = logo para fundo claro/branco.
-
-          No SharedDevotional:
+          
+          Esta página possui fundo claro.
+          
+          Portanto:
+          variant="light" = logo para fundo claro.
+          
+          SharedDevotional pode usar:
           showLogo={false}
-          Portanto esta logo não será renderizada.
+          
+          Nesse caso, nenhuma logo será renderizada aqui.
       ========================================================= */}
 
       {showLogo && (
@@ -240,11 +241,11 @@ export function PrincipleView({
           }}
         >
           <BrandLogo
-            variant="dark"
+            variant="light"
             alt="3 Minutes for Life"
             className="landing-logo-img"
             style={{
-              width: '120px',
+              width: '160px',
               height: 'auto',
               display: 'block',
               flexShrink: 0,
@@ -270,6 +271,7 @@ export function PrincipleView({
             color:
               'var(--color-text-light)',
             maxWidth: '100%',
+            boxSizing: 'border-box',
           }}
         >
           <svg
@@ -331,6 +333,7 @@ export function PrincipleView({
           style={{
             maxWidth: '100%',
             overflowWrap: 'break-word',
+            wordBreak: 'break-word',
           }}
         >
           {devotional.title}
@@ -346,6 +349,7 @@ export function PrincipleView({
             style={{
               maxWidth: '100%',
               overflowWrap: 'break-word',
+              wordBreak: 'break-word',
             }}
           >
             {devotional.principle_statement}
@@ -362,6 +366,7 @@ export function PrincipleView({
             maxWidth: '100%',
             minWidth: 0,
             boxSizing: 'border-box',
+            overflowWrap: 'break-word',
           }}
         >
           <HtmlRenderer
@@ -426,6 +431,7 @@ export function PrincipleView({
             style={{
               maxWidth: '100%',
               overflowWrap: 'break-word',
+              wordBreak: 'break-word',
             }}
           >
             {devotional.practical_application ? (
@@ -458,6 +464,7 @@ export function PrincipleView({
               style={{
                 width: '100%',
                 maxWidth: '100%',
+                minWidth: 0,
                 boxSizing: 'border-box',
                 marginTop: '2rem',
                 borderTop:
@@ -475,6 +482,7 @@ export function PrincipleView({
                   fontStyle: 'italic',
                   maxWidth: '100%',
                   overflowWrap: 'break-word',
+                  wordBreak: 'break-word',
                 }}
               >
                 <HtmlRenderer
@@ -493,6 +501,7 @@ export function PrincipleView({
               style={{
                 width: '100%',
                 maxWidth: '100%',
+                minWidth: 0,
                 boxSizing: 'border-box',
                 marginTop: '2rem',
                 borderTop:
@@ -509,7 +518,9 @@ export function PrincipleView({
               <p
                 style={{
                   fontWeight: 500,
+                  maxWidth: '100%',
                   overflowWrap: 'break-word',
+                  wordBreak: 'break-word',
                 }}
               >
                 {
@@ -525,7 +536,9 @@ export function PrincipleView({
                     color:
                       'var(--color-text-light)',
                     fontSize: '0.95rem',
+                    maxWidth: '100%',
                     overflowWrap: 'break-word',
+                    wordBreak: 'break-word',
                   }}
                 >
                   &ldquo;
@@ -544,6 +557,7 @@ export function PrincipleView({
             style={{
               width: '100%',
               maxWidth: '100%',
+              minWidth: 0,
               boxSizing: 'border-box',
               marginTop: '2.5rem',
               marginBottom: '2.5rem',
@@ -558,6 +572,8 @@ export function PrincipleView({
                 fontSize: '1.2rem',
                 marginBottom: '0.5rem',
                 fontWeight: 600,
+                maxWidth: '100%',
+                overflowWrap: 'break-word',
               }}
             >
               {t('home.myReflection')}
@@ -570,6 +586,8 @@ export function PrincipleView({
                   'var(--color-text-light)',
                 marginBottom: '1.5rem',
                 lineHeight: 1.5,
+                maxWidth: '100%',
+                overflowWrap: 'break-word',
               }}
             >
               {t(
@@ -634,6 +652,8 @@ export function PrincipleView({
                       'var(--color-text-light)',
                     marginTop: '-0.5rem',
                     fontStyle: 'italic',
+                    maxWidth: '100%',
+                    overflowWrap: 'break-word',
                   }}
                 >
                   {t(
@@ -649,6 +669,7 @@ export function PrincipleView({
                     marginTop: '0.5rem',
                     flexWrap: 'wrap',
                     maxWidth: '100%',
+                    minWidth: 0,
                   }}
                 >
 
@@ -682,6 +703,7 @@ export function PrincipleView({
                           : 1,
                       transition:
                         'opacity 0.2s',
+                      maxWidth: '100%',
                     }}
                   >
                     {savingReflection
@@ -699,6 +721,9 @@ export function PrincipleView({
                         fontSize: '0.9rem',
                         color: '#4CAF50',
                         fontWeight: 500,
+                        maxWidth: '100%',
+                        overflowWrap:
+                          'break-word',
                       }}
                     >
                       {t(
@@ -718,6 +743,7 @@ export function PrincipleView({
                 style={{
                   width: '100%',
                   maxWidth: '100%',
+                  minWidth: 0,
                   boxSizing: 'border-box',
                   padding: '1.5rem',
                   borderRadius: '12px',
@@ -734,6 +760,7 @@ export function PrincipleView({
                   }
                   style={{
                     maxWidth: '100%',
+                    boxSizing: 'border-box',
                     padding:
                       '0.75rem 1.5rem',
                     borderRadius: '24px',
@@ -789,6 +816,7 @@ export function PrincipleView({
                     style={{
                       width: '100%',
                       maxWidth: '100%',
+                      margin: 0,
                       fontSize: '1.25rem',
                       color:
                         'var(--color-text)',
@@ -796,6 +824,7 @@ export function PrincipleView({
                       fontWeight: 500,
                       overflowWrap:
                         'break-word',
+                      wordBreak: 'break-word',
                     }}
                   >
                     {customAction.text}
@@ -807,12 +836,13 @@ export function PrincipleView({
                     style={{
                       width: '100%',
                       maxWidth: '100%',
+                      margin: 0,
                       fontSize: '1.1rem',
                       color:
                         'var(--color-text-light)',
-                      marginTop: '-1rem',
                       overflowWrap:
                         'break-word',
+                      wordBreak: 'break-word',
                     }}
                   >
                     {customAction.subtext}
@@ -849,12 +879,13 @@ export function PrincipleView({
                     style={{
                       width: '100%',
                       maxWidth: '100%',
+                      margin: 0,
                       fontSize: '0.9rem',
                       color:
                         'var(--color-text-light)',
-                      marginTop: '-0.5rem',
                       overflowWrap:
                         'break-word',
+                      wordBreak: 'break-word',
                     }}
                   >
                     {customAction.note}
@@ -870,10 +901,17 @@ export function PrincipleView({
           <div
             className="action-bar"
             style={{
+              width: '100%',
               maxWidth: '100%',
+              minWidth: 0,
               boxSizing: 'border-box',
+              overflow: 'hidden',
             }}
           >
+
+            {/* ==================================================
+                CUSTOM ACTION
+            =================================================== */}
 
             {customAction &&
               customAction.variant !==
@@ -979,6 +1017,7 @@ export function PrincipleView({
               maxWidth: '100%',
               minWidth: 0,
               boxSizing: 'border-box',
+              overflow: 'hidden',
             }}
           >
             <RelationshipSection

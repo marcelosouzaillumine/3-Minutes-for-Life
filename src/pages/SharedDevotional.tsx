@@ -178,7 +178,6 @@ export function SharedDevotional() {
           width: '100%',
           maxWidth: '100%',
           minHeight: '100vh',
-          overflowX: 'hidden',
           boxSizing: 'border-box',
         }}
       >
@@ -188,8 +187,7 @@ export function SharedDevotional() {
             width: '100%',
             maxWidth: '600px',
             margin: '0 auto',
-            padding:
-              '0 1rem 4rem 1rem',
+            padding: '0 1rem 4rem',
             boxSizing: 'border-box',
           }}
         >
@@ -206,14 +204,15 @@ export function SharedDevotional() {
             }}
           >
             <BrandLogo
-              variant="dark"
+              variant="light"
               alt="3 Minutes for Life"
               className="landing-logo-img"
               style={{
-                width: '90px',
+                width: '120px',
                 height: 'auto',
                 display: 'block',
-                marginTop: '1rem',
+                flexShrink: 0,
+                marginTop: '1.25rem',
                 marginBottom: '2.5rem',
               }}
             />
@@ -272,7 +271,6 @@ export function SharedDevotional() {
         width: '100%',
         maxWidth: '100%',
         minHeight: '100vh',
-        overflowX: 'hidden',
         boxSizing: 'border-box',
       }}
     >
@@ -282,11 +280,11 @@ export function SharedDevotional() {
           width: '100%',
           maxWidth: '600px',
           margin: '0 auto',
-          padding:
-            '0 1rem 5rem 1rem',
+          padding: '0 1rem 5rem',
           boxSizing: 'border-box',
         }}
       >
+
         {/* ======================================================
             HEADER / LOGO
         ======================================================= */}
@@ -302,19 +300,18 @@ export function SharedDevotional() {
             padding: 0,
             margin: 0,
             boxSizing: 'border-box',
-            overflow: 'hidden',
           }}
         >
           <BrandLogo
-            variant="dark"
+            variant="light"
             alt="3 Minutes for Life"
             className="landing-logo-img"
             style={{
-              width: '90px',
+              width: '120px',
               height: 'auto',
               display: 'block',
               flexShrink: 0,
-              marginTop: '1rem',
+              marginTop: '1.25rem',
               marginBottom: '2.5rem',
             }}
           />
@@ -337,6 +334,7 @@ export function SharedDevotional() {
             wordBreak: 'normal',
           }}
         >
+
           {/* ====================================================
               SENDER MESSAGE
           ===================================================== */}
@@ -380,7 +378,6 @@ export function SharedDevotional() {
               maxWidth: '100%',
               minWidth: 0,
               boxSizing: 'border-box',
-              overflow: 'hidden',
             }}
           >
             <PrincipleView
