@@ -12,153 +12,296 @@ export function SharedDevotional() {
   const { t, i18n } = useTranslation(['common']);
   const { user } = useAuth();
 
-  const [devotional, setDevotional] = useState<Devotional | null>(null);
+  const [devotional, setDevotional] =
+    useState<Devotional | null>(null);
+
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [senderName, setSenderName] = useState<string | null>(null);
+
+  const [error, setError] =
+    useState<Error | null>(null);
+
+  const [senderName, setSenderName] =
+    useState<string | null>(null);
 
   useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
+    let mounted = true;
+
+    const searchParams = new URLSearchParams(
+      window.location.search
+    );
+
     const devotionalId = searchParams.get('d');
     const urlLang = searchParams.get('lang');
+
     const pathname = window.location.pathname;
-    const code = pathname.replace('/r/', '').split('?')[0].replace('/', '');
 
-    // Force language from URL if present
-    if (urlLang && i18n.language !== urlLang) {
-      i18n.changeLanguage(urlLang);
-    }
+    const code = pathname
+      .replace('/r/', '')
+      .split('?')[0]
+      .replace('/', '');
 
-    const fetchDevotionalAndSender = async () => {
+    const loadSharedDevotional = async () => {
       try {
+        setLoading(true);
+        setError(null);
+
         if (!devotionalId) {
           throw new Error('No devotional ID found');
         }
 
-        // Use urlLang if available, otherwise fallback to current i18n language
-        const targetLang = urlLang || i18n.language;
+        /*
+         * ========================================================
+         * LANGUAGE
+         * ========================================================
+         *
+         * O idioma definido no link possui prioridade.
+         *
+         * Exemplo:
+         * /r/ABC123?d=xxx&lang=en
+         *
+         * Isso garante que o conteúdo compartilhado seja aberto
+         * no idioma em que foi originalmente compartilhado.
+         */
 
-        const data = await DevotionalService.getDevotional(
-          devotionalId,
-          targetLang
-        );
+        const targetLang =
+          urlLang || i18n.language;
+
+        if (
+          urlLang &&
+          i18n.language !== urlLang
+        ) {
+          await i18n.changeLanguage(urlLang);
+        }
+
+        /*
+         * ========================================================
+         * DEVOTIONAL
+         * ========================================================
+         */
+
+        const data =
+          await DevotionalService.getDevotional(
+            devotionalId,
+            targetLang
+          );
+
+        if (!mounted) {
+          return;
+        }
 
         setDevotional(data);
 
-        AnalyticsService.trackEvent('devotional_opened', {
-          devotional_id: devotionalId,
-          channel: 'shared_link',
-        });
+        /*
+         * ========================================================
+         * ANALYTICS
+         * ========================================================
+         */
+
+        AnalyticsService.trackEvent(
+          'devotional_opened',
+          {
+            devotional_id: devotionalId,
+            channel: 'shared_link',
+            language: targetLang,
+          }
+        );
+
+        /*
+         * ========================================================
+         * REFERRER
+         * ========================================================
+         *
+         * Recupera o nome da pessoa que compartilhou
+         * o devocional.
+         */
 
         if (code) {
-          const { data: referrerName, error: referrerError } =
-            await supabase.rpc('get_referrer_name', {
+          const {
+            data: referrerName,
+            error: referrerError,
+          } = await supabase.rpc(
+            'get_referrer_name',
+            {
               p_referral_code: code,
-            });
+            }
+          );
 
-          if (!referrerError && referrerName) {
-            const firstName = referrerName.split(' ')[0];
-            setSenderName(firstName);
+          if (!mounted) {
+            return;
+          }
+
+          if (
+            !referrerError &&
+            referrerName
+          ) {
+            const firstName =
+              referrerName
+                .trim()
+                .split(/\s+/)[0];
+
+            if (firstName) {
+              setSenderName(firstName);
+            }
           }
         }
-      } catch (err: any) {
-        console.error('Failed to load shared devotional:', err);
-        setError(err);
+      } catch (err) {
+        console.error(
+          'Failed to load shared devotional:',
+          err
+        );
+
+        if (mounted) {
+          setError(
+            err instanceof Error
+              ? err
+              : new Error(
+                'Failed to load devotional'
+              )
+          );
+        }
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchDevotionalAndSender();
+    loadSharedDevotional();
+
+    return () => {
+      mounted = false;
+    };
   }, [i18n.language]);
+
+  /*
+   * ============================================================
+   * CTA
+   * ============================================================
+   */
 
   const handleCtaClick = () => {
     window.location.href = '/login';
   };
 
+  /*
+   * ============================================================
+   * LOADING
+   * ============================================================
+   */
+
   if (loading) {
     return (
-      <div
-        style={{
-          padding: '2rem',
-          textAlign: 'center',
-        }}
-      >
-        <span
-          className="label"
-          style={{
-            opacity: 0.5,
-          }}
-        >
-          {t('common:loading', 'Carregando reflexão...')}
-        </span>
+      <div className="shared-devotional-page">
+        <header className="principle-view-header">
+          <BrandLogo
+            variant="light"
+            alt="3 Minutes for Life"
+            className="landing-logo-img"
+          />
+        </header>
+
+        <main className="page-home">
+          <div
+            style={{
+              minHeight: '50vh',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'center',
+            }}
+          >
+            <span
+              className="label"
+              style={{
+                opacity: 0.5,
+              }}
+            >
+              {t(
+                'common:loading',
+                'Carregando reflexão...'
+              )}
+            </span>
+          </div>
+        </main>
       </div>
     );
   }
 
+  /*
+   * ============================================================
+   * ERROR
+   * ============================================================
+   */
+
   if (error || !devotional) {
-    // Fallback to landing if the devotional couldn't be loaded
     window.location.href = '/';
     return null;
   }
 
+  /*
+   * ============================================================
+   * SHARED DEVOTIONAL
+   * ============================================================
+   */
+
   return (
     <div className="shared-devotional-page">
-      {/* =========================================================
-          HEADER / LOGO
-      ========================================================== */}
-      <header
-        className="landing-header"
-        style={{
-          position: 'relative',
-          background: 'transparent',
-          justifyContent: 'flex-start',
-          maxWidth: '600px',
-          margin: '0 auto',
-          padding: '0 1rem',
-        }}
-      >
+
+      {/* ========================================================
+          HEADER
+      ========================================================= */}
+
+      <header className="principle-view-header">
         <BrandLogo
           variant="light"
           alt="3 Minutes for Life"
           className="landing-logo-img"
           style={{
             marginTop: '1rem',
-            height: '90px',
-            width: 'auto',
+            width: '90px',
+            height: 'auto',
             display: 'block',
           }}
         />
       </header>
 
-      {/* =========================================================
+      {/* ========================================================
           CONTENT
-      ========================================================== */}
-      <div
-        style={{
-          maxWidth: '600px',
-          margin: '0 auto',
-          padding: '2rem 1rem',
-        }}
-      >
+      ========================================================= */}
+
+      <main className="page-home">
+
+        {/* ======================================================
+            SENDER MESSAGE
+        ======================================================= */}
+
         <div
           className="perceived-statement"
           style={{
             fontSize: '1.5rem',
-            marginBottom: '2rem',
+            lineHeight: 1.4,
             marginTop: '2rem',
+            marginBottom: '2rem',
           }}
         >
           {senderName
-            ? t('shared.senderShared', {
-              name: senderName,
-              defaultValue: `${senderName} compartilhou esta reflexão com você.`,
-            })
+            ? t(
+              'shared.senderShared',
+              {
+                name: senderName,
+                defaultValue:
+                  `${senderName} compartilhou esta reflexão com você.`,
+              }
+            )
             : t(
               'shared.someoneShared',
               'Alguém compartilhou esta reflexão com você.'
             )}
         </div>
+
+        {/* ======================================================
+            DEVOTIONAL
+        ======================================================= */}
 
         <PrincipleView
           devotional={devotional}
@@ -166,28 +309,34 @@ export function SharedDevotional() {
             !user
               ? {
                 variant: 'shared',
+
                 text: t(
                   'shared.ctaText',
                   'Que estes três minutos não terminem aqui.'
                 ),
+
                 subtext: t(
                   'shared.ctaSubtext',
                   'Amanhã, uma nova reflexão espera por você.'
                 ),
+
                 label: t(
                   'shared.ctaButton',
                   'Quero continuar'
                 ),
+
                 note: t(
                   'shared.ctaNote',
                   'Gratuito, sempre.'
                 ),
+
                 onClick: handleCtaClick,
               }
               : undefined
           }
         />
-      </div>
+
+      </main>
     </div>
   );
 }

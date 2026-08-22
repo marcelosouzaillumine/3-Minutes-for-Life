@@ -1,18 +1,21 @@
 import type { Devotional } from '../types/Devotional';
 import { JourneyService } from '../services/JourneyService';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { ShareButton } from './ShareButton';
 import { HtmlRenderer } from './HtmlRenderer';
 import { useAuth } from '../context/AuthContext';
 import { ReflectionService } from '../services/ReflectionService';
 import { RelationshipSection } from './RelationshipSection';
 import { CtaEngine } from '../services/CtaEngine';
+import { BrandLogo } from './BrandLogo';
+
 interface PrincipleViewProps {
   devotional: Devotional;
   onBack?: () => void;
-  customAction?: { 
-    label: string; 
+  customAction?: {
+    label: string;
     onClick: () => void;
     variant?: 'shared';
     text?: string;
@@ -21,291 +24,637 @@ interface PrincipleViewProps {
   };
 }
 
-export function PrincipleView({ devotional, onBack, customAction }: PrincipleViewProps) {
+export function PrincipleView({
+  devotional,
+  onBack,
+  customAction,
+}: PrincipleViewProps) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
+
   const [saved, setSaved] = useState(false);
-  const [reflectionContent, setReflectionContent] = useState('');
-  const [savingReflection, setSavingReflection] = useState(false);
-  const [savedReflectionSuccess, setSavedReflectionSuccess] = useState(false);
+
+  const [reflectionContent, setReflectionContent] =
+    useState('');
+
+  const [savingReflection, setSavingReflection] =
+    useState(false);
+
+  const [savedReflectionSuccess, setSavedReflectionSuccess] =
+    useState(false);
+
+  /*
+   * ============================================================
+   * INITIALIZE DEVOTIONAL
+   * ============================================================
+   */
 
   useEffect(() => {
-    // Start progress using canonical UUID directly
-    JourneyService.start(devotional.id).catch(console.error);
-    
-    // Check if saved
-    JourneyService.listFavorites()
-      .then(ids => setSaved(ids.includes(devotional.id)))
-      .catch(console.error);
-      
-    // Load existing reflection if user is authenticated
-    if (user) {
-      ReflectionService.getReflection(devotional.id).then(content => {
-        if (content) setReflectionContent(content);
-      });
-    }
+    let mounted = true;
+
+    const initialize = async () => {
+      try {
+        /*
+         * Start journey using canonical devotional UUID.
+         */
+        await JourneyService.start(devotional.id);
+      } catch (error) {
+        console.error(
+          'Failed to start devotional journey:',
+          error
+        );
+      }
+
+      /*
+       * Load favorite status.
+       */
+      try {
+        const ids = await JourneyService.listFavorites();
+
+        if (mounted) {
+          setSaved(ids.includes(devotional.id));
+        }
+      } catch (error) {
+        console.error(
+          'Failed to load favorite status:',
+          error
+        );
+      }
+
+      /*
+       * Load existing personal reflection.
+       */
+      if (user) {
+        try {
+          const content =
+            await ReflectionService.getReflection(
+              devotional.id
+            );
+
+          if (mounted) {
+            setReflectionContent(content || '');
+          }
+        } catch (error) {
+          console.error(
+            'Failed to load existing reflection:',
+            error
+          );
+        }
+      } else if (mounted) {
+        setReflectionContent('');
+      }
+    };
+
+    initialize();
+
+    return () => {
+      mounted = false;
+    };
   }, [devotional.id, user]);
+
+  /*
+   * ============================================================
+   * FAVORITE
+   * ============================================================
+   */
 
   const toggleSave = async () => {
     try {
-      if (saved) {
-        await JourneyService.toggleFavorite(devotional.id);
-        setSaved(false);
-      } else {
-        await JourneyService.toggleFavorite(devotional.id);
-        setSaved(true);
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Erro ao atualizar favorito.');
+      const isSaved =
+        await JourneyService.toggleFavorite(
+          devotional.id
+        );
+
+      setSaved(isSaved);
+    } catch (error) {
+      console.error(
+        'Failed to update favorite:',
+        error
+      );
+
+      alert(
+        t(
+          'home.saveError',
+          'Erro ao atualizar favorito.'
+        )
+      );
     }
   };
+
+  /*
+   * ============================================================
+   * COMPLETE
+   * ============================================================
+   */
 
   const markComplete = async () => {
     try {
-      await JourneyService.complete(devotional.id);
+      await JourneyService.complete(
+        devotional.id
+      );
+
       alert(t('completed'));
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(
+        'Failed to complete devotional:',
+        error
+      );
     }
   };
 
+  /*
+   * ============================================================
+   * SAVE PERSONAL REFLECTION
+   * ============================================================
+   */
+
   const handleSaveReflection = async () => {
-    if (!reflectionContent.trim()) return;
-    setSavingReflection(true);
+    if (!user) {
+      handleLoginForReflection();
+      return;
+    }
+
+    const content = reflectionContent.trim();
+
+    if (!content) return;
+
     try {
-      await ReflectionService.saveReflection(devotional.id, reflectionContent);
+      setSavingReflection(true);
+
+      await ReflectionService.saveReflection(
+        devotional.id,
+        content
+      );
+
       setSavedReflectionSuccess(true);
-      setTimeout(() => setSavedReflectionSuccess(false), 3000);
-    } catch (err) {
-      console.error('Failed to save reflection:', err);
-      alert('Erro ao salvar sua reflexão.');
+
+      window.setTimeout(() => {
+        setSavedReflectionSuccess(false);
+      }, 3000);
+    } catch (error) {
+      console.error(
+        'Failed to save reflection:',
+        error
+      );
+
+      alert(
+        t(
+          'home.saveError',
+          'Erro ao salvar sua reflexão.'
+        )
+      );
     } finally {
       setSavingReflection(false);
     }
   };
 
+  /*
+   * ============================================================
+   * LOGIN FOR REFLECTION
+   * ============================================================
+   */
+
   const handleLoginForReflection = () => {
-    const currentUrl = encodeURIComponent(window.location.href);
-    window.location.href = `/login?redirectTo=${currentUrl}`;
+    const currentUrl = encodeURIComponent(
+      window.location.href
+    );
+
+    window.location.href =
+      `/login?redirectTo=${currentUrl}`;
   };
+
+  /*
+   * ============================================================
+   * RENDER
+   * ============================================================
+   */
 
   return (
     <div className="principle-view">
+
+      {/* ========================================================
+          HEADER / LOGO
+      ========================================================= */}
+
+      <header className="principle-view-header">
+        <BrandLogo
+          variant="light"
+          alt="3 Minutes for Life"
+          className="landing-logo-img"
+        />
+      </header>
+
+      {/* ========================================================
+          BACK
+      ========================================================= */}
+
       {onBack && (
-        <button onClick={onBack} style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-text-light)' }}>
-          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        <button
+          type="button"
+          className="principle-view-back"
+          onClick={onBack}
+        >
+          <svg
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
-          {t('home.back')}
+
+          <span>{t('home.back')}</span>
         </button>
       )}
-      
+
+      {/* ========================================================
+          CATEGORY
+      ========================================================= */}
+
       <span className="label">
-        {devotional.categories?.name 
-          ? t(`categories.${devotional.categories.name}`, devotional.categories.name)
-          : t('categories.Devocional', 'Devocional')}
+        {devotional.categories?.name
+          ? t(
+            `categories.${devotional.categories.name}`,
+            devotional.categories.name
+          )
+          : t(
+            'categories.Devocional',
+            'Devocional'
+          )}
       </span>
-      
-      <h1 className="principle-title">{devotional.title}</h1>
+
+      {/* ========================================================
+          TITLE
+      ========================================================= */}
+
+      <h1 className="principle-title">
+        {devotional.title}
+      </h1>
+
+      {/* ========================================================
+          PRINCIPLE STATEMENT
+      ========================================================= */}
 
       {devotional.principle_statement && (
-        <p className="principle-statement">{devotional.principle_statement}</p>
+        <p className="principle-statement">
+          {devotional.principle_statement}
+        </p>
       )}
-      
-      <HtmlRenderer 
-        html={CtaEngine.composeReflection(devotional.reflection, { user, language: i18n.language })} 
-        className="principle-reflection" 
+
+      {/* ========================================================
+          REFLECTION
+      ========================================================= */}
+
+      <HtmlRenderer
+        html={CtaEngine.composeReflection(
+          devotional.reflection,
+          {
+            user,
+            language: i18n.language,
+          }
+        )}
+        className="principle-reflection"
       />
-      
+
+      {/* ========================================================
+          AUDIO
+      ========================================================= */}
+
       {devotional.audio_url && (
-        <div style={{ marginBottom: '2rem' }}>
-          <audio controls src={devotional.audio_url} style={{ width: '100%', height: '40px' }} />
+        <div className="principle-view-audio">
+          <audio
+            controls
+            src={devotional.audio_url}
+            aria-label={devotional.title}
+          />
         </div>
       )}
 
+      {/* ========================================================
+          APPLICATION
+      ========================================================= */}
+
       <div className="application-section">
-        <span className="label">{t('home.practiceToday')}</span>
+
+        <span className="label">
+          {t('home.practiceToday')}
+        </span>
+
         <div className="application-text">
           {devotional.practical_application ? (
-            <HtmlRenderer html={devotional.practical_application} />
+            <HtmlRenderer
+              html={
+                devotional.practical_application
+              }
+            />
           ) : (
-            <p style={{ marginBottom: '1rem', fontStyle: 'italic', opacity: 0.7 }}>{t('home.applicationPending')}</p>
+            <p className="application-pending">
+              {t(
+                'home.applicationPending'
+              )}
+            </p>
           )}
         </div>
 
+        {/* ======================================================
+            PRAYER
+        ====================================================== */}
+
         {devotional.prayer && (
-          <div style={{ marginTop: '2rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
-            <span className="label">{t('home.prayer')}</span>
-            <div className="application-text" style={{ fontStyle: 'italic' }}>
-              <HtmlRenderer html={devotional.prayer} />
+          <div className="content-section">
+            <span className="label">
+              {t('home.prayer')}
+            </span>
+
+            <div className="application-text prayer-text">
+              <HtmlRenderer
+                html={devotional.prayer}
+              />
             </div>
           </div>
         )}
 
+        {/* ======================================================
+            SCRIPTURE
+        ====================================================== */}
+
         {devotional.scripture_reference && (
-          <div style={{ marginTop: '2rem', borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem' }}>
-            <span className="label">{t('home.scriptureReference')}</span>
-            <p style={{ fontWeight: 500 }}>
+          <div className="content-section">
+            <span className="label">
+              {t(
+                'home.scriptureReference'
+              )}
+            </span>
+
+            <p className="scripture-reference">
               {devotional.scripture_reference}
             </p>
+
             {devotional.scripture_text && (
-              <p style={{ marginTop: '0.5rem', lineHeight: '1.6', color: 'var(--color-text-light)', fontSize: '0.95rem' }}>
-                &ldquo;{devotional.scripture_text}&rdquo;
+              <p className="scripture-text">
+                &ldquo;
+                {devotional.scripture_text}
+                &rdquo;
               </p>
             )}
           </div>
         )}
-        
-        {/* Minha reflexao - Secao de Reflexao Pessoal */}
-        <div style={{ marginTop: '2.5rem', marginBottom: '2.5rem', borderTop: '1px solid var(--color-border)', paddingTop: '2rem' }}>
-          <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem', fontWeight: 600 }}>{t('home.myReflection')}</h3>
-          <p style={{ fontSize: '0.95rem', color: 'var(--color-text-light)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+
+        {/* ======================================================
+            PERSONAL REFLECTION
+        ====================================================== */}
+
+        <div className="personal-reflection-section">
+
+          <h3 className="personal-reflection-title">
+            {t('home.myReflection')}
+          </h3>
+
+          <p className="personal-reflection-prompt">
             {t('home.myReflectionPrompt')}
           </p>
 
           {user ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="personal-reflection-form">
+
               <textarea
                 value={reflectionContent}
-                onChange={(e) => setReflectionContent(e.target.value)}
-                placeholder={t('home.myReflectionPrompt')}
-                style={{
-                  width: '100%',
-                  minHeight: '120px',
-                  padding: '1rem',
-                  borderRadius: '12px',
-                  border: '1px solid var(--color-border)',
-                  background: 'var(--color-bg)',
-                  color: 'var(--color-text)',
-                  fontSize: '1rem',
-                  lineHeight: '1.5',
-                  resize: 'vertical',
-                  fontFamily: 'inherit'
-                }}
+                onChange={(event) =>
+                  setReflectionContent(
+                    event.target.value
+                  )
+                }
+                placeholder={t(
+                  'home.myReflectionPlaceholder'
+                )}
+                className="personal-reflection-input"
+                aria-label={t(
+                  'home.myReflection'
+                )}
               />
-              <p style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', marginTop: '-0.5rem', fontStyle: 'italic' }}>
-                {t('home.myReflectionPrivate')}
+
+              <p className="personal-reflection-private">
+                {t(
+                  'home.myReflectionPrivate'
+                )}
               </p>
-              
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
+
+              <div className="personal-reflection-actions">
+
                 <button
-                  onClick={handleSaveReflection}
-                  disabled={savingReflection || !reflectionContent.trim()}
-                  style={{
-                    padding: '0.75rem 1.5rem',
-                    borderRadius: '24px',
-                    border: 'none',
-                    background: 'var(--color-text)',
-                    color: 'var(--color-bg)',
-                    fontWeight: 600,
-                    cursor: (savingReflection || !reflectionContent.trim()) ? 'not-allowed' : 'pointer',
-                    opacity: (savingReflection || !reflectionContent.trim()) ? 0.5 : 1,
-                    transition: 'opacity 0.2s'
-                  }}
+                  type="button"
+                  onClick={
+                    handleSaveReflection
+                  }
+                  disabled={
+                    savingReflection ||
+                    !reflectionContent.trim()
+                  }
+                  className="personal-reflection-save"
                 >
-                  {savingReflection ? t('home.savingReflection') : t('home.saveReflection')}
+                  {savingReflection
+                    ? t(
+                      'home.savingReflection'
+                    )
+                    : t(
+                      'home.saveReflection'
+                    )}
                 </button>
+
                 {savedReflectionSuccess && (
-                  <span style={{ fontSize: '0.9rem', color: '#4CAF50', fontWeight: 500 }}>
-                    {t('home.reflectionSaved')}
+                  <span className="personal-reflection-success">
+                    {t(
+                      'home.reflectionSaved'
+                    )}
                   </span>
                 )}
+
               </div>
             </div>
           ) : (
-            <div style={{ 
-              padding: '1.5rem', 
-              borderRadius: '12px', 
-              border: '1px solid var(--color-border)',
-              background: 'rgba(0,0,0,0.02)',
-              textAlign: 'center'
-            }}>
-              <button 
-                onClick={handleLoginForReflection}
-                style={{
-                  padding: '0.75rem 1.5rem',
-                  borderRadius: '24px',
-                  border: '1px solid var(--color-text)',
-                  background: 'transparent',
-                  color: 'var(--color-text)',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  fontSize: '0.95rem'
-                }}
+            <div className="personal-reflection-login">
+
+              <p>
+                {t(
+                  'home.loginToSave',
+                  'Entre para salvar sua reflexão.'
+                )}
+              </p>
+
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={
+                  handleLoginForReflection
+                }
               >
-                {t('home.loginToSave')}
+                {t(
+                  'home.login',
+                  'Entrar'
+                )}
               </button>
+
             </div>
           )}
         </div>
 
-        {customAction?.variant === 'shared' && (
-          <div style={{ marginTop: '3rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', background: 'var(--color-bg)', padding: '2rem 1.5rem', borderRadius: '16px', border: '1px solid var(--color-border)' }}>
-            <p style={{ fontSize: '1.25rem', color: 'var(--color-text)', lineHeight: 1.5, fontWeight: 500 }}>
-              {customAction.text}
-            </p>
-            <p style={{ fontSize: '1.1rem', color: 'var(--color-text-light)', marginTop: '-1rem' }}>
-              {customAction.subtext}
-            </p>
-            <button 
-              onClick={customAction.onClick}
-              style={{
-                padding: '1rem 2rem',
-                borderRadius: '30px',
-                border: 'none',
-                background: 'var(--color-text)',
-                color: 'var(--color-bg)',
-                fontWeight: 600,
-                fontSize: '1.1rem',
-                cursor: 'pointer',
-                transition: 'opacity 0.2s',
-                width: '100%',
-                maxWidth: '300px'
-              }}
-            >
-              {customAction.label}
-            </button>
-            {customAction.note && (
-              <p style={{ fontSize: '0.9rem', color: 'var(--color-text-light)', marginTop: '-0.5rem' }}>
-                {customAction.note}
-              </p>
-            )}
-          </div>
-        )}
+        {/* ======================================================
+            SHARED CTA
+        ====================================================== */}
+
+        {customAction?.variant ===
+          'shared' && (
+            <div className="shared-devotional-cta">
+
+              {customAction.text && (
+                <p className="shared-devotional-cta-text">
+                  {customAction.text}
+                </p>
+              )}
+
+              {customAction.subtext && (
+                <p className="shared-devotional-cta-subtext">
+                  {customAction.subtext}
+                </p>
+              )}
+
+              <button
+                type="button"
+                className="shared-devotional-cta-button"
+                onClick={
+                  customAction.onClick
+                }
+              >
+                {customAction.label}
+              </button>
+
+              {customAction.note && (
+                <p className="shared-devotional-cta-note">
+                  {customAction.note}
+                </p>
+              )}
+
+            </div>
+          )}
+
+        {/* ======================================================
+            ACTION BAR
+        ====================================================== */}
 
         <div className="action-bar">
-          {customAction && customAction.variant !== 'shared' ? (
-            <button className="action-btn" onClick={customAction.onClick}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <circle cx="12" cy="12" r="10" />
+
+          {customAction &&
+            customAction.variant !==
+            'shared' ? (
+            <button
+              type="button"
+              className="action-btn"
+              onClick={
+                customAction.onClick
+              }
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                />
+
                 <path d="M12 8v8M8 12h8" />
               </svg>
-              <span className="action-label">{customAction.label}</span>
+
+              <span className="action-label">
+                {customAction.label}
+              </span>
             </button>
           ) : !customAction ? (
             <>
-              <button className={`action-btn ${saved ? 'active' : ''}`} onClick={toggleSave}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              {/* SAVE */}
+
+              <button
+                type="button"
+                className={`action-btn ${saved ? 'active' : ''
+                  }`}
+                onClick={toggleSave}
+                aria-label={
+                  saved
+                    ? t('saved')
+                    : t('save')
+                }
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                 </svg>
-                <span className="action-label">{saved ? t('saved') : t('save')}</span>
+
+                <span className="action-label">
+                  {saved
+                    ? t('saved')
+                    : t('save')}
+                </span>
               </button>
 
-              <button className="action-btn" onClick={markComplete}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              {/* COMPLETE */}
+
+              <button
+                type="button"
+                className="action-btn"
+                onClick={markComplete}
+                aria-label={t(
+                  'complete'
+                )}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+
                   <polyline points="22 4 12 14.01 9 11.01" />
                 </svg>
-                <span className="action-label">{t('complete')}</span>
+
+                <span className="action-label">
+                  {t('complete')}
+                </span>
               </button>
             </>
           ) : null}
 
-          <ShareButton devotional={devotional} asIcon={true} />
+          {/* SHARE */}
+
+          <ShareButton
+            devotional={devotional}
+            asIcon={true}
+          />
+
         </div>
 
-        <RelationshipSection devotionalId={devotional.id} />
+        {/* ======================================================
+            RELATIONSHIP
+        ====================================================== */}
+
+        <RelationshipSection
+          devotionalId={devotional.id}
+        />
+
       </div>
     </div>
   );

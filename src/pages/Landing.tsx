@@ -52,7 +52,8 @@ export function Landing() {
   const demoPrinciple = {
     id: 1,
     title: 'Você está dando atenção ao que importa?',
-    principle: 'Aquilo que recebe sua atenção ganha espaço na sua vida.',
+    principle:
+      'Aquilo que recebe sua atenção ganha espaço na sua vida.',
     reflection:
       'Todos os dias, muitas coisas disputam nossa atenção. Mensagens, notícias, redes sociais, trabalho, problemas e preocupações. Sem nos darmos conta, podemos passar tanto tempo olhando para tudo isso que deixamos de perceber o que realmente importa.\n\nE como não conseguimos dar atenção a tudo, nossas escolhas fazem diferença. O que recebe nosso olhar com frequência influencia a maneira como vivemos.\n\nPor isso, vale a pena parar e perguntar: o que tem ocupado a minha atenção?\n\nNo meio de tantas demandas, Jesus nos chama a olhar para Deus e confiar nele. Quando fazemos isso, lembramos que nossa vida não depende de tudo o que acontece à nossa volta. Ela está segura em suas mãos.\n\nHoje, antes de seguir de uma tarefa para outra, pare por alguns minutos. Respire, fique em silêncio e perceba o que tem ocupado seus pensamentos.',
     application:
@@ -97,7 +98,8 @@ export function Landing() {
           HEADER
       ========================================================== */}
       <header
-        className={`landing-header ${isMenuOpen ? 'menu-open' : ''}`}
+        className={`landing-header ${isMenuOpen ? 'menu-open' : ''
+          }`}
       >
         <a
           href="/"
@@ -106,7 +108,7 @@ export function Landing() {
           onClick={closeMenu}
         >
           <BrandLogo
-            variant="dark"
+            variant="light"
             alt="3 Minutes for Life"
             className="landing-logo-img"
             style={{
@@ -120,8 +122,14 @@ export function Landing() {
         <button
           type="button"
           className="mobile-menu-btn"
-          onClick={() => setIsMenuOpen((current) => !current)}
-          aria-label={isMenuOpen ? 'Fechar menu' : 'Abrir menu'}
+          onClick={() =>
+            setIsMenuOpen((current) => !current)
+          }
+          aria-label={
+            isMenuOpen
+              ? 'Fechar menu'
+              : 'Abrir menu'
+          }
           aria-expanded={isMenuOpen}
         >
           {isMenuOpen ? (
@@ -160,7 +168,8 @@ export function Landing() {
         </button>
 
         <nav
-          className={`landing-nav ${isMenuOpen ? 'open' : ''}`}
+          className={`landing-nav ${isMenuOpen ? 'open' : ''
+            }`}
           aria-label="Navegação principal"
         >
           <a
@@ -213,7 +222,10 @@ export function Landing() {
       {/* =========================================================
           HERO
       ========================================================== */}
-      <section className="landing-hero" ref={setRef}>
+      <section
+        className="landing-hero"
+        ref={setRef}
+      >
         <div className="hero-content reveal">
           <h1 className="hero-title">
             {t('landing:hero.title')}
@@ -254,7 +266,9 @@ export function Landing() {
                 } as unknown as Devotional
               }
               customAction={{
-                label: t('landing:hero.mockupLabel'),
+                label: t(
+                  'landing:hero.mockupLabel'
+                ),
                 onClick: startApp,
               }}
             />
@@ -265,7 +279,10 @@ export function Landing() {
       {/* =========================================================
           TENSION
       ========================================================== */}
-      <section className="tension-section" ref={setRef}>
+      <section
+        className="tension-section"
+        ref={setRef}
+      >
         <div className="tension-grid">
           <div className="tension-left reveal">
             <span className="attention-kicker">
@@ -275,7 +292,9 @@ export function Landing() {
             <h3 className="tension-title">
               <span
                 dangerouslySetInnerHTML={{
-                  __html: t('landing:tension.title'),
+                  __html: t(
+                    'landing:tension.title'
+                  ),
                 }}
               />
             </h3>
@@ -296,7 +315,10 @@ export function Landing() {
       {/* =========================================================
           RELIEF
       ========================================================== */}
-      <section className="relief-section" ref={setRef}>
+      <section
+        className="relief-section"
+        ref={setRef}
+      >
         <div className="relief-content reveal">
           <h2 className="relief-statement">
             {t('landing:relief.title')}
@@ -320,13 +342,17 @@ export function Landing() {
 
           <div className="experience-card-item reveal delay-100">
             <h3 className="step-title">
-              {t('landing:experience.step1.title')}
+              {t(
+                'landing:experience.step1.title'
+              )}
             </h3>
 
             <p className="step-desc">
               <span
                 dangerouslySetInnerHTML={{
-                  __html: t('landing:experience.step1.desc'),
+                  __html: t(
+                    'landing:experience.step1.desc'
+                  ),
                 }}
               />
             </p>
@@ -334,13 +360,17 @@ export function Landing() {
 
           <div className="experience-card-item reveal delay-200">
             <h3 className="step-title">
-              {t('landing:experience.step2.title')}
+              {t(
+                'landing:experience.step2.title'
+              )}
             </h3>
 
             <p className="step-desc">
               <span
                 dangerouslySetInnerHTML={{
-                  __html: t('landing:experience.step2.desc'),
+                  __html: t(
+                    'landing:experience.step2.desc'
+                  ),
                 }}
               />
             </p>
@@ -348,11 +378,15 @@ export function Landing() {
 
           <div className="experience-card-item reveal delay-300">
             <h3 className="step-title">
-              {t('landing:experience.step3.title')}
+              {t(
+                'landing:experience.step3.title'
+              )}
             </h3>
 
             <p className="step-desc">
-              {t('landing:experience.step3.desc')}
+              {t(
+                'landing:experience.step3.desc'
+              )}
             </p>
           </div>
 
@@ -362,14 +396,18 @@ export function Landing() {
       {/* =========================================================
           QUOTE 1
       ========================================================== */}
-      <section className="quote-section" ref={setRef}>
+      <section
+        className="quote-section"
+        ref={setRef}
+      >
         <p
           className="reveal"
           style={{
             fontSize: '1.2rem',
             textTransform: 'uppercase',
             letterSpacing: '0.1em',
-            color: 'var(--landing-text-light)',
+            color:
+              'var(--landing-text-light)',
             marginBottom: '2rem',
           }}
         >
@@ -382,7 +420,9 @@ export function Landing() {
         >
           <span
             dangerouslySetInnerHTML={{
-              __html: t('landing:quote1.statement'),
+              __html: t(
+                'landing:quote1.statement'
+              ),
             }}
           />
         </div>
@@ -391,7 +431,10 @@ export function Landing() {
       {/* =========================================================
           SPLIT
       ========================================================== */}
-      <section className="split-section" ref={setRef}>
+      <section
+        className="split-section"
+        ref={setRef}
+      >
         <div className="split-image reveal"></div>
 
         <div className="split-content reveal delay-200">
@@ -416,7 +459,9 @@ export function Landing() {
         id="sobre"
         className="audience-section"
         ref={setRef}
-        style={{ textAlign: 'center' }}
+        style={{
+          textAlign: 'center',
+        }}
       >
         <div
           className="reveal"
@@ -427,7 +472,8 @@ export function Landing() {
         >
           <p
             style={{
-              fontFamily: 'var(--font-serif)',
+              fontFamily:
+                'var(--font-serif)',
               fontSize: '2.5rem',
               lineHeight: '1.4',
               marginBottom: '2rem',
@@ -439,7 +485,8 @@ export function Landing() {
           <p
             style={{
               fontSize: '1.25rem',
-              color: 'rgba(250, 248, 246, 0.8)',
+              color:
+                'rgba(250, 248, 246, 0.8)',
             }}
           >
             {t('landing:audience.p2')}
@@ -454,13 +501,16 @@ export function Landing() {
         className="quote-section"
         ref={setRef}
         style={{
-          padding: '6rem var(--spacing-lg)',
+          padding:
+            '6rem var(--spacing-lg)',
         }}
       >
         <div className="perceived-statement reveal">
           <span
             dangerouslySetInnerHTML={{
-              __html: t('landing:quote2.statement'),
+              __html: t(
+                'landing:quote2.statement'
+              ),
             }}
           />
         </div>
@@ -468,9 +518,11 @@ export function Landing() {
         <p
           className="reveal delay-100"
           style={{
-            fontFamily: 'var(--font-serif)',
+            fontFamily:
+              'var(--font-serif)',
             fontSize: '2.5rem',
-            color: 'var(--landing-text-light)',
+            color:
+              'var(--landing-text-light)',
             fontStyle: 'italic',
             marginTop: '4rem',
           }}
@@ -490,51 +542,98 @@ export function Landing() {
         <div className="sustainability-container reveal">
 
           <h2 className="sustainability-title">
-            {t('landing:sustainability.title')}
+            {t(
+              'landing:sustainability.title'
+            )}
           </h2>
 
           <div className="sustainability-grid">
 
             <div className="sustainability-text">
-              <p>{t('landing:sustainability.p1')}</p>
-              <p>{t('landing:sustainability.p2')}</p>
-              <p>{t('landing:sustainability.p3')}</p>
-              <p>{t('landing:sustainability.p4')}</p>
-              <p>{t('landing:sustainability.p5')}</p>
-              <p>{t('landing:sustainability.p6')}</p>
+              <p>
+                {t(
+                  'landing:sustainability.p1'
+                )}
+              </p>
+
+              <p>
+                {t(
+                  'landing:sustainability.p2'
+                )}
+              </p>
+
+              <p>
+                {t(
+                  'landing:sustainability.p3'
+                )}
+              </p>
+
+              <p>
+                {t(
+                  'landing:sustainability.p4'
+                )}
+              </p>
+
+              <p>
+                {t(
+                  'landing:sustainability.p5'
+                )}
+              </p>
+
+              <p>
+                {t(
+                  'landing:sustainability.p6'
+                )}
+              </p>
 
               <button
                 type="button"
                 className="btn-support"
                 onClick={() => {
-                  window.location.href = '/missao';
+                  window.location.href =
+                    '/missao';
                 }}
               >
-                {t('landing:sustainability.btn')}
+                {t(
+                  'landing:sustainability.btn'
+                )}
               </button>
             </div>
 
             <div className="sustainability-breakdown">
 
               <h3>
-                {t('landing:sustainability.breakdownTitle')}
+                {t(
+                  'landing:sustainability.breakdownTitle'
+                )}
               </h3>
 
               <p>
-                {t('landing:sustainability.breakdownDesc')}
+                {t(
+                  'landing:sustainability.breakdownDesc'
+                )}
               </p>
 
               <ul className="breakdown-list">
-                {sustainabilityItems.map((item, index) => (
-                  <li key={index}>
-                    <strong>{item.title}</strong>
-                    <span>{item.desc}</span>
-                  </li>
-                ))}
+                {sustainabilityItems.map(
+                  (item, index) => (
+                    <li key={index}>
+                      <strong>
+                        {item.title}
+                      </strong>
+
+                      <span>
+                        {item.desc}
+                      </span>
+                    </li>
+                  )
+                )}
               </ul>
 
               <p className="breakdown-note">
-                {t('landing:sustainability.note')}
+                {t(
+                  'landing:sustainability.note'
+                )}
               </p>
 
             </div>
@@ -550,7 +649,8 @@ export function Landing() {
         className="continue-section"
         ref={setRef}
         style={{
-          padding: '6rem var(--spacing-md)',
+          padding:
+            '6rem var(--spacing-md)',
           textAlign: 'center',
         }}
       >
@@ -559,22 +659,29 @@ export function Landing() {
           style={{
             fontSize: '2.5rem',
             marginBottom: '1rem',
-            fontFamily: 'var(--font-serif)',
+            fontFamily:
+              'var(--font-serif)',
           }}
         >
-          {t('landing:continue.title')}
+          {t(
+            'landing:continue.title'
+          )}
         </h2>
 
         <p
           className="reveal delay-100"
           style={{
             fontSize: '1.1rem',
-            color: 'var(--landing-text-light)',
+            color:
+              'var(--landing-text-light)',
             maxWidth: '600px',
-            margin: '0 auto 3rem',
+            margin:
+              '0 auto 3rem',
           }}
         >
-          {t('landing:continue.subtitle')}
+          {t(
+            'landing:continue.subtitle'
+          )}
         </p>
 
         <div
@@ -591,24 +698,31 @@ export function Landing() {
             className="btn-start"
             onClick={startApp}
           >
-            {t('landing:continue.btnCreate')}
+            {t(
+              'landing:continue.btnCreate'
+            )}
           </button>
 
           <button
             type="button"
             onClick={() => {
-              window.location.href = '/login';
+              window.location.href =
+                '/login';
             }}
             style={{
               background: 'none',
               border: 'none',
-              color: 'var(--landing-text-light)',
-              textDecoration: 'underline',
+              color:
+                'var(--landing-text-light)',
+              textDecoration:
+                'underline',
               cursor: 'pointer',
               fontSize: '0.9rem',
             }}
           >
-            {t('landing:continue.btnLogin')}
+            {t(
+              'landing:continue.btnLogin'
+            )}
           </button>
         </div>
       </section>
@@ -616,8 +730,10 @@ export function Landing() {
       {/* =========================================================
           FAQ
       ========================================================== */}
-      <section className="faq-section" ref={setRef}>
-
+      <section
+        className="faq-section"
+        ref={setRef}
+      >
         <h2 className="faq-title reveal">
           {t('landing:faq.title')}
         </h2>
@@ -626,61 +742,85 @@ export function Landing() {
 
           <div className="faq-item reveal delay-100">
             <h3 className="faq-question">
-              {t('landing:faq.q1.q')}
+              {t(
+                'landing:faq.q1.q'
+              )}
             </h3>
 
             <p className="faq-answer">
-              {t('landing:faq.q1.a')}
+              {t(
+                'landing:faq.q1.a'
+              )}
             </p>
           </div>
 
           <div className="faq-item reveal delay-200">
             <h3 className="faq-question">
-              {t('landing:faq.q2.q')}
+              {t(
+                'landing:faq.q2.q'
+              )}
             </h3>
 
             <p className="faq-answer">
-              {t('landing:faq.q2.a')}
+              {t(
+                'landing:faq.q2.a'
+              )}
             </p>
           </div>
 
           <div className="faq-item reveal delay-300">
             <h3 className="faq-question">
-              {t('landing:faq.q3.q')}
+              {t(
+                'landing:faq.q3.q'
+              )}
             </h3>
 
             <p className="faq-answer">
-              {t('landing:faq.q3.a')}
+              {t(
+                'landing:faq.q3.a'
+              )}
             </p>
           </div>
 
           <div className="faq-item reveal delay-400">
             <h3 className="faq-question">
-              {t('landing:faq.q4.q')}
+              {t(
+                'landing:faq.q4.q'
+              )}
             </h3>
 
             <p className="faq-answer">
-              {t('landing:faq.q4.a')}
+              {t(
+                'landing:faq.q4.a'
+              )}
             </p>
           </div>
 
           <div className="faq-item reveal delay-500">
             <h3 className="faq-question">
-              {t('landing:faq.q5.q')}
+              {t(
+                'landing:faq.q5.q'
+              )}
             </h3>
 
             <p className="faq-answer">
-              {t('landing:faq.q5.a')}
+              {t(
+                'landing:faq.q5.a'
+              )}
             </p>
           </div>
 
           <div className="faq-item reveal delay-600">
             <h3 className="faq-question">
-              {t('landing:faq.q6.q')}
+              {t(
+                'landing:faq.q6.q'
+              )}
             </h3>
 
             <p className="faq-answer">
-              {t('landing:faq.q6.a')}
+              {t(
+                'landing:faq.q6.a'
+              )}
             </p>
           </div>
 
@@ -690,14 +830,18 @@ export function Landing() {
       {/* =========================================================
           CTA FINAL
       ========================================================== */}
-      <section className="cta-final" ref={setRef}>
-
+      <section
+        className="cta-final"
+        ref={setRef}
+      >
         <h2 className="cta-final-title reveal">
           {t('landing:cta.title')}
         </h2>
 
         <p className="cta-final-subtitle reveal delay-100">
-          {t('landing:cta.subtitle')}
+          {t(
+            'landing:cta.subtitle'
+          )}
         </p>
 
         <div className="reveal delay-200">
@@ -709,7 +853,6 @@ export function Landing() {
             {t('landing:cta.btn')}
           </button>
         </div>
-
       </section>
 
       {/* =========================================================
@@ -733,7 +876,9 @@ export function Landing() {
         <div className="footer-content">
 
           <p className="footer-tagline">
-            {t('landing:footer.tagline')}
+            {t(
+              'landing:footer.tagline'
+            )}
           </p>
 
           <div className="footer-links">
@@ -742,48 +887,68 @@ export function Landing() {
               href="#como-funciona"
               onClick={(event) => {
                 event.preventDefault();
-                handleNavigation('#como-funciona');
+                handleNavigation(
+                  '#como-funciona'
+                );
               }}
             >
-              {t('landing:footer.links.howItWorks')}
+              {t(
+                'landing:footer.links.howItWorks'
+              )}
             </a>
 
             <a
               href="#sobre"
               onClick={(event) => {
                 event.preventDefault();
-                handleNavigation('#sobre');
+                handleNavigation(
+                  '#sobre'
+                );
               }}
             >
-              {t('landing:footer.links.about')}
+              {t(
+                'landing:footer.links.about'
+              )}
             </a>
 
             <a
               href="#apoie"
               onClick={(event) => {
                 event.preventDefault();
-                handleNavigation('#apoie');
+                handleNavigation(
+                  '#apoie'
+                );
               }}
             >
-              {t('landing:footer.links.support')}
+              {t(
+                'landing:footer.links.support'
+              )}
             </a>
 
             <a href="#">
-              {t('landing:footer.links.privacy')}
+              {t(
+                'landing:footer.links.privacy'
+              )}
             </a>
 
             <a href="#">
-              {t('landing:footer.links.terms')}
+              {t(
+                'landing:footer.links.terms'
+              )}
             </a>
 
             <a href="#">
-              {t('landing:footer.links.contact')}
+              {t(
+                'landing:footer.links.contact'
+              )}
             </a>
 
           </div>
 
           <p className="footer-copy">
-            {t('landing:footer.copy')}
+            {t(
+              'landing:footer.copy'
+            )}
           </p>
 
         </div>
