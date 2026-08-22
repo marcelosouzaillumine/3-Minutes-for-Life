@@ -106,7 +106,7 @@ export function Landing() {
           onClick={closeMenu}
         >
           <BrandLogo
-            variant="auto"
+            variant="dark"
             alt="3 Minutes for Life"
             className="landing-logo-img"
             style={{
@@ -719,7 +719,7 @@ export function Landing() {
 
         <div className="footer-signature">
           <BrandLogo
-            variant="auto"
+            variant="dark"
             alt="3 Minutes for Life"
             className="landing-footer-logo"
             style={{
