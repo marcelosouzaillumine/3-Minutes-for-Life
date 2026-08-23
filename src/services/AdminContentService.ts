@@ -30,6 +30,10 @@ export const AdminContentService = {
         reflection,
         practical_application,
         prayer,
+        content_tip,
+        content_tip_image_url,
+        support_message,
+        support_banner_url,
         scripture_reference,
         scripture_text,
         audio_url,
@@ -128,6 +132,10 @@ export const AdminContentService = {
         reflection,
         practical_application,
         prayer,
+        content_tip,
+        content_tip_image_url,
+        support_message,
+        support_banner_url,
         scripture_reference,
         scripture_text,
         publication_date,
@@ -180,6 +188,10 @@ export const AdminContentService = {
     reflection: string;
     practical_application?: string | null;
     prayer?: string | null;
+    content_tip?: string | null;
+    content_tip_image_url?: string | null;
+    support_message?: string | null;
+    support_banner_url?: string | null;
     status: 'draft' | 'published';
   }): Promise<any> {
     const {
@@ -192,6 +204,10 @@ export const AdminContentService = {
       reflection,
       practical_application,
       prayer,
+      content_tip,
+      content_tip_image_url,
+      support_message,
+      support_banner_url,
       status
     } = params;
 
@@ -215,6 +231,10 @@ export const AdminContentService = {
       reflection: reflection ? sanitizeHtml(reflection) : '',
       practical_application: practical_application ? sanitizeHtml(practical_application) : null,
       prayer: prayer ? sanitizeHtml(prayer) : null,
+      content_tip: content_tip ? sanitizeHtml(content_tip) : null,
+      content_tip_image_url: content_tip_image_url || null,
+      support_message: support_message ? sanitizeHtml(support_message) : null,
+      support_banner_url: support_banner_url || null,
       status,
       updated_at: new Date().toISOString()
     };
@@ -279,6 +299,34 @@ export const AdminContentService = {
     const ext = file.name.split('.').pop() || 'jpg';
     const timestamp = Date.now();
     const path = `${devotionalId}/${languageCode}/${type}-${timestamp}.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('share-assets')
+      .upload(path, file, { upsert: true, contentType: file.type });
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage.from('share-assets').getPublicUrl(path);
+    return data.publicUrl;
+  },
+
+  /**
+   * Upload de imagens editoriais opcionais do próprio devocional
+   * (imagem da "Dica de conteúdo" e banner do "Apoio ao projeto").
+   * Reaproveita o mesmo bucket de storage usado pelos assets de compartilhamento,
+   * mas NÃO grava na tabela devotional_share_assets — a URL resultante deve ser
+   * salva pelo chamador no campo correspondente do devocional/tradução
+   * (content_tip_image_url / support_banner_url) via handleSave normal.
+   */
+  async uploadContentImage(
+    devotionalId: string,
+    languageCode: string,
+    field: 'content_tip_image' | 'support_banner',
+    file: File
+  ): Promise<string> {
+    const ext = file.name.split('.').pop() || 'jpg';
+    const timestamp = Date.now();
+    const path = `${devotionalId}/${languageCode}/${field}-${timestamp}.${ext}`;
 
     const { error: uploadError } = await supabase.storage
       .from('share-assets')
