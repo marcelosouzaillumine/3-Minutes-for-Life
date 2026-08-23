@@ -47,6 +47,30 @@
   --content-padding: 1.5rem;
 
   /* =========================================================
+     DEVOTIONAL DESIGN SYSTEM V1 TOKENS
+  ========================================================= */
+
+  --devotional-header-height: 90px;
+  --devotional-logo-max-width: 220px;
+  --devotional-intro-offset: 5rem;
+  --devotional-section-gap: 3rem;
+  --devotional-section-padding: 1.5rem;
+  --devotional-title-size: 2rem;
+  --devotional-body-size: 1.05rem;
+  --devotional-body-line-height: 1.7;
+
+  /* =========================================================
+     CTA BLOCK (editorial inline CTA)
+  ========================================================= */
+
+  --cta-block-bg-start: #fdf7f5;
+  --cta-block-bg-end: #fef9f7;
+  --cta-block-border: #e8d8d3;
+  --cta-block-border-pending: #e0cfc9;
+  --cta-block-shadow: rgba(196, 109, 83, 0.08);
+  --cta-block-pending-text: #aaaaaa;
+
+  /* =========================================================
      TYPOGRAPHY
   ========================================================= */
 
@@ -617,291 +641,118 @@ h4 {
   width: 100%;
 }
 
-/* ---------------------------------------------------------
-   HOME HEADER
---------------------------------------------------------- */
+/* =========================================================
+   DEVOTIONAL SHARED HEADER
+========================================================= */
 
-.page-home .home-header {
+.devotional-header {
+  position: relative;
   width: 100%;
-
-  height: 90px;
-
+  height: var(--devotional-header-height);
   display: flex;
-
   align-items: center;
-
+  justify-content: center;
   padding: 0;
-
-  /*
-   * Ajuste vertical:
-   *
-   * A logo continua ocupando exatamente 90px.
-   * O conteúdo editorial, porém, não deve criar
-   * uma distância excessiva entre a logo e o
-   * primeiro elemento textual.
-   */
-  margin-bottom: 0.5rem;
 }
 
-/* ---------------------------------------------------------
-   HOME LOGO
---------------------------------------------------------- */
-
-.page-home .home-logo {
-  height: 90px !important;
-
-  width: auto !important;
-
-  max-height: 90px !important;
-  max-width: 220px !important;
-
-  display: block !important;
-
-  object-fit: contain !important;
-}
-
-/*
- * A Home possui uma sequência:
- *
- * Logo
- * ↓
- * "Princípio de hoje"
- * ↓
- * Título
- *
- * O label permanece próximo da logo e o título
- * mantém seu espaçamento próprio.
- */
-.page-home>.label {
-  margin-top: 0;
-
-  margin-bottom: 0.75rem;
-}
-
-.page-home>.principle-title {
-  margin-top: 0;
-}
-
-/* ---------------------------------------------------------
-   HOME AUDIO
---------------------------------------------------------- */
-
-.home-audio {
-  width: 100%;
-
-  margin:
-    0 0 2rem;
-}
-
-.home-audio audio {
+.devotional-logo {
   display: block;
-
-  width: 100%;
-  max-width: 100%;
-
-  height: 40px;
+  width: auto;
+  height: var(--devotional-header-height);
+  max-width: var(--devotional-logo-max-width);
+  max-height: var(--devotional-header-height);
+  object-fit: contain;
 }
 
-/* ---------------------------------------------------------
-   HOME CONTENT SECTIONS
---------------------------------------------------------- */
-
-.page-home .application-section {
-  width: 100%;
-
-  margin-top: 3rem;
+.devotional-back {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-light);
+  font-size: 0.9rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
-.page-home .home-content-section {
+/* =========================================================
+   DEVOTIONAL LAYOUT SYSTEM
+========================================================= */
+
+.devotional {
   width: 100%;
-
-  margin-top: 3rem;
-
-  padding-top: 1.5rem;
-
-  border-top:
-    1px solid var(--color-border);
-}
-
-.page-home .home-content-section .label {
-  margin-bottom: 0.75rem;
-}
-
-/* ---------------------------------------------------------
-   HOME APPLICATION
---------------------------------------------------------- */
-
-.page-home .application-text {
-  width: 100%;
-
-  font-size: 1rem;
-
-  line-height: 1.65;
-
+  min-height: 100vh;
   color: var(--color-text);
+  background: var(--color-bg);
 }
 
-.page-home .application-text p {
+.devotional-content {
+  width: 100%;
+  padding: var(--devotional-intro-offset) 0 3rem;
+}
+
+/* Isolating p tags inside the editorial layout */
+.devotional p {
   margin-bottom: 1.5rem;
 }
 
-.page-home .application-text p:last-child {
+.devotional p:last-child {
   margin-bottom: 0;
 }
 
-/* ---------------------------------------------------------
-   HOME REFLECTION
---------------------------------------------------------- */
+/* =========================================================
+   RELATIONSHIP SYSTEM CARDS
+========================================================= */
 
-.home-reflection {
+.relationship-section {
   width: 100%;
+  margin-top: 2rem;
+}
 
+.relationship-card {
   margin-top: 3rem;
-
-  padding-top: 1.5rem;
-
-  border-top:
-    1px solid var(--color-border);
+  padding: 2rem;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  text-align: center;
 }
 
-.home-reflection h3 {
+.relationship-card--prayer {
+  margin-top: 1.5rem;
+}
+
+.relationship-card-title {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 400;
   margin-bottom: 0.5rem;
-
-  font-size: 1.2rem;
-  font-weight: 600;
-
-  line-height: 1.3;
-}
-
-.home-reflection-description {
-  margin-bottom: 1.5rem;
-
-  font-size: 0.95rem;
-
-  line-height: 1.5;
-
-  color: var(--color-text-light);
-}
-
-.home-reflection-form {
-  width: 100%;
-}
-
-.home-reflection-form textarea {
-  display: block;
-
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-
-  min-height: 120px;
-
-  padding: 1rem;
-
-  border:
-    1px solid var(--color-border);
-
-  border-radius: 12px;
-
-  background: var(--color-bg);
   color: var(--color-text);
+}
 
-  font-family: inherit;
+.relationship-card-description {
   font-size: 1rem;
-
-  line-height: 1.5;
-
-  resize: vertical;
-
-  outline: none;
-
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.home-reflection-form textarea::placeholder {
-  color: #999999;
-}
-
-.home-reflection-form textarea:focus {
-  border-color: var(--color-accent);
-
-  box-shadow:
-    0 0 0 3px rgba(196, 109, 83, 0.1);
-}
-
-.home-reflection-private {
-  margin-top: 0.75rem;
-
-  font-size: 0.8rem;
-
-  line-height: 1.4;
-
   color: var(--color-text-light);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
 }
 
-.home-reflection-actions {
-  display: flex;
-
-  align-items: center;
-
-  gap: 1rem;
-
-  margin-top: 1rem;
-
-  flex-wrap: wrap;
-}
-
-.home-save-reflection {
-  display: inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  padding:
-    0.75rem 1.25rem;
-
-  border-radius: 24px;
-
-  background: var(--color-text);
-  color: var(--color-bg);
-
-  font-size: 0.9rem;
-  font-weight: 600;
-
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
-}
-
-.home-save-reflection:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-.home-save-reflection:disabled {
-  opacity: 0.45;
-}
-
-.home-reflection-success {
-  font-size: 0.85rem;
-
-  color: var(--color-accent);
+.relationship-card-btn {
+  width: auto !important;
+  padding: 0.75rem 1.5rem;
 }
 
 /* ---------------------------------------------------------
-   HOME EXPLORE
+   HOME EXPLORE & STATES
 --------------------------------------------------------- */
 
 .home-explore {
   width: 100%;
-
   margin-top: 2.5rem;
 }
-
-/* =========================================================
-   HOME STATES
-========================================================= */
 
 .home-state {
   width: 100%;
@@ -910,12 +761,8 @@ h4 {
 .home-loading,
 .home-error {
   width: 100%;
-
-  padding:
-    var(--spacing-xl) 0;
-
+  padding: var(--spacing-xl) 0;
   text-align: center;
-
   color: var(--color-text-light);
 }
 
@@ -953,44 +800,11 @@ h4 {
 
   margin: 0 auto;
 
+  padding: 0 var(--content-padding);
+
   box-sizing: border-box;
 
   z-index: 2;
-}
-
-/* =========================================================
-   SHARED HEADER
-========================================================= */
-
-.shared-devotional-header {
-  position: relative;
-
-  width: 100%;
-  height: 90px;
-
-  display: flex;
-  align-items: center;
-
-  padding:
-    0 var(--spacing-md);
-
-  box-sizing: border-box;
-
-  z-index: 10;
-}
-
-.shared-devotional-logo {
-  display: block;
-
-  width: auto !important;
-  height: 90px !important;
-
-  max-width: 220px !important;
-  max-height: 90px !important;
-
-  object-fit: contain !important;
-
-  flex-shrink: 0;
 }
 
 /* =========================================================
@@ -1004,8 +818,7 @@ h4 {
 
   box-sizing: border-box;
 
-  padding:
-    var(--spacing-lg) var(--spacing-md);
+  padding: var(--spacing-lg) 0;
 
   z-index: 2;
 }
@@ -1062,289 +875,126 @@ h4 {
 }
 
 /* =========================================================
-   PRINCIPLE VIEW
+   DEVOTIONAL MAIN LAYOUT OVERRIDES
 ========================================================= */
 
-.principle-view {
-  width: 100%;
-  max-width: 600px;
-
-  min-height: 100vh;
-
-  margin: 0 auto;
-
-  color: var(--color-text);
-  background: var(--color-bg);
+.devotional-back {
+  /* Alinhado com a nova especificação */
+  margin: 0;
 }
-
-/* =========================================================
-   PRINCIPLE VIEW HEADER
-========================================================= */
-
-.principle-view-header {
-  width: 100%;
-
-  height: 90px;
-
-  display: flex;
-
-  align-items: center;
-
-  padding: 0;
-}
-
-/* =========================================================
-   PRINCIPLE VIEW LOGO
-========================================================= */
-
-.principle-view-logo {
-  display: block;
-
-  width: auto !important;
-  height: 90px !important;
-
-  max-width: 220px !important;
-  max-height: 90px !important;
-
-  object-fit: contain !important;
-}
-
-/* =========================================================
-   PRINCIPLE VIEW BACK
-========================================================= */
-
-.principle-view .principle-back {
-  display: flex;
-
-  align-items: center;
-
-  gap: 0.5rem;
-
-  margin:
-    0 0 0;
-
-  color: var(--color-text-light);
-
-  font-size: 0.9rem;
-
-  line-height: 1;
-}
-
-/* =========================================================
-   PRINCIPLE VIEW CONTENT
-========================================================= */
-
-.principle-view-content {
-  width: 100%;
-
-  padding:
-    5rem 0 3rem;
-}
-
-/* =========================================================
-   PRINCIPLE INTRODUCTION
-========================================================= */
 
 .principle-introduction {
   width: 100%;
 }
 
-/* ---------------------------------------------------------
-   CATEGORY
---------------------------------------------------------- */
-
-.principle-view-content>.principle-introduction>.label {
+.devotional-content > .principle-introduction > .label {
   margin-bottom: 0.75rem;
 }
 
-/* ---------------------------------------------------------
-   TITLE
---------------------------------------------------------- */
-
-.principle-view .principle-title {
+.principle-title {
   width: 100%;
-
-  margin:
-    0 0 1.5rem;
-
+  margin: 0 0 1.5rem;
   font-family: var(--font-serif);
-
-  font-size: 2rem;
+  font-size: var(--devotional-title-size);
   font-weight: 400;
-
   line-height: 1.1;
-
   letter-spacing: -0.02em;
-
   color: var(--color-text);
 }
 
-/* ---------------------------------------------------------
-   STATEMENT
---------------------------------------------------------- */
-
-.principle-view .principle-statement {
+.principle-statement {
   width: 100%;
-
-  margin:
-    0 0 2.25rem;
-
+  margin: 0 0 2.25rem;
   font-size: 1.25rem;
   font-weight: 500;
-
   line-height: 1.45;
-
   color: var(--color-accent);
 }
 
-/* ---------------------------------------------------------
-   REFLECTION
---------------------------------------------------------- */
-
-.principle-view .principle-reflection-wrapper {
+.principle-reflection-wrapper {
   width: 100%;
 }
 
-.principle-view .principle-reflection {
+.principle-reflection {
   width: 100%;
-
   margin: 0;
-
-  font-size: 1.05rem;
-
-  line-height: 1.7;
-
+  font-size: var(--devotional-body-size);
+  line-height: var(--devotional-body-line-height);
   color: var(--color-text-light);
 }
 
-.principle-view .principle-reflection .html-renderer-content p {
+.principle-reflection .html-renderer-content p {
   margin-bottom: 1.5rem;
 }
 
-.principle-view .principle-reflection .html-renderer-content p:last-child {
+.principle-reflection .html-renderer-content p:last-child {
   margin-bottom: 0;
 }
 
 /* =========================================================
-   PRINCIPLE SECTION SYSTEM
-   Todas as seções usam a mesma régua visual.
+   DEVOTIONAL SECTION SYSTEM
 ========================================================= */
 
 .principle-section-label {
   display: block;
-
   margin-bottom: 0.75rem;
-
   font-size: 0.75rem;
   font-weight: 500;
-
   line-height: 1.2;
-
   text-transform: uppercase;
   letter-spacing: 0.1em;
-
   color: var(--color-text-light);
 }
 
-/* =========================================================
-   SCRIPTURE
-========================================================= */
-
-.principle-view .principle-scripture-section {
+.principle-scripture-section,
+.principle-audio-section,
+.principle-practice-section,
+.principle-prayer-section {
   width: 100%;
-
-  margin-top: 3rem;
-
-  padding-top: 1.5rem;
-
-  border-top:
-    1px solid var(--color-border);
+  margin-top: var(--devotional-section-gap);
+  padding-top: var(--devotional-section-padding);
+  border-top: 1px solid var(--color-border);
 }
 
-.principle-view .principle-scripture-reference {
+.principle-scripture-reference {
   margin: 0;
-
   font-size: 1rem;
   font-weight: 600;
-
   line-height: 1.5;
-
   color: var(--color-text);
-
   overflow-wrap: break-word;
   word-break: break-word;
 }
 
-.principle-view .principle-scripture-text {
-  margin:
-    1rem 0 0;
-
+.principle-scripture-text {
+  margin: 1rem 0 0;
   font-family: var(--font-serif);
-
   font-size: 1.1rem;
-
   line-height: 1.7;
-
   color: var(--color-text-light);
-
   overflow-wrap: break-word;
   word-break: break-word;
 }
 
-/* =========================================================
-   AUDIO
-========================================================= */
-
-.principle-view .principle-audio-section {
-  width: 100%;
-
-  margin-top: 3rem;
-
-  padding-top: 1.5rem;
-
-  border-top:
-    1px solid var(--color-border);
-}
-
-.principle-view .principle-audio-player {
+.principle-audio-player {
   display: block;
-
   width: 100%;
   max-width: 100%;
-
   height: 40px;
 }
 
-/* =========================================================
-   PRACTICE
-========================================================= */
-
-.principle-view .principle-practice-section {
+.principle-practice-text {
   width: 100%;
-
-  margin-top: 3rem;
-
-  padding-top: 1.5rem;
-
-  border-top:
-    1px solid var(--color-border);
-}
-
-.principle-view .principle-practice-text {
-  width: 100%;
-
   font-size: 1rem;
-
   line-height: 1.65;
-
   color: var(--color-text);
 }
 
-.principle-view .principle-practice-text p {
+.principle-practice-text p {
   margin-bottom: 1.5rem;
 }
 
-.principle-view .principle-practice-text p:last-child {
+.principle-practice-text p:last-child {
   margin-bottom: 0;
 }
 
@@ -1352,229 +1002,140 @@ h4 {
   color: var(--color-text-light);
 }
 
-/* =========================================================
-   PRAYER
-========================================================= */
-
-.principle-view .principle-prayer-section {
+.principle-prayer-text {
   width: 100%;
-
-  margin-top: 3rem;
-
-  padding-top: 1.5rem;
-
-  border-top:
-    1px solid var(--color-border);
-}
-
-.principle-view .principle-prayer-text {
-  width: 100%;
-
   font-family: var(--font-serif);
-
   font-size: 1.05rem;
-
   line-height: 1.7;
-
   color: var(--color-text-light);
 }
 
-.principle-view .principle-prayer-text p {
+.principle-prayer-text p {
   margin-bottom: 1.5rem;
 }
 
-.principle-view .principle-prayer-text p:last-child {
+.principle-prayer-text p:last-child {
   margin-bottom: 0;
 }
 
 /* =========================================================
-   MY REFLECTION
+   MY REFLECTION SECTION
 ========================================================= */
 
-.principle-view .my-reflection-section {
+.my-reflection-section {
   width: 100%;
-
-  margin-top: 3rem;
+  margin-top: var(--devotional-section-gap);
   margin-bottom: 0;
-
-  padding-top: 1.5rem;
-
-  border-top:
-    1px solid var(--color-border);
+  padding-top: var(--devotional-section-padding);
+  border-top: 1px solid var(--color-border);
 }
 
-.principle-view .my-reflection-section h3 {
+.my-reflection-section h3 {
   margin-bottom: 0.5rem;
-
   font-size: 1.2rem;
   font-weight: 600;
-
   line-height: 1.3;
 }
 
-.principle-view .my-reflection-prompt {
+.my-reflection-prompt {
   margin-bottom: 1.5rem;
-
   font-size: 0.95rem;
-
   line-height: 1.5;
-
   color: var(--color-text-light);
 }
 
-/* ---------------------------------------------------------
-   AUTHENTICATED
---------------------------------------------------------- */
-
-.principle-view .my-reflection-authenticated {
+.my-reflection-authenticated {
   width: 100%;
 }
 
-.principle-view .my-reflection-input {
+.my-reflection-input {
   display: block;
-
   width: 100%;
   max-width: 100%;
   min-width: 0;
-
   min-height: 120px;
-
   padding: 1rem;
-
-  border:
-    1px solid var(--color-border);
-
+  border: 1px solid var(--color-border);
   border-radius: 12px;
-
   background: var(--color-bg);
   color: var(--color-text);
-
   font-family: inherit;
   font-size: 1rem;
-
   line-height: 1.5;
-
   resize: vertical;
-
   outline: none;
-
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.principle-view .my-reflection-input::placeholder {
+.my-reflection-input::placeholder {
   color: #999999;
 }
 
-.principle-view .my-reflection-input:focus {
+.my-reflection-input:focus {
   border-color: var(--color-accent);
-
-  box-shadow:
-    0 0 0 3px rgba(196, 109, 83, 0.1);
+  box-shadow: 0 0 0 3px rgba(196, 109, 83, 0.1);
 }
 
-/* ---------------------------------------------------------
-   PRIVATE NOTE
---------------------------------------------------------- */
-
-.principle-view .my-reflection-private {
+.my-reflection-private {
   margin-top: 0.75rem;
-
   font-size: 0.8rem;
-
   line-height: 1.4;
-
   color: var(--color-text-light);
 }
 
-/* ---------------------------------------------------------
-   ACTIONS
---------------------------------------------------------- */
-
-.principle-view .my-reflection-actions {
+.my-reflection-actions {
   display: flex;
-
   align-items: center;
-
   gap: 1rem;
-
   margin-top: 1rem;
-
   flex-wrap: wrap;
 }
 
-.principle-view .my-reflection-save {
+.my-reflection-save {
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
-
-  padding:
-    0.75rem 1.25rem;
-
+  padding: 0.75rem 1.25rem;
   border-radius: 24px;
-
   background: var(--color-text);
   color: var(--color-bg);
-
   font-size: 0.9rem;
   font-weight: 600;
-
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.principle-view .my-reflection-save:hover:not(:disabled) {
+.my-reflection-save:hover:not(:disabled) {
   transform: translateY(-1px);
 }
 
-.principle-view .my-reflection-save:disabled {
+.my-reflection-save:disabled {
   opacity: 0.45;
 }
 
-.principle-view .reflection-success {
+.reflection-success {
   font-size: 0.85rem;
-
   color: var(--color-accent);
 }
 
-/* ---------------------------------------------------------
-   VISITOR
---------------------------------------------------------- */
-
-.principle-view .my-reflection-visitor {
+.my-reflection-visitor {
   width: 100%;
 }
 
-.principle-view .my-reflection-login {
+.my-reflection-login {
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
-
-  padding:
-    0.8rem 1.25rem;
-
-  border:
-    1px solid var(--color-border);
-
+  padding: 0.8rem 1.25rem;
+  border: 1px solid var(--color-border);
   border-radius: 24px;
-
   color: var(--color-text);
-
   font-size: 0.9rem;
   font-weight: 600;
-
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.principle-view .my-reflection-login:hover {
+.my-reflection-login:hover {
   background-color: #f9f9f9;
-
   border-color: #d1d1d1;
 }
 
@@ -1582,116 +1143,148 @@ h4 {
    SHARED CTA
 ========================================================= */
 
-.principle-view .shared-cta {
+.shared-cta {
   width: 100%;
-
-  margin-top: 3rem;
-
-  padding:
-    2rem 1.5rem;
-
-  border:
-    1px solid var(--color-border);
-
+  margin-top: var(--devotional-section-gap);
+  padding: 2rem 1.5rem;
+  border: 1px solid var(--color-border);
   border-radius: 16px;
-
   background: var(--color-bg);
-
   text-align: center;
-
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
-
   gap: 1.5rem;
-
   overflow: hidden;
 }
 
-.principle-view .shared-cta p {
+.shared-cta p {
   width: 100%;
-
   margin: 0;
-
   overflow-wrap: break-word;
   word-break: break-word;
 }
 
-.principle-view .shared-cta-text {
+.shared-cta-text {
   font-size: 1rem;
-
   line-height: 1.6;
-
   color: var(--color-text);
 }
 
-.principle-view .shared-cta-subtext {
+.shared-cta-subtext {
   font-size: 0.9rem;
-
   line-height: 1.5;
-
   color: var(--color-text-light);
 }
 
-.principle-view .shared-cta-button {
+.shared-cta-button {
   width: 100%;
   max-width: 300px;
-
-  padding:
-    1rem 2rem;
-
+  padding: 1rem 2rem;
   border-radius: 30px;
-
   background: var(--color-text);
-
   color: var(--color-bg);
-
   font-weight: 600;
   font-size: 1.1rem;
 }
 
-.principle-view .shared-cta-note {
+.shared-cta-note {
   font-size: 0.8rem;
-
   line-height: 1.4;
-
   color: var(--color-text-light);
 }
 
 /* =========================================================
-   PRINCIPLE ACTION BAR
+   CTA BLOCK (editorial inline CTA — HtmlRenderer)
 ========================================================= */
 
-.principle-view .action-bar {
-  display: flex;
+.cta-block {
+  border: 1.5px solid var(--cta-block-border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin: 1.5rem 0;
+  background: linear-gradient(135deg, var(--cta-block-bg-start) 0%, var(--cta-block-bg-end) 100%);
+  box-shadow: 0 2px 12px var(--cta-block-shadow);
+}
 
-  justify-content: center;
-  align-items: center;
+.cta-block--pending {
+  border: 2px dashed var(--cta-block-border-pending);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  background: var(--cta-block-bg-start);
+  box-shadow: none;
+  opacity: 0.7;
+}
 
-  gap: 2.5rem;
+.cta-block-pending-label {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 0.5rem;
+}
 
-  width: 100%;
+.cta-block-pending-text {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--cta-block-pending-text);
+  font-style: italic;
+}
 
-  margin:
-    3rem 0 1.5rem;
+.cta-block-title {
+  margin: 0 0 0.35rem;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-text);
+  line-height: 1.4;
+}
 
-  padding-top: 1.5rem;
+.cta-block-description {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+  line-height: 1.6;
+}
 
-  border-top:
-    1px solid var(--color-border);
+.cta-block-button {
+  display: inline-block;
+  padding: 0.55rem 1.25rem;
+  border-radius: 99px;
+  border: none;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  font-family: inherit;
+}
+
+.cta-block-button:hover {
+  opacity: 0.85;
 }
 
 /* =========================================================
-   RELATIONSHIP
+   ACTION BAR
 ========================================================= */
 
-.principle-view .relationship-section-wrapper {
+.action-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2.5rem;
   width: 100%;
+  margin: 3rem 0 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
 
+.relationship-section-wrapper {
+  width: 100%;
   margin-top: 0;
-
   overflow: visible;
 }
 
@@ -1700,6 +1293,14 @@ h4 {
 ========================================================= */
 
 @media (max-width: 480px) {
+
+  :root {
+    --devotional-intro-offset: 5rem;
+    --devotional-section-gap: 2.5rem;
+    --devotional-section-padding: 1.25rem;
+    --devotional-title-size: 1.8rem;
+    --devotional-body-size: 1rem;
+  }
 
   /* =======================================================
      GLOBAL APP
@@ -1731,7 +1332,7 @@ h4 {
   }
 
   .principle-title {
-    font-size: 1.8rem;
+    font-size: var(--devotional-title-size);
 
     line-height: 1.1;
 
@@ -1747,9 +1348,9 @@ h4 {
   }
 
   .principle-reflection {
-    font-size: 1rem;
+    font-size: var(--devotional-body-size);
 
-    line-height: 1.7;
+    line-height: var(--devotional-body-line-height);
   }
 
   /* =======================================================
@@ -1788,116 +1389,8 @@ h4 {
 
   .shared-devotional-container {
     max-width: 100%;
-  }
 
-  .shared-devotional-header {
-    height: 90px;
-
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-  }
-
-  .shared-devotional-logo {
-    width: auto !important;
-
-    height: 90px !important;
-
-    max-width: 220px !important;
-    max-height: 90px !important;
-  }
-
-  .shared-devotional-content {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-  }
-
-  /* =======================================================
-     HOME
-  ======================================================= */
-
-  .page-home .home-header {
-    height: 90px;
-
-    padding: 0;
-
-    /*
-     * Mesmo princípio do desktop:
-     * a logo mantém 90px e o primeiro elemento
-     * textual permanece próximo dela.
-     */
-    margin-bottom: 0.4rem;
-  }
-
-  .page-home .home-logo {
-    height: 90px !important;
-
-    max-height: 90px !important;
-  }
-
-  .page-home>.label {
-    margin-top: 0;
-
-    margin-bottom: 0.7rem;
-  }
-
-  .page-home .principle-title {
-    font-size: 1.8rem;
-
-    line-height: 1.1;
-
-    margin-top: 0;
-
-    margin-bottom: 1.35rem;
-  }
-
-  .page-home .principle-statement {
-    font-size: 1.15rem;
-
-    line-height: 1.45;
-
-    margin-bottom: 2rem;
-  }
-
-  .page-home .principle-reflection {
-    font-size: 1rem;
-
-    line-height: 1.7;
-  }
-
-  .page-home .application-section {
-    margin-top: 2.5rem;
-  }
-
-  .page-home .home-content-section {
-    margin-top: 2.5rem;
-
-    padding-top: 1.25rem;
-  }
-
-  .home-reflection {
-    margin-top: 2.5rem;
-
-    padding-top: 1.25rem;
-  }
-
-  .home-reflection h3 {
-    font-size: 1.15rem;
-  }
-
-  .home-reflection-description {
-    font-size: 0.9rem;
-  }
-
-  .home-reflection-form textarea {
-    min-height: 120px;
-
-    padding: 1rem;
-
-    font-size: 1rem;
-  }
-
-  .home-reflection-actions {
-    align-items: flex-start;
+    padding: 0 1.25rem;
   }
 
   .home-explore {
@@ -1905,155 +1398,59 @@ h4 {
   }
 
   /* =======================================================
-     PRINCIPLE VIEW
+     DEVOTIONAL MAIN OVERRIDES MOBILE
   ======================================================= */
 
-  .principle-view {
+  .devotional {
     width: 100%;
-    max-width: 100%;
   }
 
-  .principle-view-header {
+  .devotional-content {
     width: 100%;
-
-    height: 90px;
-
-    padding: 0;
+    padding: var(--devotional-intro-offset) 0 2.5rem;
   }
 
-  .principle-view-logo {
-    width: auto !important;
-
-    height: 90px !important;
-
-    max-width: 220px !important;
-    max-height: 90px !important;
-  }
-
-  .principle-view .principle-back {
-    margin: 0;
-  }
-
-  /*
-   * Regra principal:
-   *
-   * Header = 90px
-   *
-   * Conteúdo = começa depois do header
-   * com 56px de respiro vertical.
-   *
-   * As laterais NÃO recebem padding aqui porque
-   * o .content-area do App já estabelece a régua
-   * horizontal de 20px.
-   */
-
-  .principle-view-content {
-    width: 100%;
-
-    padding:
-      5rem 0 2.5rem;
-  }
-
-  .principle-view .principle-title {
-    font-size: 1.8rem;
-
-    line-height: 1.1;
-
-    margin-bottom: 1.35rem;
-  }
-
-  .principle-view .principle-statement {
-    font-size: 1.15rem;
-
-    line-height: 1.45;
-
-    margin-bottom: 2rem;
-  }
-
-  .principle-view .principle-reflection {
-    font-size: 1rem;
-
-    line-height: 1.7;
-  }
-
-  /* =======================================================
-     PRINCIPLE SECTIONS
-  ======================================================= */
-
-  .principle-view .principle-scripture-section,
-  .principle-view .principle-audio-section,
-  .principle-view .principle-practice-section,
-  .principle-view .principle-prayer-section {
-    margin-top: 2.5rem;
-
-    padding-top: 1.25rem;
-  }
-
-  .principle-view .principle-scripture-text {
+  .principle-scripture-text {
     font-size: 1.05rem;
-
     line-height: 1.65;
   }
 
-  .principle-view .principle-practice-text {
+  .principle-practice-text {
     font-size: 1rem;
-
     line-height: 1.65;
   }
 
-  .principle-view .principle-prayer-text {
+  .principle-prayer-text {
     font-size: 1rem;
-
     line-height: 1.7;
   }
 
-  /* =======================================================
-     MY REFLECTION
-  ======================================================= */
-
-  .principle-view .my-reflection-section {
-    margin-top: 2.5rem;
-
-    padding-top: 1.25rem;
+  .my-reflection-section {
+    margin-top: var(--devotional-section-gap);
+    padding-top: var(--devotional-section-padding);
   }
 
-  .principle-view .my-reflection-section h3 {
+  .my-reflection-section h3 {
     font-size: 1.15rem;
   }
 
-  .principle-view .my-reflection-prompt {
+  .my-reflection-prompt {
     font-size: 0.9rem;
   }
 
-  .principle-view .my-reflection-input {
+  .my-reflection-input {
     min-height: 120px;
-
     padding: 1rem;
-
     font-size: 1rem;
   }
 
-  .principle-view .my-reflection-actions {
+  .my-reflection-actions {
     align-items: flex-start;
   }
 
-  /* =======================================================
-     SHARED CTA
-  ======================================================= */
-
-  .principle-view .shared-cta {
-    margin-top: 2.5rem;
-
-    padding:
-      1.75rem 1.25rem;
-  }
-
-  /* =======================================================
-     ACTION BAR
-  ======================================================= */
-
-  .principle-view .action-bar {
-    margin-top: 2.5rem;
+  .shared-cta {
+    margin-top: var(--devotional-section-gap);
+    padding: 1.75rem 1.25rem;
   }
 }
 
@@ -2064,7 +1461,7 @@ h4 {
 @media (min-width: 481px) {
 
   .page-home,
-  .principle-view {
+  .devotional {
     width: 100%;
   }
 }

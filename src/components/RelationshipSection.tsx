@@ -15,7 +15,7 @@ interface RelationshipSectionProps {
  */
 export function RelationshipSection({ devotionalId, onSuccess }: RelationshipSectionProps) {
   return (
-    <div className="relationship-section" style={{ marginTop: '2rem' }}>
+    <div className="relationship-section">
       <TestimonialSection devotionalId={devotionalId} onSuccess={onSuccess} />
       <PrayerRequestSection devotionalId={devotionalId} />
     </div>

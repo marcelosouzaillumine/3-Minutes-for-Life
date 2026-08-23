@@ -40,35 +40,16 @@ export function TestimonialSection({ devotionalId, onSuccess }: TestimonialSecti
 
   return (
     <>
-      <div style={{
-        marginTop: '3rem',
-        padding: '2rem',
-        backgroundColor: 'var(--color-bg)',
-        border: '1px solid var(--color-border)',
-        borderRadius: '16px',
-        textAlign: 'center'
-      }}>
-        <h3 style={{
-          fontFamily: 'var(--font-serif)',
-          fontSize: '1.5rem',
-          fontWeight: 400,
-          marginBottom: '0.5rem',
-          color: 'var(--color-text)'
-        }}>
+      <div className="relationship-card">
+        <h3 className="relationship-card-title">
           {t('testimonials.title', 'Como essa reflexão tocou você?')}
         </h3>
-        <p style={{
-          fontSize: '1rem',
-          color: 'var(--color-text-light)',
-          marginBottom: '1.5rem',
-          lineHeight: 1.6
-        }}>
+        <p className="relationship-card-description">
           {t('testimonials.subtitle', 'Seu relato pode ajudar nossa equipe a compreender o que Deus está fazendo na vida de quem caminha com o 3 Minutes for Life.')}
         </p>
         <button 
-          className="btn-secondary" 
+          className="btn-secondary relationship-card-btn" 
           onClick={() => setIsModalOpen(true)}
-          style={{ width: 'auto', padding: '0.75rem 1.5rem' }}
         >
           {t('testimonials.writeBtn', 'Compartilhar meu testemunho')}
         </button>

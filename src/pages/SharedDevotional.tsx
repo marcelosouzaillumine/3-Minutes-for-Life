@@ -6,7 +6,7 @@ import { PrincipleView } from '../components/PrincipleView';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import { BrandLogo } from '../components/BrandLogo';
+import { DevotionalHeader } from '../components/DevotionalHeader';
 
 export function SharedDevotional() {
   const { t, i18n } = useTranslation(['common']);
@@ -213,15 +213,7 @@ export function SharedDevotional() {
 
         <div className="shared-devotional-container">
 
-          <header className="shared-devotional-header">
-
-            <BrandLogo
-              variant="light"
-              alt="3 Minutes for Life"
-              className="shared-devotional-logo"
-            />
-
-          </header>
+          <DevotionalHeader showLogo={true} />
 
           <main className="shared-devotional-loading">
 
@@ -263,20 +255,6 @@ export function SharedDevotional() {
       <div className="shared-devotional-container">
 
         {/* ======================================================
-            HEADER / LOGO
-        ======================================================= */}
-
-        <header className="shared-devotional-header">
-
-          <BrandLogo
-            variant="light"
-            alt="3 Minutes for Life"
-            className="shared-devotional-logo"
-          />
-
-        </header>
-
-        {/* ======================================================
             CONTENT
         ======================================================= */}
 
@@ -312,7 +290,7 @@ export function SharedDevotional() {
 
             <PrincipleView
               devotional={devotional}
-              showLogo={false}
+              showLogo={true}
               customAction={
                 !user
                   ? {

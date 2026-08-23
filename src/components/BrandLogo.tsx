@@ -110,15 +110,22 @@ export function BrandLogo({
    * sem que BrandLogo sobrescreva essas definições.
    */
 
+  const baseStyle: React.CSSProperties = {
+    display: 'block',
+  };
+
+  if (!props.className) {
+    baseStyle.height = 'auto';
+    baseStyle.maxWidth = '100%';
+  }
+
   return (
     <img
       {...props}
       src={src}
       alt={alt}
       style={{
-        display: 'block',
-        height: 'auto',
-        maxWidth: '100%',
+        ...baseStyle,
         ...style,
       }}
     />

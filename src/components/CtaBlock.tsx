@@ -33,28 +33,11 @@ export function CtaBlock({ attrs }: CtaBlockProps) {
   if (isPending) {
     // Pending translation state — never hidden
     return (
-      <div
-        style={{
-          border: '2px dashed #e0cfc9',
-          borderRadius: '12px',
-          padding: '1rem 1.25rem',
-          margin: '1.5rem 0',
-          background: '#fdf7f5',
-          opacity: 0.7,
-        }}
-      >
-        <span style={{
-          display: 'inline-block',
-          fontSize: '0.7rem',
-          fontWeight: 700,
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase' as const,
-          color: '#c46d53',
-          marginBottom: '0.5rem',
-        }}>
+      <div className="cta-block--pending">
+        <span className="cta-block-pending-label">
           CTA — tradução pendente
         </span>
-        <p style={{ margin: 0, fontSize: '0.85rem', color: '#aaa', fontStyle: 'italic' }}>
+        <p className="cta-block-pending-text">
           O conteúdo deste bloco ainda não foi traduzido para este idioma.
         </p>
       </div>
@@ -62,35 +45,15 @@ export function CtaBlock({ attrs }: CtaBlockProps) {
   }
 
   return (
-    <div
-      style={{
-        border: '1.5px solid #e8d8d3',
-        borderRadius: '12px',
-        padding: '1.25rem 1.5rem',
-        margin: '1.5rem 0',
-        background: 'linear-gradient(135deg, #fdf7f5 0%, #fef9f7 100%)',
-        boxShadow: '0 2px 12px rgba(196,109,83,0.08)',
-      }}
-    >
+    <div className="cta-block">
       {attrs.title && (
-        <p style={{
-          margin: '0 0 0.35rem',
-          fontWeight: 700,
-          fontSize: '1rem',
-          color: 'var(--color-text, #1a1a1a)',
-          lineHeight: 1.4,
-        }}>
+        <p className="cta-block-title">
           {attrs.title}
         </p>
       )}
 
       {attrs.description && (
-        <p style={{
-          margin: '0 0 1rem',
-          fontSize: '0.9rem',
-          color: 'var(--color-text-light, #555)',
-          lineHeight: 1.6,
-        }}>
+        <p className="cta-block-description">
           {attrs.description}
         </p>
       )}
@@ -98,21 +61,7 @@ export function CtaBlock({ attrs }: CtaBlockProps) {
       {attrs.label && (attrs.url || attrs.action) && (
         <button
           onClick={handleClick}
-          style={{
-            display: 'inline-block',
-            padding: '0.55rem 1.25rem',
-            borderRadius: '99px',
-            border: 'none',
-            background: '#c46d53',
-            color: '#fff',
-            fontSize: '0.875rem',
-            fontWeight: 700,
-            cursor: 'pointer',
-            transition: 'opacity 0.2s',
-            fontFamily: 'inherit',
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
-          onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+          className="cta-block-button"
         >
           {attrs.label}
         </button>

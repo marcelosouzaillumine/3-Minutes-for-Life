@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { ReflectionService } from '../services/ReflectionService';
 import { RelationshipSection } from './RelationshipSection';
 import { CtaEngine } from '../services/CtaEngine';
-import { BrandLogo } from './BrandLogo';
+import { DevotionalHeader } from './DevotionalHeader';
 
 interface PrincipleViewProps {
   devotional: Devotional;
@@ -22,6 +22,7 @@ interface PrincipleViewProps {
     subtext?: string;
     note?: string;
   };
+  onExplore?: () => void;
 }
 
 export function PrincipleView({
@@ -29,6 +30,7 @@ export function PrincipleView({
   onBack,
   showLogo = true,
   customAction,
+  onExplore,
 }: PrincipleViewProps) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
@@ -180,57 +182,19 @@ export function PrincipleView({
    */
 
   return (
-    <article className="principle-view">
+    <article className="devotional">
 
-      {/* ========================================================
-          HEADER / LOGO
-          ======================================================== */}
-
-      {showLogo && (
-        <header className="principle-view-header">
-          <BrandLogo
-            variant="light"
-            alt="3 Minutes for Life"
-            className="principle-view-logo"
-          />
-        </header>
-      )}
-
-      {/* ========================================================
-          BACK
-          ======================================================== */}
-
-      {onBack && (
-        <button
-          type="button"
-          onClick={onBack}
-          className="principle-back"
-        >
-          <svg
-            width="20"
-            height="20"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-
-          <span>{t('home.back')}</span>
-        </button>
-      )}
+      <DevotionalHeader
+        showLogo={showLogo}
+        onBack={onBack}
+        backText={t('home.back')}
+      />
 
       {/* ========================================================
           MAIN CONTENT
           ======================================================== */}
 
-      <div className="principle-view-content">
+      <div className="devotional-content">
 
         {/* ======================================================
             INTRODUCTION
@@ -625,6 +589,22 @@ export function PrincipleView({
             devotionalId={devotional.id}
           />
         </div>
+
+        {/* ======================================================
+            EXPLORE MORE
+            ====================================================== */}
+
+        {onExplore && (
+          <div className="home-explore">
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={onExplore}
+            >
+              {t('home.exploreMore', 'Explorar mais')}
+            </button>
+          </div>
+        )}
 
       </div>
     </article>

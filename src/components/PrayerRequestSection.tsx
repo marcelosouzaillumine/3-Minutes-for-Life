@@ -40,35 +40,16 @@ export function PrayerRequestSection({ devotionalId }: PrayerRequestSectionProps
 
   return (
     <>
-      <div style={{
-        marginTop: '1.5rem',
-        padding: '2rem',
-        backgroundColor: 'var(--color-bg)',
-        border: '1px solid var(--color-border)',
-        borderRadius: '16px',
-        textAlign: 'center'
-      }}>
-        <h3 style={{
-          fontFamily: 'var(--font-serif)',
-          fontSize: '1.5rem',
-          fontWeight: 400,
-          marginBottom: '0.5rem',
-          color: 'var(--color-text)'
-        }}>
+      <div className="relationship-card relationship-card--prayer">
+        <h3 className="relationship-card-title">
           {t('prayerRequest.title', 'Podemos orar por você?')}
         </h3>
-        <p style={{
-          fontSize: '1rem',
-          color: 'var(--color-text-light)',
-          marginBottom: '1.5rem',
-          lineHeight: 1.6
-        }}>
+        <p className="relationship-card-description">
           {t('prayerRequest.description', 'Compartilhe seu pedido de oração com nossa equipe. Vamos recebê-lo com cuidado e colocá-lo diante de Deus.')}
         </p>
         <button 
-          className="btn-secondary" 
+          className="btn-secondary relationship-card-btn" 
           onClick={() => setIsModalOpen(true)}
-          style={{ width: 'auto', padding: '0.75rem 1.5rem' }}
         >
           {t('prayerRequest.submitBtn', 'Enviar meu pedido de oração')}
         </button>
