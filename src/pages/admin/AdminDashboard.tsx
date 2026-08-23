@@ -7,6 +7,17 @@ export function AdminDashboard() {
   const [hasError, setHasError] = useState(false);
   const [period, setPeriod] = useState('7d'); // 'today', '7d', '30d'
 
+  // BUGFIX (auditoria Intelligence Center): toISOString() sempre converte
+  // para UTC, o que pode fazer o filtro "Hoje" incluir/excluir eventos perto
+  // da meia-noite de forma diferente do que o admin vê no relógio local
+  // (ex: Brasil é UTC-3). Usamos os componentes de data locais em vez disso.
+  const toLocalDateString = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const fetchMetrics = async () => {
     setIsLoading(true);
     setHasError(false);
@@ -23,8 +34,8 @@ export function AdminDashboard() {
       start.setDate(end.getDate() - 30);
     }
     
-    const startDateStr = start.toISOString().split('T')[0];
-    const endDateStr = end.toISOString().split('T')[0];
+    const startDateStr = toLocalDateString(start);
+    const endDateStr = toLocalDateString(end);
 
     const data = await AdminService.getDashboardMetrics(startDateStr, endDateStr);
     
@@ -256,14 +267,17 @@ export function AdminDashboard() {
             <table className="admin-table">
               <thead>
                 <tr>
-                  <th>Devocional ID</th>
+                  <th>Devocional</th>
                   <th>Leituras</th>
                 </tr>
               </thead>
               <tbody>
                 {metrics.top_content.map((item, index) => (
                   <tr key={index}>
-                    <td>{item.content_id ? item.content_id.split('-').slice(0, 3).join('-') + '...' : '—'}</td>
+                    <td>
+                      {item.devotional_title
+                        || (item.content_id ? item.content_id.split('-').slice(0, 3).join('-') + '...' : '—')}
+                    </td>
                     <td>{item.opens}</td>
                   </tr>
                 ))}

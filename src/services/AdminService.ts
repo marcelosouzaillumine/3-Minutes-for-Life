@@ -24,6 +24,7 @@ export type DashboardMetrics = {
   };
   top_content: Array<{
     content_id: string;
+    devotional_title?: string | null;
     opens: number;
   }>;
   community: {

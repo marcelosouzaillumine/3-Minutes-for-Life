@@ -45,9 +45,14 @@ export function Home({ onExplore }: HomeProps) {
 
         /*
          * Track devotional view
+         * BUGFIX (auditoria Intelligence Center): o nome correto na taxonomia
+         * é 'devotional_opened' — 'devotional_view' não está na lista de
+         * eventos permitidos pela edge function e era rejeitado
+         * silenciosamente, fazendo a métrica "Leituras" nunca contar
+         * as leituras feitas pela Home.
          */
         AnalyticsService.trackEvent(
-          'devotional_view',
+          'devotional_opened',
           {
             devotional_id: data.id,
             title: data.title,
