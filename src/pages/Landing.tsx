@@ -202,6 +202,13 @@ export function Landing() {
             {t('landing:nav.support')}
           </a>
 
+          <a
+            href="/apoiar"
+            className="nav-donate-link"
+          >
+            {t('landing:nav.donate', 'Apoiar')}
+          </a>
+
           <button
             type="button"
             className="btn-start-nav"
@@ -922,6 +929,13 @@ export function Landing() {
             >
               {t(
                 'landing:footer.links.support'
+              )}
+            </a>
+
+            <a href="/apoiar">
+              {t(
+                'landing:footer.links.donate',
+                'Apoiar'
               )}
             </a>
 

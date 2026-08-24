@@ -2,11 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LanguageSelector } from '../components/LanguageSelector';
 import './Mission.css';
-import { ContributionModal } from '../components/ContributionModal';
-import type {
-  ContributionTier,
-  Periodicity,
-} from '../components/ContributionModal';
 import { MissionProgress } from '../components/MissionProgress';
 import { MissionService } from '../services/MissionService';
 import { BrandLogo } from '../components/BrandLogo';
@@ -56,14 +51,6 @@ export function Mission() {
   const { t } = useTranslation('mission');
 
   const setRef = useIntersectionObserver();
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const [modalInitialTier, setModalInitialTier] =
-    useState<ContributionTier>('apoio');
-
-  const [modalInitialPeriodicity, setModalInitialPeriodicity] =
-    useState<Periodicity>('mensal');
 
   const [currentUsers, setCurrentUsers] = useState(0);
 
@@ -116,49 +103,37 @@ export function Mission() {
    * =========================================================
    */
 
-  const openModal = (
-    tier: ContributionTier = 'apoio',
-    periodicity: Periodicity = 'mensal'
-  ) => {
-    setModalInitialTier(tier);
-    setModalInitialPeriodicity(periodicity);
-    setIsModalOpen(true);
-  };
-
   const handleCheckoutRedirect = (
     tier: string,
     periodicity: string
   ) => {
     const asaasLinks: Record<string, string> = {
       apoio_mensal:
-        'https://www.asaas.com/c/p6w7aqj3q73z0s6p',
+        'https://www.asaas.com/c/ubvo22er3ta93gsu',
 
       apoio_anual:
-        'https://www.asaas.com/c/ixokaznn11xejuir',
+        'https://www.asaas.com/c/zc0gqi05xcw920e1',
 
       livre_unica:
-        'https://www.asaas.com/c/cfo4mysapw0wlk4i',
+        'https://www.asaas.com/c/ej6xz049gg63f7qi',
 
       livre_mensal:
-        'https://www.asaas.com/c/vye9xaj09lcim8x7',
+        'https://www.asaas.com/c/hju0fp9mzkw9t5g2',
     };
 
     const linkKey = `${tier}_${periodicity}`;
     const checkoutUrl = asaasLinks[linkKey];
 
     if (checkoutUrl) {
-      window.open(
-        checkoutUrl,
-        '_blank',
-        'noopener,noreferrer'
-      );
+      window.location.href = checkoutUrl;
       return;
     }
 
-    openModal(
-      tier as ContributionTier,
-      periodicity as Periodicity
-    );
+    goToContributePage();
+  };
+
+  const goToContributePage = () => {
+    window.location.href = '/apoiar';
   };
 
   return (
@@ -312,7 +287,7 @@ export function Mission() {
             <button
               type="button"
               className="btn-primary"
-              onClick={() => openModal()}
+              onClick={goToContributePage}
             >
               {t('hero.ctaBtn')}
             </button>
@@ -817,7 +792,7 @@ export function Mission() {
           <button
             type="button"
             className="btn-primary large"
-            onClick={() => openModal()}
+            onClick={goToContributePage}
           >
             {t('closing.btn')}
           </button>
@@ -861,6 +836,10 @@ export function Mission() {
                 {t('footer.navMission')}
               </a>
 
+              <a href="/apoiar">
+                {t('footer.navDonate', 'Apoiar')}
+              </a>
+
             </div>
 
             <div className="footer-column">
@@ -893,17 +872,6 @@ export function Mission() {
         </div>
 
       </footer>
-
-      {/* =========================================================
-          MODAL
-      ========================================================== */}
-
-      <ContributionModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        initialTier={modalInitialTier}
-        initialPeriodicity={modalInitialPeriodicity}
-      />
 
     </div>
   );

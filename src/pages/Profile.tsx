@@ -188,6 +188,19 @@ export function Profile() {
       <div className="profile-section">
         <h3 className="section-title">{t('more')}</h3>
         <div className="settings-list">
+          <div className="settings-item clickable" onClick={() => { window.location.href = '/apoiar'; }}>
+             <div className="settings-item-left">
+              <div className="settings-icon-bg">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </div>
+              <span>{t('profile:supportProject', 'Apoiar o projeto')}</span>
+            </div>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20" className="chevron-icon">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
           <div className="settings-item clickable" onClick={() => setShowAbout(true)}>
              <div className="settings-item-left">
               <div className="settings-icon-bg">

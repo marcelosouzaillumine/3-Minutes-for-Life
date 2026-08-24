@@ -3,7 +3,8 @@
     "howItWorks": "Como funciona",
     "about": "Sobre",
     "support": "Apoie o projeto",
-    "start": "Começar"
+    "start": "Começar",
+    "donate": "Apoiar"
   },
   "hero": {
     "title": "Três minutos para olhar a vida com mais atenção.",
@@ -65,10 +66,22 @@
     "breakdownTitle": "Para onde vai o apoio?",
     "breakdownDesc": "As contribuições ajudam a manter e desenvolver o projeto.",
     "items": [
-      { "title": "Conteúdo", "desc": "Produção, revisão e desenvolvimento das reflexões." },
-      { "title": "Tecnologia", "desc": "Aplicativos, servidores, banco de dados e infraestrutura." },
-      { "title": "Alcance", "desc": "Comunicação e iniciativas para que mais pessoas conheçam o projeto." },
-      { "title": "Desenvolvimento", "desc": "Novos conteúdos, recursos e possibilidades para ampliar a experiência." }
+      {
+        "title": "Conteúdo",
+        "desc": "Produção, revisão e desenvolvimento das reflexões."
+      },
+      {
+        "title": "Tecnologia",
+        "desc": "Aplicativos, servidores, banco de dados e infraestrutura."
+      },
+      {
+        "title": "Alcance",
+        "desc": "Comunicação e iniciativas para que mais pessoas conheçam o projeto."
+      },
+      {
+        "title": "Desenvolvimento",
+        "desc": "Novos conteúdos, recursos e possibilidades para ampliar a experiência."
+      }
     ],
     "note": "À medida que o projeto crescer, queremos compartilhar com transparência como os recursos são utilizados."
   },
@@ -80,12 +93,30 @@
   },
   "faq": {
     "title": "Perguntas frequentes",
-    "q1": { "q": "O 3 Minutes for Life é gratuito?", "a": "Sim. O acesso ao conteúdo principal é gratuito. O projeto é sustentado por pessoas que escolhem apoiá-lo voluntariamente." },
-    "q2": { "q": "Preciso ser cristão para usar?", "a": "Não. O 3 Minutes for Life parte de uma perspectiva cristã, mas foi criado para conversar com qualquer pessoa que queira parar, refletir e olhar para a vida com mais atenção." },
-    "q3": { "q": "Quanto tempo preciso por dia?", "a": "A proposta é levar aproximadamente três minutos." },
-    "q4": { "q": "Preciso instalar um aplicativo?", "a": "A plataforma funciona diretamente no navegador e pode ser adicionada à tela inicial do celular como um aplicativo." },
-    "q5": { "q": "O conteúdo é gerado por inteligência artificial?", "a": "Não. O conteúdo é escrito e revisado editorialmente por pessoas, para preservar uma voz humana, simples e consistente." },
-    "q6": { "q": "Como posso apoiar o projeto?", "a": "O conteúdo é gratuito. Se você quiser contribuir voluntariamente para a continuidade e expansão do projeto, poderá conhecer as formas de apoio disponibilizadas pelo 3 Minutes for Life. O apoio não é necessário para acessar o conteúdo." }
+    "q1": {
+      "q": "O 3 Minutes for Life é gratuito?",
+      "a": "Sim. O acesso ao conteúdo principal é gratuito. O projeto é sustentado por pessoas que escolhem apoiá-lo voluntariamente."
+    },
+    "q2": {
+      "q": "Preciso ser cristão para usar?",
+      "a": "Não. O 3 Minutes for Life parte de uma perspectiva cristã, mas foi criado para conversar com qualquer pessoa que queira parar, refletir e olhar para a vida com mais atenção."
+    },
+    "q3": {
+      "q": "Quanto tempo preciso por dia?",
+      "a": "A proposta é levar aproximadamente três minutos."
+    },
+    "q4": {
+      "q": "Preciso instalar um aplicativo?",
+      "a": "A plataforma funciona diretamente no navegador e pode ser adicionada à tela inicial do celular como um aplicativo."
+    },
+    "q5": {
+      "q": "O conteúdo é gerado por inteligência artificial?",
+      "a": "Não. O conteúdo é escrito e revisado editorialmente por pessoas, para preservar uma voz humana, simples e consistente."
+    },
+    "q6": {
+      "q": "Como posso apoiar o projeto?",
+      "a": "O conteúdo é gratuito. Se você quiser contribuir voluntariamente para a continuidade e expansão do projeto, poderá conhecer as formas de apoio disponibilizadas pelo 3 Minutes for Life. O apoio não é necessário para acessar o conteúdo."
+    }
   },
   "cta": {
     "title": "Reserve três minutos.",
@@ -100,7 +131,8 @@
       "support": "Apoie o projeto",
       "privacy": "Privacidade",
       "terms": "Termos",
-      "contact": "Contato"
+      "contact": "Contato",
+      "donate": "Apoiar"
     },
     "copy": "© 2026 3 Minutes for Life"
   }
