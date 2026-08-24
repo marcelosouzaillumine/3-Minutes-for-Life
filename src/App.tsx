@@ -9,6 +9,7 @@ import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { SharedDevotional } from './pages/SharedDevotional';
 import { Mission } from './pages/Mission';
+import { Contribute } from './pages/Contribute';
 import { useAuth } from './context/AuthContext';
 import { AnalyticsService } from './services/AnalyticsService';
 import { AdminLayout } from './layouts/AdminLayout';
@@ -22,6 +23,7 @@ function App() {
   const isLoginPath = pathname === '/login';
   const isSignupPath = pathname === '/signup';
   const isMissionPath = pathname === '/missao';
+  const isContributePath = pathname === '/apoiar';
   const isReferralPath = pathname.startsWith('/r/');
   const [currentTab, setCurrentTab] = useState<Tab>('home');
 
@@ -59,6 +61,7 @@ function App() {
   if (isLoginPath) return <Login />;
   if (isSignupPath) return <Signup />;
   if (isMissionPath) return <Mission />;
+  if (isContributePath) return <Contribute />;
   if (isReferralPath) return <SharedDevotional />;
 
   const isAdminPath = pathname.startsWith('/admin');

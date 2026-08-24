@@ -27,10 +27,10 @@ export function ContributionModal({ isOpen, onClose, initialTier = 'apoio', init
     
     // Mapeamento dos links de pagamento do Asaas
     const asaasLinks: Record<string, string> = {
-      'apoio_mensal': 'https://www.asaas.com/c/p6w7aqj3q73z0s6p',
-      'apoio_anual': 'https://www.asaas.com/c/ixokaznn11xejuir',
-      'livre_unica': 'https://www.asaas.com/c/cfo4mysapw0wlk4i',
-      'livre_mensal': 'https://www.asaas.com/c/vye9xaj09lcim8x7'
+      'apoio_mensal': 'https://www.asaas.com/c/ubvo22er3ta93gsu',
+      'apoio_anual': 'https://www.asaas.com/c/zc0gqi05xcw920e1',
+      'livre_unica': 'https://www.asaas.com/c/ej6xz049gg63f7qi',
+      'livre_mensal': 'https://www.asaas.com/c/hju0fp9mzkw9t5g2'
     };
 
     const linkKey = `${tier}_${periodicity}`;
