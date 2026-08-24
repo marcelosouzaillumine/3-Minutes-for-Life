@@ -27,3 +27,4 @@ service-role-keys
 *.njsproj
 *.sln
 *.sw?
+.vercel
