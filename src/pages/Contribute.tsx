@@ -96,7 +96,7 @@ export function Contribute() {
           )}
         </p>
 
-        <div className="editorial-tiers simplified-tiers">
+        <div className="editorial-tiers three-tiers">
 
           <div className="editorial-tier">
             <h3 className="editorial-tier-name">
@@ -160,40 +160,43 @@ export function Contribute() {
             </button>
           </div>
 
-        </div>
+          <div className="editorial-tier">
+            <h3 className="editorial-tier-name">
+              {t('mission:editorial.freeTitle', 'Contribuição voluntária')}
+            </h3>
 
-        <div className="editorial-free">
-          <h3>{t('mission:editorial.freeTitle', 'Contribuição voluntária')}</h3>
-          <p>
-            {t(
-              'mission:editorial.freeDesc',
-              'Quer contribuir com outro valor? Você escolhe quanto e como contribuir.'
-            )}
-          </p>
+            <div className="editorial-tier-price">
+              <span className="editorial-price-sub">
+                {t(
+                  'mission:editorial.freeDesc',
+                  'Quer contribuir com outro valor? Você escolhe quanto e como contribuir.'
+                )}
+              </span>
+            </div>
 
-          <div className="editorial-free-actions">
-            <button
-              type="button"
-              className="btn-text"
-              onClick={() =>
-                goToCheckout({ key: 'livre_unica', url: ASAAS_LINKS.livre_unica })
-              }
-            >
-              {t('mission:editorial.freeBtnSingle', 'Contribuição única')}
-            </button>
+            <div className="editorial-tier-free-options">
+              <button
+                type="button"
+                className="editorial-btn"
+                onClick={() =>
+                  goToCheckout({ key: 'livre_unica', url: ASAAS_LINKS.livre_unica })
+                }
+              >
+                {t('mission:editorial.freeBtnSingle', 'Contribuição única')}
+              </button>
 
-            <span className="editorial-divider" />
-
-            <button
-              type="button"
-              className="btn-text"
-              onClick={() =>
-                goToCheckout({ key: 'livre_mensal', url: ASAAS_LINKS.livre_mensal })
-              }
-            >
-              {t('mission:editorial.freeBtnMonthly', 'Contribuição mensal')}
-            </button>
+              <button
+                type="button"
+                className="editorial-btn"
+                onClick={() =>
+                  goToCheckout({ key: 'livre_mensal', url: ASAAS_LINKS.livre_mensal })
+                }
+              >
+                {t('mission:editorial.freeBtnMonthly', 'Contribuição mensal')}
+              </button>
+            </div>
           </div>
+
         </div>
 
         <p
