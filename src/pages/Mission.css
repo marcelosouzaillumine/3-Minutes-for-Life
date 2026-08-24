@@ -988,8 +988,13 @@
 
 @media (min-width: 900px) {
   .three-tiers {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+
+
+.three-tiers .editorial-tier {
+  min-width: 0;
 }
 
 
