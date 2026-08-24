@@ -130,13 +130,13 @@
 }
 
 .hero-title {
-  font-size: 4rem;
+  font-size: var(--marketing-h1);
   line-height: 1.1;
   margin-bottom: var(--spacing-lg);
 }
 
 .hero-subtitle {
-  font-size: 1.25rem;
+  font-size: var(--marketing-body-lg);
   color: var(--landing-text-light);
   margin-bottom: var(--spacing-xl);
   max-width: 480px;
@@ -171,7 +171,7 @@
 }
 
 .hero-hint {
-  font-size: 0.85rem;
+  font-size: var(--marketing-caption);
   color: var(--landing-text-light);
   margin-top: var(--spacing-xs);
   font-style: italic; /* Toque humano */
@@ -234,7 +234,7 @@
 
 .attention-kicker {
   font-family: var(--font-family);
-  font-size: 0.9rem;
+  font-size: var(--marketing-caption);
   text-transform: uppercase;
   letter-spacing: 0.2em;
   color: var(--landing-text-light);
@@ -244,7 +244,7 @@
 
 .tension-title {
   font-family: var(--font-serif);
-  font-size: clamp(3.5rem, 6vw, 5.5rem);
+  font-size: var(--marketing-statement);
   color: var(--landing-text);
   line-height: 1.05;
   letter-spacing: -0.03em;
@@ -258,7 +258,7 @@
 
 .tension-paragraph {
   font-family: var(--font-family);
-  font-size: 1.5rem;
+  font-size: var(--marketing-body-lg);
   line-height: 1.6;
   color: var(--landing-text-light);
   margin-bottom: 1.5rem;
@@ -281,7 +281,7 @@
 
 .relief-statement {
   font-family: var(--font-serif);
-  font-size: 4.5rem;
+  font-size: var(--marketing-statement);
   color: var(--landing-accent);
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -289,7 +289,7 @@
 }
 
 .relief-subtext {
-  font-size: 1.8rem;
+  font-size: var(--marketing-body-lg);
   line-height: 1.6;
   color: var(--landing-text-light);
   max-width: 700px;
@@ -299,7 +299,7 @@
 /* Novo tratamento visual para frases a serem "percebidas" */
 .perceived-statement {
   font-family: var(--font-serif);
-  font-size: 4rem;
+  font-size: var(--marketing-statement);
   color: var(--landing-accent);
   margin: 8rem 0;
   line-height: 1.1;
@@ -353,7 +353,7 @@
 /* step-number foi removido */
 
 .step-title {
-  font-size: 3rem;
+  font-size: var(--marketing-h3);
   font-family: var(--font-serif);
   color: #ffffff !important; /* Forçado para evitar qualquer override */
   line-height: 1.1;
@@ -375,7 +375,7 @@
 }
 
 .step-desc {
-  font-size: 1.25rem;
+  font-size: var(--marketing-body-lg);
   line-height: 1.8;
   color: #ffffff !important;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Sombra invisível no texto para garantir leitura na foto */
@@ -387,7 +387,7 @@
 }
 
 .quote-text {
-  font-size: 3.5rem;
+  font-size: var(--marketing-statement);
   max-width: 1000px;
   margin: 0 auto;
   line-height: 1.2;
@@ -417,12 +417,12 @@
 }
 
 .split-title {
-  font-size: 3rem;
+  font-size: var(--marketing-h2);
   margin-bottom: 2rem;
 }
 
 .split-text {
-  font-size: 1.2rem;
+  font-size: var(--marketing-body-lg);
   color: var(--landing-text-light);
   line-height: 1.8;
   margin-bottom: 1.5rem;
@@ -446,7 +446,7 @@
 
 .audience-lead h2 {
   font-family: var(--font-serif);
-  font-size: 4.5rem;
+  font-size: var(--marketing-statement);
   font-style: italic;
   color: var(--landing-bg);
   line-height: 1.1;
@@ -462,7 +462,7 @@
 
 .audience-list p {
   font-family: var(--font-family);
-  font-size: 1.4rem;
+  font-size: var(--marketing-body-lg);
   font-weight: 300; /* Tipografia bem leve */
   color: rgba(250, 248, 246, 0.6); /* Cor sutil para não brigar com o título */
   line-height: 1.5;
@@ -483,12 +483,12 @@
 }
 
 .lead-title {
-  font-size: 3rem;
+  font-size: var(--marketing-h2);
   margin-bottom: 1rem;
 }
 
 .lead-subtitle {
-  font-size: 1.2rem;
+  font-size: var(--marketing-body-lg);
   color: var(--landing-text-light);
   max-width: 600px;
   margin: 0 auto 3rem;
@@ -509,7 +509,7 @@
   border: 1px solid rgba(41, 38, 36, 0.1); /* Borda muito sutil */
   background: var(--landing-bg);
   color: var(--landing-text);
-  font-size: 1rem;
+  font-size: var(--marketing-body);
   font-family: var(--font-family);
 }
 
@@ -552,7 +552,7 @@
 }
 
 .faq-title {
-  font-size: 3rem;
+  font-size: var(--marketing-h2);
   font-family: var(--font-serif);
   margin-bottom: 4rem;
   text-align: center;
@@ -573,7 +573,7 @@
 
 .faq-question {
   font-family: var(--font-serif);
-  font-size: 1.3rem;
+  font-size: var(--marketing-h3);
   margin-bottom: 0.5rem;
 }
 
@@ -617,12 +617,12 @@
 }
 
 .cta-final-title {
-  font-size: 4rem;
+  font-size: var(--marketing-statement);
   margin-bottom: 1rem;
 }
 
 .cta-final-subtitle {
-  font-size: 1.5rem;
+  font-size: var(--marketing-body-lg);
   color: var(--landing-text-light);
   margin-bottom: 3rem;
 }
@@ -651,7 +651,7 @@
 
 .footer-tagline {
   color: var(--landing-text-light);
-  font-size: 1.2rem;
+  font-size: var(--marketing-body-lg);
   margin-bottom: 3rem;
 }
 
@@ -664,7 +664,7 @@
 
 .footer-links a {
   color: var(--landing-text-light);
-  font-size: 0.9rem;
+  font-size: var(--marketing-caption);
 }
 
 .footer-links a:hover {
@@ -672,7 +672,7 @@
 }
 
 .footer-copy {
-  font-size: 0.85rem;
+  font-size: var(--marketing-caption);
   color: #a09e9c;
 }
 
@@ -762,17 +762,12 @@
     gap: 3rem;
   }
   .tension-title {
-    font-size: 3.5rem;
     white-space: normal; /* Quebra natural no celular */
   }
   .relief-section {
     padding: 4rem 1rem 8rem;
   }
-  .relief-statement {
-    font-size: 3rem;
-  }
   .perceived-statement {
-    font-size: 2.5rem !important;
     margin: 3rem 0 !important;
   }
   .audience-section {
@@ -784,21 +779,6 @@
   }
   .real-experience-section {
     padding: 4rem var(--spacing-lg) 8rem;
-  }
-  .real-experience-title {
-    font-size: 2.5rem;
-  }
-  .hero-title {
-    font-size: 3rem;
-  }
-  .quote-text {
-    font-size: 2.5rem;
-  }
-  .step-title {
-    font-size: 2.5rem;
-  }
-  .audience-title {
-    font-size: 2.5rem;
   }
   .experience-image-section {
     height: auto;
@@ -822,9 +802,6 @@
   .experience-card-item .step-desc {
     color: rgba(255, 255, 255, 0.9);
   }
-  .audience-list {
-    font-size: 1.2rem;
-  }
 }
 
 /* Sustainability Section */
@@ -839,7 +816,7 @@
 }
 
 .sustainability-title {
-  font-size: 3rem;
+  font-size: var(--marketing-h2);
   margin-bottom: 4rem;
   text-align: center;
 }
@@ -852,7 +829,7 @@
 }
 
 .sustainability-text p {
-  font-size: 1.2rem;
+  font-size: var(--marketing-body-lg);
   margin-bottom: 1.5rem;
 }
 
@@ -881,7 +858,7 @@
 }
 
 .sustainability-breakdown h3 {
-  font-size: 1.5rem;
+  font-size: var(--marketing-h3);
   margin-bottom: 1rem;
 }
 
@@ -899,18 +876,18 @@
 
 .breakdown-list strong {
   font-family: var(--font-serif);
-  font-size: 1.2rem;
+  font-size: var(--marketing-body-lg);
   color: var(--landing-text);
 }
 
 .breakdown-list span {
   color: var(--landing-text-light);
-  font-size: 1rem;
+  font-size: var(--marketing-body);
   margin-top: 0.2rem;
 }
 
 .breakdown-note {
-  font-size: 0.9rem !important;
+  font-size: var(--marketing-caption) !important;
   font-style: italic;
   opacity: 0.8;
   margin-top: 2rem;

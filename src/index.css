@@ -60,6 +60,25 @@
   --devotional-body-line-height: 1.7;
 
   /* =========================================================
+     MARKETING TYPE SCALE
+     (Landing, Mission, Contribute — páginas públicas/institucionais)
+
+     5 níveis, cada um clamp() entre um piso e um teto para escalar
+     suavemente com a largura da tela, em vez de breakpoints fixos.
+     Auditoria de 24/08/2026: antes disso, cada seção definia seu
+     próprio tamanho ad-hoc (14+ valores diferentes sem relação entre
+     si), com títulos de subseção às vezes maiores que o H1 da página.
+  ========================================================= */
+
+  --marketing-h1: clamp(2.75rem, 3rem + 3vw, 4.5rem);
+  --marketing-statement: clamp(2.25rem, 2rem + 3.5vw, 3.75rem);
+  --marketing-h2: clamp(2.25rem, 2rem + 2vw, 3rem);
+  --marketing-h3: clamp(1.5rem, 1.35rem + 0.75vw, 2rem);
+  --marketing-body-lg: clamp(1.1rem, 1rem + 0.4vw, 1.35rem);
+  --marketing-body: 1rem;
+  --marketing-caption: 0.875rem;
+
+  /* =========================================================
      CTA BLOCK (editorial inline CTA)
   ========================================================= */
 
