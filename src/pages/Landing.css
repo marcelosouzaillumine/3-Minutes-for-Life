@@ -190,16 +190,19 @@
 }
 
 .hero-mockup-wrapper {
-  background: var(--landing-bg);
+  background: var(--color-bg);
   border: 1px solid var(--landing-border);
   border-radius: 12px;
   box-shadow: 0 20px 40px rgba(41, 38, 36, 0.08), 0 2px 10px rgba(41, 38, 36, 0.04);
   width: 420px; /* Levemente mais largo para dar mais conforto ao texto longo da reflexão inteira */
   height: 620px;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
   padding: var(--spacing-lg) var(--spacing-md);
   text-align: left;
-  transform: translateX(-20px);
+  margin-left: -20px;
 }
 
 .hero-mockup-wrapper::-webkit-scrollbar {
@@ -745,7 +748,7 @@
     height: 400px;
   }
   .hero-mockup-wrapper {
-    transform: none;
+    margin-left: 0;
     width: 90%;
     max-width: 380px;
     height: 380px;

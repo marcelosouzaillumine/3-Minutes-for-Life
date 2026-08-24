@@ -26,6 +26,12 @@ export function AdminDevotionals() {
   const storyInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const whatsappInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
+  // Content image state (Dica de conteúdo / Apoio ao projeto) — keyed by field name
+  const [contentImageBusy, setContentImageBusy] = useState<Record<string, boolean>>({});
+  const [contentImageError, setContentImageError] = useState<Record<string, string>>({});
+  const contentTipImageInputRef = useRef<HTMLInputElement | null>(null);
+  const supportBannerInputRef = useRef<HTMLInputElement | null>(null);
+
   // States for Category Management
   const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -72,6 +78,10 @@ export function AdminDevotionals() {
               reflection: t.reflection,
               practical_application: t.practical_application,
               prayer: t.prayer,
+              content_tip: t.content_tip,
+              content_tip_image_url: t.content_tip_image_url,
+              support_message: t.support_message,
+              support_banner_url: t.support_banner_url,
               status: t.status,
               validation_warnings: t.validation_warnings
             };
@@ -106,7 +116,7 @@ export function AdminDevotionals() {
     const initialTranslations: Record<string, any> = {};
     languages.forEach(lang => {
       if (!lang.is_source) {
-        initialTranslations[lang.iso_code] = { title: '', principle_statement: '', reflection: '', practical_application: '', prayer: '' };
+        initialTranslations[lang.iso_code] = { title: '', principle_statement: '', reflection: '', practical_application: '', prayer: '', content_tip: '', content_tip_image_url: '', support_message: '', support_banner_url: '' };
       }
     });
 
@@ -116,6 +126,10 @@ export function AdminDevotionals() {
       reflection: '',
       practical_application: '',
       prayer: '',
+      content_tip: '',
+      content_tip_image_url: '',
+      support_message: '',
+      support_banner_url: '',
       scripture_reference: '',
       scripture_text: '',
       audio_url: '',
@@ -279,6 +293,10 @@ export function AdminDevotionals() {
     if (!payload.category_id) payload.category_id = null;
     if (!payload.principle_statement) payload.principle_statement = null;
     if (!payload.prayer) payload.prayer = null;
+    if (!payload.content_tip) payload.content_tip = null;
+    if (!payload.content_tip_image_url) payload.content_tip_image_url = null;
+    if (!payload.support_message) payload.support_message = null;
+    if (!payload.support_banner_url) payload.support_banner_url = null;
 
     try {
       setSaving(true);
@@ -501,6 +519,51 @@ export function AdminDevotionals() {
               }
             };
 
+            const handleContentImageUpload = async (
+              field: 'content_tip_image_url' | 'support_banner_url',
+              storageField: 'content_tip_image' | 'support_banner',
+              file: File
+            ) => {
+              if (!editingId || editingId === 'new') {
+                setContentImageError(prev => ({ ...prev, [field]: 'Salve o devocional antes de enviar imagens.' }));
+                return;
+              }
+              const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+              if (!allowed.includes(file.type)) {
+                setContentImageError(prev => ({ ...prev, [field]: 'Formato inválido. Use JPG, PNG ou WebP.' }));
+                return;
+              }
+              if (file.size > 5 * 1024 * 1024) {
+                setContentImageError(prev => ({ ...prev, [field]: 'Arquivo muito grande. Limite: 5 MB.' }));
+                return;
+              }
+
+              setContentImageBusy(prev => ({ ...prev, [field]: true }));
+              setContentImageError(prev => ({ ...prev, [field]: '' }));
+
+              const oldUrl = getValue(field);
+
+              try {
+                const newUrl = await AdminContentService.uploadContentImage(editingId, currentLang, storageField, file);
+                setValue(field, newUrl);
+                if (oldUrl) {
+                  AdminContentService.deleteShareAssetFile(oldUrl).catch(() => {});
+                }
+              } catch (err: any) {
+                setContentImageError(prev => ({ ...prev, [field]: 'Erro ao enviar imagem: ' + err.message }));
+              } finally {
+                setContentImageBusy(prev => ({ ...prev, [field]: false }));
+              }
+            };
+
+            const handleContentImageRemove = (field: 'content_tip_image_url' | 'support_banner_url') => {
+              const oldUrl = getValue(field);
+              setValue(field, '');
+              if (oldUrl) {
+                AdminContentService.deleteShareAssetFile(oldUrl).catch(() => {});
+              }
+            };
+
             return (
               <>
                 {!isSource && hasWarnings && (
@@ -560,6 +623,148 @@ export function AdminDevotionals() {
                     key={`prayer-${currentLang}`}
                     value={getValue('prayer')}
                     onChange={(html) => setValue('prayer', html)}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                    Dica de conteúdo (opcional)
+                  </label>
+                  <p style={{ margin: '0 0 8px', fontSize: '0.8rem', color: '#888' }}>
+                    Aparece logo após "Minha reflexão". Use para indicar outro conteúdo relacionado ao tema — sem tom de venda. Deixe em branco para não exibir.
+                  </p>
+                  <RichTextEditor 
+                    key={`content_tip-${currentLang}`}
+                    value={getValue('content_tip')}
+                    onChange={(html) => setValue('content_tip', html)}
+                  />
+
+                  <div style={{ marginTop: '10px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                      🖼️ Imagem opcional (proporção 4:5, aparece ao lado do texto)
+                    </label>
+                    <p style={{ margin: '0 0 8px', fontSize: '0.78rem', color: '#888' }}>
+                      Se enviada, o texto fica alinhado à esquerda e a imagem à direita. Em telas pequenas, a imagem passa para cima do texto.
+                    </p>
+
+                    {getValue('content_tip_image_url') ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <img
+                          src={getValue('content_tip_image_url')}
+                          alt="Prévia"
+                          style={{ width: '80px', aspectRatio: '4 / 5', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd' }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleContentImageRemove('content_tip_image_url')}
+                          style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fff', cursor: 'pointer' }}
+                        >
+                          Remover
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <input
+                          ref={contentTipImageInputRef}
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          style={{ display: 'none' }}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleContentImageUpload('content_tip_image_url', 'content_tip_image', file);
+                            e.target.value = '';
+                          }}
+                        />
+                        <button
+                          type="button"
+                          disabled={!editingId || editingId === 'new' || !!contentImageBusy['content_tip_image_url']}
+                          onClick={() => contentTipImageInputRef.current?.click()}
+                          style={{ padding: '8px 14px', fontSize: '0.85rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fafafa', cursor: 'pointer' }}
+                        >
+                          {contentImageBusy['content_tip_image_url'] ? 'Enviando...' : 'Enviar imagem'}
+                        </button>
+                        {(!editingId || editingId === 'new') && (
+                          <span style={{ marginLeft: '8px', fontSize: '0.78rem', color: '#b45309' }}>
+                            Salve o devocional primeiro para poder enviar imagens.
+                          </span>
+                        )}
+                      </>
+                    )}
+                    {contentImageError['content_tip_image_url'] && (
+                      <p style={{ margin: '6px 0 0', fontSize: '0.78rem', color: '#dc2626' }}>
+                        {contentImageError['content_tip_image_url']}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                    Apoio ao projeto (opcional)
+                  </label>
+                  <p style={{ margin: '0 0 8px', fontSize: '0.8rem', color: '#888' }}>
+                    Aparece por último, após a Dica de conteúdo. Use para convidar o leitor a apoiar o projeto. Pode usar só banner, só texto, ou os dois juntos — deixe ambos em branco para não exibir.
+                  </p>
+
+                  <div style={{ marginBottom: '10px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                      🖼️ Banner opcional (imagem larga, no topo da seção)
+                    </label>
+
+                    {getValue('support_banner_url') ? (
+                      <div>
+                        <img
+                          src={getValue('support_banner_url')}
+                          alt="Prévia"
+                          style={{ width: '100%', maxWidth: '320px', aspectRatio: '16 / 9', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd', display: 'block', marginBottom: '8px' }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleContentImageRemove('support_banner_url')}
+                          style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fff', cursor: 'pointer' }}
+                        >
+                          Remover
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <input
+                          ref={supportBannerInputRef}
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          style={{ display: 'none' }}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleContentImageUpload('support_banner_url', 'support_banner', file);
+                            e.target.value = '';
+                          }}
+                        />
+                        <button
+                          type="button"
+                          disabled={!editingId || editingId === 'new' || !!contentImageBusy['support_banner_url']}
+                          onClick={() => supportBannerInputRef.current?.click()}
+                          style={{ padding: '8px 14px', fontSize: '0.85rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fafafa', cursor: 'pointer' }}
+                        >
+                          {contentImageBusy['support_banner_url'] ? 'Enviando...' : 'Enviar banner'}
+                        </button>
+                        {(!editingId || editingId === 'new') && (
+                          <span style={{ marginLeft: '8px', fontSize: '0.78rem', color: '#b45309' }}>
+                            Salve o devocional primeiro para poder enviar imagens.
+                          </span>
+                        )}
+                      </>
+                    )}
+                    {contentImageError['support_banner_url'] && (
+                      <p style={{ margin: '6px 0 0', fontSize: '0.78rem', color: '#dc2626' }}>
+                        {contentImageError['support_banner_url']}
+                      </p>
+                    )}
+                  </div>
+
+                  <RichTextEditor 
+                    key={`support_message-${currentLang}`}
+                    value={getValue('support_message')}
+                    onChange={(html) => setValue('support_message', html)}
                   />
                 </div>
               </>

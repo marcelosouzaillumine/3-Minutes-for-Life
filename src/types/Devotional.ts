@@ -6,6 +6,10 @@ export interface DevotionalTranslation {
   reflection: string;
   practical_application?: string | null;
   prayer?: string | null;
+  content_tip?: string | null;
+  content_tip_image_url?: string | null;
+  support_message?: string | null;
+  support_banner_url?: string | null;
   scripture_reference?: string | null;
   scripture_text?: string | null;
   status: 'draft' | 'scheduled' | 'published' | 'archived';
@@ -41,6 +45,10 @@ export interface Devotional {
   reflection: string;
   practical_application?: string | null;
   prayer?: string | null;
+  content_tip?: string | null;
+  content_tip_image_url?: string | null;
+  support_message?: string | null;
+  support_banner_url?: string | null;
   scripture_reference?: string | null;
   scripture_text?: string | null;
   audio_url?: string;

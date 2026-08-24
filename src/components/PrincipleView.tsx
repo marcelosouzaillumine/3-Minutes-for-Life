@@ -445,6 +445,82 @@ export function PrincipleView({
         </section>
 
         {/* ======================================================
+            CONTENT TIP (opcional — texto + imagem 4:5 opcional)
+            ====================================================== */}
+
+        {(devotional.content_tip || devotional.content_tip_image_url) && (
+          <section className="principle-tip-section">
+
+            <span className="principle-section-label">
+              {t(
+                'home.contentTip',
+                'Uma dica para você'
+              )}
+            </span>
+
+            <div
+              className={
+                devotional.content_tip_image_url
+                  ? 'principle-tip-row principle-tip-row--with-image'
+                  : 'principle-tip-row'
+              }
+            >
+
+              {devotional.content_tip && (
+                <div className="principle-tip-text">
+                  <HtmlRenderer
+                    html={devotional.content_tip}
+                  />
+                </div>
+              )}
+
+              {devotional.content_tip_image_url && (
+                <img
+                  src={devotional.content_tip_image_url}
+                  alt=""
+                  className="principle-tip-image"
+                />
+              )}
+
+            </div>
+
+          </section>
+        )}
+
+        {/* ======================================================
+            SUPPORT MESSAGE (opcional — banner e/ou texto)
+            ====================================================== */}
+
+        {(devotional.support_message || devotional.support_banner_url) && (
+          <section className="principle-support-section">
+
+            <span className="principle-section-label">
+              {t(
+                'home.supportMessage',
+                'Apoie o projeto'
+              )}
+            </span>
+
+            {devotional.support_banner_url && (
+              <img
+                src={devotional.support_banner_url}
+                alt=""
+                className="principle-support-banner"
+              />
+            )}
+
+            {devotional.support_message && (
+              <div className="principle-support-text">
+                <HtmlRenderer
+                  html={devotional.support_message}
+                />
+              </div>
+            )}
+
+          </section>
+        )}
+
+        {/* ======================================================
             SHARED CTA
             ====================================================== */}
 

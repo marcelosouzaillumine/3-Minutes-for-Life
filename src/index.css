@@ -52,7 +52,7 @@
 
   --devotional-header-height: 90px;
   --devotional-logo-max-width: 220px;
-  --devotional-intro-offset: 5rem;
+  --devotional-intro-offset: 3rem;
   --devotional-section-gap: 3rem;
   --devotional-section-padding: 1.5rem;
   --devotional-title-size: 2rem;
@@ -84,6 +84,7 @@
     sans-serif;
 
   --font-serif:
+    "Fraunces",
     ui-serif,
     Georgia,
     Cambria,
@@ -949,7 +950,9 @@ h4 {
 .principle-scripture-section,
 .principle-audio-section,
 .principle-practice-section,
-.principle-prayer-section {
+.principle-prayer-section,
+.principle-tip-section,
+.principle-support-section {
   width: 100%;
   margin-top: var(--devotional-section-gap);
   padding-top: var(--devotional-section-padding);
@@ -1016,6 +1019,57 @@ h4 {
 
 .principle-prayer-text p:last-child {
   margin-bottom: 0;
+}
+
+.principle-tip-text,
+.principle-support-text {
+  width: 100%;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--color-text);
+}
+
+.principle-tip-text p,
+.principle-support-text p {
+  margin-bottom: 1.5rem;
+}
+
+.principle-tip-text p:last-child,
+.principle-support-text p:last-child {
+  margin-bottom: 0;
+}
+
+.principle-tip-row {
+  width: 100%;
+}
+
+.principle-tip-row--with-image {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1.25rem;
+}
+
+.principle-tip-row--with-image .principle-tip-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.principle-tip-image {
+  flex-shrink: 0;
+  width: 120px;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.principle-support-banner {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 1.25rem;
 }
 
 /* =========================================================
@@ -1295,7 +1349,7 @@ h4 {
 @media (max-width: 480px) {
 
   :root {
-    --devotional-intro-offset: 5rem;
+    --devotional-intro-offset: 2.5rem;
     --devotional-section-gap: 2.5rem;
     --devotional-section-padding: 1.25rem;
     --devotional-title-size: 1.8rem;
@@ -1351,6 +1405,25 @@ h4 {
     font-size: var(--devotional-body-size);
 
     line-height: var(--devotional-body-line-height);
+  }
+
+  /* =======================================================
+     CONTENT TIP — empilha em telas pequenas
+  ======================================================= */
+
+  .principle-tip-row--with-image {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .principle-tip-image {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .principle-tip-row--with-image .principle-tip-text {
+    width: 100%;
   }
 
   /* =======================================================
