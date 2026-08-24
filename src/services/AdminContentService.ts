@@ -32,8 +32,10 @@ export const AdminContentService = {
         prayer,
         content_tip,
         content_tip_image_url,
+        content_tip_url,
         support_message,
         support_banner_url,
+        support_link_url,
         scripture_reference,
         scripture_text,
         audio_url,
@@ -140,8 +142,10 @@ export const AdminContentService = {
         prayer,
         content_tip,
         content_tip_image_url,
+        content_tip_url,
         support_message,
         support_banner_url,
+        support_link_url,
         scripture_reference,
         scripture_text,
         publication_date,
@@ -196,8 +200,10 @@ export const AdminContentService = {
     prayer?: string | null;
     content_tip?: string | null;
     content_tip_image_url?: string | null;
+    content_tip_url?: string | null;
     support_message?: string | null;
     support_banner_url?: string | null;
+    support_link_url?: string | null;
     status: 'draft' | 'published';
   }): Promise<any> {
     const {
@@ -212,8 +218,10 @@ export const AdminContentService = {
       prayer,
       content_tip,
       content_tip_image_url,
+      content_tip_url,
       support_message,
       support_banner_url,
+      support_link_url,
       status
     } = params;
 
@@ -239,8 +247,10 @@ export const AdminContentService = {
       prayer: prayer ? sanitizeHtml(prayer) : null,
       content_tip: content_tip ? sanitizeHtml(content_tip) : null,
       content_tip_image_url: content_tip_image_url || null,
+    content_tip_url: content_tip_url || null,
       support_message: support_message ? sanitizeHtml(support_message) : null,
       support_banner_url: support_banner_url || null,
+    support_link_url: support_link_url || null,
       status,
       updated_at: new Date().toISOString()
     };

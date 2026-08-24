@@ -80,8 +80,10 @@ export function AdminDevotionals() {
               prayer: t.prayer,
               content_tip: t.content_tip,
               content_tip_image_url: t.content_tip_image_url,
+              content_tip_url: t.content_tip_url,
               support_message: t.support_message,
               support_banner_url: t.support_banner_url,
+              support_link_url: t.support_link_url,
               status: t.status,
               validation_warnings: t.validation_warnings
             };
@@ -116,7 +118,7 @@ export function AdminDevotionals() {
     const initialTranslations: Record<string, any> = {};
     languages.forEach(lang => {
       if (!lang.is_source) {
-        initialTranslations[lang.iso_code] = { title: '', principle_statement: '', reflection: '', practical_application: '', prayer: '', content_tip: '', content_tip_image_url: '', support_message: '', support_banner_url: '' };
+        initialTranslations[lang.iso_code] = { title: '', principle_statement: '', reflection: '', practical_application: '', prayer: '', content_tip: '', content_tip_image_url: '', content_tip_url: '', support_message: '', support_banner_url: '', support_link_url: '' };
       }
     });
 
@@ -128,8 +130,10 @@ export function AdminDevotionals() {
       prayer: '',
       content_tip: '',
       content_tip_image_url: '',
+      content_tip_url: '',
       support_message: '',
       support_banner_url: '',
+      support_link_url: '',
       scripture_reference: '',
       scripture_text: '',
       audio_url: '',
@@ -295,8 +299,10 @@ export function AdminDevotionals() {
     if (!payload.prayer) payload.prayer = null;
     if (!payload.content_tip) payload.content_tip = null;
     if (!payload.content_tip_image_url) payload.content_tip_image_url = null;
+    if (!payload.content_tip_url) payload.content_tip_url = null;
     if (!payload.support_message) payload.support_message = null;
     if (!payload.support_banner_url) payload.support_banner_url = null;
+    if (!payload.support_link_url) payload.support_link_url = null;
 
     try {
       setSaving(true);
@@ -696,6 +702,22 @@ export function AdminDevotionals() {
                       </p>
                     )}
                   </div>
+
+                  <div style={{ marginTop: '10px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                      🔗 Link externo (opcional)
+                    </label>
+                    <p style={{ margin: '0 0 8px', fontSize: '0.78rem', color: '#888' }}>
+                      Se preenchido, a imagem acima fica clicável e abre este link em nova aba.
+                    </p>
+                    <input
+                      type="url"
+                      value={getValue('content_tip_url')}
+                      onChange={(e) => setValue('content_tip_url', e.target.value)}
+                      placeholder="https://..."
+                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '0.9rem' }}
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -766,6 +788,22 @@ export function AdminDevotionals() {
                     value={getValue('support_message')}
                     onChange={(html) => setValue('support_message', html)}
                   />
+
+                  <div style={{ marginTop: '10px' }}>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                      🔗 Link do botão "Quero apoiar" (opcional)
+                    </label>
+                    <p style={{ margin: '0 0 8px', fontSize: '0.78rem', color: '#888' }}>
+                      Se preenchido, um botão "Quero apoiar" aparece no final da seção, apontando para este link.
+                    </p>
+                    <input
+                      type="url"
+                      value={getValue('support_link_url')}
+                      onChange={(e) => setValue('support_link_url', e.target.value)}
+                      placeholder="https://..."
+                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '0.9rem' }}
+                    />
+                  </div>
                 </div>
               </>
             );

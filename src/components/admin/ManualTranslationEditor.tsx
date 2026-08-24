@@ -35,8 +35,10 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
     prayer: initialSource.prayer || '',
     content_tip: initialSource.content_tip || '',
     content_tip_image_url: initialSource.content_tip_image_url || '',
+    content_tip_url: initialSource.content_tip_url || '',
     support_message: initialSource.support_message || '',
     support_banner_url: initialSource.support_banner_url || '',
+    support_link_url: initialSource.support_link_url || '',
   });
 
   const [saving, setSaving] = useState(false);
@@ -110,8 +112,10 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
         prayer: form.prayer || null,
         content_tip: form.content_tip || null,
         content_tip_image_url: form.content_tip_image_url || null,
+        content_tip_url: form.content_tip_url || null,
         support_message: form.support_message || null,
         support_banner_url: form.support_banner_url || null,
+        support_link_url: form.support_link_url || null,
         status: 'draft'
       });
 
@@ -155,8 +159,10 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
         prayer: form.prayer || null,
         content_tip: form.content_tip || null,
         content_tip_image_url: form.content_tip_image_url || null,
+        content_tip_url: form.content_tip_url || null,
         support_message: form.support_message || null,
         support_banner_url: form.support_banner_url || null,
+        support_link_url: form.support_link_url || null,
         status: 'published'
       });
 
@@ -183,8 +189,10 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
     prayer: form.prayer || devotional.prayer,
     content_tip: form.content_tip || devotional.content_tip,
     content_tip_image_url: form.content_tip_image_url || devotional.content_tip_image_url,
+    content_tip_url: form.content_tip_url || devotional.content_tip_url,
     support_message: form.support_message || devotional.support_message,
     support_banner_url: form.support_banner_url || devotional.support_banner_url,
+    support_link_url: form.support_link_url || devotional.support_link_url,
     resolvedLanguage: language.iso_code,
     translationStatus: 'available'
   };
@@ -558,6 +566,11 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
             <div>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>
                 Dica de conteúdo
+                {devotional.content_tip_url && (
+                  <span style={{ marginLeft: '8px', fontWeight: 'normal', color: '#0ea5e9', fontSize: '0.75rem', textTransform: 'none' }}>
+                    🔗 com link
+                  </span>
+                )}
               </label>
               <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
                 {devotional.content_tip && (
@@ -592,6 +605,11 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
             <div>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>
                 Apoio ao projeto
+                {devotional.support_link_url && (
+                  <span style={{ marginLeft: '8px', fontWeight: 'normal', color: '#0ea5e9', fontSize: '0.75rem', textTransform: 'none' }}>
+                    🔗 com link
+                  </span>
+                )}
               </label>
               {devotional.support_banner_url && (
                 <img
@@ -825,6 +843,22 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
                 </p>
               )}
             </div>
+
+            <div style={{ marginTop: '10px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                🔗 Link externo (opcional)
+              </label>
+              <p style={{ margin: '0 0 8px', fontSize: '0.76rem', color: '#888' }}>
+                Se preenchido, a imagem acima fica clicável e abre este link em nova aba.
+              </p>
+              <input
+                type="url"
+                value={form.content_tip_url}
+                onChange={(e) => setForm(f => ({ ...f, content_tip_url: e.target.value }))}
+                placeholder="https://..."
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '0.9rem' }}
+              />
+            </div>
           </div>
 
           {/* 9. Apoio ao projeto */}
@@ -888,6 +922,22 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
               value={form.support_message}
               onChange={(html) => setForm(f => ({ ...f, support_message: html }))}
             />
+
+            <div style={{ marginTop: '10px' }}>
+              <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                🔗 Link do botão "Quero apoiar" (opcional)
+              </label>
+              <p style={{ margin: '0 0 8px', fontSize: '0.76rem', color: '#888' }}>
+                Se preenchido, um botão "Quero apoiar" aparece no final da seção, apontando para este link.
+              </p>
+              <input
+                type="url"
+                value={form.support_link_url}
+                onChange={(e) => setForm(f => ({ ...f, support_link_url: e.target.value }))}
+                placeholder="https://..."
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '0.9rem' }}
+              />
+            </div>
           </div>
 
           {/* Bottom actions */}

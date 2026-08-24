@@ -475,11 +475,26 @@ export function PrincipleView({
               )}
 
               {devotional.content_tip_image_url && (
-                <img
-                  src={devotional.content_tip_image_url}
-                  alt=""
-                  className="principle-tip-image"
-                />
+                devotional.content_tip_url ? (
+                  <a
+                    href={devotional.content_tip_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="principle-tip-image-link"
+                  >
+                    <img
+                      src={devotional.content_tip_image_url}
+                      alt=""
+                      className="principle-tip-image"
+                    />
+                  </a>
+                ) : (
+                  <img
+                    src={devotional.content_tip_image_url}
+                    alt=""
+                    className="principle-tip-image"
+                  />
+                )
               )}
 
             </div>
@@ -515,6 +530,20 @@ export function PrincipleView({
                   html={devotional.support_message}
                 />
               </div>
+            )}
+
+            {devotional.support_link_url && (
+              <a
+                href={devotional.support_link_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="principle-support-button"
+              >
+                {t(
+                  'home.supportLinkLabel',
+                  'Quero apoiar'
+                )}
+              </a>
             )}
 
           </section>

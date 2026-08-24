@@ -8,8 +8,10 @@ export interface DevotionalTranslation {
   prayer?: string | null;
   content_tip?: string | null;
   content_tip_image_url?: string | null;
+  content_tip_url?: string | null;
   support_message?: string | null;
   support_banner_url?: string | null;
+  support_link_url?: string | null;
   scripture_reference?: string | null;
   scripture_text?: string | null;
   status: 'draft' | 'scheduled' | 'published' | 'archived';
@@ -47,8 +49,10 @@ export interface Devotional {
   prayer?: string | null;
   content_tip?: string | null;
   content_tip_image_url?: string | null;
+  content_tip_url?: string | null;
   support_message?: string | null;
   support_banner_url?: string | null;
+  support_link_url?: string | null;
   scripture_reference?: string | null;
   scripture_text?: string | null;
   audio_url?: string;

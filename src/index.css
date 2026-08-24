@@ -1072,6 +1072,40 @@ h4 {
   margin-bottom: 1.25rem;
 }
 
+.principle-tip-image-link {
+  flex-shrink: 0;
+  display: block;
+  width: 120px;
+  border-radius: 10px;
+  transition: opacity 0.2s;
+}
+
+.principle-tip-image-link:hover {
+  opacity: 0.85;
+}
+
+.principle-tip-image-link .principle-tip-image {
+  display: block;
+}
+
+.principle-support-button {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.65rem 1.5rem;
+  border-radius: 99px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  text-align: center;
+  transition: opacity 0.2s;
+}
+
+.principle-support-button:hover {
+  opacity: 0.85;
+}
+
 /* =========================================================
    MY REFLECTION SECTION
 ========================================================= */
@@ -1418,6 +1452,11 @@ h4 {
   }
 
   .principle-tip-image {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .principle-tip-image-link {
     width: 100%;
     max-width: 200px;
   }
