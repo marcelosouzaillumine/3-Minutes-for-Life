@@ -23,5 +23,32 @@
   "aboutApp": "Sobre la App",
   "logout": "Cerrar Sesión",
   "language": "Idioma",
-  "supportProject": "Apoyar el proyecto"
+  "supportProject": "Apoyar el proyecto",
+  "consent": {
+    "title": "Preferencias de comunicación",
+    "replyTitle": "Respuestas a mis mensajes",
+    "replyDesc": "Cuando envías un pedido de oración o testimonio, podemos responder.",
+    "updatesTitle": "Novedades",
+    "updatesDesc": "Avisos cuando se publica una nueva reflexión.",
+    "supportTitle": "Apoyo al proyecto",
+    "supportDesc": "Invitaciones ocasionales para ayudar a sostener el proyecto.",
+    "email": "Correo",
+    "whatsapp": "WhatsApp",
+    "note": "Puedes cambiar estas opciones en cualquier momento.",
+    "loading": "Cargando...",
+    "loadError": "No se pudieron cargar tus preferencias.",
+    "saveError": "No se pudo guardar. Inténtalo de nuevo."
+  },
+  "conversations": {
+    "sectionTitle": "Tus mensajes",
+    "noticeSingle": "Recibiste una respuesta.",
+    "noticeMany": "Recibiste {{count}} respuestas.",
+    "noticeAction": "Ver",
+    "yourRequest": "Tu pedido",
+    "yourTestimony": "Tu testimonio",
+    "reply": "Respuesta",
+    "loading": "Cargando...",
+    "loadError": "No se pudieron cargar tus mensajes.",
+    "empty": "Cuando envíes un pedido de oración o testimonio, las respuestas aparecerán aquí."
+  }
 }

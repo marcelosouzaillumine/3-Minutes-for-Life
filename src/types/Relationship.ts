@@ -89,3 +89,28 @@ export interface RelationshipAuditEntry {
   new_status: string;
   created_at: string;
 }
+
+/**
+ * Contato da pessoa que criou um item de relacionamento.
+ * Vem da RPC get_relationship_contact, restrita ao contexto do item.
+ *
+ * consent_* é null quando a pessoa nunca se manifestou sobre aquele
+ * canal — diferente de false, que é recusa explícita. A interface
+ * precisa distinguir os dois casos.
+ */
+export interface RelationshipContact {
+  user_id: string;
+  full_name: string | null;
+  phone: string | null;
+  email: string | null;
+  consent_whatsapp: boolean | null;
+  consent_email: boolean | null;
+}
+
+export interface RelationshipReply {
+  id: string;
+  channel: 'whatsapp' | 'email' | 'in_app';
+  message: string;
+  sent_at: string;
+  admin_user_id: string;
+}

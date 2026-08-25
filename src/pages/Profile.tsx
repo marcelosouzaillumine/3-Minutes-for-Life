@@ -6,6 +6,8 @@ import { LanguageSelector } from '../components/LanguageSelector';
 import { ReflectionList } from '../components/ReflectionList';
 import { useTranslation } from 'react-i18next';
 import './Profile.css';
+import { CommunicationPreferences } from '../components/CommunicationPreferences';
+import { Conversations } from '../components/Conversations';
 
 export function Profile() {
   const { t } = useTranslation(['profile', 'common']);
@@ -183,6 +185,15 @@ export function Profile() {
             </svg>
           </div>
         </div>
+      </div>
+
+      <div className="profile-section">
+        <h3 className="section-title">{t('profile:conversations.sectionTitle', 'Suas mensagens')}</h3>
+        <Conversations />
+      </div>
+
+      <div className="profile-section">
+        <CommunicationPreferences />
       </div>
 
       <div className="profile-section">

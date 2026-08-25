@@ -3,7 +3,16 @@ import type { Session } from '@supabase/supabase-js';
 import { AnalyticsService } from './AnalyticsService';
 
 export const authService = {
-  async signUp(email: string, password: string, fullName: string, phone?: string, country?: string, state?: string, city?: string) {
+  async signUp(
+    email: string,
+    password: string,
+    fullName: string,
+    phone?: string,
+    country?: string,
+    state?: string,
+    city?: string,
+    acceptsUpdates = false
+  ) {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -14,6 +23,10 @@ export const authService = {
           country: country || null,
           state: state || null,
           city: city || null,
+          // Lido pelo trigger handle_new_user, que grava os
+          // consentimentos junto com o perfil. Não dá para chamar a
+          // RPC aqui: pode não haver sessão ainda.
+          accepts_updates: acceptsUpdates,
         }
       }
     });

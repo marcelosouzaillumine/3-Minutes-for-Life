@@ -23,5 +23,32 @@
   "aboutApp": "About the App",
   "logout": "Sign Out",
   "language": "Language",
-  "supportProject": "Support the project"
+  "supportProject": "Support the project",
+  "consent": {
+    "title": "Communication preferences",
+    "replyTitle": "Replies to my messages",
+    "replyDesc": "When you send a prayer request or testimony, we may reply.",
+    "updatesTitle": "Updates",
+    "updatesDesc": "Notices when a new reflection is published.",
+    "supportTitle": "Support the project",
+    "supportDesc": "Occasional invitations to help sustain the project.",
+    "email": "Email",
+    "whatsapp": "WhatsApp",
+    "note": "You can change these choices at any time.",
+    "loading": "Loading...",
+    "loadError": "Could not load your preferences.",
+    "saveError": "Could not save. Please try again."
+  },
+  "conversations": {
+    "sectionTitle": "Your messages",
+    "noticeSingle": "You received a reply.",
+    "noticeMany": "You received {{count}} replies.",
+    "noticeAction": "View",
+    "yourRequest": "Your request",
+    "yourTestimony": "Your testimony",
+    "reply": "Reply",
+    "loading": "Loading...",
+    "loadError": "Could not load your messages.",
+    "empty": "When you send a prayer request or testimony, replies will appear here."
+  }
 }

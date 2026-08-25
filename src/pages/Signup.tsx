@@ -13,6 +13,7 @@ export const Signup: React.FC = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [acceptsUpdates, setAcceptsUpdates] = useState(false);
   const [password, setPassword] = useState('');
   
   // Location States
@@ -64,7 +65,7 @@ export const Signup: React.FC = () => {
     setError('');
     setLoading(true);
     try {
-      const data = await authService.signUp(email, password, fullName, phone, country, state, city);
+      const data = await authService.signUp(email, password, fullName, phone, country, state, city, acceptsUpdates);
       const user = data.user;
       
       if (user) {
@@ -237,6 +238,17 @@ export const Signup: React.FC = () => {
             minLength={6}
             className="auth-input"
           />
+          {/* Opt-in explícito. Nunca vem marcado por padrão: aceite
+              precisa ser ato afirmativo, não ausência de recusa. */}
+          <label className="signup-consent">
+            <input
+              type="checkbox"
+              checked={acceptsUpdates}
+              onChange={(e) => setAcceptsUpdates(e.target.checked)}
+            />
+            <span>{t('signup.consentUpdates')}</span>
+          </label>
+
           <button type="submit" disabled={loading} className="auth-button">
             {loading ? t('signup.buttonLoading') : t('signup.button')}
           </button>

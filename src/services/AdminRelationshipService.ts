@@ -8,6 +8,8 @@ import type {
   PaginatedResult,
   TestimonialAdminStatus,
   PrayerRequestAdminStatus,
+  RelationshipContact,
+  RelationshipReply,
 } from '../types/Relationship';
 
 /**
@@ -369,5 +371,102 @@ export const AdminRelationshipService = {
       console.error("Error updating prayer request status via RPC:", error);
       throw error;
     }
+  },
+
+  /**
+   * Busca os dados de contato da pessoa que criou um item de
+   * relacionamento. A RPC restringe ao contexto daquele item — não
+   * expõe a base de contatos.
+   */
+  async getContact(
+    relationshipType: 'testimonial' | 'prayer_request',
+    relationshipId: string
+  ): Promise<RelationshipContact> {
+    const { data, error } = await supabase.rpc('get_relationship_contact', {
+      p_relationship_type: relationshipType,
+      p_relationship_id: relationshipId,
+    });
+
+    if (error) {
+      console.error("Error fetching relationship contact:", error);
+      throw error;
+    }
+
+    return data as RelationshipContact;
+  },
+
+  /**
+   * Registra que uma resposta foi enviada e avança o status do item.
+   *
+   * O envio em si acontece fora do sistema: a interface abre o
+   * WhatsApp ou o cliente de e-mail do admin com o texto pronto.
+   * Aqui só gravamos o histórico — por isso o nome é "record", não
+   * "send". Integração via API fica para a Fase 3.
+   */
+  async recordReply(params: {
+    relationshipType: 'testimonial' | 'prayer_request';
+    relationshipId: string;
+    channel: 'whatsapp' | 'email' | 'in_app';
+    message: string;
+  }): Promise<void> {
+    const { error } = await supabase.rpc('record_relationship_reply', {
+      p_relationship_type: params.relationshipType,
+      p_relationship_id: params.relationshipId,
+      p_channel: params.channel,
+      p_message: params.message,
+    });
+
+    if (error) {
+      console.error("Error recording relationship reply:", error);
+      throw error;
+    }
+  },
+
+  /**
+   * Histórico de respostas já enviadas para um item.
+   */
+  async getReplies(
+    relationshipType: 'testimonial' | 'prayer_request',
+    relationshipId: string
+  ): Promise<RelationshipReply[]> {
+    const { data, error } = await supabase
+      .from('relationship_replies')
+      .select('id, channel, message, sent_at, admin_user_id')
+      .eq('relationship_type', relationshipType)
+      .eq('relationship_id', relationshipId)
+      .order('sent_at', { ascending: false });
+
+    if (error) {
+      console.error("Error fetching replies:", error);
+      throw error;
+    }
+
+    return (data || []) as RelationshipReply[];
   }
 };
+
+/**
+ * Monta o link de envio. Não dispara nada — devolve a URL que a
+ * interface abre. Para WhatsApp usa wa.me, que funciona com o número
+ * pessoal do admin e não exige Business API.
+ */
+export function buildReplyLink(
+  channel: 'whatsapp' | 'email',
+  contact: RelationshipContact,
+  message: string,
+  subject = 'Sobre a sua mensagem no 3 Minutos para a Vida'
+): string | null {
+  if (channel === 'whatsapp') {
+    if (!contact.phone) return null;
+    // wa.me exige apenas dígitos, com código do país.
+    const digits = contact.phone.replace(/\D/g, '');
+    if (!digits) return null;
+    const normalized = digits.length <= 11 ? `55${digits}` : digits;
+    return `https://wa.me/${normalized}?text=${encodeURIComponent(message)}`;
+  }
+
+  if (!contact.email) return null;
+  return `mailto:${contact.email}`
+    + `?subject=${encodeURIComponent(subject)}`
+    + `&body=${encodeURIComponent(message)}`;
+}

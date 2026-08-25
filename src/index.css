@@ -1699,3 +1699,332 @@ a:focus-visible {
       1 !important;
   }
 }
+/* =========================================================
+   PREFERÊNCIAS DE COMUNICAÇÃO
+========================================================= */
+
+.consent-section {
+  width: 100%;
+}
+
+.consent-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-strong);
+  margin: 0 0 1rem;
+}
+
+.consent-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.consent-group-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.consent-group-text strong {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-strong);
+}
+
+.consent-group-text span {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.consent-toggles {
+  display: flex;
+  gap: 1.25rem;
+  flex-shrink: 0;
+}
+
+.consent-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.consent-toggle input {
+  cursor: pointer;
+}
+
+.consent-toggle input:disabled {
+  cursor: wait;
+  opacity: 0.5;
+}
+
+.consent-note {
+  font-size: 0.8rem;
+  color: var(--text-faint);
+  margin: 1rem 0 0;
+}
+
+.consent-error {
+  font-size: 0.85rem;
+  color: #b91c1c;
+  margin: 0 0 0.75rem;
+}
+
+.consent-loading {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* =========================================================
+   PAINEL DE RESPOSTA (relacionamento admin)
+========================================================= */
+
+.reply-panel {
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
+  margin-bottom: 16px;
+}
+
+.reply-panel-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 8px;
+}
+
+.reply-panel-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  margin-bottom: 12px;
+}
+
+.reply-panel-warn {
+  color: #b45309;
+}
+
+.reply-panel-history {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.reply-panel-history-label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-light);
+  margin-bottom: 8px;
+}
+
+.reply-panel-history-item {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.reply-panel-history-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.reply-panel-history-meta {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+  margin-bottom: 4px;
+}
+
+.reply-panel-history-item p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+.reply-panel-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  resize: vertical;
+  margin-bottom: 10px;
+}
+
+.reply-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.reply-panel-btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.reply-panel-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.reply-panel-btn--whatsapp:not(:disabled) {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+.reply-panel-note {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--color-text-light);
+  margin: 10px 0 0;
+}
+
+.reply-panel-error {
+  font-size: 0.85rem;
+  color: #dc2626;
+  margin: 0 0 8px;
+}
+
+.reply-panel-loading {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  margin: 0 0 16px;
+}
+
+/* =========================================================
+   AVISO DE RESPOSTA + CONVERSAS
+========================================================= */
+
+.reply-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.85rem var(--content-padding);
+  border: none;
+  border-bottom: 1px solid var(--cta-block-border);
+  background: var(--cta-block-bg-start);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.reply-notice-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.reply-notice-text {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+
+.reply-notice-action {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.conversations {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.conversation {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.conversation-original {
+  padding: 1rem;
+  background: #f9f9f9;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.conversation-reply {
+  padding: 1rem;
+}
+
+.conversation-meta {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-light);
+  margin-bottom: 0.5rem;
+}
+
+.conversation-original p,
+.conversation-reply p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.conversations-empty,
+.conversations-loading,
+.conversations-error {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-text-light);
+  margin: 0;
+}
+
+.conversations-error {
+  color: #dc2626;
+}
+
+.reply-panel-btn--primary:not(:disabled) {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+.reply-panel-external {
+  margin-top: 12px;
+}
+
+.reply-panel-external summary {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  cursor: pointer;
+  margin-bottom: 10px;
+}

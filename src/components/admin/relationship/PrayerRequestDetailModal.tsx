@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AdminRelationshipService } from '../../../services/AdminRelationshipService';
 import type { AdminPrayerRequestItem, PrayerRequestAdminStatus } from '../../../types/Relationship';
+import { ReplyPanel } from './ReplyPanel';
 
 interface PrayerRequestDetailModalProps {
   prayerRequest: AdminPrayerRequestItem | null;
@@ -139,6 +140,12 @@ export function PrayerRequestDetailModal({ prayerRequest, onClose, onStatusUpdat
             {error}
           </div>
         )}
+
+        <ReplyPanel
+          relationshipType="prayer_request"
+          relationshipId={prayerRequest.id}
+          onReplied={onStatusUpdated}
+        />
 
         {/* Status Transition Action Buttons */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'flex-end', borderTop: '1px solid var(--color-border)', paddingTop: '16px' }}>
