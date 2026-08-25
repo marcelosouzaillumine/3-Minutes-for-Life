@@ -891,18 +891,57 @@ h4 {
   z-index: 2;
 }
 
+/* Mensagem de quem compartilhou.
+   Era texto cinza solto no topo — lia como aviso de sistema, não como
+   gesto de alguém. Agora tem avatar com a inicial, o nome em ênfase e
+   uma faixa que separa do conteúdo editorial abaixo. */
 .shared-devotional-sender {
-  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 
+  width: 100%;
   box-sizing: border-box;
 
+  padding: 0.85rem 1rem;
   margin-bottom: var(--spacing-lg);
 
-  color: var(--color-text-light);
+  background: var(--cta-block-bg-start);
+  border: 1px solid var(--cta-block-border);
+  border-radius: 12px;
+}
 
+.sender-avatar {
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+
+  /* Dourado da marca com texto navy: 8.75 de contraste. É onde o
+     dourado puro pode aparecer em fundo claro — como fundo, não como
+     texto pequeno. */
+  background: var(--accent-on-dark);
+  color: var(--brand-navy);
+
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.sender-text {
   font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--color-text-light);
+}
 
-  line-height: 1.5;
+.sender-text strong {
+  font-weight: 600;
+  color: var(--color-text);
 }
 
 .shared-devotional-principle {

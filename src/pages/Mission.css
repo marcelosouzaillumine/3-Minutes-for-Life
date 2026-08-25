@@ -1387,7 +1387,9 @@
 
 
   .editorial-tier {
-    padding: 2rem 0;
+    /* Padding horizontal era 0: com os botões a 100% de largura, eles
+       encostavam na borda do card. */
+    padding: 2rem 1.5rem;
   }
 
 

@@ -266,19 +266,26 @@ export function SharedDevotional() {
 
           <div className="shared-devotional-sender">
 
-            {senderName
-              ? t(
-                'shared.senderShared',
-                {
-                  name: senderName,
-                  defaultValue:
-                    `${senderName} compartilhou esta reflexão com você.`,
-                }
-              )
-              : t(
-                'shared.someoneShared',
-                'Alguém compartilhou esta reflexão com você.'
+            {/* Avatar com a inicial: transforma um aviso de sistema em
+                gesto de alguém. Decorativo — o nome já está no texto,
+                então fica oculto para leitores de tela. */}
+            <span className="sender-avatar" aria-hidden="true">
+              {senderName ? senderName.trim().charAt(0).toUpperCase() : '\u2665'}
+            </span>
+
+            <span className="sender-text">
+              {senderName ? (
+                <>
+                  {/* Nome separado do resto para receber ênfase. Nos
+                      três idiomas o nome vem primeiro, então a quebra
+                      é segura. */}
+                  <strong>{senderName}</strong>{' '}
+                  {t('shared.sharedSuffix', 'compartilhou esta reflexão com você.')}
+                </>
+              ) : (
+                t('shared.someoneShared', 'Alguém compartilhou esta reflexão com você.')
               )}
+            </span>
 
           </div>
 

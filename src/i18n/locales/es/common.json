@@ -76,7 +76,8 @@
     "ctaText": "Que estos tres minutos no terminen aquí.",
     "ctaSubtext": "Mañana, una nueva reflexión te espera.",
     "ctaButton": "Quiero continuar",
-    "ctaNote": "Siempre gratuito."
+    "ctaNote": "Siempre gratuito.",
+    "sharedSuffix": "compartió esta reflexión contigo."
   },
   "categories": {
     "Vida": "Vida",
