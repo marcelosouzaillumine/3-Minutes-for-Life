@@ -1,0 +1,2208 @@
+/* =========================================================
+   3 MINUTES FOR LIFE
+   Communication Center
+   Admin Editorial Interface
+   ========================================================= */
+
+
+/* =========================================================
+   DESIGN TOKENS
+   ========================================================= */
+
+.communication-center,
+.communication-editor {
+    --communication-accent: #c46d53;
+    --communication-accent-soft: #fdf7f5;
+    --communication-accent-soft-2: #faf8f6;
+
+    --communication-text: var(--color-text, #1f2937);
+    --communication-text-secondary: var(--color-text-light,
+            #6b7280);
+
+    --communication-border: var(--color-border,
+            #e5e7eb);
+
+    --communication-surface: var(--color-surface,
+            #ffffff);
+
+    --communication-primary: var(--color-primary,
+            #1f2937);
+
+    --communication-primary-dark: var(--color-primary-dark,
+            #111827);
+
+    --communication-radius-sm: 8px;
+    --communication-radius-md: 10px;
+    --communication-radius-lg: 12px;
+    --communication-radius-xl: 14px;
+}
+
+
+/* =========================================================
+   CENTER
+   ========================================================= */
+
+.communication-center {
+    width: 100%;
+    max-width: 1400px;
+
+    margin: 0 auto;
+
+    padding:
+        32px 32px 160px;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   CENTER HEADER
+   ========================================================= */
+
+.communication-center-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 24px;
+
+    margin-bottom: 32px;
+}
+
+.communication-center-header h1 {
+    margin: 0 0 8px;
+
+    font-size: 30px;
+    line-height: 1.2;
+    font-weight: 700;
+
+    color: var(--communication-text);
+
+    letter-spacing: -0.02em;
+}
+
+.communication-center-header p {
+    margin: 0;
+
+    max-width: 720px;
+
+    font-size: 15px;
+    line-height: 1.6;
+
+    color: var(--communication-text-secondary);
+}
+
+
+/* =========================================================
+   CAMPAIGN LIST
+   ========================================================= */
+
+.communication-campaign-list {
+    width: 100%;
+}
+
+.communication-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 20px;
+}
+
+.communication-list-header>div {
+    min-width: 0;
+}
+
+.communication-list-header h2 {
+    margin: 0 0 5px;
+
+    font-size: 20px;
+    line-height: 1.3;
+    font-weight: 700;
+
+    color: var(--communication-text);
+}
+
+.communication-list-header p {
+    margin: 0;
+
+    font-size: 14px;
+    line-height: 1.5;
+
+    color: var(--communication-text-secondary);
+}
+
+
+/* =========================================================
+   CAMPAIGN LIST
+   ========================================================= */
+
+.communication-campaigns {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+.communication-campaign-card {
+    appearance: none;
+
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 24px;
+
+    padding: 18px 20px;
+
+    box-sizing: border-box;
+
+    background: var(--communication-surface);
+
+    border:
+        1px solid var(--communication-border);
+
+    border-radius:
+        var(--communication-radius-lg);
+
+    text-align: left;
+
+    font-family: inherit;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.18s ease;
+}
+
+.communication-campaign-card:hover {
+    border-color: #c7cdd5;
+
+    transform:
+        translateY(-1px);
+
+    box-shadow:
+        0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.communication-campaign-main {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.communication-campaign-main strong {
+    display: block;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-size: 15px;
+    line-height: 1.4;
+    font-weight: 650;
+
+    color: var(--communication-text);
+}
+
+.communication-campaign-main span {
+    font-size: 12px;
+    line-height: 1.4;
+
+    color: var(--communication-text-secondary);
+}
+
+.communication-campaign-meta {
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: flex-end;
+
+    flex-direction: column;
+
+    gap: 5px;
+}
+
+.communication-campaign-meta small {
+    font-size: 12px;
+    line-height: 1.4;
+
+    color:
+        var(--color-text-light, #9ca3af);
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.communication-status {
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 24px;
+
+    padding:
+        3px 9px;
+
+    box-sizing: border-box;
+
+    border-radius: 999px;
+
+    font-size: 11px;
+    line-height: 1.2;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+.communication-status-draft {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.communication-status-scheduled {
+    background: #eef5ff;
+    color: #3567a8;
+}
+
+.communication-status-sending {
+    background: #fff7e8;
+    color: #9a6718;
+}
+
+.communication-status-sent {
+    background: #edf8f1;
+    color: #3c7651;
+}
+
+.communication-status-cancelled {
+    background: #fff1f1;
+    color: #9f4444;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.communication-button {
+    appearance: none;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    min-height: 42px;
+
+    padding:
+        0 18px;
+
+    border:
+        1px solid transparent;
+
+    border-radius:
+        var(--communication-radius-md);
+
+    box-sizing: border-box;
+
+    font-family: inherit;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.communication-button-primary {
+    background:
+        var(--communication-primary);
+
+    color: #ffffff;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.communication-button-primary:hover {
+    background:
+        var(--communication-primary-dark);
+
+    transform:
+        translateY(-1px);
+
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.communication-button-secondary {
+    background: transparent;
+
+    color: var(--communication-text);
+
+    border-color:
+        var(--communication-border);
+}
+
+.communication-button-secondary:hover {
+    background:
+        var(--color-surface, #f9fafb);
+
+    border-color:
+        #c7cdd5;
+}
+
+.communication-button:active {
+    transform:
+        translateY(0);
+}
+
+.communication-button:disabled {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+    box-shadow: none;
+}
+
+.communication-button-icon {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    line-height: 1;
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.communication-empty {
+    width: 100%;
+
+    min-height: 240px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 48px 24px;
+
+    box-sizing: border-box;
+
+    background:
+        var(--communication-surface);
+
+    border:
+        1px solid var(--communication-border);
+
+    border-radius:
+        var(--communication-radius-xl);
+
+    text-align: center;
+
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.03),
+
+        0 8px 24px rgba(0, 0, 0, 0.03);
+}
+
+.communication-empty-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 16px;
+
+    border:
+        1px solid var(--communication-border);
+
+    border-radius: 50%;
+
+    color:
+        var(--communication-text-secondary);
+
+    font-size: 25px;
+    font-weight: 300;
+}
+
+.communication-empty h3,
+.communication-empty h4 {
+    margin: 0 0 8px;
+
+    font-size: 17px;
+    line-height: 1.4;
+    font-weight: 650;
+
+    color:
+        var(--communication-text);
+}
+
+.communication-empty p {
+    margin: 0;
+
+    max-width: 420px;
+
+    font-size: 14px;
+    line-height: 1.6;
+
+    color:
+        var(--communication-text-secondary);
+}
+
+
+/* =========================================================
+   LOADING / STATE
+   ========================================================= */
+
+.communication-state {
+    width: 100%;
+
+    min-height: 140px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 12px;
+
+    color:
+        var(--communication-text-secondary);
+
+    font-size: 14px;
+
+    text-align: center;
+}
+
+.communication-state p {
+    margin: 0;
+}
+
+.communication-spinner {
+    width: 22px;
+    height: 22px;
+
+    box-sizing: border-box;
+
+    border:
+        2px solid #e5e7eb;
+
+    border-top-color:
+        var(--communication-accent);
+
+    border-radius: 50%;
+
+    animation:
+        communication-spin 0.75s linear infinite;
+}
+
+@keyframes communication-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.communication-loading {
+    width: 100%;
+
+    min-height: 180px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    color:
+        var(--communication-text-secondary);
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.communication-error {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    margin-bottom: 20px;
+
+    padding:
+        14px 16px;
+
+    border:
+        1px solid #f1c7c7;
+
+    border-radius:
+        var(--communication-radius-md);
+
+    background:
+        #fff7f7;
+
+    color:
+        #9f2d2d;
+
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   EDITOR
+   ========================================================= */
+
+.communication-editor {
+    width: 100%;
+
+    max-width: 1120px;
+
+    margin: 0 auto;
+
+    padding:
+        32px 32px 180px;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   EDITOR HEADER
+   ========================================================= */
+
+.communication-editor-header {
+    margin-bottom: 28px;
+}
+
+.communication-editor-header h2 {
+    margin: 0 0 8px;
+
+    font-size: 28px;
+    line-height: 1.25;
+    font-weight: 700;
+
+    color:
+        var(--communication-text);
+
+    letter-spacing: -0.015em;
+}
+
+.communication-editor-header p {
+    margin: 0;
+
+    font-size: 14px;
+    line-height: 1.6;
+
+    color:
+        var(--communication-text-secondary);
+}
+
+
+/* =========================================================
+   EYEBROW
+   ========================================================= */
+
+.communication-eyebrow {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 12px;
+    line-height: 1.3;
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.08em;
+
+    color:
+        var(--communication-text-secondary);
+}
+
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.communication-form {
+    width: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 24px;
+
+    padding: 32px;
+
+    box-sizing: border-box;
+
+    background:
+        var(--communication-surface);
+
+    border:
+        1px solid var(--communication-border);
+
+    border-radius:
+        var(--communication-radius-xl);
+
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.03),
+
+        0 8px 24px rgba(0, 0, 0, 0.03);
+}
+
+
+/* =========================================================
+   FORM GRID
+   ========================================================= */
+
+.communication-form-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap:
+        22px 24px;
+
+    width: 100%;
+}
+
+.communication-field {
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 600;
+
+    color:
+        var(--communication-text);
+}
+
+.communication-field-full {
+    width: 100%;
+}
+
+.communication-field>small {
+    font-weight: 400;
+
+    color:
+        var(--communication-text-secondary);
+}
+
+
+/* =========================================================
+   FORM CONTROLS
+   ========================================================= */
+
+.communication-form input,
+.communication-form select,
+.communication-form textarea {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    border:
+        1px solid var(--color-border, #d1d5db);
+
+    border-radius:
+        9px;
+
+    background:
+        #ffffff;
+
+    color:
+        var(--communication-text);
+
+    font-family: inherit;
+
+    font-size: 14px;
+    line-height: 1.5;
+
+    outline: none;
+
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.communication-form input,
+.communication-form select {
+    height: 46px;
+
+    padding:
+        0 12px;
+}
+
+.communication-form textarea {
+    min-height: 320px;
+
+    padding:
+        14px;
+
+    resize: vertical;
+}
+
+.communication-form input::placeholder,
+.communication-form textarea::placeholder {
+    color:
+        #9ca3af;
+}
+
+.communication-form input:hover,
+.communication-form select:hover,
+.communication-form textarea:hover {
+    border-color:
+        #b8bec7;
+}
+
+.communication-form input:focus,
+.communication-form select:focus,
+.communication-form textarea:focus {
+    border-color:
+        var(--communication-primary);
+
+    box-shadow:
+        0 0 0 3px rgba(55, 65, 81, 0.08);
+}
+
+.communication-form input:disabled,
+.communication-form select:disabled,
+.communication-form textarea:disabled {
+    opacity: 0.65;
+
+    cursor: not-allowed;
+
+    background:
+        #f9fafb;
+}
+
+
+/* =========================================================
+   LANGUAGE TABS
+   ========================================================= */
+
+.communication-language-tabs {
+    display: flex;
+
+    align-items: stretch;
+
+    gap: 6px;
+
+    width: 100%;
+
+    margin-top: 24px;
+
+    padding:
+        5px;
+
+    box-sizing: border-box;
+
+    background:
+        #f3f4f6;
+
+    border:
+        1px solid var(--communication-border);
+
+    border-radius:
+        var(--communication-radius-md);
+}
+
+.communication-language-tab {
+    appearance: none;
+
+    flex: 1;
+
+    min-width: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding:
+        10px 12px;
+
+    border:
+        0;
+
+    border-radius:
+        8px;
+
+    background:
+        transparent;
+
+    color:
+        var(--communication-text-secondary);
+
+    font-family: inherit;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.18s ease,
+        color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.communication-language-tab:hover {
+    color:
+        var(--communication-text);
+}
+
+.communication-language-tab.active {
+    background:
+        #ffffff;
+
+    color:
+        var(--communication-text);
+
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.communication-language-tab:disabled {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+}
+
+.communication-language-tab-main {
+    min-width: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+.communication-language-code {
+    flex-shrink: 0;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 28px;
+    height: 24px;
+
+    padding:
+        0 6px;
+
+    box-sizing: border-box;
+
+    border-radius:
+        6px;
+
+    background:
+        #eef0f2;
+
+    color:
+        #6b7280;
+
+    font-size: 10px;
+    line-height: 1;
+    font-weight: 800;
+
+    letter-spacing: 0.04em;
+}
+
+.communication-language-tab.active .communication-language-code {
+    background:
+        var(--communication-accent-soft);
+
+    color:
+        var(--communication-accent);
+}
+
+.communication-language-name {
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-size: 13px;
+    line-height: 1.3;
+    font-weight: 600;
+}
+
+.communication-language-tab-meta {
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+}
+
+.communication-language-base {
+    display: inline-flex;
+
+    align-items: center;
+
+    padding:
+        3px 7px;
+
+    border-radius:
+        999px;
+
+    background:
+        var(--communication-accent-soft);
+
+    color:
+        var(--communication-accent);
+
+    font-size: 9px;
+    line-height: 1.2;
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.05em;
+}
+
+.communication-language-status {
+    width: 7px;
+    height: 7px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background:
+        #5c9270;
+
+    box-shadow:
+        0 0 0 3px rgba(92, 146, 112, 0.10);
+}
+
+
+/* =========================================================
+   ACTIVE LANGUAGE NOTICE
+   ========================================================= */
+
+.communication-editor-language-notice {
+    margin-top: 20px;
+
+    margin-bottom: 16px;
+
+    padding:
+        12px 16px;
+
+    border-radius:
+        var(--communication-radius-md);
+
+    background:
+        var(--communication-accent-soft-2);
+
+    color:
+        #666;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+.communication-editor-language-notice strong {
+    color:
+        var(--communication-text);
+}
+
+
+/* =========================================================
+   EDITOR ACTIONS
+   ========================================================= */
+
+.communication-editor-actions {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    margin-top: 24px;
+
+    padding-bottom: 48px;
+}
+
+
+/* =========================================================
+   CHANNEL / AUDIENCE OPTIONS
+   ========================================================= */
+
+.communication-choice-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit,
+            minmax(220px, 1fr));
+
+    gap: 12px;
+}
+
+.communication-choice {
+    appearance: none;
+
+    width: 100%;
+
+    display: block;
+
+    padding: 16px;
+
+    box-sizing: border-box;
+
+    border:
+        1px solid var(--communication-border);
+
+    border-radius:
+        var(--communication-radius-lg);
+
+    background:
+        #ffffff;
+
+    text-align: left;
+
+    font-family: inherit;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.18s ease,
+        background-color 0.18s ease,
+        box-shadow 0.18s ease,
+        transform 0.18s ease;
+}
+
+.communication-choice:hover {
+    border-color:
+        #c7cdd5;
+
+    transform:
+        translateY(-1px);
+}
+
+.communication-choice.is-selected {
+    border:
+        2px solid var(--communication-accent);
+
+    background:
+        var(--communication-accent-soft);
+
+    box-shadow:
+        0 0 0 1px rgba(196, 109, 83, 0.06);
+}
+
+.communication-choice:disabled {
+    opacity: 0.55;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+.communication-choice-header {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin-bottom: 6px;
+}
+
+.communication-choice-indicator {
+    width: 20px;
+    height: 20px;
+
+    flex-shrink: 0;
+
+    border:
+        1px solid #bbb;
+
+    border-radius: 50%;
+
+    box-sizing: border-box;
+}
+
+.communication-choice.is-selected .communication-choice-indicator {
+    border:
+        6px solid var(--communication-accent);
+}
+
+.communication-choice strong {
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 700;
+
+    color:
+        var(--communication-text);
+}
+
+.communication-choice p {
+    margin: 0;
+
+    font-size: 12px;
+    line-height: 1.45;
+
+    font-weight: 400;
+
+    color:
+        var(--communication-text-secondary);
+}
+
+
+/* =========================================================
+   AUDIENCE
+   ========================================================= */
+
+.communication-audience {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 18px;
+
+    padding-top: 8px;
+
+    border-top:
+        1px solid var(--communication-border);
+}
+
+.communication-section-heading {
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.communication-section-heading h3 {
+    margin: 0 0 5px;
+
+    font-size: 17px;
+    line-height: 1.4;
+    font-weight: 700;
+
+    color:
+        var(--communication-text);
+}
+
+.communication-section-heading p {
+    margin: 0;
+
+    font-size: 13px;
+    line-height: 1.5;
+
+    color:
+        var(--communication-text-secondary);
+}
+
+.communication-audience-options {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2,
+            minmax(0, 1fr));
+
+    gap: 10px;
+}
+
+.communication-audience-option {
+    position: relative;
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 12px;
+
+    min-height: 76px;
+
+    padding: 15px;
+
+    box-sizing: border-box;
+
+    border:
+        1px solid var(--communication-border);
+
+    border-radius:
+        var(--communication-radius-md);
+
+    background:
+        #ffffff;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.18s ease,
+        background-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.communication-audience-option:hover {
+    border-color:
+        #c7cdd5;
+}
+
+.communication-audience-option.is-selected {
+    border-color:
+        var(--communication-accent);
+
+    background:
+        var(--communication-accent-soft);
+
+    box-shadow:
+        0 0 0 1px rgba(196, 109, 83, 0.08);
+}
+
+.communication-audience-option input {
+    flex-shrink: 0;
+
+    width: 17px;
+    height: 17px;
+
+    margin:
+        2px 0 0;
+
+    accent-color:
+        var(--communication-accent);
+
+    cursor: pointer;
+}
+
+.communication-audience-content {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 4px;
+
+    min-width: 0;
+}
+
+.communication-audience-content strong {
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 700;
+
+    color:
+        var(--communication-text);
+}
+
+.communication-audience-content small {
+    font-size: 12px;
+    line-height: 1.45;
+
+    font-weight: 400;
+
+    color:
+        var(--communication-text-secondary);
+}
+
+.communication-audience-note {
+    padding:
+        11px 13px;
+
+    border-radius:
+        var(--communication-radius-sm);
+
+    background:
+        #f8f9fa;
+
+    color:
+        #6b7280;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   RICH TEXT EDITOR
+   ========================================================= */
+
+.communication-form .ProseMirror {
+    min-height: 320px;
+
+    padding:
+        16px;
+
+    box-sizing: border-box;
+
+    outline: none;
+
+    font-size: 15px;
+
+    line-height: 1.75;
+
+    color:
+        var(--communication-text);
+
+    background:
+        #ffffff;
+}
+
+.communication-form .ProseMirror p {
+    margin:
+        0 0 1rem;
+}
+
+.communication-form .ProseMirror p:last-child {
+    margin-bottom: 0;
+}
+
+.communication-form .ProseMirror h1,
+.communication-form .ProseMirror h2,
+.communication-form .ProseMirror h3 {
+    color:
+        var(--communication-text);
+
+    line-height: 1.3;
+}
+
+.communication-form .ProseMirror h1 {
+    margin:
+        1.5rem 0 0.8rem;
+
+    font-size: 24px;
+}
+
+.communication-form .ProseMirror h2 {
+    margin:
+        1.5rem 0 0.8rem;
+
+    font-size: 20px;
+}
+
+.communication-form .ProseMirror h3 {
+    margin:
+        1.25rem 0 0.7rem;
+
+    font-size: 17px;
+}
+
+.communication-form .ProseMirror ul,
+.communication-form .ProseMirror ol {
+    margin:
+        1rem 0 1.25rem;
+
+    padding-left:
+        1.5rem;
+}
+
+.communication-form .ProseMirror li {
+    margin-bottom:
+        0.4rem;
+}
+
+.communication-form .ProseMirror blockquote {
+    margin:
+        1.5rem 0;
+
+    padding:
+        0.25rem 0 0.25rem 1rem;
+
+    border-left:
+        3px solid var(--communication-accent);
+
+    color:
+        #666;
+
+    font-style:
+        italic;
+}
+
+.communication-form .ProseMirror [data-type="cta"] {
+    margin:
+        1.5rem 0;
+
+    padding:
+        1.25rem;
+
+    border:
+        1px solid #e0cfc9;
+
+    border-radius:
+        var(--communication-radius-lg);
+
+    background:
+        var(--communication-accent-soft);
+}
+
+
+/* =========================================================
+   PREVIEW
+   ========================================================= */
+
+.communication-preview-wrapper {
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    width: 100%;
+
+    padding:
+        28px 20px 32px;
+
+    box-sizing: border-box;
+
+    background:
+        #f3f4f6;
+
+    border:
+        1px solid var(--communication-border);
+
+    border-radius:
+        var(--communication-radius-xl);
+}
+
+.communication-preview-label {
+    align-self: flex-start;
+
+    margin-bottom: 16px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    letter-spacing: 0.08em;
+
+    text-transform: uppercase;
+
+    color:
+        var(--communication-text-secondary);
+}
+
+.communication-preview-device {
+    width: 100%;
+
+    max-width: 430px;
+
+    overflow: hidden;
+
+    background:
+        #ffffff;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius:
+        18px;
+
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.10);
+}
+
+.communication-preview-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 58px;
+
+    padding:
+        0 20px;
+
+    border-bottom:
+        1px solid #eeeeee;
+
+    background:
+        #ffffff;
+}
+
+.communication-preview-brand {
+    font-size: 13px;
+    font-weight: 700;
+
+    letter-spacing: -0.01em;
+
+    color:
+        var(--communication-text);
+}
+
+.communication-preview-content {
+    padding:
+        28px 24px 36px;
+}
+
+.communication-preview-content h1 {
+    margin:
+        0 0 24px;
+
+    font-size: 24px;
+
+    line-height: 1.25;
+
+    font-weight: 700;
+
+    letter-spacing: -0.02em;
+
+    color:
+        var(--communication-text);
+}
+
+.communication-preview-body {
+    font-size: 16px;
+
+    line-height: 1.75;
+
+    color:
+        #374151;
+}
+
+.communication-preview-body p {
+    margin:
+        0 0 1.1rem;
+}
+
+.communication-preview-body p:last-child {
+    margin-bottom: 0;
+}
+
+.communication-preview-body strong {
+    font-weight: 700;
+}
+
+.communication-preview-body em {
+    font-style: italic;
+}
+
+.communication-preview-body u {
+    text-decoration: underline;
+}
+
+.communication-preview-body h2 {
+    margin:
+        2rem 0 0.8rem;
+
+    font-size: 20px;
+
+    line-height: 1.3;
+}
+
+.communication-preview-body h3 {
+    margin:
+        1.5rem 0 0.7rem;
+
+    font-size: 17px;
+
+    line-height: 1.35;
+}
+
+.communication-preview-body ul,
+.communication-preview-body ol {
+    margin:
+        1rem 0 1.25rem;
+
+    padding-left:
+        1.5rem;
+}
+
+.communication-preview-body li {
+    margin-bottom:
+        0.4rem;
+}
+
+.communication-preview-body blockquote {
+    margin:
+        1.5rem 0;
+
+    padding:
+        0.25rem 0 0.25rem 1rem;
+
+    border-left:
+        3px solid var(--communication-accent);
+
+    color:
+        #666;
+
+    font-style:
+        italic;
+}
+
+
+/* =========================================================
+   CTA — PREVIEW
+   ========================================================= */
+
+.communication-preview-body [data-type="cta"] {
+    margin:
+        1.75rem 0;
+
+    padding:
+        1.25rem;
+
+    border:
+        1px solid #e0cfc9;
+
+    border-radius:
+        var(--communication-radius-lg);
+
+    background:
+        var(--communication-accent-soft);
+}
+
+.communication-preview-body [data-type="cta"]::before {
+    content:
+        "CTA Editorial";
+
+    display:
+        inline-block;
+
+    margin-bottom:
+        0.5rem;
+
+    padding:
+        2px 8px;
+
+    border-radius:
+        99px;
+
+    background:
+        #f9ece8;
+
+    color:
+        var(--communication-accent);
+
+    font-size:
+        0.65rem;
+
+    font-weight:
+        700;
+
+    letter-spacing:
+        0.08em;
+
+    text-transform:
+        uppercase;
+}
+
+
+/* =========================================================
+   MOBILE — 768px
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .communication-center {
+        padding:
+            24px 16px 160px;
+    }
+
+    .communication-center-header {
+        flex-direction: column;
+
+        gap: 18px;
+
+        margin-bottom: 26px;
+    }
+
+    .communication-center-header h1 {
+        font-size: 25px;
+    }
+
+    .communication-center-header p {
+        font-size: 14px;
+    }
+
+
+    /* -----------------------------------------
+       CAMPAIGN LIST
+       ----------------------------------------- */
+
+    .communication-list-header {
+        align-items: stretch;
+
+        flex-direction: column;
+
+        gap: 14px;
+    }
+
+    .communication-list-header .communication-button {
+        width: 100%;
+    }
+
+    .communication-campaign-card {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 12px;
+    }
+
+    .communication-campaign-meta {
+        width: 100%;
+
+        align-items: flex-start;
+
+        flex-direction: row;
+
+        justify-content: space-between;
+    }
+
+
+    /* -----------------------------------------
+       EDITOR
+       ----------------------------------------- */
+
+    .communication-editor {
+        max-width: none;
+
+        padding:
+            24px 16px 180px;
+    }
+
+    .communication-editor-header {
+        margin-bottom: 24px;
+    }
+
+    .communication-editor-header h2 {
+        font-size: 22px;
+    }
+
+    .communication-form {
+        padding: 20px;
+
+        gap: 20px;
+    }
+
+    .communication-form-grid {
+        grid-template-columns: 1fr;
+
+        gap: 18px;
+    }
+
+
+    /* -----------------------------------------
+       LANGUAGE TABS
+       ----------------------------------------- */
+
+    .communication-language-tabs {
+        gap: 4px;
+
+        padding: 4px;
+    }
+
+    .communication-language-tab {
+        padding:
+            9px 8px;
+    }
+
+    .communication-language-name {
+        font-size: 12px;
+    }
+
+    .communication-language-base {
+        display: none;
+    }
+
+
+    /* -----------------------------------------
+       CHOICES
+       ----------------------------------------- */
+
+    .communication-choice-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .communication-audience-options {
+        grid-template-columns: 1fr;
+    }
+
+    .communication-audience-option {
+        min-height: 68px;
+    }
+
+
+    /* -----------------------------------------
+       ACTIONS
+       ----------------------------------------- */
+
+    .communication-editor-actions {
+        flex-direction: column-reverse;
+
+        align-items: stretch;
+
+        gap: 10px;
+
+        margin-top: 20px;
+
+        padding-bottom: 48px;
+    }
+
+    .communication-editor-actions .communication-button {
+        width: 100%;
+    }
+
+
+    /* -----------------------------------------
+       EMPTY
+       ----------------------------------------- */
+
+    .communication-empty {
+        min-height: 210px;
+
+        padding:
+            36px 20px;
+    }
+
+
+    /* -----------------------------------------
+       RICH TEXT
+       ----------------------------------------- */
+
+    .communication-form .ProseMirror {
+        min-height: 260px;
+
+        padding:
+            14px;
+
+        font-size: 15px;
+    }
+
+
+    /* -----------------------------------------
+       PREVIEW
+       ----------------------------------------- */
+
+    .communication-preview-wrapper {
+        padding:
+            20px 12px 24px;
+    }
+
+    .communication-preview-device {
+        max-width: 100%;
+
+        border-radius:
+            14px;
+    }
+
+    .communication-preview-content {
+        padding:
+            24px 20px 30px;
+    }
+
+    .communication-preview-content h1 {
+        font-size: 22px;
+    }
+
+    .communication-preview-body {
+        font-size: 15px;
+    }
+}
+
+
+/* =========================================================
+   SMALL MOBILE — 480px
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .communication-center {
+        padding:
+            20px 14px 160px;
+    }
+
+    .communication-editor {
+        padding:
+            20px 14px 180px;
+    }
+
+    .communication-editor-header h2 {
+        font-size: 21px;
+    }
+
+    .communication-form {
+        padding: 16px;
+
+        gap: 18px;
+
+        border-radius:
+            var(--communication-radius-lg);
+    }
+
+    .communication-form input,
+    .communication-form select {
+        height: 44px;
+    }
+
+    .communication-form .ProseMirror {
+        min-height: 240px;
+    }
+
+    .communication-empty {
+        border-radius:
+            var(--communication-radius-lg);
+    }
+
+
+    /* -----------------------------------------
+       LANGUAGE TABS
+       ----------------------------------------- */
+
+    .communication-language-tabs {
+        overflow-x: auto;
+
+        scrollbar-width: none;
+    }
+
+    .communication-language-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .communication-language-tab {
+        flex:
+            0 0 auto;
+
+        min-width: 92px;
+    }
+
+    .communication-language-name {
+        display: none;
+    }
+
+    .communication-language-tab-main {
+        width: 100%;
+
+        justify-content: center;
+    }
+
+
+    /* -----------------------------------------
+       PREVIEW
+       ----------------------------------------- */
+
+    .communication-preview-wrapper {
+        padding:
+            16px 8px 20px;
+    }
+
+    .communication-preview-content {
+        padding:
+            22px 18px 28px;
+    }
+
+    .communication-preview-content h1 {
+        font-size: 21px;
+    }
+
+
+    /* -----------------------------------------
+       AUDIENCE
+       ----------------------------------------- */
+
+    .communication-audience {
+        gap: 14px;
+    }
+
+    .communication-audience-option {
+        padding: 13px;
+    }
+}
+
+
+/* =========================================================
+   LARGE DESKTOP — 1200px+
+   ========================================================= */
+
+@media (min-width: 1200px) {
+
+    .communication-editor {
+        max-width: 1180px;
+
+        padding-left:
+            40px;
+
+        padding-right:
+            40px;
+    }
+
+    .communication-form {
+        padding:
+            36px 40px;
+    }
+
+    .communication-form .ProseMirror {
+        min-height: 340px;
+    }
+}
+.communication-editor-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.communication-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.45);
+}
+
+.communication-modal {
+    width: min(760px, 100%);
+    max-height: 90vh;
+    overflow: auto;
+    background: #fff;
+    border-radius: 18px;
+    padding: 1.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.communication-modal-confirm {
+    width: min(500px, 100%);
+}
+
+.communication-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.communication-modal-header h3 {
+    margin: 0.25rem 0 0;
+}
+
+.communication-modal-close {
+    border: 0;
+    background: transparent;
+    font-size: 1.75rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.communication-preview {
+    padding: 1rem;
+    background: #f7f5f3;
+    border-radius: 14px;
+}
+
+.communication-preview-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+}
+
+.communication-preview-card {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    line-height: 1.7;
+}
+
+.communication-preview-card h2 {
+    margin-top: 0;
+}
+
+.communication-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+}
+
+.communication-confirm-warning {
+    margin-top: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    background: #fff7ed;
+    color: #9a5b16;
+    font-size: 0.85rem;
+}
+
+@media (max-width: 640px) {
+
+    .communication-editor-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .communication-editor-actions .communication-button {
+        width: 100%;
+    }
+
+    .communication-modal {
+        padding: 1rem;
+    }
+
+    .communication-preview-card {
+        padding: 1.25rem;
+    }
+
+    .communication-modal-actions {
+        flex-direction: column;
+    }
+
+    .communication-modal-actions .communication-button {
+        width: 100%;
+    }
+}
+

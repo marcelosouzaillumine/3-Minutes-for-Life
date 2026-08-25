@@ -911,19 +911,19 @@ export function Landing() {
               )}
             </a>
 
-            <a href="#">
+            <a href="/privacidade">
               {t(
                 'landing:footer.links.privacy'
               )}
             </a>
 
-            <a href="#">
+            <a href="/termos">
               {t(
                 'landing:footer.links.terms'
               )}
             </a>
 
-            <a href="#">
+            <a href="mailto:atendimento@3minutesforlife.com">
               {t(
                 'landing:footer.links.contact'
               )}

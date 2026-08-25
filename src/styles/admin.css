@@ -25,8 +25,13 @@
 }
 
 @keyframes admin-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Dashboard specific styles */
@@ -60,7 +65,7 @@
   cursor: pointer;
   outline: none;
   width: 100%;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
   transition: border-color 0.2s;
 }
 
@@ -83,7 +88,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .admin-card-title {
@@ -115,12 +120,14 @@
 }
 
 .admin-trend.up {
-  color: #059669; /* Darker green for light bg */
+  color: #059669;
+  /* Darker green for light bg */
   background-color: #d1fae5;
 }
 
 .admin-trend.down {
-  color: #dc2626; /* Darker red for light bg */
+  color: #dc2626;
+  /* Darker red for light bg */
   background-color: #fee2e2;
 }
 
@@ -135,7 +142,7 @@
   border-radius: 12px;
   padding: 24px 16px;
   margin-bottom: 32px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .admin-section h3 {
@@ -149,7 +156,8 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background-color: #f9fafb; /* Very light gray */
+  background-color: #f9fafb;
+  /* Very light gray */
   padding: 16px;
   border-radius: 8px;
   border: 1px solid var(--color-border, #eaeaea);
@@ -214,7 +222,8 @@
   min-width: 300px;
 }
 
-.admin-table th, .admin-table td {
+.admin-table th,
+.admin-table td {
   padding: 12px 8px;
   text-align: left;
   border-bottom: 1px solid var(--color-border, #eaeaea);
@@ -247,11 +256,229 @@
     align-items: flex-end;
     justify-content: space-between;
   }
+
   .admin-period-selector select {
     width: auto;
   }
+
   .admin-card-value {
     flex-direction: row;
     align-items: baseline;
+  }
+}
+
+/* =========================================================
+   CENTRO DE COMUNICAÇÃO
+   ========================================================= */
+
+.communication-center {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 16px 120px;
+  box-sizing: border-box;
+}
+
+.communication-center-header {
+  margin-bottom: 24px;
+}
+
+.communication-center-header h1 {
+  margin: 0 0 6px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text, #1a1a1a);
+}
+
+.communication-center-header p {
+  margin: 0;
+  color: var(--color-text-light, #666);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Formulário */
+
+.communication-form {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+  box-sizing: border-box;
+
+  background-color: var(--color-bg, #ffffff);
+  border: 1px solid var(--color-border, #eaeaea);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+
+  /* Espaço de segurança acima da navegação inferior */
+  margin-bottom: 80px;
+}
+
+.communication-form-group {
+  margin-bottom: 20px;
+}
+
+.communication-form-group:last-child {
+  margin-bottom: 0;
+}
+
+.communication-form-label {
+  display: block;
+  margin-bottom: 8px;
+
+  color: var(--color-text, #1a1a1a);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.communication-form input,
+.communication-form select,
+.communication-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 12px 14px;
+
+  border: 1px solid var(--color-border, #eaeaea);
+  border-radius: 8px;
+
+  background-color: var(--color-bg, #ffffff);
+  color: var(--color-text, #1a1a1a);
+
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.5;
+
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.communication-form textarea {
+  min-height: 240px;
+  resize: vertical;
+}
+
+.communication-form input:focus,
+.communication-form select:focus,
+.communication-form textarea:focus {
+  border-color: var(--color-accent, #c46d53);
+  box-shadow: 0 0 0 3px rgba(196, 109, 83, 0.08);
+}
+
+/* Área dos botões */
+
+.communication-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+
+  margin-top: 32px;
+  padding-top: 24px;
+
+  border-top: 1px solid var(--color-border, #eaeaea);
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (min-width: 600px) {
+  .communication-center {
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-bottom: 128px;
+  }
+
+  .communication-center-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .communication-form {
+    padding: 32px;
+  }
+}
+
+/* =========================================================
+   DESKTOP
+   ========================================================= */
+
+@media (min-width: 1024px) {
+  .communication-center {
+    max-width: 1400px;
+    padding-left: 32px;
+    padding-right: 32px;
+    padding-bottom: 140px;
+  }
+
+  .communication-center-header {
+    margin-bottom: 32px;
+  }
+
+  .communication-center-header h1 {
+    font-size: 2rem;
+  }
+
+  .communication-form {
+    max-width: 1100px;
+    padding: 40px;
+    margin-bottom: 100px;
+  }
+
+  .communication-form textarea {
+    min-height: 280px;
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 599px) {
+  .communication-center {
+    padding-left: 12px;
+    padding-right: 12px;
+
+    /*
+     * Espaço adicional para garantir que o último campo
+     * e os botões nunca fiquem escondidos pela navegação.
+     */
+    padding-bottom: 150px;
+  }
+
+  .communication-center-header {
+    margin-bottom: 20px;
+  }
+
+  .communication-center-header h1 {
+    font-size: 1.35rem;
+  }
+
+  .communication-form {
+    padding: 20px 16px;
+    margin-bottom: 100px;
+    border-radius: 10px;
+  }
+
+  .communication-form-group {
+    margin-bottom: 18px;
+  }
+
+  .communication-form textarea {
+    min-height: 220px;
+  }
+
+  .communication-form-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 10px;
+    margin-top: 28px;
+  }
+
+  .communication-form-actions button {
+    width: 100%;
   }
 }

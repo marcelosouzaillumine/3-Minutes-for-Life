@@ -313,6 +313,9 @@ export function Mission() {
             <a href="/apoiar">{t('footer.navDonate', 'Apoiar')}</a>
             <a href="/privacidade">{t('footer.privacy')}</a>
             <a href="/termos">{t('footer.terms')}</a>
+            <a href="mailto:atendimento@3minutesforlife.com">
+              {t('footer.contact', 'Contato')}
+            </a>
           </div>
 
           <p className="footer-copy">

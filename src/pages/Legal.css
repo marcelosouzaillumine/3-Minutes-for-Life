@@ -1,0 +1,121 @@
+/* =========================================================
+   PÁGINAS LEGAIS (Privacidade e Termos)
+
+   Registro denso: texto de referência, lido varrendo à procura de um
+   trecho específico. Por isso usa a escala menor e linha mais curta,
+   não a escala narrativa das páginas de apresentação.
+========================================================= */
+
+.legal-page {
+  min-height: 100vh;
+  background-color: var(--canvas);
+  color: var(--text-strong);
+  font-family: var(--font-family);
+}
+
+.legal-content {
+  max-width: 68ch;
+  margin: 0 auto;
+  padding: 2rem var(--content-padding) 5rem;
+}
+
+.legal-content h1 {
+  font-family: var(--font-serif);
+  font-size: var(--marketing-h2);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5rem;
+}
+
+.legal-updated {
+  font-size: var(--marketing-caption);
+  color: var(--text-faint);
+  margin: 0 0 2rem;
+}
+
+.legal-lead {
+  font-size: var(--marketing-body-lg);
+  line-height: 1.7;
+  color: var(--text-muted);
+  margin: 0 0 3rem;
+}
+
+.legal-content h2 {
+  font-family: var(--font-serif);
+  font-size: var(--marketing-h3);
+  line-height: 1.3;
+  margin: 2.5rem 0 0.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.legal-content h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.5rem;
+}
+
+.legal-content p {
+  font-size: var(--marketing-body);
+  line-height: 1.75;
+  color: var(--text-muted);
+  margin: 0 0 1rem;
+}
+
+.legal-content ul {
+  margin: 0 0 1.25rem;
+  padding-left: 1.25rem;
+}
+
+.legal-content li {
+  font-size: var(--marketing-body);
+  line-height: 1.7;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.legal-content strong {
+  color: var(--text-strong);
+  font-weight: 600;
+}
+
+.legal-content a {
+  color: var(--accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.legal-contact {
+  margin-top: 3rem !important;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.legal-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2rem var(--content-padding);
+  background-color: var(--surface-dark);
+}
+
+.legal-footer a {
+  font-size: var(--marketing-caption);
+  color: var(--text-on-dark-muted);
+  text-decoration: none;
+}
+
+.legal-footer a:hover {
+  color: var(--accent-on-dark);
+}
+
+@media (max-width: 480px) {
+  .legal-content {
+    padding: 1.5rem 1.25rem 4rem;
+  }
+
+  .legal-content h2 {
+    margin-top: 2rem;
+  }
+}
