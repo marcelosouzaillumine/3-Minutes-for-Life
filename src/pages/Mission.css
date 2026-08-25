@@ -76,6 +76,15 @@
   color: var(--landing-text);
 }
 
+/* BUGFIX: a regra acima aplica cor escura em TODO heading do escopo,
+   inclusive dentro de seções de fundo escuro — onde o título ficava
+   navy sobre navy. Seções escuras reassumem a cor correta. */
+.mission-moment h2,
+.mission-site-footer h3,
+.mission-site-footer h4 {
+  color: var(--text-on-dark);
+}
+
 .mission-page p {
   margin-top: 0;
 }
@@ -243,21 +252,7 @@
 }
 
 
-.mission-hero-statements {
-  font-size: var(--marketing-body-lg);
 
-  font-family: var(--font-serif);
-
-  color: var(--landing-text);
-
-  margin-bottom: 4rem;
-
-  opacity: 0.9;
-}
-
-.mission-hero-statements p {
-  margin-bottom: 0.5rem;
-}
 
 
 .mission-hero-pill-wrapper {
@@ -279,9 +274,7 @@
    --------------------------------------------------------- */
 
 .mission-hero-visual {
-  background-image:
-    url('https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=2000&auto=format&fit=crop'
-    );
+  background-image: url('/images/dawn_walk.png');
 
   background-size: cover;
   background-position: center;
@@ -301,544 +294,308 @@
 
 
 /* =========================================================
-   2. PARALLAX SECTION
+   RITMO VERTICAL
+   Três níveis, em vez de 8rem uniforme em toda seção.
+   sm = respiro interno · md = entre seções · lg = antes da decisão
    ========================================================= */
 
-.mission-parallax-section {
+.mission-page {
+  --mission-space-sm: 4rem;
+  --mission-space-md: 8rem;
+  --mission-space-lg: 12rem;
+}
+
+
+/* =========================================================
+   1. HERO — lead
+   ========================================================= */
+
+.mission-hero-lead {
+  font-family: var(--font-serif);
+  font-size: var(--marketing-body-lg);
+  color: var(--landing-text-light);
+  line-height: 1.6;
+  max-width: 34ch;
+  margin: 0 0 var(--mission-space-sm);
+}
+
+
+/* =========================================================
+   2. O QUE SÃO TRÊS MINUTOS — full-bleed
+   ========================================================= */
+
+.mission-moment {
   position: relative;
-
   width: 100%;
+  margin: var(--mission-space-md) 0;
+  padding: var(--mission-space-lg) var(--mission-side-padding);
+  box-sizing: border-box;
 
-  min-height: 80vh;
-
-  background-image:
-    url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=2000&auto=format&fit=crop'
-    );
-
-  background-attachment: fixed;
+  /* Imagem própria desta página. A Landing já usa coffee_silence.png
+     na sua seção imersiva — repetir a mesma foto enfraquecia as duas.
+     Posição 55% no eixo Y evita o céu estourado do topo e mantém o
+     banco visível quando o recorte tira altura. Se o arquivo faltar,
+     o background-color navy assume e o texto continua legível. */
+  background-image: url('/images/quiet_bench.jpg');
   background-size: cover;
-  background-position: center;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding-top: 8rem;
-  padding-bottom: 8rem;
-
-  color: #fff;
-
-  text-align: center;
-
-  box-sizing: border-box;
+  background-position: center 55%;
+  background-color: var(--surface-dark);
 }
 
-
-.parallax-overlay {
+.mission-moment::before {
+  content: '';
   position: absolute;
-
   inset: 0;
-
-  background-color:
-    rgba(28, 25, 23, 0.85);
+  background: rgba(31, 38, 46, 0.74);
 }
 
-
-.parallax-content {
+.mission-moment-inner {
   position: relative;
-
-  z-index: 2;
-
   width: 100%;
-
-  max-width: 900px;
-
-  margin-left: auto;
-  margin-right: auto;
-
-  padding-left: var(--mission-side-padding);
-  padding-right: var(--mission-side-padding);
-
-  box-sizing: border-box;
+  max-width: 720px;
+  margin: 0 auto;
+  z-index: 1;
 }
 
-
-.parallax-content h2 {
-  color: #fff;
-
+.mission-moment-title {
+  font-family: var(--font-serif);
   font-size: var(--marketing-statement);
-
-  margin-top: 0;
-  margin-bottom: 6rem;
-}
-
-
-.parallax-list p {
-  color: rgba(255, 255, 255, 0.8);
-
-  font-size: var(--marketing-h3);
-
-  font-family: var(--font-serif);
-
-  margin-bottom: 2rem;
-}
-
-
-.parallax-conclusion {
-  margin-top: 8rem;
-}
-
-
-.parallax-conclusion h3 {
-  color: #fff;
-
-  font-size: var(--marketing-statement);
-
-  line-height: 1.3;
-
-  margin-top: 0;
-}
-
-
-/* =========================================================
-   3. TENSION SECTION
-   ========================================================= */
-
-.mission-tension-section {
-  width: 100%;
-
-  padding-top: 8rem;
-  padding-bottom: 8rem;
-
-  box-sizing: border-box;
-}
-
-
-/*
- * IMPORTANTE:
- *
- * A largura agora é controlada pelo mesmo container global.
- */
-
-.mission-tension-section .tension-grid {
-  width: 100%;
-  max-width: var(--mission-content-width);
-
-  margin-left: auto;
-  margin-right: auto;
-
-  padding-left: var(--mission-side-padding);
-  padding-right: var(--mission-side-padding);
-
-  display: flex;
-
-  flex-direction: row;
-
-  justify-content: space-between;
-
-  gap: 4rem;
-
-  align-items: flex-start;
-
-  box-sizing: border-box;
-}
-
-
-.tension-left {
-  flex: 0 0 calc(50% - 2rem);
-
-  min-width: 0;
-}
-
-
-.tension-right {
-  flex: 0 0 calc(50% - 2rem);
-
-  min-width: 0;
-}
-
-
-.tension-title {
-  font-size: var(--marketing-h2);
-
-  line-height: 1.2;
-
-  word-break: break-word;
-
-  white-space: normal;
-
-  margin-top: 0;
-}
-
-
-.tension-right p {
-  font-size: var(--marketing-body-lg);
-
-  font-family: var(--font-serif);
-
-  color: var(--landing-text) !important;
-
-  margin-bottom: 1.5rem;
-
-  line-height: 1.5;
-
-  opacity: 1 !important;
-
-  visibility: visible !important;
-
-  display: block !important;
-}
-
-
-.tension-conclusion {
-  width: 100%;
-
-  max-width: 800px;
-
-  margin-top: 5rem;
-
-  margin-left: auto;
-  margin-right: auto;
-
-  text-align: center;
-}
-
-
-.tension-conclusion p {
-  font-size: var(--marketing-h3);
-
-  font-family: var(--font-serif);
-
-  color: var(--landing-text-light);
-
-  line-height: 1.4;
-}
-
-
-/* =========================================================
-   4. MINIMAL SECTION
-   ========================================================= */
-
-.mission-minimal-section {
-  width: 100%;
-
-  background-color: var(--landing-border);
-
-  padding-top: 8rem;
-  padding-bottom: 8rem;
-
-  padding-left: var(--mission-side-padding);
-  padding-right: var(--mission-side-padding);
-
-  text-align: center;
-
-  box-sizing: border-box;
-}
-
-
-.minimal-id {
-  display: block;
-
-  font-size: 0.85rem;
-
-  text-transform: uppercase;
-
-  letter-spacing: 0.2em;
-
-  color: var(--landing-text-light);
-
-  margin-bottom: 6rem;
-}
-
-
-.minimal-statements {
-  width: 100%;
-
-  max-width: 1000px;
-
-  margin-left: auto;
-  margin-right: auto;
-}
-
-
-.minimal-statements p {
-  font-size: var(--marketing-statement);
-
-  font-family: var(--font-serif);
-
-  color: var(--landing-text);
-
-  margin-bottom: 1.5rem;
-}
-
-
-.minimal-conclusion {
-  width: 100%;
-
-  max-width: 700px;
-
-  margin-top: 8rem;
-
-  margin-left: auto;
-  margin-right: auto;
-}
-
-
-.minimal-conclusion p {
-  font-size: var(--marketing-body-lg);
-
-  color: var(--landing-text-light);
-
-  margin-bottom: 1.5rem;
-}
-
-
-/* =========================================================
-   5. MONUMENTAL TEXT SECTION
-   ========================================================= */
-
-.mission-monumental-section {
-  width: 100%;
-
-  padding-top: 10rem;
-  padding-bottom: 10rem;
-
-  padding-left: var(--mission-side-padding);
-  padding-right: var(--mission-side-padding);
-
-  text-align: center;
-
-  box-sizing: border-box;
-}
-
-
-.mission-monumental-section>* {
-  max-width: 1200px;
-
-  margin-left: auto;
-  margin-right: auto;
-}
-
-
-.monumental-title {
-  font-size: var(--marketing-statement);
-
-  font-family: var(--font-serif);
-
-  line-height: 1.2;
-
-  margin-bottom: 2rem;
-
-  color: var(--landing-text);
-}
-
-
-.monumental-subtitle {
-  font-size: var(--marketing-caption);
-
-  text-transform: uppercase;
-
-  letter-spacing: 0.1em;
-
-  color: var(--landing-accent);
-
-  font-weight: 500;
-
-  margin-bottom: 8rem;
-}
-
-
-.monumental-text-block {
-  margin-bottom: 8rem;
-
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 1.5rem;
-}
-
-
-.monumental-intro {
-  font-size: var(--marketing-statement);
-
-  color: var(--landing-text);
-
-  font-family: var(--font-serif);
-
+  color: var(--text-on-dark);
   line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--mission-space-sm);
 }
 
+.mission-moment-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--mission-space-sm);
+  border-left: 1px solid var(--accent-on-dark);
+}
 
-.monumental-core {
-  font-size: var(--marketing-h3);
-
-  color: var(--landing-text-light);
-
+.mission-moment-list li {
   font-family: var(--font-serif);
-
-  font-style: italic;
-
-  margin-bottom: 4rem;
-}
-
-
-.transformation-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(auto-fit, minmax(280px, 1fr));
-
-  gap: 2rem;
-
-  width: 100%;
-}
-
-
-.transformation-card {
-  background-color: #fff;
-
-  border: 1px solid var(--landing-border);
-
-  border-radius: 16px;
-
-  padding: 3rem 2rem;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.03);
-
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-
-  min-height: 150px;
-}
-
-
-.transformation-card:hover {
-  transform: translateY(-5px);
-
-  box-shadow:
-    0 15px 40px rgba(0, 0, 0, 0.06);
-}
-
-
-.transformation-card p {
   font-size: var(--marketing-h3);
+  color: var(--text-on-dark);
+  line-height: 1.4;
+  padding: 0.75rem 0 0.75rem 2rem;
+}
 
-  font-family: var(--font-serif);
-
-  color: var(--landing-text);
-
+.mission-moment-close {
+  font-size: var(--marketing-body-lg);
+  color: var(--text-on-dark-muted);
+  line-height: 1.7;
+  max-width: 56ch;
   margin: 0;
-
-  line-height: 1.4;
-}
-
-
-.transformation-card.highlight {
-  background-color: var(--landing-text);
-
-  border-color: var(--landing-text);
-}
-
-
-.transformation-card.highlight p {
-  color: #fff;
-}
-
-
-.monumental-final {
-  font-size: var(--marketing-h3);
-
-  font-family: var(--font-serif);
-
-  line-height: 1.4;
-
-  margin-top: 8rem;
-
-  padding-top: 8rem;
-
-  border-top: 1px solid var(--landing-border);
-}
-
-
-.monumental-final .highlight {
-  color: var(--landing-accent);
 }
 
 
 /* =========================================================
-   6. BRIDGE SECTION
+   3. O QUE MUDA DEPOIS — título fixo + lista rolante
    ========================================================= */
 
-.mission-bridge-section {
+.mission-outcomes {
   width: 100%;
-
-  background-color: var(--landing-text);
-
-  color: var(--landing-bg);
-
-  padding-top: 8rem;
-  padding-bottom: 8rem;
-
-  padding-left: var(--mission-side-padding);
-  padding-right: var(--mission-side-padding);
-
-  text-align: center;
-
+  padding: var(--mission-space-md) var(--mission-side-padding);
   box-sizing: border-box;
 }
 
-
-.mission-bridge-section h2 {
-  color: var(--landing-bg);
-
-  font-size: var(--marketing-h2);
-
-  margin-top: 0;
-  margin-bottom: 6rem;
-
-  max-width: 800px;
-
-  margin-left: auto;
-  margin-right: auto;
+.mission-outcomes-grid {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--mission-space-sm);
 }
 
-
-.bridge-text p {
-  font-size: var(--marketing-body-lg);
-
-  color: rgba(255, 255, 255, 0.7);
-
-  margin-bottom: 2rem;
-
-  max-width: 600px;
-
-  margin-left: auto;
-  margin-right: auto;
-}
-
-
-.bridge-highlight {
-  margin-top: 8rem;
-}
-
-
-.bridge-highlight p {
+.mission-outcomes-sticky h2 {
   font-family: var(--font-serif);
+  font-size: var(--marketing-h2);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 1.5rem;
+}
 
+.mission-outcomes-sticky p {
+  font-size: var(--marketing-body-lg);
+  color: var(--landing-text-light);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 38ch;
+}
+
+.mission-outcomes-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.mission-outcome {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  align-items: baseline;
+  gap: 0 1.5rem;
+  padding: 1.75rem 0;
+  border-bottom: 1px solid var(--landing-border);
+  /* Coluna fixa para os índices: sem ela, 01–04 empurram o texto
+     em larguras diferentes e as frases não alinham entre si. */
+}
+
+/* O primeiro item não leva borda superior nem recuo, para que a
+   primeira linha de texto comece na mesma altura do título ao lado. */
+.mission-outcome:first-child {
+  padding-top: 0;
+}
+
+.mission-outcome-index {
+  font-family: var(--font-family);
+  font-size: var(--marketing-caption);
+  color: var(--accent-strong);
+  letter-spacing: 0.1em;
+  text-align: right;
+}
+
+.mission-outcome p {
+  font-family: var(--font-serif);
+  font-size: var(--marketing-h3);
+  line-height: 1.35;
+  color: var(--landing-text);
+  margin: 0;
+  text-wrap: balance;
+}
+
+.mission-scale {
+  width: 100%;
+  max-width: 780px;
+  margin: var(--mission-space-sm) auto 0;
+  padding-top: 3rem;
+  border-top: 1px solid var(--landing-border);
+  text-align: center;
+}
+
+.mission-scale-figure {
+  font-family: var(--font-serif);
+  /* body-lg, não h3: os quatro resultados acima são a âncora da seção
+     e usam h3. Este bloco é a coda que os fecha — no mesmo nível ele
+     leria como um quinto item da lista. A serifa mantém a voz
+     editorial sem disputar hierarquia. */
+  font-size: var(--marketing-body-lg);
+  color: var(--landing-text);
+  line-height: 1.5;
+  margin: 0 0 1rem;
+  text-wrap: balance;
+}
+
+.mission-scale-note {
+  font-size: var(--marketing-body);
+  color: var(--landing-text-light);
+  line-height: 1.7;
+  max-width: 58ch;
+  margin: 0 auto;
+}
+
+
+/* =========================================================
+   4. FAÇA PARTE — contido e centralizado
+   ========================================================= */
+
+.mission-invite {
+  width: 100%;
+  padding: var(--mission-space-lg) var(--mission-side-padding) var(--mission-space-md);
+  box-sizing: border-box;
+  background-color: #fff;
+  border-top: 1px solid var(--landing-border);
+  border-bottom: 1px solid var(--landing-border);
+}
+
+.mission-invite-head {
+  max-width: 620px;
+  margin: 0 auto var(--mission-space-sm);
+  text-align: center;
+}
+
+.mission-invite-head h2 {
+  font-family: var(--font-serif);
+  font-size: var(--marketing-h2);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 1.25rem;
+}
+
+.mission-invite-head p {
+  font-size: var(--marketing-body-lg);
+  color: var(--landing-text-light);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.mission-invite .editorial-tiers {
+  margin-bottom: 0;
+}
+
+
+/* =========================================================
+   5. DESPEDIDA
+   ========================================================= */
+
+/* Esta seção deixou de ser despedida e passou a ser a ponte para o
+   pedido: fecha o argumento e desemboca nos cards de contribuição.
+   Por isso o padding inferior é menor que o superior — ela não
+   encerra, ela conduz. */
+.mission-farewell {
+  width: 100%;
+  padding: var(--mission-space-lg) var(--mission-side-padding) var(--mission-space-md);
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.mission-farewell-text {
+  font-family: var(--font-serif);
   font-size: var(--marketing-statement);
+  color: var(--landing-text);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  max-width: 24ch;
+  margin: 0 auto 1.75rem;
+  text-wrap: balance;
+}
 
-  color: var(--landing-bg);
+/* As quatro linhas que tornam "essa pessoa" concreta. Ficam entre o
+   statement e o pedido, em registro mais baixo que ambos. */
+.mission-farewell-detail {
+  font-size: var(--marketing-body-lg);
+  color: var(--landing-text-light);
+  line-height: 1.7;
+  max-width: 46ch;
+  margin: 0 auto 1.75rem;
+  text-wrap: balance;
+}
 
-  line-height: 1.4;
+.mission-farewell-ask {
+  font-family: var(--font-serif);
+  font-size: var(--marketing-h3);
+  color: var(--landing-text);
+  line-height: 1.35;
+  margin: 0;
+  text-wrap: balance;
+}
+
+
+/* =========================================================
+   DESKTOP — layouts de duas colunas
+   ========================================================= */
+
+@media (min-width: 900px) {
+  .mission-outcomes-grid {
+    grid-template-columns: 1fr 1.15fr;
+    gap: 5rem;
+    align-items: start;
+  }
+
+  .mission-outcomes-sticky {
+    position: sticky;
+    top: 8rem;
+  }
 }
 
 
@@ -943,9 +700,9 @@
 
   transform: translateX(-50%);
 
-  background-color: var(--landing-accent);
+  background-color: var(--accent-on-dark);
 
-  color: #fff;
+  color: var(--brand-navy);
 
   padding: 0.4rem 1.2rem;
 
@@ -1016,6 +773,9 @@
 
 .editorial-tier-free-options .editorial-btn {
   width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  letter-spacing: 0.04em;
 }
 
 
@@ -1171,82 +931,6 @@
 
 
 /* =========================================================
-   8. FECHAMENTO
-   ========================================================= */
-
-.mission-closing-section {
-  width: 100%;
-
-  padding-top: 8rem;
-  padding-bottom: 0;
-
-  padding-left: var(--mission-side-padding);
-  padding-right: var(--mission-side-padding);
-
-  text-align: center;
-
-  box-sizing: border-box;
-}
-
-
-.closing-sequence {
-  width: 100%;
-
-  max-width: 1000px;
-
-  margin-left: auto;
-  margin-right: auto;
-
-  font-size: var(--marketing-statement);
-
-  font-family: var(--font-serif);
-
-  color: var(--landing-text);
-
-  line-height: 1.4;
-
-  margin-bottom: 8rem;
-}
-
-
-.closing-sequence p {
-  margin: 2rem 0;
-}
-
-
-.closing-final {
-  width: 100%;
-
-  max-width: 900px;
-
-  margin-left: auto;
-  margin-right: auto;
-
-  font-size: var(--marketing-h3);
-
-  font-family: var(--font-serif);
-
-  line-height: 1.6;
-
-  color: var(--landing-text-light);
-}
-
-
-.closing-final p {
-  margin-bottom: 1.5rem;
-}
-
-
-.closing-final .highlight {
-  font-size: var(--marketing-statement);
-
-  color: var(--landing-text);
-
-  margin-top: 4rem;
-}
-
-
-/* =========================================================
    9. FOOTER
    ========================================================= */
 
@@ -1269,7 +953,11 @@
 }
 
 
-.footer-content {
+/* Escopado ao rodapé da Mission: estes nomes também existem em
+   Landing.css e, como CSS é global, vazavam entre as páginas —
+   o gap: 4rem abaixo inflava o rodapé da Landing, que empilha
+   os elementos em coluna. */
+.mission-site-footer .footer-content {
   width: 100%;
 
   max-width: var(--mission-content-width);
@@ -1301,7 +989,7 @@
 .footer-brand h3 {
   font-family: var(--font-serif);
 
-  font-size: var(--marketing-h3);
+  font-size: var(--marketing-h4);
 
   margin-bottom: 1rem;
 
@@ -1318,7 +1006,7 @@
 }
 
 
-.footer-links {
+.mission-site-footer .footer-links {
   display: flex;
 
   gap: 4rem;
@@ -1670,26 +1358,6 @@
   }
 
 
-  .mission-tension-section .tension-grid {
-    flex-direction: column;
-
-    gap: 3rem;
-  }
-
-
-  .tension-left,
-  .tension-right {
-    flex: 0 0 100%;
-
-    width: 100%;
-  }
-
-
-  .tension-title {
-    position: relative;
-
-    top: 0;
-  }
 }
 
 
@@ -1701,50 +1369,6 @@
 
   .mission-page {
     --mission-side-padding: 1.5rem;
-  }
-
-
-  .mission-parallax-section {
-    padding-top: 6rem;
-
-    padding-bottom: 6rem;
-
-    background-attachment: scroll;
-  }
-
-
-  .mission-tension-section {
-    padding-top: 6rem;
-
-    padding-bottom: 6rem;
-  }
-
-
-  .mission-minimal-section {
-    padding-top: 6rem;
-
-    padding-bottom: 6rem;
-  }
-
-
-  .mission-monumental-section {
-    padding-top: 6rem;
-
-    padding-bottom: 6rem;
-  }
-
-
-  .monumental-math {
-    gap: 1rem;
-
-    margin-bottom: 5rem;
-  }
-
-
-  .mission-bridge-section {
-    padding-top: 6rem;
-
-    padding-bottom: 6rem;
   }
 
 
@@ -1778,13 +1402,6 @@
     width: 20px;
 
     height: 1px;
-  }
-
-
-  .mission-closing-section {
-    padding-top: 6rem;
-
-    padding-bottom: 3rem;
   }
 
 

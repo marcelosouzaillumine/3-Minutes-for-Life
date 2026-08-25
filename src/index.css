@@ -1,18 +1,60 @@
 :root {
   /* =========================================================
-     COLORS
+     PALETA CANÔNICA
+     Extraída do logo (auditoria de 24/08/2026).
+     Antes disso havia dois sistemas paralelos e divergentes:
+     --color-* (app) e --landing-* (páginas públicas). Agora
+     ambos derivam daqui, então existe uma fonte única.
+
+     Regra de ouro do dourado: #E5BE85 tem contraste 8.75 sobre
+     navy e apenas 1.72 sobre branco. Ele é uma cor de fundo
+     escuro. Em superfície clara, use --accent-strong.
   ========================================================= */
 
-  --color-bg: #ffffff;
-  --color-surface: #ffffff;
+  /* Marca — valores medidos no arquivo do logo */
+  --brand-navy: #1F262E;
+  --brand-gold: #E5BE85;
+  --brand-white: #FDFDFD;
 
-  --color-text: #1a1a1a;
-  --color-text-light: #666666;
+  /* Superfícies claras */
+  --canvas: #FCFAF7;
+  --surface: #FFFFFF;
+  --border-subtle: #E3E0DA;
 
-  --color-accent: #c46d53;
-  --color-primary: #c46d53;
+  /* Texto sobre superfície clara */
+  --text-strong: #1F262E;   /* 15.02 sobre branco */
+  --text-muted: #5A6472;    /*  5.76 sobre off-white */
+  --text-faint: #737270;    /*  4.61 — era #a09e9c, reprovava com 2.56 */
 
-  --color-border: #eaeaea;
+  /* Superfícies escuras */
+  --surface-dark: #1F262E;
+  --surface-dark-raised: #2A323C;
+
+  /* Texto sobre superfície escura */
+  --text-on-dark: #FDFDFD;         /* 15.02 sobre navy */
+  --text-on-dark-muted: rgba(253, 253, 253, 0.72);
+
+  /* Destaque */
+  --accent-on-dark: #E5BE85;  /* dourado puro — só sobre navy/foto escura */
+  --accent-strong: #8A6F4A;   /* 4.72 sobre branco — texto, links e botões */
+  --accent-hover: #755D3E;
+
+  /* =========================================================
+     ALIASES LEGADOS
+     Mantidos para não quebrar as chamadas existentes.
+     Código novo deve usar os tokens canônicos acima.
+  ========================================================= */
+
+  --color-bg: var(--surface);
+  --color-surface: var(--surface);
+
+  --color-text: var(--text-strong);
+  --color-text-light: var(--text-muted);
+
+  --color-accent: var(--accent-strong);
+  --color-primary: var(--accent-strong);
+
+  --color-border: var(--border-subtle);
 
   /* =========================================================
      SPACING SYSTEM
@@ -74,6 +116,12 @@
   --marketing-statement: clamp(2.25rem, 2rem + 3.5vw, 3.75rem);
   --marketing-h2: clamp(2.25rem, 2rem + 2vw, 3rem);
   --marketing-h3: clamp(1.5rem, 1.35rem + 0.75vw, 2rem);
+
+  /* Registro denso: conteúdo de referência que se lê varrendo, não
+     narrando — FAQ, listas de itens, blocos de detalhe. Os níveis
+     acima são de narrativa e ficam grandes demais aqui. */
+  --marketing-h4: clamp(1.15rem, 1.05rem + 0.4vw, 1.375rem);
+
   --marketing-body-lg: clamp(1.1rem, 1rem + 0.4vw, 1.35rem);
   --marketing-body: 1rem;
   --marketing-caption: 0.875rem;
@@ -87,7 +135,7 @@
   --cta-block-border: #e8d8d3;
   --cta-block-border-pending: #e0cfc9;
   --cta-block-shadow: rgba(196, 109, 83, 0.08);
-  --cta-block-pending-text: #aaaaaa;
+  --cta-block-pending-text: #6E6E6E;
 
   /* =========================================================
      TYPOGRAPHY
@@ -521,7 +569,7 @@ h4 {
 
   align-items: center;
 
-  color: #a3a3a3;
+  color: var(--text-faint);
 
   font-size: 0.65rem;
   font-weight: 600;
@@ -1108,8 +1156,11 @@ h4 {
 }
 
 .principle-support-button {
-  display: inline-block;
-  margin-top: 0.5rem;
+  /* block + margin auto: inline-block herdava o alinhamento à esquerda
+     da seção; aqui o CTA final pede centralização. */
+  display: block;
+  width: fit-content;
+  margin: 0.5rem auto 0;
   padding: 0.65rem 1.5rem;
   border-radius: 99px;
   background: var(--color-accent);
@@ -1123,6 +1174,24 @@ h4 {
 
 .principle-support-button:hover {
   opacity: 0.85;
+}
+
+.principle-support-banner-link {
+  display: block;
+  border-radius: 12px;
+  transition: opacity 0.2s;
+}
+
+.principle-support-banner-link:hover {
+  opacity: 0.9;
+}
+
+.principle-support-banner-link .principle-support-banner {
+  margin-bottom: 0;
+}
+
+.principle-support-banner-link + .principle-support-text {
+  margin-top: 1.25rem;
 }
 
 /* =========================================================

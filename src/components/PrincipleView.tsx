@@ -481,6 +481,7 @@ export function PrincipleView({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="principle-tip-image-link"
+                    aria-label={t('home.contentTip', 'Uma dica para você')}
                   >
                     <img
                       src={devotional.content_tip_image_url}
@@ -517,11 +518,27 @@ export function PrincipleView({
             </span>
 
             {devotional.support_banner_url && (
-              <img
-                src={devotional.support_banner_url}
-                alt=""
-                className="principle-support-banner"
-              />
+              devotional.support_link_url ? (
+                <a
+                  href={devotional.support_link_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="principle-support-banner-link"
+                  aria-label={t('home.supportLinkLabel', 'Quero apoiar')}
+                >
+                  <img
+                    src={devotional.support_banner_url}
+                    alt=""
+                    className="principle-support-banner"
+                  />
+                </a>
+              ) : (
+                <img
+                  src={devotional.support_banner_url}
+                  alt=""
+                  className="principle-support-banner"
+                />
+              )
             )}
 
             {devotional.support_message && (
@@ -532,7 +549,9 @@ export function PrincipleView({
               </div>
             )}
 
-            {devotional.support_link_url && (
+            {/* O botão só aparece quando NÃO há banner clicável: com os
+                dois, a mesma ação teria dois CTAs concorrendo. */}
+            {devotional.support_link_url && !devotional.support_banner_url && (
               <a
                 href={devotional.support_link_url}
                 target="_blank"

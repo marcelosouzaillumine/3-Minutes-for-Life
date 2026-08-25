@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next';
+/* Usa header/nav/logo da Landing além dos cards da Mission. */
+import './Landing.css';
 import './Mission.css';
 import { BrandLogo } from '../components/BrandLogo';
 

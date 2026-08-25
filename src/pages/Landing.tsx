@@ -481,8 +481,6 @@ export function Landing() {
           <p
             style={{
               fontSize: '1.25rem',
-              color:
-                'rgba(250, 248, 246, 0.8)',
             }}
           >
             {t('landing:audience.p2')}
@@ -527,6 +525,90 @@ export function Landing() {
         </p>
       </section>
 
+      {/* =========================================================
+          CONTINUE
+      ========================================================== */}
+      <section
+        className="continue-section"
+        ref={setRef}
+        style={{
+          padding:
+            '6rem var(--spacing-md)',
+          textAlign: 'center',
+        }}
+      >
+        <h2
+          className="reveal"
+          style={{
+            fontSize: '2.5rem',
+            marginBottom: '1rem',
+            fontFamily:
+              'var(--font-serif)',
+          }}
+        >
+          {t(
+            'landing:continue.title'
+          )}
+        </h2>
+
+        <p
+          className="reveal delay-100"
+          style={{
+            fontSize: '1.1rem',
+            color:
+              'var(--landing-text-light)',
+            maxWidth: '600px',
+            margin:
+              '0 auto 3rem',
+          }}
+        >
+          {t(
+            'landing:continue.subtitle'
+          )}
+        </p>
+
+        <div
+          className="reveal delay-200"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '1rem',
+          }}
+        >
+          <button
+            type="button"
+            className="btn-start"
+            onClick={startApp}
+          >
+            {t(
+              'landing:continue.btnCreate'
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              window.location.href =
+                '/login';
+            }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color:
+                'var(--landing-text-light)',
+              textDecoration:
+                'underline',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+            }}
+          >
+            {t(
+              'landing:continue.btnLogin'
+            )}
+          </button>
+        </div>
+      </section>
       {/* =========================================================
           SUSTAINABILITY
       ========================================================== */}
@@ -638,90 +720,6 @@ export function Landing() {
         </div>
       </section>
 
-      {/* =========================================================
-          CONTINUE
-      ========================================================== */}
-      <section
-        className="continue-section"
-        ref={setRef}
-        style={{
-          padding:
-            '6rem var(--spacing-md)',
-          textAlign: 'center',
-        }}
-      >
-        <h2
-          className="reveal"
-          style={{
-            fontSize: '2.5rem',
-            marginBottom: '1rem',
-            fontFamily:
-              'var(--font-serif)',
-          }}
-        >
-          {t(
-            'landing:continue.title'
-          )}
-        </h2>
-
-        <p
-          className="reveal delay-100"
-          style={{
-            fontSize: '1.1rem',
-            color:
-              'var(--landing-text-light)',
-            maxWidth: '600px',
-            margin:
-              '0 auto 3rem',
-          }}
-        >
-          {t(
-            'landing:continue.subtitle'
-          )}
-        </p>
-
-        <div
-          className="reveal delay-200"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '1rem',
-          }}
-        >
-          <button
-            type="button"
-            className="btn-start"
-            onClick={startApp}
-          >
-            {t(
-              'landing:continue.btnCreate'
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              window.location.href =
-                '/login';
-            }}
-            style={{
-              background: 'none',
-              border: 'none',
-              color:
-                'var(--landing-text-light)',
-              textDecoration:
-                'underline',
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-            }}
-          >
-            {t(
-              'landing:continue.btnLogin'
-            )}
-          </button>
-        </div>
-      </section>
 
       {/* =========================================================
           FAQ

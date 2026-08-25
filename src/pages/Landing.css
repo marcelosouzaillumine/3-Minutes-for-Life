@@ -1,10 +1,12 @@
 :root {
-  --landing-bg: #FCFAF7; /* Off-white */
-  --landing-text: #292624; /* Carvão */
-  --landing-accent: #C46D53; /* Terracota */
-  --landing-accent-hover: #A35842;
-  --landing-text-light: #6A6765;
-  --landing-border: #E9DED5; /* Areia */
+  /* Derivados da paleta canônica em index.css.
+     Mantidos como aliases porque ~200 chamadas usam estes nomes. */
+  --landing-bg: var(--canvas);
+  --landing-text: var(--text-strong);
+  --landing-accent: var(--accent-strong);
+  --landing-accent-hover: var(--accent-hover);
+  --landing-text-light: var(--text-muted);
+  --landing-border: var(--border-subtle);
 }
 
 /* Animations */
@@ -23,6 +25,7 @@
   .delay-200 { transition-delay: 200ms; }
   .delay-300 { transition-delay: 300ms; }
   .delay-400 { transition-delay: 400ms; }
+  .delay-500 { transition-delay: 500ms; }
 }
 
 .landing-page {
@@ -46,6 +49,21 @@
 .landing-page p {
   color: var(--landing-text-light);
   line-height: 1.7;
+}
+
+/* BUGFIX: a regra acima aplica cor de texto-claro em TODO parágrafo,
+   inclusive dentro de seções de fundo escuro — onde resultava em
+   contraste 2.13 sobre o navy. Seções escuras reassumem a cor correta. */
+.audience-section p,
+.experience-image-section p,
+.landing-footer p {
+  color: var(--text-on-dark);
+}
+
+.audience-section p + p,
+.landing-footer .footer-tagline,
+.landing-footer .footer-copy {
+  color: var(--text-on-dark-muted);
 }
 
 /* Header */
@@ -119,14 +137,18 @@
 .landing-hero {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 8rem var(--spacing-lg) 4rem; /* Um pouco mais de respiro em cima */
+  padding: 3rem var(--spacing-lg) 4rem;
   display: flex;
-  align-items: center; /* Mantendo centralizado para equilíbrio de massas */
-  gap: 4rem; /* Reduzindo gap pois o card não estará mais tão deslocado */
+  align-items: stretch;
+  gap: 4rem;
 }
 
 .hero-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem 0;
 }
 
 .hero-title {
@@ -180,7 +202,11 @@
 .hero-visual {
   flex: 1;
   position: relative;
-  height: 680px; 
+  /* Acompanha o clamp do card + as duas margens de 2.5rem, para a
+     moldura ficar simétrica em qualquer altura de tela. */
+  min-height: calc(clamp(600px, 72vh, 820px) + 5rem);
+  padding: 2.5rem;
+  box-sizing: border-box;
   background-image: url('/images/hero_morning_light.png');
   background-size: cover;
   background-position: center;
@@ -194,15 +220,19 @@
   border: 1px solid var(--landing-border);
   border-radius: 12px;
   box-shadow: 0 20px 40px rgba(41, 38, 36, 0.08), 0 2px 10px rgba(41, 38, 36, 0.04);
-  width: 420px; /* Levemente mais largo para dar mais conforto ao texto longo da reflexão inteira */
-  height: 620px;
+  width: 100%;
+  max-width: 420px;
+  /* Altura DEFINIDA é obrigatória: é dela que o overflow-y abaixo
+     depende. Com height:auto o card cresce até caber todo o texto do
+     devocional e arrasta o hero inteiro junto. O clamp preenche mais
+     que os 620px antigos em telas altas, sem correr solto. */
+  height: clamp(600px, 72vh, 820px);
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
   padding: var(--spacing-lg) var(--spacing-md);
   text-align: left;
-  margin-left: -20px;
 }
 
 .hero-mockup-wrapper::-webkit-scrollbar {
@@ -221,8 +251,9 @@
 /* Tension Section (Editorial Grid) */
 .tension-section {
   padding: 12rem var(--spacing-lg) 8rem;
-  max-width: 1200px;
-  margin: 0 auto;
+  background-color: var(--surface);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .tension-grid {
@@ -230,6 +261,8 @@
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
   align-items: center; /* Centraliza verticalmente o texto com o título */
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .attention-kicker {
@@ -398,14 +431,14 @@
   display: flex;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 8rem var(--spacing-lg); /* Mais respiro vertical */
+  padding: 8rem var(--spacing-lg);
   gap: 4rem;
-  align-items: center;
+  align-items: stretch;
 }
 
 .split-image {
   flex: 1;
-  height: 600px;
+  min-height: 600px;
   background-image: url('/images/dawn_walk.png');
   background-size: cover;
   background-position: center;
@@ -414,6 +447,9 @@
 
 .split-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .split-title {
@@ -546,7 +582,7 @@
 
 /* FAQ */
 .faq-section {
-  padding: 8rem var(--spacing-lg);
+  padding: 5rem var(--spacing-lg) 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -554,31 +590,33 @@
 .faq-title {
   font-size: var(--marketing-h2);
   font-family: var(--font-serif);
-  margin-bottom: 4rem;
+  margin-bottom: 2.5rem;
   text-align: center;
 }
 
 .faq-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4rem;
+  gap: 2.5rem 3rem;
 }
 
 .faq-item {
   display: flex;
   flex-direction: column;
   border-bottom: 1px solid var(--landing-border);
-  padding-bottom: 2rem;
+  padding-bottom: 1.5rem;
 }
 
 .faq-question {
   font-family: var(--font-serif);
-  font-size: var(--marketing-h3);
-  margin-bottom: 0.5rem;
+  font-size: var(--marketing-h4);
+  line-height: 1.35;
+  margin-bottom: 0.75rem;
 }
 
 .faq-answer {
   color: var(--landing-text-light);
+  font-size: var(--marketing-body);
   line-height: 1.7;
   flex-grow: 1;
 }
@@ -586,7 +624,7 @@
 /* Alinhamento Perfeito usando Subgrid (Browsers Modernos) */
 @supports (grid-template-rows: subgrid) {
   .faq-grid {
-    gap: 0 4rem;
+    gap: 0 3rem;
   }
 
   .faq-item {
@@ -595,11 +633,14 @@
     grid-row: span 2;
     border-bottom: none;
     padding-bottom: 0;
-    margin-bottom: 4rem;
+    margin-bottom: 2.5rem;
   }
 
   .faq-question {
-    align-self: end;
+    /* start (não end): com align-self:end uma pergunta de duas linhas
+       cresce para cima e desalinha o topo em relação à coluna vizinha.
+       O subgrid já garante que as respostas comecem na mesma altura. */
+    align-self: start;
     margin-bottom: 1rem;
   }
 
@@ -607,12 +648,16 @@
     padding-bottom: 2rem;
     border-bottom: 1px solid var(--landing-border);
   }
+
+  .faq-item:nth-last-child(-n+2) {
+    margin-bottom: 0;
+  }
 }
 
 /* CTA Final */
 .cta-final {
   text-align: center;
-  padding: 8rem var(--spacing-lg) 6rem;
+  padding: 4.5rem var(--spacing-lg) 4.5rem;
   background-color: var(--landing-bg);
 }
 
@@ -630,17 +675,28 @@
 /* Footer */
 .landing-footer {
   text-align: center;
-  padding: 8rem var(--spacing-lg) 4rem;
-  border-top: 1px solid var(--landing-border);
+  padding: 3.5rem var(--spacing-lg) 2rem;
+  background-color: var(--surface-dark);
+  color: var(--text-on-dark);
+}
+
+.landing-footer .footer-tagline,
+.landing-footer .footer-links a,
+.landing-footer .footer-copy {
+  color: var(--text-on-dark-muted);
+}
+
+.landing-footer .footer-links a:hover {
+  color: var(--accent-on-dark);
 }
 
 .footer-signature {
-  font-family: var(--font-serif);
-  font-size: 5rem;
-  color: var(--landing-text);
-  line-height: 1;
-  letter-spacing: -0.02em;
-  margin-bottom: 4rem;
+  /* Contém apenas o logo (img). O font-size de 5rem aqui era resquício
+     de quando era texto e podia criar caixa de linha fantasma. */
+  display: flex;
+  justify-content: center;
+  line-height: 0;
+  margin-bottom: 1.5rem;
 }
 
 .footer-content {
@@ -650,30 +706,31 @@
 }
 
 .footer-tagline {
-  color: var(--landing-text-light);
+  color: var(--text-on-dark-muted);
   font-size: var(--marketing-body-lg);
-  margin-bottom: 3rem;
+  margin-bottom: 1.5rem;
 }
 
 .footer-links {
   display: flex;
   justify-content: center;
   gap: 2rem;
-  margin-bottom: 3rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
 }
 
 .footer-links a {
-  color: var(--landing-text-light);
+  color: var(--text-on-dark-muted);
   font-size: var(--marketing-caption);
 }
 
 .footer-links a:hover {
-  color: var(--landing-text);
+  color: var(--accent-on-dark);
 }
 
 .footer-copy {
   font-size: var(--marketing-caption);
-  color: #a09e9c;
+  color: var(--text-on-dark-muted);
 }
 
 /* Mobile Adjustments */
@@ -740,16 +797,15 @@
   .hero-visual {
     width: 100%;
     height: auto;
-    padding: 4rem 0;
-    justify-content: center;
+    min-height: 0;
+    padding: 1.5rem;
   }
   .split-image {
     width: 100%;
     height: 400px;
   }
   .hero-mockup-wrapper {
-    margin-left: 0;
-    width: 90%;
+    width: 100%;
     max-width: 380px;
     height: 380px;
     border-radius: 16px;
@@ -858,7 +914,7 @@
 }
 
 .sustainability-breakdown h3 {
-  font-size: var(--marketing-h3);
+  font-size: var(--marketing-h4);
   margin-bottom: 1rem;
 }
 
