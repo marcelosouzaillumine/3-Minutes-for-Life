@@ -81,11 +81,33 @@ export const MissionService = {
       .from('campaigns')
       .select('*')
       .eq('status', 'active');
-      
+
     if (error) {
       console.error('Error fetching campaigns:', error);
       return [];
     }
     return data || [];
+  },
+
+  /**
+   * Creates a real Asaas PIX charge tied to a `contribution` row, so the
+   * webhook can later match and activate the supporter. Requires a signed-in
+   * user — the edge function rejects anonymous calls.
+   */
+  async createOneTimePixCheckout(amountCents: number, cpfCnpj: string): Promise<{ checkoutUrl: string; contributionId: string }> {
+    const { data, error } = await supabase.functions.invoke('asaas-create-checkout', {
+      body: { amount_cents: amountCents, cpf_cnpj: cpfCnpj },
+    });
+
+    if (error) {
+      const message = (data as any)?.error || error.message || 'Erro ao criar o checkout.';
+      throw new Error(message);
+    }
+
+    if (!data?.checkoutUrl) {
+      throw new Error(data?.error || 'Erro ao criar o checkout.');
+    }
+
+    return data;
   }
 };

@@ -237,6 +237,39 @@ export function AdminBottomNav() {
       </a>
 
       {/* =================================================
+                APOIADORES
+            ================================================= */}
+
+      <a
+        href="/admin/supporters"
+        className={`nav-item ${pathname.includes('/supporters')
+            ? 'active'
+            : ''
+          }`}
+        style={{
+          textDecoration: 'none',
+        }}
+      >
+
+        <svg
+          className="nav-icon"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V6a2 2 0 10-2 2h2zm-7 5h14M5 12a2 2 0 01-2-2V8a2 2 0 012-2h14a2 2 0 012 2v2a2 2 0 01-2 2M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
+          />
+        </svg>
+
+        Apoiadores
+
+      </a>
+
+      {/* =================================================
                 IDENTIDADE
             ================================================= */}
 

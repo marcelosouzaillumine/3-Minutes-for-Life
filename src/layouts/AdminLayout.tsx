@@ -1,17 +1,23 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 
 import { AdminService } from '../services/AdminService';
 
-import { AdminDashboard } from '../pages/admin/AdminDashboard';
-import { AdminDevotionals } from '../pages/admin/AdminDevotionals';
-import { AdminTranslations } from '../pages/admin/AdminTranslations';
-import { AdminIdentity } from '../pages/admin/AdminIdentity';
+// Lazy-loaded: the admin section (TipTap editor, recharts, the 2900-line
+// campaign editor, etc.) is a large chunk of the app's JS that only admins
+// ever need. Splitting it out of the main bundle keeps the public-facing
+// app light for everyone else.
+const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const AdminDevotionals = lazy(() => import('../pages/admin/AdminDevotionals').then(m => ({ default: m.AdminDevotionals })));
+const AdminTranslations = lazy(() => import('../pages/admin/AdminTranslations').then(m => ({ default: m.AdminTranslations })));
+const AdminIdentity = lazy(() => import('../pages/admin/AdminIdentity').then(m => ({ default: m.AdminIdentity })));
+const AdminUsers = lazy(() => import('../pages/admin/AdminUsers').then(m => ({ default: m.AdminUsers })));
+const AdminSupporters = lazy(() => import('../pages/admin/AdminSupporters').then(m => ({ default: m.AdminSupporters })));
 
-import { RelationshipOverview } from '../pages/admin/relationship/RelationshipOverview';
-import { RelationshipTestimonials } from '../pages/admin/relationship/RelationshipTestimonials';
-import { RelationshipPrayerRequests } from '../pages/admin/relationship/RelationshipPrayerRequests';
+const RelationshipOverview = lazy(() => import('../pages/admin/relationship/RelationshipOverview').then(m => ({ default: m.RelationshipOverview })));
+const RelationshipTestimonials = lazy(() => import('../pages/admin/relationship/RelationshipTestimonials').then(m => ({ default: m.RelationshipTestimonials })));
+const RelationshipPrayerRequests = lazy(() => import('../pages/admin/relationship/RelationshipPrayerRequests').then(m => ({ default: m.RelationshipPrayerRequests })));
 
-import CommunicationCenter from '../components/admin/communication/CommunicationCenter';
+const CommunicationCenter = lazy(() => import('../components/admin/communication/CommunicationCenter'));
 
 import { AdminBottomNav } from '../components/AdminBottomNav';
 
@@ -217,38 +223,19 @@ export function AdminLayout() {
       pathname === '/admin/users'
     ) {
 
-      return (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-          }}
-        >
+      return <AdminUsers />;
 
-          <h2
-            style={{
-              fontSize: '1.5rem',
-              marginBottom: '8px',
-            }}
-          >
-            Comunidade
-          </h2>
+    }
 
-          <p
-            style={{
-              color:
-                'var(--color-text-light)',
-            }}
-          >
-            Em breve: Diretório de
-            Usuários
-          </p>
+    // -----------------------------------------------------
+    // SUPPORTERS
+    // -----------------------------------------------------
 
-        </div>
-      );
+    if (
+      pathname === '/admin/supporters'
+    ) {
+
+      return <AdminSupporters />;
 
     }
 
@@ -267,7 +254,23 @@ export function AdminLayout() {
     <div className="app-container">
 
       <main className="content-area">
-        {renderAdminContent()}
+        <Suspense
+          fallback={
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '60vh',
+              }}
+            >
+              <div className="admin-spinner"></div>
+            </div>
+          }
+        >
+          {renderAdminContent()}
+        </Suspense>
       </main>
 
       <AdminBottomNav />

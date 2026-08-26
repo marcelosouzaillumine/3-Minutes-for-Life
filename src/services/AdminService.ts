@@ -33,6 +33,12 @@ export type DashboardMetrics = {
   };
 };
 
+export type DailySeriesPoint = {
+  day: string;
+  active_users: number;
+  reads: number;
+};
+
 export class AdminService {
   /**
    * Checks if the user has an administrative role.
@@ -71,5 +77,25 @@ export class AdminService {
     }
 
     return data as DashboardMetrics;
+  }
+
+  /**
+   * Simple day-by-day count (not the full cross-device identity merge used
+   * by getDashboardMetrics) — good enough for a trend line, computed by a
+   * separate, easy-to-verify RPC so the complex metrics function didn't
+   * need to be touched to add charts.
+   */
+  static async getDashboardDailySeries(startDate: string, endDate: string): Promise<DailySeriesPoint[]> {
+    const { data, error } = await supabase.rpc('get_admin_dashboard_daily_series', {
+      p_start_date: startDate,
+      p_end_date: endDate,
+    });
+
+    if (error) {
+      console.error('Error fetching dashboard daily series:', error);
+      return [];
+    }
+
+    return (data || []) as DailySeriesPoint[];
   }
 }
