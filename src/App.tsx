@@ -4,7 +4,6 @@ import { Explore } from './pages/Explore';
 import { Favorites } from './pages/Favorites';
 import { Profile } from './pages/Profile';
 import { BottomNav } from './components/BottomNav';
-import { MessageNotice } from './components/MessageNotice';
 import { Landing } from './pages/Landing';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
@@ -102,10 +101,6 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* Aviso de resposta recebida. Leva ao Perfil, onde a conversa
-          mora — o Perfil sozinho é visitado com pouca frequência. */}
-      <MessageNotice onOpen={() => setCurrentTab('profile')} />
-
       <main className="content-area">
         {renderContent()}
       </main>

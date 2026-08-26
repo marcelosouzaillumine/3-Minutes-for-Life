@@ -34,8 +34,41 @@ export type StructuralBlock =
 
 // ─── CTA HTML pattern ─────────────────────────────────────────────────────────
 
-/** Matches a full `<div data-type="cta" ...></div>` tag (self-closing or empty). */
-const CTA_PATTERN = /<div\s[^>]*data-type=["']cta["'][^>]*><\/div>/gi;
+/** Matches the opening `<div ... data-type="cta" ...>` tag. */
+const CTA_OPEN_PATTERN = /<div\b[^>]*data-type=["']cta["'][^>]*>/gi;
+
+/** Matches any `<div ...>` opening tag or `</div>` closing tag. */
+const DIV_TAG_PATTERN = /<div\b[^>]*>|<\/div\s*>/gi;
+
+/**
+ * Given the index right after a CTA's opening `<div>` tag, walks forward
+ * tracking nested `<div>` depth to find the index right after the matching
+ * `</div>`.
+ *
+ * The real editorial CTA node (see CtaNode.tsx) renders its own badge/title/
+ * description/button as child `<div>`/`<a>` elements with inline styles —
+ * it is NOT a self-closing/empty tag. A naive non-nested regex stops at the
+ * first `</div>` it finds (a child's), truncating the block. Only the
+ * synthetic acquisition CTA produced by CtaEngine.ts is actually empty.
+ *
+ * Returns -1 if no matching close tag is found (malformed HTML).
+ */
+function findMatchingDivClose(html: string, openTagEnd: number): number {
+  let depth = 1;
+  const tagPattern = new RegExp(DIV_TAG_PATTERN.source, 'gi');
+  tagPattern.lastIndex = openTagEnd;
+
+  let m: RegExpExecArray | null;
+  while ((m = tagPattern.exec(html)) !== null) {
+    if (m[0].charAt(1) === '/') {
+      depth -= 1;
+      if (depth === 0) return m.index + m[0].length;
+    } else {
+      depth += 1;
+    }
+  }
+  return -1;
+}
 
 function parseCtaAttrs(html: string): CtaAttrs {
   const get = (attr: string) => {
@@ -88,23 +121,31 @@ export function extractStructure(html: string): StructuralBlock[] {
   let ctaIndex = 0;
   let lastIndex = 0;
 
-  const pattern = new RegExp(CTA_PATTERN.source, 'gi');
+  const openPattern = new RegExp(CTA_OPEN_PATTERN.source, 'gi');
   let match: RegExpExecArray | null;
 
-  while ((match = pattern.exec(html)) !== null) {
+  while ((match = openPattern.exec(html)) !== null) {
+    const openStart = match.index;
+    const openEnd = openStart + match[0].length;
+    const closeEnd = findMatchingDivClose(html, openEnd);
+
+    // Malformed CTA (no matching close tag) — stop scanning, keep the rest as HTML.
+    if (closeEnd === -1) break;
+
     // Collect HTML before this CTA
-    if (match.index > lastIndex) {
-      const before = html.slice(lastIndex, match.index).trim();
+    if (openStart > lastIndex) {
+      const before = html.slice(lastIndex, openStart).trim();
       if (before) blocks.push({ type: 'html', content: before });
     }
 
     blocks.push({
       type: 'cta',
-      attrs: parseCtaAttrs(match[0]),
+      attrs: parseCtaAttrs(html.slice(openStart, closeEnd)),
       index: ctaIndex++,
     });
 
-    lastIndex = match.index + match[0].length;
+    lastIndex = closeEnd;
+    openPattern.lastIndex = closeEnd;
   }
 
   // Trailing HTML after last CTA

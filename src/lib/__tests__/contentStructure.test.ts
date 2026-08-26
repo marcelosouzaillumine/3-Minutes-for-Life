@@ -40,6 +40,36 @@ describe('contentStructure — Structural Parser & Reconstructor', () => {
     }
   });
 
+  it('extracts a CTA authored by the rich-text editor (CtaNode), which renders children instead of an empty tag', () => {
+    // Mirrors the exact shape produced by CtaNode.tsx's renderHTML(): the outer
+    // div is NOT self-closing — it contains a badge, title, description and
+    // button as child elements with inline styles.
+    const html = [
+      '<p>Opening paragraph</p>',
+      '<div data-type="cta" data-title="Venha com a gente" data-description="Vamos transformar o mundo" data-label="Saiba Mais" data-url="" data-action="share" style="margin:32px 0">',
+      '<div style="display:inline-block">CTA Editorial</div>',
+      '<div style="font-size:18px">Venha com a gente</div>',
+      '<div style="font-size:14px">Vamos transformar o mundo</div>',
+      '<a data-action="share" style="display:inline-block">Saiba Mais</a>',
+      '</div>',
+      '<p>Closing paragraph</p>'
+    ].join('');
+
+    const blocks = extractStructure(html);
+    expect(blocks).toHaveLength(3);
+    expect(blocks[0]).toEqual({ type: 'html', content: '<p>Opening paragraph</p>' });
+    expect(blocks[1].type).toBe('cta');
+    expect(blocks[2]).toEqual({ type: 'html', content: '<p>Closing paragraph</p>' });
+
+    if (blocks[1].type === 'cta') {
+      expect(blocks[1].attrs.title).toBe('Venha com a gente');
+      expect(blocks[1].attrs.description).toBe('Vamos transformar o mundo');
+      expect(blocks[1].attrs.label).toBe('Saiba Mais');
+      expect(blocks[1].attrs.url).toBe('');
+      expect(blocks[1].attrs.action).toBe('share');
+    }
+  });
+
   it('preserves url, action, and node position while updating translatable text', () => {
     const html = [
       '<p>Texto 1</p>',

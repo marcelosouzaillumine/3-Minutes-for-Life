@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { AdminService } from '../services/AdminService';
+import { ConversationService } from '../services/ConversationService';
+import { CommunicationInboxService } from '../services/CommunicationInboxService';
 
 type Tab = 'home' | 'explore' | 'favorites' | 'profile';
 
@@ -12,10 +14,22 @@ interface BottomNavProps {
 export function BottomNav({ currentTab, setTab }: BottomNavProps) {
   const { t } = useTranslation(['common']);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     AdminService.checkAdminRole().then(setIsAdmin);
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([
+      ConversationService.getUnreadCount(),
+      CommunicationInboxService.getUnreadCount(),
+    ]).then(([replyCount, communicationCount]) => {
+      if (active) setUnreadCount(replyCount + communicationCount);
+    });
+    return () => { active = false; };
+  }, [currentTab]);
 
   return (
     <nav className="bottom-nav">
@@ -49,13 +63,20 @@ export function BottomNav({ currentTab, setTab }: BottomNavProps) {
         {t('savedNav')}
       </button>
 
-      <button 
+      <button
         className={`nav-item ${currentTab === 'profile' ? 'active' : ''}`}
         onClick={() => setTab('profile')}
       >
-        <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-        </svg>
+        <span className="nav-icon-wrap">
+          <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          {unreadCount > 0 && (
+            <span className="nav-badge" aria-hidden="true">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </span>
         {t('profile')}
       </button>
 

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { About } from './About';
 import { TestimonialList } from '../components/TestimonialList';
@@ -8,6 +8,9 @@ import { useTranslation } from 'react-i18next';
 import './Profile.css';
 import { CommunicationPreferences } from '../components/CommunicationPreferences';
 import { Conversations } from '../components/Conversations';
+import { CommunicationInbox } from '../components/CommunicationInbox';
+import { ConversationService } from '../services/ConversationService';
+import { CommunicationInboxService } from '../services/CommunicationInboxService';
 
 export function Profile() {
   const { t } = useTranslation(['profile', 'common']);
@@ -15,8 +18,22 @@ export function Profile() {
   const [showAbout, setShowAbout] = useState(false);
   const [showReflections, setShowReflections] = useState(false);
   const [showTestimonials, setShowTestimonials] = useState(false);
+  const [showMessages, setShowMessages] = useState(false);
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+    Promise.all([
+      ConversationService.getUnreadCount(),
+      CommunicationInboxService.getUnreadCount(),
+    ]).then(([replyCount, communicationCount]) => {
+      if (active) setUnreadMessageCount(replyCount + communicationCount);
+    });
+    return () => { active = false; };
+  }, [user, showMessages]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -75,6 +92,26 @@ export function Profile() {
             {t('profile:testimonials', 'Testemunhos')}
           </h3>
           <TestimonialList />
+        </div>
+      </div>
+    );
+  }
+
+  if (showMessages) {
+    return (
+      <div className="profile-container about-page-view">
+        <button className="back-btn" onClick={() => setShowMessages(false)}>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          {t('common:back')}
+        </button>
+        <div className="about-content" style={{ marginTop: '2rem' }}>
+          <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--color-text)' }}>
+            {t('profile:messages.sectionTitle', 'Suas mensagens')}
+          </h3>
+          <CommunicationInbox />
+          <Conversations />
         </div>
       </div>
     );
@@ -188,8 +225,30 @@ export function Profile() {
       </div>
 
       <div className="profile-section">
-        <h3 className="section-title">{t('profile:conversations.sectionTitle', 'Suas mensagens')}</h3>
-        <Conversations />
+        <h3 className="section-title">
+          {t('profile:messages.sectionTitle', 'Suas mensagens')}
+        </h3>
+
+        <div className="settings-list">
+          <div className="settings-item clickable" onClick={() => setShowMessages(true)}>
+            <div className="settings-item-left">
+              <div className="settings-icon-bg" style={{ position: 'relative' }}>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                {unreadMessageCount > 0 && (
+                  <span className="nav-badge" aria-hidden="true">
+                    {unreadMessageCount > 9 ? '9+' : unreadMessageCount}
+                  </span>
+                )}
+              </div>
+              <span>{t('profile:messages.viewAll', 'Ver mensagens')}</span>
+            </div>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20" className="chevron-icon">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
       </div>
 
       <div className="profile-section">
