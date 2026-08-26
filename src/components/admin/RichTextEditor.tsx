@@ -1,5 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import {
+  useEditor,
+  EditorContent,
+} from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import {
@@ -25,7 +32,8 @@ function CtaModal({
   const [form, setForm] =
     useState<CtaNodeAttrs>({
       title: initial.title ?? '',
-      description: initial.description ?? '',
+      description:
+        initial.description ?? '',
       label: initial.label ?? '',
       url: initial.url ?? '',
       action: initial.action ?? '',
@@ -48,7 +56,8 @@ function CtaModal({
 
     const normalized: CtaNodeAttrs = {
       title: form.title.trim(),
-      description: form.description.trim(),
+      description:
+        form.description.trim(),
       label: form.label.trim(),
       url: form.url.trim(),
       action: form.action.trim(),
@@ -61,18 +70,20 @@ function CtaModal({
       return;
     }
 
-    if (!normalized.url && !normalized.action) {
+    if (
+      !normalized.url &&
+      !normalized.action
+    ) {
       alert(
         'Informe uma URL ou uma ação interna para o botão.'
       );
       return;
     }
 
+    // URL tem prioridade sobre ação interna.
     if (normalized.url) {
       normalized.action = '';
-    }
-
-    if (normalized.action) {
+    } else {
       normalized.url = '';
     }
 
@@ -92,7 +103,6 @@ function CtaModal({
     background: '#fff',
     color: '#222',
     outline: 'none',
-    appearance: 'none',
   };
 
   const labelStyle: React.CSSProperties = {
@@ -110,7 +120,9 @@ function CtaModal({
       aria-modal="true"
       aria-labelledby="cta-modal-title"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) {
+        if (
+          e.target === e.currentTarget
+        ) {
           onCancel();
         }
       }}
@@ -118,25 +130,18 @@ function CtaModal({
         position: 'fixed',
         inset: 0,
         zIndex: 99999,
-
         width: '100%',
         height: '100%',
         minHeight: '100dvh',
-
         background:
           'rgba(0, 0, 0, 0.45)',
-
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-
         padding: '16px',
-
         boxSizing: 'border-box',
-
         overflowY: 'auto',
         overflowX: 'hidden',
-
         WebkitOverflowScrolling: 'touch',
       }}
     >
@@ -147,28 +152,19 @@ function CtaModal({
         style={{
           position: 'relative',
           zIndex: 100000,
-
           background: '#fff',
-
           width: '100%',
           maxWidth: '480px',
-
           maxHeight:
             'calc(100dvh - 32px)',
-
           minHeight: 0,
-
           borderRadius: '16px',
-
           padding: '2rem',
-
           boxSizing: 'border-box',
-
           overflowY: 'auto',
           overflowX: 'hidden',
-
-          WebkitOverflowScrolling: 'touch',
-
+          WebkitOverflowScrolling:
+            'touch',
           boxShadow:
             '0 20px 60px rgba(0,0,0,0.25)',
         }}
@@ -249,13 +245,12 @@ function CtaModal({
                   e.target.value
                 )
               }
-              placeholder="Ex: Leia o guia completo sobre apostas."
+              placeholder="Ex: Leia o guia completo sobre este tema."
               rows={3}
               style={{
                 ...inputStyle,
                 resize: 'vertical',
                 minHeight: '72px',
-                appearance: 'auto',
               }}
             />
           </div>
@@ -289,7 +284,7 @@ function CtaModal({
             />
           </div>
 
-          {/* URL / AÇÃO */}
+          {/* DESTINO */}
 
           <div
             style={{
@@ -307,17 +302,20 @@ function CtaModal({
                 color: '#666',
               }}
             >
-              Escolha{' '}
-              <strong>URL</strong>{' '}
-              <em>ou</em>{' '}
-              <strong>Ação interna</strong>{' '}
-              — um dos dois é obrigatório.
+              Escolha <strong>URL</strong>{' '}
+              ou{' '}
+              <strong>
+                Ação interna
+              </strong>
+              . Um dos dois é
+              obrigatório.
             </p>
 
             <div
               style={{
                 display: 'flex',
-                flexDirection: 'column',
+                flexDirection:
+                  'column',
                 gap: '0.75rem',
                 minWidth: 0,
               }}
@@ -325,7 +323,9 @@ function CtaModal({
               {/* URL */}
 
               <div>
-                <label style={labelStyle}>
+                <label
+                  style={labelStyle}
+                >
                   URL (link externo ou
                   rota interna)
                 </label>
@@ -337,21 +337,31 @@ function CtaModal({
                     const value =
                       e.target.value;
 
-                    setForm((prev) => ({
-                      ...prev,
-                      url: value,
-                      action: value
-                        ? ''
-                        : prev.action,
-                    }));
+                    setForm(
+                      (prev) => ({
+                        ...prev,
+                        url: value,
+                        action: value
+                          ? ''
+                          : prev.action,
+                      })
+                    );
                   }}
                   placeholder="https://... ou /rota-interna"
+                  disabled={Boolean(
+                    form.action
+                  )}
                   style={{
                     ...inputStyle,
                     opacity:
-                      form.action ? 0.5 : 1,
+                      form.action
+                        ? 0.5
+                        : 1,
+                    cursor:
+                      form.action
+                        ? 'not-allowed'
+                        : 'text',
                   }}
-                  disabled={!!form.action}
                 />
               </div>
 
@@ -359,10 +369,12 @@ function CtaModal({
 
               <div
                 style={{
-                  textAlign: 'center',
+                  textAlign:
+                    'center',
                   fontSize: '0.8rem',
                   color: '#aaa',
-                  padding: '2px 0',
+                  padding:
+                    '2px 0',
                 }}
               >
                 — ou —
@@ -371,7 +383,9 @@ function CtaModal({
               {/* AÇÃO INTERNA */}
 
               <div>
-                <label style={labelStyle}>
+                <label
+                  style={labelStyle}
+                >
                   Ação interna
                 </label>
 
@@ -381,21 +395,32 @@ function CtaModal({
                     const value =
                       e.target.value;
 
-                    setForm((prev) => ({
-                      ...prev,
-                      action: value,
-                      url: value
-                        ? ''
-                        : prev.url,
-                    }));
+                    setForm(
+                      (prev) => ({
+                        ...prev,
+                        action: value,
+                        url: value
+                          ? ''
+                          : prev.url,
+                      })
+                    );
                   }}
+                  disabled={Boolean(
+                    form.url
+                  )}
                   style={{
                     ...inputStyle,
                     opacity:
-                      form.url ? 0.5 : 1,
-                    appearance: 'auto',
+                      form.url
+                        ? 0.5
+                        : 1,
+                    cursor:
+                      form.url
+                        ? 'not-allowed'
+                        : 'pointer',
+                    appearance:
+                      'auto',
                   }}
-                  disabled={!!form.url}
                 >
                   <option value="">
                     Selecione uma ação...
@@ -417,52 +442,44 @@ function CtaModal({
             </div>
           </div>
 
-          {/* BOTÕES DO MODAL */}
+          {/* AÇÕES */}
 
           <div
             style={{
               display: 'flex',
               flexWrap: 'wrap',
               gap: '0.75rem',
-              justifyContent: 'flex-end',
+              justifyContent:
+                'flex-end',
               marginTop: '0.5rem',
               paddingTop: '0.5rem',
-              flexShrink: 0,
             }}
           >
             <button
               type="button"
               onClick={onCancel}
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-
+                display:
+                  'inline-flex',
+                alignItems:
+                  'center',
+                justifyContent:
+                  'center',
                 padding:
                   '0.6rem 1.2rem',
-
                 minHeight: '40px',
-
                 borderRadius: '8px',
                 border:
                   '1px solid #d5d5d5',
-
                 background: '#fff',
                 color: '#555',
-
                 cursor: 'pointer',
-
                 fontSize: '0.9rem',
                 fontWeight: 600,
-                fontFamily: 'inherit',
-
-                appearance: 'none',
-                WebkitAppearance: 'none',
-
-                visibility: 'visible',
-                opacity: 1,
-
-                boxSizing: 'border-box',
+                fontFamily:
+                  'inherit',
+                boxSizing:
+                  'border-box',
               }}
             >
               Cancelar
@@ -471,35 +488,28 @@ function CtaModal({
             <button
               type="submit"
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-
+                display:
+                  'inline-flex',
+                alignItems:
+                  'center',
+                justifyContent:
+                  'center',
                 padding:
                   '0.6rem 1.4rem',
-
                 minHeight: '40px',
-
                 borderRadius: '8px',
                 border:
                   '1px solid #c46d53',
-
-                background: '#c46d53',
+                background:
+                  '#c46d53',
                 color: '#fff',
-
                 cursor: 'pointer',
-
                 fontSize: '0.9rem',
                 fontWeight: 700,
-                fontFamily: 'inherit',
-
-                appearance: 'none',
-                WebkitAppearance: 'none',
-
-                visibility: 'visible',
-                opacity: 1,
-
-                boxSizing: 'border-box',
+                fontFamily:
+                  'inherit',
+                boxSizing:
+                  'border-box',
               }}
             >
               Salvar CTA
@@ -545,9 +555,16 @@ export function RichTextEditor({
       deleteNode?: () => void;
     } | null>(null);
 
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
+  // POSIÇÃO RESERVADA PARA NOVO CTA
+  // ───────────────────────────────────────────────────────────────────────────
+
+  const ctaInsertPosition =
+    useRef<number | null>(null);
+
+  // ───────────────────────────────────────────────────────────────────────────
   // TIPTAP
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
 
   const editor = useEditor({
     extensions: [
@@ -556,16 +573,17 @@ export function RichTextEditor({
           levels: [2, 3],
         },
       }),
-
       Underline,
-
       CtaNode,
     ],
 
-    content: value || '<p></p>',
+    content:
+      value || '<p></p>',
 
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      onChange(
+        editor.getHTML()
+      );
     },
 
     editorProps: {
@@ -575,62 +593,28 @@ export function RichTextEditor({
       },
 
       handleDOMEvents: {
-        mousedown: (_view, event) => {
-          const target =
-            event.target as HTMLElement;
-
-          /*
-           * Mantém o comportamento normal
-           * do editor, mas impede que cliques
-           * em elementos internos causem efeitos
-           * inesperados.
-           */
-          if (
-            target.closest(
-              '.editor-toolbar'
-            )
-          ) {
-            return true;
-          }
-
+        mousedown: () => {
           return false;
         },
       },
     },
   });
 
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
   // SYNC EXTERNAL VALUE
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     if (!editor) {
       return;
     }
 
-    const current =
-      editor.getHTML();
-
     const next =
       value || '<p></p>';
 
-    if (next !== current) {
-      /*
-       * IMPORTANTE:
-       *
-       * Tiptap atual não aceita mais:
-       *
-       * setContent(value, false)
-       *
-       * O segundo parâmetro precisa ser
-       * um objeto de opções.
-       *
-       * Para evitar problemas de tipagem
-       * e disparo desnecessário do onUpdate,
-       * usamos:
-       *
-       * emitUpdate: false
-       */
+    if (
+      next !== editor.getHTML()
+    ) {
       editor.commands.setContent(
         next,
         {
@@ -638,14 +622,16 @@ export function RichTextEditor({
         }
       );
     }
-  }, [value, editor]);
+  }, [editor, value]);
 
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
   // CTA EVENT
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
-    const handler = (event: Event) => {
+    const handler = (
+      event: Event
+    ) => {
       const customEvent =
         event as CustomEvent<{
           attrs: CtaNodeAttrs;
@@ -687,9 +673,9 @@ export function RichTextEditor({
     };
   }, []);
 
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
   // LOADING
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
 
   if (!editor) {
     return (
@@ -698,8 +684,10 @@ export function RichTextEditor({
           width: '100%',
           minHeight: '260px',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          alignItems:
+            'center',
+          justifyContent:
+            'center',
           border:
             '1px solid #ddd',
           borderRadius: '8px',
@@ -713,15 +701,14 @@ export function RichTextEditor({
     );
   }
 
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
   // TOOLBAR HANDLERS
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
 
   const toggleBold = (
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
-    e.stopPropagation();
 
     editor
       .chain()
@@ -734,7 +721,6 @@ export function RichTextEditor({
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
-    e.stopPropagation();
 
     editor
       .chain()
@@ -747,7 +733,6 @@ export function RichTextEditor({
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
-    e.stopPropagation();
 
     editor
       .chain()
@@ -760,7 +745,6 @@ export function RichTextEditor({
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
-    e.stopPropagation();
 
     editor
       .chain()
@@ -775,7 +759,6 @@ export function RichTextEditor({
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
-    e.stopPropagation();
 
     editor
       .chain()
@@ -790,7 +773,6 @@ export function RichTextEditor({
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
-    e.stopPropagation();
 
     editor
       .chain()
@@ -803,7 +785,6 @@ export function RichTextEditor({
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
-    e.stopPropagation();
 
     editor
       .chain()
@@ -816,7 +797,6 @@ export function RichTextEditor({
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
-    e.stopPropagation();
 
     editor
       .chain()
@@ -825,15 +805,35 @@ export function RichTextEditor({
       .run();
   };
 
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
   // INSERT CTA
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
 
   const insertCta = (
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!editor) {
+      return;
+    }
+
+    /*
+     * Guardamos somente a posição inicial da seleção.
+     *
+     * A posição é utilizada posteriormente por
+     * insertContentAt() quando o usuário salvar o CTA.
+     *
+     * Não guardamos `to`, pois ctaInsertPosition
+     * é deliberadamente um número.
+     */
+
+    const { from } =
+      editor.state.selection;
+
+    ctaInsertPosition.current =
+      from;
 
     setCtaModal({
       attrs: {
@@ -842,20 +842,69 @@ export function RichTextEditor({
     });
   };
 
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
   // SAVE CTA
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
 
   const handleCtaSave = (
     attrs: CtaNodeAttrs
   ) => {
+    /*
+     * ─────────────────────────────────────────────
+     * EDIÇÃO DE CTA EXISTENTE
+     * ─────────────────────────────────────────────
+     */
+
     if (
       ctaModal?.updateAttributes
     ) {
       ctaModal.updateAttributes(
         attrs
       );
+
+      ctaInsertPosition.current =
+        null;
+
+      setCtaModal(null);
+
+      return;
+    }
+
+    /*
+     * ─────────────────────────────────────────────
+     * INSERÇÃO DE NOVO CTA
+     * ─────────────────────────────────────────────
+     */
+
+    const position =
+      ctaInsertPosition.current;
+
+    /*
+     * Se temos uma posição reservada,
+     * inserimos explicitamente naquele ponto.
+     */
+
+    if (
+      position !== null
+    ) {
+      editor
+        .chain()
+        .insertContentAt(
+          position,
+          {
+            type: 'cta',
+            attrs,
+          }
+        )
+        .run();
     } else {
+      /*
+       * Fallback.
+       *
+       * Só deve ocorrer se o CTA for salvo
+       * sem que insertCta tenha sido executado.
+       */
+
       editor
         .chain()
         .focus()
@@ -866,157 +915,103 @@ export function RichTextEditor({
         .run();
     }
 
-    setCtaModal(null);
-
     /*
-     * getHTML depois da operação
-     * garante que o pai receba o CTA
-     * já inserido no documento.
+     * Limpamos a posição somente depois
+     * da inserção.
      */
-    onChange(editor.getHTML());
+
+    ctaInsertPosition.current =
+      null;
+
+    setCtaModal(null);
   };
 
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
+  // CANCEL CTA
+  // ───────────────────────────────────────────────────────────────────────────
+
+  const handleCtaCancel = () => {
+    /*
+     * Se o usuário cancelar a criação,
+     * a posição reservada não pode permanecer.
+     */
+
+    ctaInsertPosition.current =
+      null;
+
+    setCtaModal(null);
+  };
+
+  // ───────────────────────────────────────────────────────────────────────────
   // BUTTON STYLES
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
 
   const toolbarButtonStyle = (
     isActive: boolean
   ): React.CSSProperties => ({
     display: 'inline-flex',
-
     alignItems: 'center',
     justifyContent: 'center',
-
     flex: '0 0 auto',
-
     minWidth: '34px',
     minHeight: '32px',
-
-    padding:
-      '6px 10px',
-
+    padding: '6px 10px',
     margin: 0,
-
     fontFamily:
       'Arial, Helvetica, sans-serif',
-
     fontSize: '13px',
     lineHeight: 1,
-
     fontWeight: 700,
-
     borderRadius: '5px',
-
     cursor: 'pointer',
-
-    boxSizing: 'border-box',
-
+    boxSizing:
+      'border-box',
     appearance: 'none',
-    WebkitAppearance: 'none',
-
-    /*
-     * IMPORTANTE:
-     * essas propriedades impedem que regras
-     * globais do projeto escondam os botões.
-     */
+    WebkitAppearance:
+      'none',
     visibility: 'visible',
     opacity: 1,
-
     position: 'relative',
     zIndex: 2,
-
     background: isActive
       ? '#c46d53'
       : '#ffffff',
-
     color: isActive
       ? '#ffffff'
       : '#333333',
-
     border: isActive
       ? '1px solid #c46d53'
       : '1px solid #d2d2d2',
-
     boxShadow:
       '0 1px 2px rgba(0,0,0,0.08)',
-
     whiteSpace: 'nowrap',
   });
 
-  const separatorStyle:
-    React.CSSProperties = {
-    display: 'block',
+  const separatorStyle: React.CSSProperties =
+    {
+      display: 'block',
+      flex: '0 0 1px',
+      width: '1px',
+      height: '24px',
+      margin: '4px 3px',
+      background: '#d5d5d5',
+      alignSelf: 'center',
+    };
 
-    flex: '0 0 1px',
+  const ctaButtonStyle: React.CSSProperties =
+    {
+      ...toolbarButtonStyle(false),
+      minWidth: 'auto',
+      padding: '6px 12px',
+      background: '#fff7f4',
+      color: '#c46d53',
+      border:
+        '1px solid #c46d53',
+    };
 
-    width: '1px',
-
-    height: '24px',
-
-    margin:
-      '4px 3px',
-
-    background: '#d5d5d5',
-
-    alignSelf: 'center',
-  };
-
-  const ctaButtonStyle:
-    React.CSSProperties = {
-    display: 'inline-flex',
-
-    alignItems: 'center',
-    justifyContent: 'center',
-
-    flex: '0 0 auto',
-
-    minHeight: '32px',
-
-    padding:
-      '6px 12px',
-
-    margin: 0,
-
-    fontFamily:
-      'Arial, Helvetica, sans-serif',
-
-    fontSize: '13px',
-    lineHeight: 1,
-
-    fontWeight: 700,
-
-    borderRadius: '5px',
-
-    cursor: 'pointer',
-
-    boxSizing: 'border-box',
-
-    appearance: 'none',
-    WebkitAppearance: 'none',
-
-    visibility: 'visible',
-    opacity: 1,
-
-    position: 'relative',
-    zIndex: 2,
-
-    background: '#fff7f4',
-
-    color: '#c46d53',
-
-    border:
-      '1px solid #c46d53',
-
-    boxShadow:
-      '0 1px 2px rgba(0,0,0,0.08)',
-
-    whiteSpace: 'nowrap',
-  };
-
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
   // RENDER
-  // ─────────────────────────────────────────────
+  // ───────────────────────────────────────────────────────────────────────────
 
   return (
     <>
@@ -1024,20 +1019,16 @@ export function RichTextEditor({
         className="rich-text-editor-container"
         style={{
           display: 'flex',
-          flexDirection: 'column',
-
+          flexDirection:
+            'column',
           width: '100%',
           minWidth: 0,
-
           position: 'relative',
-
           visibility: 'visible',
           opacity: 1,
         }}
       >
-        {/* ─────────────────────────────────────
-            TOOLBAR
-        ───────────────────────────────────── */}
+        {/* TOOLBAR */}
 
         <div
           className="editor-toolbar"
@@ -1045,43 +1036,35 @@ export function RichTextEditor({
           aria-label="Ferramentas de formatação"
           style={{
             display: 'flex',
-
-            flexDirection: 'row',
-
+            flexDirection:
+              'row',
             flexWrap: 'wrap',
-
-            alignItems: 'center',
-
+            alignItems:
+              'center',
             gap: '4px',
-
             width: '100%',
             minHeight: '49px',
-
             padding: '8px',
-
-            boxSizing: 'border-box',
-
-            background: '#f5f5f5',
-
+            boxSizing:
+              'border-box',
+            background:
+              '#f5f5f5',
             border:
               '1px solid #d5d5d5',
-
-            borderBottom: 'none',
-
+            borderBottom:
+              'none',
             borderTopLeftRadius:
               '8px',
-
             borderTopRightRadius:
               '8px',
-
-            position: 'relative',
-
+            position:
+              'relative',
             zIndex: 10,
-
-            visibility: 'visible',
+            visibility:
+              'visible',
             opacity: 1,
-
-            overflow: 'visible',
+            overflow:
+              'visible',
           }}
         >
           {/* BOLD */}
@@ -1093,12 +1076,14 @@ export function RichTextEditor({
             aria-pressed={editor.isActive(
               'bold'
             )}
-            onMouseDown={(e) => {
-              e.preventDefault();
-            }}
+            onMouseDown={(e) =>
+              e.preventDefault()
+            }
             onClick={toggleBold}
             style={toolbarButtonStyle(
-              editor.isActive('bold')
+              editor.isActive(
+                'bold'
+              )
             )}
           >
             B
@@ -1113,9 +1098,9 @@ export function RichTextEditor({
             aria-pressed={editor.isActive(
               'italic'
             )}
-            onMouseDown={(e) => {
-              e.preventDefault();
-            }}
+            onMouseDown={(e) =>
+              e.preventDefault()
+            }
             onClick={toggleItalic}
             style={{
               ...toolbarButtonStyle(
@@ -1123,7 +1108,8 @@ export function RichTextEditor({
                   'italic'
                 )
               ),
-              fontStyle: 'italic',
+              fontStyle:
+                'italic',
             }}
           >
             I
@@ -1138,10 +1124,12 @@ export function RichTextEditor({
             aria-pressed={editor.isActive(
               'underline'
             )}
-            onMouseDown={(e) => {
-              e.preventDefault();
-            }}
-            onClick={toggleUnderline}
+            onMouseDown={(e) =>
+              e.preventDefault()
+            }
+            onClick={
+              toggleUnderline
+            }
             style={{
               ...toolbarButtonStyle(
                 editor.isActive(
@@ -1156,7 +1144,9 @@ export function RichTextEditor({
           </button>
 
           <div
-            style={separatorStyle}
+            style={
+              separatorStyle
+            }
             aria-hidden="true"
           />
 
@@ -1170,9 +1160,9 @@ export function RichTextEditor({
               'heading',
               { level: 2 }
             )}
-            onMouseDown={(e) => {
-              e.preventDefault();
-            }}
+            onMouseDown={(e) =>
+              e.preventDefault()
+            }
             onClick={toggleH2}
             style={toolbarButtonStyle(
               editor.isActive(
@@ -1194,9 +1184,9 @@ export function RichTextEditor({
               'heading',
               { level: 3 }
             )}
-            onMouseDown={(e) => {
-              e.preventDefault();
-            }}
+            onMouseDown={(e) =>
+              e.preventDefault()
+            }
             onClick={toggleH3}
             style={toolbarButtonStyle(
               editor.isActive(
@@ -1217,10 +1207,12 @@ export function RichTextEditor({
             aria-pressed={editor.isActive(
               'blockquote'
             )}
-            onMouseDown={(e) => {
-              e.preventDefault();
-            }}
-            onClick={toggleQuote}
+            onMouseDown={(e) =>
+              e.preventDefault()
+            }
+            onClick={
+              toggleQuote
+            }
             style={toolbarButtonStyle(
               editor.isActive(
                 'blockquote'
@@ -1231,7 +1223,9 @@ export function RichTextEditor({
           </button>
 
           <div
-            style={separatorStyle}
+            style={
+              separatorStyle
+            }
             aria-hidden="true"
           />
 
@@ -1244,9 +1238,9 @@ export function RichTextEditor({
             aria-pressed={editor.isActive(
               'bulletList'
             )}
-            onMouseDown={(e) => {
-              e.preventDefault();
-            }}
+            onMouseDown={(e) =>
+              e.preventDefault()
+            }
             onClick={toggleUl}
             style={toolbarButtonStyle(
               editor.isActive(
@@ -1266,9 +1260,9 @@ export function RichTextEditor({
             aria-pressed={editor.isActive(
               'orderedList'
             )}
-            onMouseDown={(e) => {
-              e.preventDefault();
-            }}
+            onMouseDown={(e) =>
+              e.preventDefault()
+            }
             onClick={toggleOl}
             style={toolbarButtonStyle(
               editor.isActive(
@@ -1280,7 +1274,9 @@ export function RichTextEditor({
           </button>
 
           <div
-            style={separatorStyle}
+            style={
+              separatorStyle
+            }
             aria-hidden="true"
           />
 
@@ -1290,28 +1286,26 @@ export function RichTextEditor({
             type="button"
             title="Inserir CTA editorial"
             aria-label="Inserir CTA editorial"
-            onMouseDown={(e) => {
-              e.preventDefault();
-            }}
+            onMouseDown={(e) =>
+              e.preventDefault()
+            }
             onClick={insertCta}
-            style={ctaButtonStyle}
+            style={
+              ctaButtonStyle
+            }
           >
             + CTA
           </button>
         </div>
 
-        {/* ─────────────────────────────────────
-            EDITOR CONTENT
-        ───────────────────────────────────── */}
+        {/* EDITOR CONTENT */}
 
         <div
           style={{
             width: '100%',
             minWidth: 0,
-
             position: 'relative',
             zIndex: 1,
-
             visibility: 'visible',
             opacity: 1,
           }}
@@ -1322,9 +1316,7 @@ export function RichTextEditor({
         </div>
       </div>
 
-      {/* ─────────────────────────────────────
-          CTA MODAL
-      ───────────────────────────────────── */}
+      {/* CTA MODAL */}
 
       {ctaModal && (
         <CtaModal
@@ -1334,8 +1326,8 @@ export function RichTextEditor({
           onSave={
             handleCtaSave
           }
-          onCancel={() =>
-            setCtaModal(null)
+          onCancel={
+            handleCtaCancel
           }
         />
       )}

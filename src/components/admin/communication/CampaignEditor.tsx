@@ -143,7 +143,7 @@ function createContentFromCampaign(
             campaign.body ?? '',
 
         cta_label:
-            '',
+            campaign.cta_label ?? '',
     };
 
     return content;
@@ -267,6 +267,18 @@ export default function CampaignEditor({
         setBaseLanguage,
     ] = useState<CommunicationLanguage>(
         campaign?.language ?? 'pt-BR'
+    );
+
+
+    // =========================================================
+    // CTA URL
+    // =========================================================
+
+    const [
+        ctaUrl,
+        setCtaUrl,
+    ] = useState<string>(
+        campaign?.cta_url ?? ''
     );
 
 
@@ -416,6 +428,11 @@ export default function CampaignEditor({
                         );
 
 
+                    setCtaUrl(
+                        campaign.cta_url ?? ''
+                    );
+
+
                     // ---------------------------------------------
                     // TRANSLATIONS
                     // ---------------------------------------------
@@ -461,11 +478,16 @@ export default function CampaignEditor({
                                     '',
 
                                 cta_label:
+                                    translation.cta_label ??
                                     '',
                             };
 
                         }
                     );
+
+                } else {
+
+                    setCtaUrl('');
 
                 }
 
@@ -684,6 +706,12 @@ export default function CampaignEditor({
         );
 
 
+        setCtaUrl(
+            campaign?.cta_url ??
+            ''
+        );
+
+
         setError(null);
 
         setShowPreview(false);
@@ -725,7 +753,8 @@ export default function CampaignEditor({
         field:
             | 'subject'
             | 'title'
-            | 'body',
+            | 'body'
+            | 'cta_label',
         value: string
     ) {
 
@@ -950,6 +979,50 @@ export default function CampaignEditor({
 
         }
 
+
+        /*
+         * A URL do CTA é opcional.
+         *
+         * Porém, quando houver texto de CTA,
+         * a URL precisa ser informada.
+         */
+
+        if (
+            baseContent.cta_label.trim() &&
+            !ctaUrl.trim()
+        ) {
+
+            throw new Error(
+                'Informe a URL do botão de CTA.'
+            );
+
+        }
+
+
+        /*
+         * Se houver URL, ela precisa ser válida.
+         */
+
+        if (
+            ctaUrl.trim()
+        ) {
+
+            try {
+
+                new URL(
+                    ctaUrl.trim()
+                );
+
+            } catch {
+
+                throw new Error(
+                    'Informe uma URL válida para o botão de CTA.'
+                );
+
+            }
+
+        }
+
     }
 
 
@@ -959,18 +1032,47 @@ export default function CampaignEditor({
 
     function buildPreviewCampaign(): CommunicationCampaign {
 
-        const baseContent =
+        /*
+         * O preview deve reproduzir o idioma que está
+         * atualmente aberto no editor.
+         */
+
+        const previewContent =
             contentByLanguage[
-                baseLanguage
-            ] ?? createEmptyCampaignContent()[baseLanguage];
+                activeLanguage
+            ] ?? {
+
+                language:
+                    activeLanguage,
+
+                subject:
+                    '',
+
+                title:
+                    '',
+
+                body:
+                    '',
+
+                cta_label:
+                    '',
+            };
 
 
         /*
-         * Quando estamos editando uma campanha existente,
-         * preservamos todos os campos originais.
+         * O body é enviado integralmente.
          *
-         * Quando é uma campanha nova, criamos o objeto mínimo
-         * necessário para o componente CampaignPreview.
+         * Não fazemos:
+         *
+         * - slice()
+         * - substring()
+         * - substr()
+         * - truncate
+         * - remoção de HTML
+         * - conversão para texto
+         *
+         * O HTML produzido pelo RichTextEditor passa
+         * diretamente para o CampaignPreview.
          */
 
         const previewCampaign = {
@@ -987,23 +1089,25 @@ export default function CampaignEditor({
             type,
 
             language:
-                baseLanguage,
+                activeLanguage,
 
             subject:
-                baseContent.subject.trim() ||
+                previewContent.subject.trim() ||
                 null,
 
             title:
-                baseContent.title.trim() ||
+                previewContent.title.trim() ||
                 null,
 
             body:
-                baseContent.body,
+                previewContent.body,
 
             cta_label:
+                previewContent.cta_label.trim() ||
                 null,
 
             cta_url:
+                ctaUrl.trim() ||
                 null,
 
             scheduled_at:
@@ -1082,6 +1186,20 @@ export default function CampaignEditor({
 
 
         // -------------------------------------------------
+        // CTA
+        // -------------------------------------------------
+
+        const normalizedCtaLabel =
+            baseContent.cta_label.trim() ||
+            null;
+
+
+        const normalizedCtaUrl =
+            ctaUrl.trim() ||
+            null;
+
+
+        // -------------------------------------------------
         // CREATE PAYLOAD
         // -------------------------------------------------
 
@@ -1108,10 +1226,10 @@ export default function CampaignEditor({
                 baseContent.body,
 
             cta_label:
-                null,
+                normalizedCtaLabel,
 
             cta_url:
-                null,
+                normalizedCtaUrl,
 
             scheduled_at:
                 null,
@@ -1151,10 +1269,10 @@ export default function CampaignEditor({
                 baseContent.body,
 
             cta_label:
-                null,
+                normalizedCtaLabel,
 
             cta_url:
-                null,
+                normalizedCtaUrl,
 
             scheduled_at:
                 null,
@@ -1275,7 +1393,9 @@ export default function CampaignEditor({
 
                     translation.subject.trim() ||
 
-                    translation.title.trim()
+                    translation.title.trim() ||
+
+                    translation.cta_label.trim()
 
                 );
 
@@ -1341,6 +1461,7 @@ export default function CampaignEditor({
                             translation.body,
 
                         cta_label:
+                            translation.cta_label.trim() ||
                             null,
 
                     });
@@ -1476,7 +1597,8 @@ export default function CampaignEditor({
              * - o conteúdo atual esteja no banco;
              * - canais estejam configurados;
              * - públicos estejam configurados;
-             * - traduções estejam atualizadas.
+             * - traduções estejam atualizadas;
+             * - CTA esteja atualizado.
              */
 
             const campaignId =
@@ -1844,7 +1966,9 @@ export default function CampaignEditor({
 
                                         translation?.subject?.trim() ||
 
-                                        translation?.title?.trim()
+                                        translation?.title?.trim() ||
+
+                                        translation?.cta_label?.trim()
 
                                     );
 
@@ -2124,6 +2248,155 @@ export default function CampaignEditor({
                                 />
 
                             </div>
+
+                        </div>
+
+
+                        {/* =================================================
+                            CTA
+                        ================================================= */}
+
+                        <div
+                            style={{
+                                marginTop:
+                                    '1.25rem',
+
+                                padding:
+                                    '1rem',
+
+                                border:
+                                    '1px solid #eee',
+
+                                borderRadius:
+                                    '12px',
+
+                                background:
+                                    '#fafafa',
+                            }}
+                        >
+
+                            <div
+                                style={{
+                                    marginBottom:
+                                        '0.85rem',
+                                }}
+                            >
+
+                                <strong>
+                                    Botão de ação
+                                </strong>
+
+                                <p
+                                    style={{
+                                        margin:
+                                            '0.3rem 0 0',
+
+                                        color:
+                                            '#777',
+
+                                        fontSize:
+                                            '0.8rem',
+
+                                        lineHeight:
+                                            1.45,
+                                    }}
+                                >
+                                    Opcional. O texto do botão pode
+                                    ser traduzido para cada idioma.
+                                    A URL é compartilhada entre os
+                                    idiomas.
+                                </p>
+
+                            </div>
+
+
+                            <label
+                                className="communication-field"
+                            >
+
+                                <span>
+                                    Texto do botão
+                                </span>
+
+                                <input
+                                    type="text"
+                                    value={
+                                        activeContent.cta_label
+                                    }
+                                    onChange={(
+                                        event
+                                    ) =>
+                                        updateActiveContent(
+                                            'cta_label',
+                                            event.target.value
+                                        )
+                                    }
+                                    placeholder={
+                                        activeLanguage === 'pt-BR'
+                                            ? 'Ex.: Ler devocional'
+                                            : activeLanguage === 'en'
+                                                ? 'Ex.: Read devotional'
+                                                : 'Ej.: Leer devocional'
+                                    }
+                                    disabled={
+                                        saving ||
+                                        sending
+                                    }
+                                />
+
+                            </label>
+
+
+                            <label
+                                className="communication-field"
+                                style={{
+                                    marginTop:
+                                        '0.85rem',
+                                }}
+                            >
+
+                                <span>
+                                    URL do botão
+                                </span>
+
+                                <input
+                                    type="url"
+                                    value={
+                                        ctaUrl
+                                    }
+                                    onChange={(
+                                        event
+                                    ) =>
+                                        setCtaUrl(
+                                            event.target.value
+                                        )
+                                    }
+                                    placeholder="https://3minutesforlife.com/..."
+                                    disabled={
+                                        saving ||
+                                        sending
+                                    }
+                                />
+
+                                <small
+                                    style={{
+                                        display:
+                                            'block',
+
+                                        marginTop:
+                                            '0.35rem',
+
+                                        color:
+                                            '#888',
+
+                                        fontSize:
+                                            '0.75rem',
+                                    }}
+                                >
+                                    Ex.: https://3minutesforlife.com/devotional/...
+                                </small>
+
+                            </label>
 
                         </div>
 

@@ -36,7 +36,9 @@ const SUPPORTED_LANGUAGES = [
  * ================================================================
  */
 
-function getPurpose(campaignType: string): string {
+function getPurpose(
+  campaignType: string
+): string {
   return campaignType === 'project_support'
     ? 'project_support'
     : 'devotional_updates';
@@ -83,7 +85,8 @@ Deno.serve(async (req) => {
     return jsonResponse(
       {
         success: false,
-        error: 'Método não permitido.',
+        error:
+          'Método não permitido.',
       },
       405
     );
@@ -408,7 +411,14 @@ Deno.serve(async (req) => {
      * 10. CONSENTIMENTOS
      * ============================================================
      *
-     * Uma única consulta para todos os usuários.
+     * IMPORTANTE:
+     *
+     * A view current_communication_consents representa somente
+     * o estado ATUAL de cada combinação:
+     *
+     * user + channel + purpose
+     *
+     * Ausência de consentimento = NÃO autorizado.
      */
 
     const {
@@ -590,13 +600,18 @@ Deno.serve(async (req) => {
      * ============================================================
      */
 
-    const deliveries = [];
+    const deliveries: Array<
+      Record<string, unknown>
+    > = [];
 
     let emailEligible = 0;
     let emailSkipped = 0;
 
     let whatsappEligible = 0;
     let whatsappSkipped = 0;
+
+    let inAppEligible = 0;
+    let inAppSkipped = 0;
 
     for (
       const user of
@@ -625,14 +640,25 @@ Deno.serve(async (req) => {
         const channel of
           enabledChannels
       ) {
-        let eligible =
-          true;
-
         /*
-         * --------------------------------------------------------
-         * EMAIL
-         * --------------------------------------------------------
+         * ========================================================
+         * ELEGIBILIDADE
+         * ========================================================
+         *
+         * Regra:
+         *
+         * EMAIL:
+         *   precisa de e-mail + consentimento.
+         *
+         * WHATSAPP:
+         *   precisa de telefone + consentimento.
+         *
+         * IN_APP:
+         *   não depende de consentimento de e-mail/WhatsApp,
+         *   pois é comunicação interna dentro da própria aplicação.
          */
+
+        let eligible = false;
 
         if (
           channel ===
@@ -657,15 +683,7 @@ Deno.serve(async (req) => {
           } else {
             emailSkipped++;
           }
-        }
-
-        /*
-         * --------------------------------------------------------
-         * WHATSAPP
-         * --------------------------------------------------------
-         */
-
-        if (
+        } else if (
           channel ===
           'whatsapp'
         ) {
@@ -688,12 +706,31 @@ Deno.serve(async (req) => {
           } else {
             whatsappSkipped++;
           }
+        } else if (
+          channel ===
+          'in_app'
+        ) {
+          /*
+           * In-app não utiliza o consentimento de e-mail ou WhatsApp.
+           * A entrega ocorre dentro da conta do próprio usuário.
+           */
+          eligible = true;
+          inAppEligible++;
+        } else {
+          /*
+           * Fail-safe:
+           *
+           * Se um canal novo for criado e ainda não existir uma
+           * regra explícita de elegibilidade, ele NÃO será enviado.
+           */
+          eligible = false;
+          inAppSkipped++;
         }
 
         /*
-         * --------------------------------------------------------
+         * ========================================================
          * DELIVERY
-         * --------------------------------------------------------
+         * ========================================================
          */
 
         deliveries.push({
@@ -851,6 +888,7 @@ Deno.serve(async (req) => {
       email: {
         eligible:
           emailEligible,
+
         skipped:
           emailSkipped,
       },
@@ -858,8 +896,17 @@ Deno.serve(async (req) => {
       whatsapp: {
         eligible:
           whatsappEligible,
+
         skipped:
           whatsappSkipped,
+      },
+
+      in_app: {
+        eligible:
+          inAppEligible,
+
+        skipped:
+          inAppSkipped,
       },
 
       consents_loaded:
