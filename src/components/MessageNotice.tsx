@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConversationService } from '../services/ConversationService';
+import { CommunicationInboxService } from '../services/CommunicationInboxService';
 import { useAuth } from '../context/AuthContext';
 
-interface ReplyNoticeProps {
+interface MessageNoticeProps {
   onOpen: () => void;
 }
 
@@ -14,7 +15,7 @@ interface ReplyNoticeProps {
  * Perfil — aqui é só a chamada, porque o Perfil é visitado com pouca
  * frequência e a resposta se perderia lá.
  */
-export function ReplyNotice({ onOpen }: ReplyNoticeProps) {
+export function MessageNotice({ onOpen }: MessageNoticeProps) {
   const { t } = useTranslation(['profile']);
   const { user } = useAuth();
   const [count, setCount] = useState(0);
@@ -26,8 +27,11 @@ export function ReplyNotice({ onOpen }: ReplyNoticeProps) {
     }
 
     let active = true;
-    ConversationService.getUnreadCount().then(n => {
-      if (active) setCount(n);
+    Promise.all([
+      ConversationService.getUnreadCount(),
+      CommunicationInboxService.getUnreadCount(),
+    ]).then(([replyCount, communicationCount]) => {
+      if (active) setCount(replyCount + communicationCount);
     });
 
     return () => { active = false; };
@@ -44,11 +48,14 @@ export function ReplyNotice({ onOpen }: ReplyNoticeProps) {
       <span className="reply-notice-dot" aria-hidden="true" />
       <span className="reply-notice-text">
         {count === 1
-          ? t('profile:conversations.noticeSingle', 'Você recebeu uma resposta.')
-          : t('profile:conversations.noticeMany', { count, defaultValue: `Você recebeu ${count} respostas.` })}
+          ? t('profile:messages.noticeSingle', 'Você recebeu uma nova mensagem.')
+          : t('profile:messages.noticeMany', {
+              count,
+              defaultValue: `Você tem ${count} novas mensagens.`,
+            })}
       </span>
       <span className="reply-notice-action">
-        {t('profile:conversations.noticeAction', 'Ver')}
+        {t('profile:messages.noticeAction', 'Ver')}
       </span>
     </button>
   );

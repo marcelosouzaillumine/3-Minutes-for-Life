@@ -36,6 +36,10 @@ export function AdminDevotionals() {
   const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [savingCategory, setSavingCategory] = useState(false);
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [editingCategoryName, setEditingCategoryName] = useState('');
+  const [categoryActionError, setCategoryActionError] = useState('');
+  const [deletingCategoryId, setDeletingCategoryId] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -326,14 +330,66 @@ export function AdminDevotionals() {
     if (!newCategoryName.trim()) return;
     try {
       setSavingCategory(true);
-      await AdminContentService.createCategory(newCategoryName);
+      setCategoryActionError('');
+      await AdminContentService.createCategory(newCategoryName.trim());
       setNewCategoryName('');
       const cats = await AdminContentService.getCategories();
       setCategories(cats);
     } catch (err: any) {
-      alert('Erro ao criar categoria: ' + err.message);
+      setCategoryActionError('Erro ao criar categoria: ' + err.message);
     } finally {
       setSavingCategory(false);
+    }
+  };
+
+  const handleStartEditCategory = (cat: any) => {
+    setCategoryActionError('');
+    setEditingCategoryId(cat.id);
+    setEditingCategoryName(cat.name);
+  };
+
+  const handleCancelEditCategory = () => {
+    setEditingCategoryId(null);
+    setEditingCategoryName('');
+  };
+
+  const handleSaveEditCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCategoryId || !editingCategoryName.trim()) return;
+    try {
+      setSavingCategory(true);
+      setCategoryActionError('');
+      await AdminContentService.updateCategory(editingCategoryId, editingCategoryName.trim());
+      setEditingCategoryId(null);
+      setEditingCategoryName('');
+      const cats = await AdminContentService.getCategories();
+      setCategories(cats);
+      await loadData();
+    } catch (err: any) {
+      setCategoryActionError('Erro ao atualizar categoria: ' + err.message);
+    } finally {
+      setSavingCategory(false);
+    }
+  };
+
+  const handleDeleteCategory = async (cat: any) => {
+    const inUse = devotionals.filter(d => d.category_id === cat.id).length;
+    const confirmMsg = inUse > 0
+      ? `A categoria "${cat.name}" está em uso em ${inUse} devocional(is). Excluí-la vai remover essa categoria desses devocionais. Deseja continuar?`
+      : `Excluir a categoria "${cat.name}"?`;
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      setDeletingCategoryId(cat.id);
+      setCategoryActionError('');
+      await AdminContentService.deleteCategory(cat.id);
+      const cats = await AdminContentService.getCategories();
+      setCategories(cats);
+      await loadData();
+    } catch (err: any) {
+      setCategoryActionError('Erro ao excluir categoria: ' + err.message);
+    } finally {
+      setDeletingCategoryId(null);
     }
   };
 
@@ -992,17 +1048,23 @@ export function AdminDevotionals() {
           &larr; Voltar
         </button>
         <h2 style={{ fontSize: '1.5rem', marginBottom: '16px', fontWeight: 'bold' }}>Categorias</h2>
-        
+
+        {categoryActionError && (
+          <div style={{ background: '#fef2f2', color: '#dc2626', borderRadius: '6px', padding: '8px 12px', fontSize: '0.85rem', marginBottom: '16px' }}>
+            {categoryActionError}
+          </div>
+        )}
+
         <form onSubmit={handleCreateCategory} style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
-          <input 
-            type="text" 
-            placeholder="Nova categoria" 
+          <input
+            type="text"
+            placeholder="Nova categoria"
             value={newCategoryName}
             onChange={(e) => setNewCategoryName(e.target.value)}
             style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #ddd' }}
           />
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={savingCategory || !newCategoryName.trim()}
             style={{ background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: '8px', padding: '0 16px', fontWeight: 'bold' }}
           >
@@ -1013,7 +1075,53 @@ export function AdminDevotionals() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {categories.map(cat => (
             <div key={cat.id} style={{ background: 'white', padding: '12px 16px', borderRadius: '8px', border: '1px solid #eee' }}>
-              {cat.name}
+              {editingCategoryId === cat.id ? (
+                <form onSubmit={handleSaveEditCategory} style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="text"
+                    autoFocus
+                    value={editingCategoryName}
+                    onChange={(e) => setEditingCategoryName(e.target.value)}
+                    style={{ flex: 1, padding: '8px 10px', borderRadius: '6px', border: '1px solid #ddd' }}
+                  />
+                  <button
+                    type="submit"
+                    disabled={savingCategory || !editingCategoryName.trim()}
+                    style={{ background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: '6px', padding: '0 12px', fontWeight: 'bold', fontSize: '0.85rem' }}
+                  >
+                    Salvar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancelEditCategory}
+                    disabled={savingCategory}
+                    style={{ background: 'white', color: 'var(--color-text)', border: '1px solid #ddd', borderRadius: '6px', padding: '0 12px', fontSize: '0.85rem' }}
+                  >
+                    Cancelar
+                  </button>
+                </form>
+              ) : (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span>{cat.name}</span>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <button
+                      type="button"
+                      onClick={() => handleStartEditCategory(cat)}
+                      style={{ background: 'white', color: 'var(--color-text)', border: '1px solid #ddd', borderRadius: '6px', padding: '4px 10px', fontSize: '0.8rem', cursor: 'pointer' }}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      disabled={deletingCategoryId === cat.id}
+                      onClick={() => handleDeleteCategory(cat)}
+                      style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: '6px', padding: '4px 10px', fontSize: '0.8rem', cursor: deletingCategoryId === cat.id ? 'not-allowed' : 'pointer' }}
+                    >
+                      {deletingCategoryId === cat.id ? 'Excluindo…' : 'Excluir'}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
           {categories.length === 0 && (

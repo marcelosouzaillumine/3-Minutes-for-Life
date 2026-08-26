@@ -129,6 +129,27 @@ export const AdminContentService = {
     return data;
   },
 
+  async updateCategory(id: string, name: string): Promise<any> {
+    const { data, error } = await supabase
+      .from('categories')
+      .update({ name })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteCategory(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('categories')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  },
+
   async getDevotionalsForManualTranslation(targetLanguage: string): Promise<any[]> {
     const { data, error } = await supabase
       .from('devotionals')
