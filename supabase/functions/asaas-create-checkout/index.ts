@@ -72,7 +72,11 @@ serve(async (req) => {
     const { data: { user }, error: authError } = await userSupabase.auth.getUser();
 
     if (authError || !user || !user.email) {
-      return new Response(JSON.stringify({ error: 'Sessão inválida.' }), {
+      // Temporary: surface *why* auth failed during rollout — tighten once
+      // this is proven stable (don't want to leak internals long-term).
+      console.error('Auth check failed:', { authError, hasUser: !!user, hasEmail: !!user?.email });
+      const reason = authError?.message || (!user ? 'no user resolved' : 'user has no email');
+      return new Response(JSON.stringify({ error: `Sessão inválida (${reason}).` }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -140,7 +144,12 @@ serve(async (req) => {
       if (!createRes.ok) {
         const errBody = await createRes.json().catch(() => ({}));
         console.error('Asaas customer creation failed:', errBody);
-        return new Response(JSON.stringify({ error: 'Não foi possível validar seus dados no Asaas. Confira o CPF/CNPJ informado.' }), {
+        const detail = errBody?.errors?.[0]?.description;
+        return new Response(JSON.stringify({
+          error: detail
+            ? `Asaas recusou os dados: ${detail}`
+            : 'Não foi possível validar seus dados no Asaas. Confira o CPF/CNPJ informado.',
+        }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -194,7 +203,12 @@ serve(async (req) => {
     if (!paymentRes.ok) {
       const errBody = await paymentRes.json().catch(() => ({}));
       console.error('Asaas payment creation failed:', errBody);
-      return new Response(JSON.stringify({ error: 'Não foi possível gerar a cobrança. Tente novamente em instantes.' }), {
+      const detail = errBody?.errors?.[0]?.description;
+      return new Response(JSON.stringify({
+        error: detail
+          ? `Asaas recusou a cobrança: ${detail}`
+          : 'Não foi possível gerar a cobrança. Tente novamente em instantes.',
+      }), {
         status: 502,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -229,7 +243,11 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error('asaas-create-checkout error:', error);
-    return new Response(JSON.stringify({ error: 'Erro interno ao criar o checkout.' }), {
+    // Surfaced to the caller during rollout so real failures are visible
+    // in the UI instead of a bare 500 — tighten this once the flow is
+    // proven stable in production.
+    const detail = error instanceof Error ? error.message : String(error);
+    return new Response(JSON.stringify({ error: `Erro interno ao criar o checkout: ${detail}` }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
