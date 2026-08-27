@@ -283,8 +283,13 @@ export function Contribute() {
                 {formError && (
                   <p style={{ color: '#c0392b', fontSize: '0.82rem', margin: 0 }}>{formError}</p>
                 )}
-                <div style={{ display: 'flex', gap: '0.6rem' }}>
-                  <button type="submit" className="editorial-btn primary" disabled={isSubmitting} style={{ flex: 1 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', width: '100%', boxSizing: 'border-box' }}>
+                  <button
+                    type="submit"
+                    className="editorial-btn primary"
+                    disabled={isSubmitting}
+                    style={{ flex: '1 1 auto', minWidth: 0, padding: '1rem 1.25rem' }}
+                  >
                     {isSubmitting
                       ? t('contribution:oneTime.submitting', 'Gerando cobrança…')
                       : t('contribution:oneTime.submit', 'Gerar PIX')}
@@ -294,6 +299,7 @@ export function Contribute() {
                     onClick={() => { setShowOneTimeForm(false); setFormError(''); }}
                     disabled={isSubmitting}
                     className="editorial-btn"
+                    style={{ flex: '0 1 auto', minWidth: 0, padding: '1rem 1.25rem' }}
                   >
                     {t('common:cancel', 'Cancelar')}
                   </button>

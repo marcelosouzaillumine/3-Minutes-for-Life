@@ -100,7 +100,18 @@ export const MissionService = {
     });
 
     if (error) {
-      const message = (data as any)?.error || error.message || 'Erro ao criar o checkout.';
+      // supabase-js doesn't parse the response body into `data` when the
+      // function returns a non-2xx status — the real error message we sent
+      // (e.g. "CPF ou CNPJ inválido.") lives in error.context, the raw
+      // Response object, and has to be read out manually.
+      let message = error.message || 'Erro ao criar o checkout.';
+      try {
+        const body = await error.context?.json();
+        if (body?.error) message = body.error;
+      } catch {
+        // context wasn't JSON (e.g. a network-level failure) — keep the
+        // generic message above.
+      }
       throw new Error(message);
     }
 
