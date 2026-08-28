@@ -72,12 +72,56 @@ export class AsaasPaymentProvider implements PaymentProvider {
     };
   }
 
-  async createRecurringContribution(_input: RecurringContributionInput): Promise<ContributionCheckout> {
-    throw new Error('Recurring contributions (Pix Automático) not implemented yet.');
+  async createRecurringContribution(input: RecurringContributionInput): Promise<ContributionCheckout> {
+    if (input.paymentMethod !== 'pix') {
+      throw new Error('Only PIX is supported in this Gate 4.3 MVP');
+    }
+
+    const customerId = await this.resolveCustomer(input.customer);
+    const value = input.amountInCents / 100;
+    const nextDueDate = new Date().toISOString().split('T')[0];
+
+    const subscriptionPayload = {
+      customer: customerId,
+      billingType: 'PIX',
+      value: value,
+      nextDueDate: nextDueDate,
+      cycle: input.cycle || 'MONTHLY',
+      externalReference: input.contributionId,
+      description: input.cycle === 'YEARLY' ? 'Apoio Anual à Missão 3 Minutos para a Vida' : 'Apoio Mensal à Missão 3 Minutos para a Vida'
+    };
+
+    const subRes = await this.client.post<{ id: string; paymentLink?: string }>('/subscriptions', subscriptionPayload);
+    const subscriptionId = subRes.id;
+
+    let paymentUrl = subRes.paymentLink || `https://www.asaas.com/c/${subscriptionId}`;
+    let pixPayload: string | undefined;
+    let pixQrCodeUrl: string | undefined;
+
+    try {
+      const paymentsRes = await this.client.get<{ data: Array<{ id: string; invoiceUrl: string }> }>(`/subscriptions/${subscriptionId}/payments`);
+      if (paymentsRes.data && paymentsRes.data.length > 0) {
+        const firstPayment = paymentsRes.data[0];
+        paymentUrl = firstPayment.invoiceUrl || paymentUrl;
+
+        const pixRes = await this.client.get<{ encodedImage: string; payload: string }>(`/payments/${firstPayment.id}/pixQrCode`);
+        pixPayload = pixRes.payload;
+        pixQrCodeUrl = `data:image/png;base64,${pixRes.encodedImage}`;
+      }
+    } catch {
+      // Best effort QR code retrieval
+    }
+
+    return {
+      paymentUrl,
+      pixPayload,
+      pixQrCodeUrl,
+      providerReference: subscriptionId
+    };
   }
 
-  async cancelRecurringContribution(_providerReference: string): Promise<void> {
-    throw new Error('Cancellation not implemented yet.');
+  async cancelRecurringContribution(providerReference: string): Promise<void> {
+    await this.client.delete(`/subscriptions/${providerReference}`);
   }
 
   async normalizeWebhookEvent(_headers: Record<string, string>, _rawBody: string): Promise<CanonicalPaymentEvent | null> {

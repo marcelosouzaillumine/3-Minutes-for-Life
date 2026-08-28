@@ -121,4 +121,62 @@ describe('AsaasPaymentProvider', () => {
       }));
     });
   });
+
+  describe('createRecurringContribution (Pix Recorrente)', () => {
+    const recurringInput = {
+      contributionId: 'contrib_rec_123',
+      supporterId: 'supporter_abc',
+      amountInCents: 2000, // R$ 20,00
+      paymentMethod: 'pix' as const,
+      cycle: 'MONTHLY' as const,
+      customer: {
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+        cpfCnpj: '98765432100'
+      }
+    };
+
+    it('should create a monthly subscription and return checkout data', async () => {
+      clientMock.get.mockImplementation(async (url: string) => {
+        if (url.startsWith('/customers')) {
+          return { data: [{ id: 'cus_jane' }] };
+        }
+        if (url.startsWith('/subscriptions/sub_123/payments')) {
+          return { data: [{ id: 'pay_sub_1', invoiceUrl: 'https://sandbox.asaas.com/i/sub1' }] };
+        }
+        if (url.startsWith('/payments/pay_sub_1/pixQrCode')) {
+          return { encodedImage: 'base64rec', payload: '000201rec...' };
+        }
+        return {};
+      });
+
+      clientMock.post.mockResolvedValueOnce({
+        id: 'sub_123',
+        paymentLink: 'https://sandbox.asaas.com/c/sub_123'
+      });
+
+      const result = await provider.createRecurringContribution(recurringInput);
+
+      expect(clientMock.post).toHaveBeenCalledWith('/subscriptions', expect.objectContaining({
+        customer: 'cus_jane',
+        billingType: 'PIX',
+        value: 20,
+        cycle: 'MONTHLY',
+        externalReference: 'contrib_rec_123'
+      }));
+
+      expect(result).toEqual({
+        paymentUrl: 'https://sandbox.asaas.com/i/sub1',
+        pixPayload: '000201rec...',
+        pixQrCodeUrl: 'data:image/png;base64,base64rec',
+        providerReference: 'sub_123'
+      });
+    });
+
+    it('should support cancelRecurringContribution', async () => {
+      clientMock.delete = vi.fn().mockResolvedValueOnce({ deleted: true });
+      await provider.cancelRecurringContribution('sub_123');
+      expect(clientMock.delete).toHaveBeenCalledWith('/subscriptions/sub_123');
+    });
+  });
 });

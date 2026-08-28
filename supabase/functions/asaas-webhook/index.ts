@@ -4,12 +4,12 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 // To keep it simple and portable for the MVP, we copy the adapter logic here 
 // since Edge Functions in Deno have different import paths than the Vite app.
 function normalizeAsaasWebhook(payload: any) {
-  if (!payload || !payload.event || !payload.payment) {
+  if (!payload || !payload.event) {
     return null;
   }
 
   const eventId = payload.id;
-  const providerReference = payload.payment.id;
+  const providerReference = payload.payment?.id || payload.subscription?.id || payload.payment?.subscription || payload.id;
   const asaasEvent = payload.event;
   
   let eventType: string;
@@ -23,6 +23,10 @@ function normalizeAsaasWebhook(payload: any) {
     case 'PAYMENT_REFUNDED':
     case 'PAYMENT_OVERDUE':
       eventType = 'PAYMENT_FAILED';
+      break;
+    case 'SUBSCRIPTION_DELETED':
+    case 'SUBSCRIPTION_INACTIVATED':
+      eventType = 'RECURRING_CANCELED';
       break;
     default:
       return null;

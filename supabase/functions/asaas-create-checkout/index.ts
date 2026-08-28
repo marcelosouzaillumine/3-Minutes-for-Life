@@ -5,24 +5,11 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 // =============================================================
 // asaas-create-checkout
 //
-// Closes the gap found in the security audit: the live donation flow
-// (Contribute.tsx) redirected to static Asaas hosted payment links without
-// ever creating a `contribution` row first — so when the Asaas webhook
-// later fired, it had nothing to match against and no supporter was ever
-// activated from a real payment.
-//
-// This function creates the Asaas PIX charge via the API (server-side,
-// holds ASAAS_API_KEY) with `externalReference` set to our own
-// contribution id, THEN persists the `contribution` row with the real
-// Asaas payment id as `provider_reference` — so process_payment_webhook
-// (fixed in the previous migration) can find and activate the supporter.
-//
-// SCOPE: one-time PIX contributions only ("Contribuição única"). The three
-// recurring tiers (apoio_mensal, apoio_anual, livre_mensal) still use the
-// static Asaas hosted links unchanged — Asaas subscription creation is a
-// separate, larger piece of work (see gate46_plan.md) and shipping it
-// without the ability to test against the sandbox here risked breaking
-// checkout for those tiers rather than just leaving them as they are.
+// Handles both One-Time PIX Contributions and Recurring Subscriptions
+// (Gate 4.6 — Monthly and Yearly PIX Recurring) via Asaas API.
+// Attaches all charges to the authenticated user and persists the
+// contribution row before checkout so that webhooks seamlessly activate
+// the supporter in our database.
 // =============================================================
 
 const corsHeaders = {
@@ -31,7 +18,7 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-const MIN_AMOUNT_CENTS = 500; // Asaas' practical minimum for a PIX charge (R$5,00)
+const MIN_AMOUNT_CENTS = 500; // R$ 5,00
 
 function onlyDigits(s: string): string {
   return (s || '').replace(/\D/g, '');
@@ -51,13 +38,11 @@ serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const asaasApiKey = Deno.env.get('ASAAS_API_KEY')!;
     const asaasEnvironment = Deno.env.get('ASAAS_ENVIRONMENT') || 'production';
 
-    // 1. Authenticate the caller — this endpoint requires a signed-in user,
-    //    a contribution always needs a user_id to attach a supporter to.
+    // 1. Authenticate the caller — requires signed-in user
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'Autenticação necessária.' }), {
@@ -73,7 +58,7 @@ serve(async (req) => {
     if (authError || !user || !user.email) {
       console.error('Auth check failed:', { authError, hasUser: !!user, hasEmail: !!user?.email });
       const reason = authError?.message || (!user ? 'no user resolved' : 'user has no email');
-      return new Response(JSON.stringify({ error: `Sessão inválida (${reason}).` }), {
+      return new Response(JSON.stringify({ error: `Sessão inválida (${reason}). Faça login para continuar.` }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -83,6 +68,10 @@ serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const amountCents = Math.round(Number(body.amount_cents));
     const cpfCnpj = onlyDigits(String(body.cpf_cnpj || ''));
+    const rawFrequency = String(body.frequency || 'one_time').toLowerCase();
+    const isRecurring = ['monthly', 'yearly', 'annual', 'recurring'].includes(rawFrequency);
+    const cycle = (rawFrequency === 'yearly' || rawFrequency === 'annual') ? 'YEARLY' : 'MONTHLY';
+    const dbFrequency = isRecurring ? (cycle === 'YEARLY' ? 'yearly' : 'recurring') : 'one_time';
 
     if (!Number.isFinite(amountCents) || amountCents < MIN_AMOUNT_CENTS) {
       return new Response(JSON.stringify({ error: `O valor mínimo é R$ ${(MIN_AMOUNT_CENTS / 100).toFixed(2)}.` }), {
@@ -104,9 +93,9 @@ serve(async (req) => {
       .eq('id', user.id)
       .maybeSingle();
 
-    const customerName = profile?.full_name || user.email.split('@')[0];
+    const customerName = profile?.full_name || user.user_metadata?.full_name || user.email.split('@')[0];
 
-    // 3. Resolve or create the Asaas customer
+    // 3. Resolve or create Asaas customer
     const asaasBaseUrl = asaasEnvironment === 'production'
       ? 'https://api.asaas.com/v3'
       : 'https://sandbox.asaas.com/api/v3';
@@ -172,54 +161,103 @@ serve(async (req) => {
       throw new Error('Failed to resolve supporter row');
     }
 
-    // 5. Create the Asaas PIX charge — externalReference is our own future
-    //    contribution id, generated up front so we can send it before the
-    //    row exists (provider_reference is NOT NULL, so we create the
-    //    contribution AFTER Asaas confirms, using its real payment id).
     const contributionId = crypto.randomUUID();
-    const dueDate = new Date();
-    dueDate.setDate(dueDate.getDate() + 3);
+    let providerReference: string;
+    let checkoutUrl: string;
 
-    const paymentRes = await fetch(`${asaasBaseUrl}/payments`, {
-      method: 'POST',
-      headers: asaasHeaders,
-      body: JSON.stringify({
-        customer: customerId,
-        billingType: 'PIX',
-        value: amountCents / 100,
-        dueDate: dueDate.toISOString().split('T')[0],
-        externalReference: contributionId,
-        description: 'Apoio ao 3 Minutes for Life',
-      }),
-    });
+    // 5. Create Payment or Subscription via Asaas API
+    if (!isRecurring) {
+      // ONE-TIME PIX CHARGE
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + 3);
 
-    if (!paymentRes.ok) {
-      const errBody = await paymentRes.json().catch(() => ({}));
-      console.error('Asaas payment creation failed:', errBody);
-      const detail = errBody?.errors?.[0]?.description;
-      return new Response(JSON.stringify({
-        error: detail
-          ? `Asaas recusou a cobrança: ${detail}`
-          : 'Não foi possível gerar a cobrança. Tente novamente em instantes.',
-      }), {
-        status: 502,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      const paymentRes = await fetch(`${asaasBaseUrl}/payments`, {
+        method: 'POST',
+        headers: asaasHeaders,
+        body: JSON.stringify({
+          customer: customerId,
+          billingType: 'PIX',
+          value: amountCents / 100,
+          dueDate: dueDate.toISOString().split('T')[0],
+          externalReference: contributionId,
+          description: 'Apoio à Missão 3 Minutes for Life',
+        }),
       });
+
+      if (!paymentRes.ok) {
+        const errBody = await paymentRes.json().catch(() => ({}));
+        console.error('Asaas payment creation failed:', errBody);
+        const detail = errBody?.errors?.[0]?.description;
+        return new Response(JSON.stringify({
+          error: detail ? `Asaas recusou a cobrança: ${detail}` : 'Não foi possível gerar a cobrança. Tente novamente em instantes.',
+        }), {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const paymentData = await paymentRes.json();
+      providerReference = paymentData.id;
+      checkoutUrl = paymentData.invoiceUrl;
+    } else {
+      // RECURRING SUBSCRIPTION (MONTHLY / YEARLY)
+      const nextDueDate = new Date();
+
+      const subRes = await fetch(`${asaasBaseUrl}/subscriptions`, {
+        method: 'POST',
+        headers: asaasHeaders,
+        body: JSON.stringify({
+          customer: customerId,
+          billingType: 'PIX',
+          value: amountCents / 100,
+          nextDueDate: nextDueDate.toISOString().split('T')[0],
+          cycle: cycle,
+          description: cycle === 'YEARLY' ? 'Apoio Anual - 3 Minutes for Life' : 'Apoio Mensal - 3 Minutes for Life',
+          externalReference: contributionId,
+        }),
+      });
+
+      if (!subRes.ok) {
+        const errBody = await subRes.json().catch(() => ({}));
+        console.error('Asaas subscription creation failed:', errBody);
+        const detail = errBody?.errors?.[0]?.description;
+        return new Response(JSON.stringify({
+          error: detail ? `Asaas recusou a assinatura: ${detail}` : 'Não foi possível criar a assinatura. Tente novamente em instantes.',
+        }), {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const subData = await subRes.json();
+      providerReference = subData.id;
+      checkoutUrl = subData.paymentLink || null;
+
+      // Fetch the first pending payment generated for this subscription
+      const paymentsRes = await fetch(`${asaasBaseUrl}/subscriptions/${subData.id}/payments`, {
+        headers: asaasHeaders,
+      });
+
+      if (paymentsRes.ok) {
+        const paymentsData = await paymentsRes.json();
+        if (paymentsData.data && paymentsData.data.length > 0) {
+          const firstPayment = paymentsData.data[0];
+          checkoutUrl = firstPayment.invoiceUrl || checkoutUrl;
+        }
+      }
+
+      if (!checkoutUrl) {
+        checkoutUrl = `https://www.asaas.com/c/${subData.id}`;
+      }
     }
 
-    const paymentData = await paymentRes.json();
-    const providerReference = paymentData.id;
-    const checkoutUrl = paymentData.invoiceUrl;
-
-    // 6. Persist the contribution — best-effort: the Asaas charge already
-    //    exists and is real either way, so a DB hiccup here shouldn't block
-    //    a working payment link, but we do log it for follow-up.
+    // 6. Persist the contribution
     const { error: insertError } = await supabaseAdmin.from('contributions').insert({
       id: contributionId,
       supporter_id: supporterId,
       amount: amountCents,
       currency: 'BRL',
-      frequency: 'one_time',
+      frequency: dbFrequency,
       status: 'pending',
       provider: 'asaas',
       provider_reference: providerReference,
@@ -227,18 +265,20 @@ serve(async (req) => {
     });
 
     if (insertError) {
-      console.error('Failed to persist contribution (Asaas charge was still created):', insertError);
+      console.error('Failed to persist contribution:', insertError);
     }
 
-    return new Response(JSON.stringify({ checkoutUrl, contributionId }), {
+    return new Response(JSON.stringify({
+      checkoutUrl,
+      contributionId,
+      providerReference,
+      frequency: dbFrequency,
+    }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('asaas-create-checkout error:', error);
-    // Surfaced to the caller during rollout so real failures are visible
-    // in the UI instead of a bare 500 — tighten this once the flow is
-    // proven stable in production.
     const detail = error instanceof Error ? error.message : String(error);
     return new Response(JSON.stringify({ error: `Erro interno ao criar o checkout: ${detail}` }), {
       status: 500,

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 /* Usa header/nav/logo da Landing além dos cards da Mission. */
 import './Landing.css';
@@ -7,69 +7,62 @@ import { BrandLogo } from '../components/BrandLogo';
 import { useAuth } from '../context/AuthContext';
 import { MissionService } from '../services/MissionService';
 
-/**
- * Página de contribuição/apoio.
- *
- * Substitui o antigo modal (ContributionModal) que abria por cima da página
- * de missão: agora "Fazer parte da missão" leva direto para esta página
- * dedicada, onde a pessoa escolhe o valor e é redirecionada para o checkout
- * correspondente no Asaas.
- */
-
-type CheckoutOption = {
+type ContributionPlan = {
   key: string;
-  url: string;
+  title: string;
+  defaultAmount: string;
+  frequency: 'one_time' | 'monthly' | 'yearly';
+  isFixedAmount?: boolean;
 };
 
 function onlyDigits(value: string): string {
   return (value || '').replace(/\D/g, '');
 }
 
-// Links de checkout do Asaas por opção. "livre_unica" agora é atendida por
-// um checkout dinâmico (ver handleOneTimeSubmit) — o link estático fica só
-// como fallback caso o checkout dinâmico falhe.
-const ASAAS_LINKS: Record<string, string> = {
-  apoio_mensal: 'https://www.asaas.com/c/ubvo22er3ta93gsu',
-  apoio_anual: 'https://www.asaas.com/c/zc0gqi05xcw920e1',
-  livre_unica: 'https://www.asaas.com/c/ej6xz049gg63f7qi',
-  livre_mensal: 'https://www.asaas.com/c/hju0fp9mzkw9t5g2',
-};
-
 export function Contribute() {
   const { t } = useTranslation(['mission', 'contribution', 'common']);
   const { user } = useAuth();
 
-  const [showOneTimeForm, setShowOneTimeForm] = useState(false);
+  const [activePlan, setActivePlan] = useState<ContributionPlan | null>(null);
   const [amountReais, setAmountReais] = useState('20');
   const [cpfCnpj, setCpfCnpj] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
-  const goToCheckout = (option: CheckoutOption) => {
-    if (!option.url) {
-      alert(t('contribution:modal.errorNoLink'));
-      return;
-    }
-    window.location.href = option.url;
+  const openCheckout = (plan: ContributionPlan) => {
+    setFormError('');
+    setAmountReais(plan.defaultAmount);
+    setActivePlan(plan);
   };
 
-  const handleOneTimeSubmit = async (e: React.FormEvent) => {
+  const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
 
+    if (!activePlan) return;
+
     const amountCents = Math.round(Number(amountReais.replace(',', '.')) * 100);
-    if (!Number.isFinite(amountCents) || amountCents < 500) {
-      setFormError(t('contribution:oneTime.errorMinAmount', 'O valor mínimo é R$ 5,00.'));
+    const minAmount = activePlan.frequency === 'yearly' ? 5000 : 500;
+    const minText = activePlan.frequency === 'yearly' ? 'R$ 50,00' : 'R$ 5,00';
+
+    if (!Number.isFinite(amountCents) || amountCents < minAmount) {
+      setFormError(t('contribution:oneTime.errorMinAmount', `O valor mínimo é ${minText}.`));
       return;
     }
-    if (onlyDigits(cpfCnpj).length !== 11 && onlyDigits(cpfCnpj).length !== 14) {
+
+    const cleanCpfCnpj = onlyDigits(cpfCnpj);
+    if (cleanCpfCnpj.length !== 11 && cleanCpfCnpj.length !== 14) {
       setFormError(t('contribution:oneTime.errorCpf', 'Informe um CPF ou CNPJ válido.'));
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const { checkoutUrl } = await MissionService.createOneTimePixCheckout(amountCents, cpfCnpj);
+      const { checkoutUrl } = await MissionService.createCheckout(
+        amountCents,
+        cleanCpfCnpj,
+        activePlan.frequency
+      );
       window.location.href = checkoutUrl;
     } catch (err: any) {
       setFormError(err.message || t('contribution:oneTime.errorGeneric', 'Não foi possível criar o checkout. Tente novamente.'));
@@ -140,6 +133,7 @@ export function Contribute() {
 
         <div className="editorial-tiers three-tiers">
 
+          {/* Plano Mensal */}
           <div className="editorial-tier">
             <h3 className="editorial-tier-name">
               {t('mission:editorial.monthlyTitle', 'Apoio mensal')}
@@ -162,13 +156,20 @@ export function Contribute() {
               type="button"
               className="editorial-btn"
               onClick={() =>
-                goToCheckout({ key: 'apoio_mensal', url: ASAAS_LINKS.apoio_mensal })
+                openCheckout({
+                  key: 'apoio_mensal',
+                  title: t('mission:editorial.monthlyTitle', 'Apoio Mensal'),
+                  defaultAmount: '9.90',
+                  frequency: 'monthly',
+                  isFixedAmount: true,
+                })
               }
             >
               {t('mission:editorial.monthlyBtn', 'Apoiar mensalmente')}
             </button>
           </div>
 
+          {/* Plano Anual */}
           <div className="editorial-tier highlight-tier">
             <div className="editorial-tier-badge">
               {t('mission:editorial.yearlyBadge', 'Mais econômica')}
@@ -195,13 +196,20 @@ export function Contribute() {
               type="button"
               className="editorial-btn primary"
               onClick={() =>
-                goToCheckout({ key: 'apoio_anual', url: ASAAS_LINKS.apoio_anual })
+                openCheckout({
+                  key: 'apoio_anual',
+                  title: t('mission:editorial.yearlyTitle', 'Apoio Anual'),
+                  defaultAmount: '59.90',
+                  frequency: 'yearly',
+                  isFixedAmount: true,
+                })
               }
             >
               {t('mission:editorial.yearlyBtn', 'Apoiar anualmente')}
             </button>
           </div>
 
+          {/* Contribuição Voluntária Livre */}
           <div className="editorial-tier">
             <h3 className="editorial-tier-name">
               {t('mission:editorial.freeTitle', 'Contribuição voluntária')}
@@ -216,99 +224,195 @@ export function Contribute() {
               </span>
             </div>
 
-            {!showOneTimeForm ? (
-              <div className="editorial-tier-free-options">
-                <button
-                  type="button"
-                  className="editorial-btn"
-                  onClick={() => setShowOneTimeForm(true)}
-                >
-                  {t('mission:editorial.freeBtnSingle', 'Contribuição única')}
-                </button>
+            <div className="editorial-tier-free-options">
+              <button
+                type="button"
+                className="editorial-btn"
+                onClick={() =>
+                  openCheckout({
+                    key: 'livre_unica',
+                    title: t('mission:editorial.freeBtnSingle', 'Contribuição Única'),
+                    defaultAmount: '20.00',
+                    frequency: 'one_time',
+                    isFixedAmount: false,
+                  })
+                }
+              >
+                {t('mission:editorial.freeBtnSingle', 'Contribuição única')}
+              </button>
 
-                <button
-                  type="button"
-                  className="editorial-btn"
-                  onClick={() =>
-                    goToCheckout({ key: 'livre_mensal', url: ASAAS_LINKS.livre_mensal })
-                  }
-                >
-                  {t('mission:editorial.freeBtnMonthly', 'Contribuição mensal')}
-                </button>
-              </div>
-            ) : !user ? (
-              <div style={{ textAlign: 'center' }}>
-                <p style={{ fontSize: '0.9rem', color: 'var(--landing-text-light, #6A6765)', marginBottom: '1rem' }}>
-                  {t('contribution:oneTime.needsLogin', 'Entre ou crie sua conta para fazer uma contribuição única — assim conseguimos vincular o pagamento a você.')}
-                </p>
-                <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <a className="editorial-btn" href="/login?redirectTo=/apoiar">
-                    {t('contribution:oneTime.login', 'Entrar')}
-                  </a>
-                  <a className="editorial-btn primary" href="/signup?redirectTo=/apoiar">
-                    {t('contribution:oneTime.signup', 'Criar conta')}
-                  </a>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowOneTimeForm(false)}
-                  style={{ marginTop: '1rem', background: 'none', border: 'none', color: 'var(--landing-text-light, #6A6765)', fontSize: '0.85rem', cursor: 'pointer', textDecoration: 'underline' }}
-                >
-                  {t('common:back', 'Voltar')}
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleOneTimeSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', textAlign: 'left' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>
-                  {t('contribution:oneTime.amountLabel', 'Valor (R$)')}
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={amountReais}
-                    onChange={e => setAmountReais(e.target.value)}
-                    style={{ display: 'block', width: '100%', marginTop: '0.35rem', padding: '0.6rem 0.75rem', borderRadius: '8px', border: '1px solid var(--landing-border, #ddd)', fontSize: '1rem', boxSizing: 'border-box' }}
-                  />
-                </label>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>
-                  {t('contribution:oneTime.cpfLabel', 'CPF ou CNPJ')}
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="000.000.000-00"
-                    value={cpfCnpj}
-                    onChange={e => setCpfCnpj(e.target.value)}
-                    style={{ display: 'block', width: '100%', marginTop: '0.35rem', padding: '0.6rem 0.75rem', borderRadius: '8px', border: '1px solid var(--landing-border, #ddd)', fontSize: '1rem', boxSizing: 'border-box' }}
-                  />
-                </label>
-                {formError && (
-                  <p style={{ color: '#c0392b', fontSize: '0.82rem', margin: 0 }}>{formError}</p>
-                )}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', width: '100%', boxSizing: 'border-box' }}>
-                  <button
-                    type="submit"
-                    className="editorial-btn primary"
-                    disabled={isSubmitting}
-                    style={{ flex: '1 1 auto', minWidth: 0, padding: '1rem 1.25rem' }}
-                  >
-                    {isSubmitting
-                      ? t('contribution:oneTime.submitting', 'Gerando cobrança…')
-                      : t('contribution:oneTime.submit', 'Gerar PIX')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setShowOneTimeForm(false); setFormError(''); }}
-                    disabled={isSubmitting}
-                    className="editorial-btn"
-                    style={{ flex: '0 1 auto', minWidth: 0, padding: '1rem 1.25rem' }}
-                  >
-                    {t('common:cancel', 'Cancelar')}
-                  </button>
-                </div>
-              </form>
-            )}
+              <button
+                type="button"
+                className="editorial-btn"
+                onClick={() =>
+                  openCheckout({
+                    key: 'livre_mensal',
+                    title: t('mission:editorial.freeBtnMonthly', 'Contribuição Mensal'),
+                    defaultAmount: '20.00',
+                    frequency: 'monthly',
+                    isFixedAmount: false,
+                  })
+                }
+              >
+                {t('mission:editorial.freeBtnMonthly', 'Contribuição mensal')}
+              </button>
+            </div>
           </div>
 
         </div>
+
+        {/* Modal / Formulário de Checkout Dinâmico */}
+        {activePlan && (
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '1rem',
+          }}>
+            <div style={{
+              background: '#fff',
+              borderRadius: '16px',
+              padding: '2rem',
+              maxWidth: '440px',
+              width: '100%',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
+              position: 'relative',
+            }}>
+              <button
+                type="button"
+                onClick={() => { setActivePlan(null); setFormError(''); }}
+                style={{
+                  position: 'absolute',
+                  top: '1rem',
+                  right: '1rem',
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '1.25rem',
+                  cursor: 'pointer',
+                  color: '#666',
+                }}
+                aria-label="Fechar"
+              >
+                ✕
+              </button>
+
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '0.5rem', color: '#1a1a1a' }}>
+                {activePlan.title}
+              </h3>
+              <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '1.5rem' }}>
+                {activePlan.frequency === 'yearly'
+                  ? 'Pagamento anual via PIX automático com renovação anual.'
+                  : activePlan.frequency === 'monthly'
+                  ? 'Pagamento mensal via PIX com renovação automática.'
+                  : 'Contribuição única avulsa via PIX.'}
+              </p>
+
+              {!user ? (
+                <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+                  <p style={{ fontSize: '0.95rem', color: '#555', marginBottom: '1.25rem' }}>
+                    {t('contribution:oneTime.needsLogin', 'Entre ou crie sua conta para vincular seu apoio ao seu perfil.')}
+                  </p>
+                  <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+                    <a className="editorial-btn" href="/login?redirectTo=/apoiar" style={{ flex: 1 }}>
+                      {t('contribution:oneTime.login', 'Entrar')}
+                    </a>
+                    <a className="editorial-btn primary" href="/signup?redirectTo=/apoiar" style={{ flex: 1 }}>
+                      {t('contribution:oneTime.signup', 'Criar conta')}
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleCheckoutSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <label style={{ fontSize: '0.88rem', fontWeight: 600, color: '#333' }}>
+                    {t('contribution:oneTime.amountLabel', 'Valor (R$)')}
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={amountReais}
+                      onChange={e => setAmountReais(e.target.value)}
+                      disabled={activePlan.isFixedAmount}
+                      style={{
+                        display: 'block',
+                        width: '100%',
+                        marginTop: '0.4rem',
+                        padding: '0.75rem',
+                        borderRadius: '8px',
+                        border: '1px solid #ccc',
+                        fontSize: '1.1rem',
+                        boxSizing: 'border-box',
+                        backgroundColor: activePlan.isFixedAmount ? '#f5f5f5' : '#fff',
+                      }}
+                      required
+                    />
+                  </label>
+
+                  <label style={{ fontSize: '0.88rem', fontWeight: 600, color: '#333' }}>
+                    {t('contribution:oneTime.cpfLabel', 'CPF ou CNPJ')}
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="000.000.000-00"
+                      value={cpfCnpj}
+                      onChange={e => setCpfCnpj(e.target.value)}
+                      style={{
+                        display: 'block',
+                        width: '100%',
+                        marginTop: '0.4rem',
+                        padding: '0.75rem',
+                        borderRadius: '8px',
+                        border: '1px solid #ccc',
+                        fontSize: '1rem',
+                        boxSizing: 'border-box',
+                      }}
+                      required
+                    />
+                    <span style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.25rem', display: 'block' }}>
+                      Exigido pelo Banco Central para emissão do PIX.
+                    </span>
+                  </label>
+
+                  {formError && (
+                    <div style={{
+                      backgroundColor: '#fde8e8',
+                      color: '#c0392b',
+                      padding: '0.75rem',
+                      borderRadius: '8px',
+                      fontSize: '0.85rem',
+                    }}>
+                      {formError}
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+                    <button
+                      type="button"
+                      onClick={() => { setActivePlan(null); setFormError(''); }}
+                      disabled={isSubmitting}
+                      className="editorial-btn"
+                      style={{ flex: 1 }}
+                    >
+                      {t('common:cancel', 'Cancelar')}
+                    </button>
+                    <button
+                      type="submit"
+                      className="editorial-btn primary"
+                      disabled={isSubmitting}
+                      style={{ flex: 2 }}
+                    >
+                      {isSubmitting
+                        ? t('contribution:oneTime.submitting', 'Gerando PIX…')
+                        : 'Continuar para o PIX'}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        )}
 
         <p
           style={{

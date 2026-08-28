@@ -90,27 +90,26 @@ export const MissionService = {
   },
 
   /**
-   * Creates a real Asaas PIX charge tied to a `contribution` row, so the
+   * Creates a real Asaas PIX charge or subscription tied to a `contribution` row, so the
    * webhook can later match and activate the supporter. Requires a signed-in
    * user — the edge function rejects anonymous calls.
    */
-  async createOneTimePixCheckout(amountCents: number, cpfCnpj: string): Promise<{ checkoutUrl: string; contributionId: string }> {
+  async createCheckout(
+    amountCents: number,
+    cpfCnpj: string,
+    frequency: 'one_time' | 'monthly' | 'yearly' = 'one_time'
+  ): Promise<{ checkoutUrl: string; contributionId: string; providerReference?: string }> {
     const { data, error } = await supabase.functions.invoke('asaas-create-checkout', {
-      body: { amount_cents: amountCents, cpf_cnpj: cpfCnpj },
+      body: { amount_cents: amountCents, cpf_cnpj: cpfCnpj, frequency },
     });
 
     if (error) {
-      // supabase-js doesn't parse the response body into `data` when the
-      // function returns a non-2xx status — the real error message we sent
-      // (e.g. "CPF ou CNPJ inválido.") lives in error.context, the raw
-      // Response object, and has to be read out manually.
       let message = error.message || 'Erro ao criar o checkout.';
       try {
         const body = await error.context?.json();
         if (body?.error) message = body.error;
       } catch {
-        // context wasn't JSON (e.g. a network-level failure) — keep the
-        // generic message above.
+        // context wasn't JSON
       }
       throw new Error(message);
     }
@@ -120,5 +119,9 @@ export const MissionService = {
     }
 
     return data;
+  },
+
+  async createOneTimePixCheckout(amountCents: number, cpfCnpj: string): Promise<{ checkoutUrl: string; contributionId: string }> {
+    return this.createCheckout(amountCents, cpfCnpj, 'one_time');
   }
 };

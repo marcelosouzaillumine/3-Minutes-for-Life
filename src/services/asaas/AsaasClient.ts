@@ -77,4 +77,12 @@ export class AsaasClient {
   async post<T>(endpoint: string, body: any): Promise<T> {
     return this.request<T>('POST', endpoint, body);
   }
+
+  async put<T>(endpoint: string, body: any): Promise<T> {
+    return this.request<T>('PUT', endpoint, body);
+  }
+
+  async delete<T = void>(endpoint: string): Promise<T> {
+    return this.request<T>('DELETE', endpoint);
+  }
 }
