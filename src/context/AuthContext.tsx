@@ -1,23 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import type { Session, User } from '@supabase/supabase-js';
 import { authService } from '../services/authService';
 import { supabase } from '../lib/supabase';
 import i18n from '../i18n/config';
 
-interface IllumineUser {
-  id: string;
-  email: string;
-  name?: string;
-  avatar?: string;
-}
-
-interface IllumineSession {
-  user: IllumineUser;
-  accessToken: string | null;
-}
-
 interface AuthContextType {
-  session: IllumineSession | null;
-  user: IllumineUser | null;
+  session: Session | null;
+  user: User | null;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -69,8 +58,8 @@ async function syncProfileLanguage(userId: string): Promise<void> {
 }
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [session, setSession] = useState<IllumineSession | null>(null);
-  const [user, setUser] = useState<IllumineUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -94,13 +83,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Listen for auth changes (login/logout/OAuth callback)
     const subscription = authService.onAuthStateChange(async (_event, session) => {
-      const s = session as IllumineSession | null
-      setSession(s);
-      setUser(s?.user ?? null);
+      setSession(session);
+      setUser(session?.user ?? null);
 
       // Sync language on SIGNED_IN (covers OAuth callback and email login)
-      if (s?.user?.id) {
-        await syncProfileLanguage(s.user.id);
+      if (session?.user?.id) {
+        await syncProfileLanguage(session.user.id);
       }
 
       setLoading(false);
