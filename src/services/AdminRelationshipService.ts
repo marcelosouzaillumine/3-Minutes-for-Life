@@ -79,12 +79,7 @@ export const AdminRelationshipService = {
    */
   async checkRelationshipAccess(): Promise<boolean> {
     const session = await authService.getSession().catch(() => null);
-    let userId = session?.user?.id;
-
-    if (!userId) {
-      const { data: { session: sbSession } } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
-      userId = sbSession?.user?.id;
-    }
+    const userId = session?.user?.id;
 
     if (!userId) return false;
 
