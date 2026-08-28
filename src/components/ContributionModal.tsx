@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import '../pages/Mission.css';
+import { MissionService } from '../services/MissionService';
+import { useAuth } from '../context/AuthContext';
 
 export type ContributionTier = 'apoio' | 'livre';
 export type Periodicity = 'mensal' | 'anual' | 'unica';
@@ -12,38 +14,71 @@ interface ContributionModalProps {
   initialPeriodicity?: Periodicity;
 }
 
+// Mapeamento para os tipos aceitos pela API
+const frequencyMap: Record<string, 'one_time' | 'monthly' | 'yearly'> = {
+  apoio_mensal: 'monthly',
+  apoio_anual: 'yearly',
+  livre_unica: 'one_time',
+  livre_mensal: 'monthly',
+};
+
+const defaultAmountMap: Record<string, string> = {
+  apoio_mensal: '9.90',
+  apoio_anual: '59.90',
+  livre_unica: '20.00',
+  livre_mensal: '20.00',
+};
+
+function onlyDigits(value: string): string {
+  return (value || '').replace(/\D/g, '');
+}
+
 export function ContributionModal({ isOpen, onClose, initialTier = 'apoio', initialPeriodicity = 'mensal' }: ContributionModalProps) {
   const { t } = useTranslation('contribution');
+  const { user } = useAuth();
   const [tier, setTier] = useState<ContributionTier>(initialTier);
   const [periodicity, setPeriodicity] = useState<Periodicity>(initialPeriodicity);
   const [customValue, setCustomValue] = useState<string>('');
+  const [cpfCnpj, setCpfCnpj] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState('');
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const planKey = `${tier}_${periodicity}`;
+  const frequency = frequencyMap[planKey] ?? 'one_time';
+  const isFixedAmount = tier === 'apoio';
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError('');
+
+    const rawAmount = isFixedAmount ? defaultAmountMap[planKey] : customValue;
+    const amountCents = Math.round(Number((rawAmount || '').replace(',', '.')) * 100);
+    const minCents = frequency === 'yearly' ? 5000 : 500;
+    const minText = frequency === 'yearly' ? 'R$ 50,00' : 'R$ 5,00';
+
+    if (!Number.isFinite(amountCents) || amountCents < minCents) {
+      setFormError(t('oneTime.errorMinAmount', `O valor mínimo é ${minText}.`));
+      return;
+    }
+
+    const cleanCpfCnpj = onlyDigits(cpfCnpj);
+    if (cleanCpfCnpj.length !== 11 && cleanCpfCnpj.length !== 14) {
+      setFormError(t('oneTime.errorCpf', 'Informe um CPF ou CNPJ válido.'));
+      return;
+    }
+
     setIsSubmitting(true);
-    
-    // Mapeamento dos links de pagamento do Asaas
-    const asaasLinks: Record<string, string> = {
-      'apoio_mensal': 'https://www.asaas.com/c/ubvo22er3ta93gsu',
-      'apoio_anual': 'https://www.asaas.com/c/zc0gqi05xcw920e1',
-      'livre_unica': 'https://www.asaas.com/c/ej6xz049gg63f7qi',
-      'livre_mensal': 'https://www.asaas.com/c/hju0fp9mzkw9t5g2'
-    };
-
-    const linkKey = `${tier}_${periodicity}`;
-    let checkoutUrl = asaasLinks[linkKey];
-
-    if (checkoutUrl) {
-      if (tier === 'livre' && customValue) {
-        checkoutUrl = `${checkoutUrl}?value=${customValue}`;
-      }
-      window.open(checkoutUrl, '_blank');
-      setIsSubmitting(false);
-    } else {
-      alert(t('modal.errorNoLink'));
+    try {
+      const { checkoutUrl } = await MissionService.createCheckout(
+        amountCents,
+        cleanCpfCnpj,
+        frequency
+      );
+      window.location.href = checkoutUrl;
+    } catch (err: any) {
+      setFormError(err.message || t('oneTime.errorGeneric', 'Não foi possível criar o checkout. Tente novamente.'));
       setIsSubmitting(false);
     }
   };
@@ -58,58 +93,101 @@ export function ContributionModal({ isOpen, onClose, initialTier = 'apoio', init
           {t('modal.desc')}
         </p>
 
-        <form className="modal-form" onSubmit={handleSubmit}>
-          
-          <div className="form-group">
-            <label>{t('modal.typeLabel')}</label>
-            <select value={tier} onChange={e => {
-              const newTier = e.target.value as ContributionTier;
-              setTier(newTier);
-              if (newTier === 'apoio' && periodicity === 'unica') setPeriodicity('mensal');
-              if (newTier === 'livre' && periodicity === 'anual') setPeriodicity('mensal');
-            }}>
-              <option value="apoio">{t('modal.options.apoio')}</option>
-              <option value="livre">{t('modal.options.livre')}</option>
-            </select>
+        {!user ? (
+          <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+            <p style={{ fontSize: '0.95rem', color: '#555', marginBottom: '1.25rem' }}>
+              {t('oneTime.needsLogin', 'Entre ou crie sua conta para vincular seu apoio ao seu perfil.')}
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+              <a className="btn-primary" href="/login?redirectTo=/apoiar">
+                {t('oneTime.login', 'Entrar')}
+              </a>
+              <a className="btn-primary" href="/signup?redirectTo=/apoiar">
+                {t('oneTime.signup', 'Criar conta')}
+              </a>
+            </div>
           </div>
-
-          <div className="form-group">
-            <label>{t('modal.periodicityLabel')}</label>
-            <select value={periodicity} onChange={e => setPeriodicity(e.target.value as Periodicity)}>
-              {tier === 'apoio' && (
-                <>
-                  <option value="mensal">{t('modal.options.mensal')}</option>
-                  <option value="anual">{t('modal.options.anual')}</option>
-                </>
-              )}
-              {tier === 'livre' && (
-                <>
-                  <option value="unica">{t('modal.options.unicaLivre')}</option>
-                  <option value="mensal">{t('modal.options.mensalLivre')}</option>
-                </>
-              )}
-            </select>
-          </div>
-
-          {tier === 'livre' && (
+        ) : (
+          <form className="modal-form" onSubmit={handleSubmit}>
+            
             <div className="form-group">
-              <label>{t('modal.valueLabel')}</label>
-              <input 
-                type="number" 
-                min="5" 
-                step="1" 
-                placeholder={t('modal.valuePlaceholder')} 
-                value={customValue}
-                onChange={e => setCustomValue(e.target.value)}
+              <label>{t('modal.typeLabel')}</label>
+              <select value={tier} onChange={e => {
+                const newTier = e.target.value as ContributionTier;
+                setTier(newTier);
+                if (newTier === 'apoio' && periodicity === 'unica') setPeriodicity('mensal');
+                if (newTier === 'livre' && periodicity === 'anual') setPeriodicity('mensal');
+              }}>
+                <option value="apoio">{t('modal.options.apoio')}</option>
+                <option value="livre">{t('modal.options.livre')}</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>{t('modal.periodicityLabel')}</label>
+              <select value={periodicity} onChange={e => setPeriodicity(e.target.value as Periodicity)}>
+                {tier === 'apoio' && (
+                  <>
+                    <option value="mensal">{t('modal.options.mensal')}</option>
+                    <option value="anual">{t('modal.options.anual')}</option>
+                  </>
+                )}
+                {tier === 'livre' && (
+                  <>
+                    <option value="unica">{t('modal.options.unicaLivre')}</option>
+                    <option value="mensal">{t('modal.options.mensalLivre')}</option>
+                  </>
+                )}
+              </select>
+            </div>
+
+            {!isFixedAmount && (
+              <div className="form-group">
+                <label>{t('modal.valueLabel')}</label>
+                <input 
+                  type="number" 
+                  min="5" 
+                  step="1" 
+                  placeholder={t('modal.valuePlaceholder')} 
+                  value={customValue}
+                  onChange={e => setCustomValue(e.target.value)}
+                  required
+                />
+              </div>
+            )}
+
+            <div className="form-group">
+              <label>{t('oneTime.cpfLabel', 'CPF ou CNPJ')}</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="000.000.000-00"
+                value={cpfCnpj}
+                onChange={e => setCpfCnpj(e.target.value)}
                 required
               />
+              <span style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.25rem', display: 'block' }}>
+                Exigido pelo Banco Central para emissão do PIX.
+              </span>
             </div>
-          )}
 
-          <button type="submit" className="btn-primary" disabled={isSubmitting}>
-            {isSubmitting ? t('modal.buttonLoading') : t('modal.button')}
-          </button>
-        </form>
+            {formError && (
+              <div style={{
+                backgroundColor: '#fde8e8',
+                color: '#c0392b',
+                padding: '0.75rem',
+                borderRadius: '8px',
+                fontSize: '0.85rem',
+              }}>
+                {formError}
+              </div>
+            )}
+
+            <button type="submit" className="btn-primary" disabled={isSubmitting}>
+              {isSubmitting ? t('oneTime.submitting', 'Gerando PIX…') : t('modal.button')}
+            </button>
+          </form>
+        )}
 
         <p className="modal-footer">
           {t('modal.footer')}

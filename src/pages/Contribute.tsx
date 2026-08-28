@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 /* Usa header/nav/logo da Landing além dos cards da Mission. */
 import './Landing.css';
@@ -19,6 +19,14 @@ function onlyDigits(value: string): string {
   return (value || '').replace(/\D/g, '');
 }
 
+// Plano padrão para cada combinação tier+periodicity (vinda do /missao via query string)
+const PLAN_MAP: Record<string, ContributionPlan> = {
+  apoio_mensal: { key: 'apoio_mensal', title: 'Apoio Mensal', defaultAmount: '9.90', frequency: 'monthly', isFixedAmount: true },
+  apoio_anual:  { key: 'apoio_anual',  title: 'Apoio Anual',  defaultAmount: '59.90', frequency: 'yearly',  isFixedAmount: true },
+  livre_unica:  { key: 'livre_unica',  title: 'Contribuição Única', defaultAmount: '20.00', frequency: 'one_time', isFixedAmount: false },
+  livre_mensal: { key: 'livre_mensal', title: 'Contribuição Mensal', defaultAmount: '20.00', frequency: 'monthly', isFixedAmount: false },
+};
+
 export function Contribute() {
   const { t } = useTranslation(['mission', 'contribution', 'common']);
   const { user } = useAuth();
@@ -28,6 +36,20 @@ export function Contribute() {
   const [cpfCnpj, setCpfCnpj] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
+
+  // Abre automaticamente o modal quando vindo do /missao com ?tier=&periodicity=
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tier = params.get('tier');
+    const periodicity = params.get('periodicity');
+    if (tier && periodicity) {
+      const plan = PLAN_MAP[`${tier}_${periodicity}`];
+      if (plan) {
+        setAmountReais(plan.defaultAmount);
+        setActivePlan(plan);
+      }
+    }
+  }, []);
 
   const openCheckout = (plan: ContributionPlan) => {
     setFormError('');

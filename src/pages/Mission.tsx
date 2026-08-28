@@ -63,15 +63,9 @@ export function Mission() {
   }, []);
 
   const handleCheckoutRedirect = (tier: string, periodicity: string) => {
-    const asaasLinks: Record<string, string> = {
-      apoio_mensal: 'https://www.asaas.com/c/ubvo22er3ta93gsu',
-      apoio_anual: 'https://www.asaas.com/c/zc0gqi05xcw920e1',
-      livre_unica: 'https://www.asaas.com/c/ej6xz049gg63f7qi',
-      livre_mensal: 'https://www.asaas.com/c/hju0fp9mzkw9t5g2',
-    };
-    const checkoutUrl = asaasLinks[`${tier}_${periodicity}`];
-    if (checkoutUrl) { window.location.href = checkoutUrl; return; }
-    goToContributePage();
+    // Redireciona para /apoiar com o plano pré-selecionado via query string.
+    // O checkout dinâmico via API fica centralizado em Contribute.tsx.
+    window.location.href = `/apoiar?tier=${tier}&periodicity=${periodicity}`;
   };
 
   return (
