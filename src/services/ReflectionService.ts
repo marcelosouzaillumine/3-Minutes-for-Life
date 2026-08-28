@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { authService } from './authService';
 
 export interface PersonalReflection {
   id: string;
@@ -19,15 +20,16 @@ export const ReflectionService = {
    * Retorna o conteúdo da reflexão ou null se não existir.
    */
   async getReflection(devotionalId: string): Promise<string | null> {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
+    const session = await authService.getSession();
+    const userId = session?.user?.id;
+    if (!userId) return null;
 
     try {
       const { data, error } = await supabase
         .from('personal_reflections')
         .select('content')
         .eq('devotional_id', devotionalId)
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .maybeSingle();
 
       if (error) throw error;
@@ -42,13 +44,14 @@ export const ReflectionService = {
    * Obtém todas as reflexões pessoais do usuário autenticado.
    */
   async getUserReflections(): Promise<PersonalReflectionWithDevotional[]> {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User must be authenticated');
+    const session = await authService.getSession();
+    const userId = session?.user?.id;
+    if (!userId) throw new Error('User must be authenticated');
 
     const { data, error } = await supabase
       .from('personal_reflections')
       .select('*, devotionals(title)')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -62,13 +65,14 @@ export const ReflectionService = {
    * Salva (insere ou atualiza) a reflexão pessoal do usuário autenticado.
    */
   async saveReflection(devotionalId: string, content: string): Promise<void> {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User must be authenticated to save a reflection');
+    const session = await authService.getSession();
+    const userId = session?.user?.id;
+    if (!userId) throw new Error('User must be authenticated to save a reflection');
 
     const { error } = await supabase
       .from('personal_reflections')
       .upsert({
-        user_id: user.id,
+        user_id: userId,
         devotional_id: devotionalId,
         content: content
       }, {
@@ -85,14 +89,15 @@ export const ReflectionService = {
    * Remove a reflexão pessoal do usuário para um devocional (se necessário futuramente).
    */
   async deleteReflection(devotionalId: string): Promise<void> {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('User must be authenticated to delete a reflection');
+    const session = await authService.getSession();
+    const userId = session?.user?.id;
+    if (!userId) throw new Error('User must be authenticated to delete a reflection');
 
     const { error } = await supabase
       .from('personal_reflections')
       .delete()
       .eq('devotional_id', devotionalId)
-      .eq('user_id', user.id);
+      .eq('user_id', userId);
 
     if (error) {
       console.error('Error deleting personal reflection:', error);

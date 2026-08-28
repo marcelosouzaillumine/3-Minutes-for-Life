@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { illumineFetch } from '../lib/illumine';
 
 export type DashboardMetrics = {
   intelligence: {
@@ -46,19 +47,25 @@ export class AdminService {
    * this is just for UX routing/protection.
    */
   static async checkAdminRole(): Promise<boolean> {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return false;
+    try {
+      const res = await illumineFetch('/users/me');
 
-    // We can query user_roles directly since we are authenticated.
-    const { data, error } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', session.user.id)
-      .single();
+      if (!res.ok) return false;
 
-    if (error || !data) return false;
+      const user = await res.json();
 
-    return ['super_admin', 'admin', 'analyst'].includes(data.role);
+      const role =
+        user?.role ||
+        user?.app_role ||
+        user?.admin_role ||
+        user?.user?.role ||
+        user?.user?.app_role ||
+        user?.user?.admin_role;
+
+      return ['super_admin', 'admin', 'analyst'].includes(role);
+    } catch {
+      return false;
+    }
   }
 
   /**

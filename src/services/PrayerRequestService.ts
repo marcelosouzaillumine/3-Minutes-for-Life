@@ -1,13 +1,15 @@
 import { supabase } from '../lib/supabase';
 import type { PrayerRequest, PrayerRequestInsert } from '../types/PrayerRequest';
 import { AnalyticsService } from './AnalyticsService';
+import { authService } from './authService';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export const PrayerRequestService = {
   async createPrayerRequest(data: PrayerRequestInsert): Promise<PrayerRequest> {
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-    if (userError || !userData?.user) {
+    const session = await authService.getSession();
+    const user = session?.user;
+    if (!user?.id) {
       throw new Error("User not authenticated");
     }
 
@@ -18,7 +20,7 @@ export const PrayerRequestService = {
     const { data: prayerRequest, error } = await supabase
       .from('prayer_requests')
       .insert([{
-        user_id: userData.user.id,
+        user_id: user.id,
         devotional_id: validDevotionalId,
         language: data.language || 'pt-BR',
         request: data.request,
@@ -37,9 +39,14 @@ export const PrayerRequestService = {
   },
 
   async getUserPrayerRequests(): Promise<PrayerRequest[]> {
+    const session = await authService.getSession();
+    const user = session?.user;
+    if (!user?.id) return [];
+
     const { data, error } = await supabase
       .from('prayer_requests')
       .select('*')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -47,6 +54,6 @@ export const PrayerRequestService = {
       throw error;
     }
 
-    return data as PrayerRequest[];
+    return (data || []) as PrayerRequest[];
   }
 };

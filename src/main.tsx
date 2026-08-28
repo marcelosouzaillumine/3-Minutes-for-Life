@@ -6,14 +6,24 @@ import './i18n/config'
 import App from './App.tsx'
 import { AuthProvider } from './context/AuthContext'
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '713202203948-hr4a5i6p5ialo5fqc9g6r0nqlbongd3i.apps.googleusercontent.com'
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
+
+if (!GOOGLE_CLIENT_ID) {
+  console.warn('VITE_GOOGLE_CLIENT_ID não configurado. Login com Google indisponível.')
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    {GOOGLE_CLIENT_ID ? (
+      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </GoogleOAuthProvider>
+    ) : (
       <AuthProvider>
         <App />
       </AuthProvider>
-    </GoogleOAuthProvider>
+    )}
   </StrictMode>,
 )

@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { authService } from './authService';
 
 import type {
     CommunicationAudience,
@@ -155,19 +156,10 @@ class AdminCommunicationService {
         // Auth
         // -----------------------------------------------------
 
-        const {
-            data: userData,
-            error: userError,
-        } = await supabase.auth.getUser();
+        const session = await authService.getSession();
+        const userId = session?.user?.id;
 
-
-        if (userError) {
-            throw userError;
-        }
-
-
-        if (!userData.user) {
-
+        if (!userId) {
             throw new Error(
                 'Usuário não autenticado.'
             );
@@ -213,7 +205,7 @@ class AdminCommunicationService {
                     input.scheduled_at ?? null,
 
                 created_by:
-                    userData.user.id,
+                    userId,
 
                 status:
                     'draft',

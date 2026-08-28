@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { authService } from './authService';
 import type { AdminUserItem, AppRole, PaginatedUsersResult } from '../types/AdminUser';
 
 interface GetUsersParams {
@@ -42,13 +43,14 @@ export const AdminUserService = {
 
   /** Roles currently held by the signed-in admin (self-read, always allowed by RLS). */
   async getMyRoles(): Promise<AppRole[]> {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return [];
+    const session = await authService.getSession();
+    const userId = session?.user?.id;
+    if (!userId) return [];
 
     const { data, error } = await supabase
       .from('user_roles')
       .select('role')
-      .eq('user_id', session.user.id)
+      .eq('user_id', userId)
       .is('revoked_at', null);
 
     if (error) return [];
@@ -57,11 +59,12 @@ export const AdminUserService = {
 
   /** Only super_admins pass RLS on this write — enforced server-side regardless of the UI. */
   async assignRole(userId: string, role: AppRole): Promise<void> {
-    const { data: { session } } = await supabase.auth.getSession();
+    const session = await authService.getSession();
+    const granterId = session?.user?.id ?? null;
     const { error } = await supabase.from('user_roles').insert({
       user_id: userId,
       role,
-      granted_by: session?.user.id ?? null,
+      granted_by: granterId,
     });
     if (error) throw error;
   },

@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { authService } from './authService';
 import type {
   AdminTestimonialItem,
   AdminPrayerRequestItem,
@@ -77,22 +78,30 @@ export const AdminRelationshipService = {
    * Note: 'analyst' is intentionally excluded from relationship pastoral access.
    */
   async checkRelationshipAccess(): Promise<boolean> {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) return false;
+    const session = await authService.getSession().catch(() => null);
+    let userId = session?.user?.id;
+
+    if (!userId) {
+      const { data: { session: sbSession } } = await supabase.auth.getSession().catch(() => ({ data: { session: null } }));
+      userId = sbSession?.user?.id;
+    }
+
+    if (!userId) return false;
 
     const { data, error } = await supabase
       .from('user_roles')
       .select('role')
-      .eq('user_id', session.user.id)
+      .eq('user_id', userId)
       .is('revoked_at', null)
-      .limit(1);
+      .maybeSingle();
 
     if (error) {
       console.error('[AdminRelationshipService] checkRelationshipAccess error:', error);
       return false;
     }
-    if (!data || data.length === 0) return false;
-    return ['super_admin', 'admin'].includes(data[0].role);
+    if (!data) return false;
+    const role = (data as any).role;
+    return ['super_admin', 'admin'].includes(role);
   },
 
   /**

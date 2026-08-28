@@ -1,0 +1,473 @@
+<title>3 Minutes for Life — Partner API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap">
+
+<style>
+  :root {
+    --text: #111010;
+    --muted: #5A5750;
+    --accent: #B07840;
+    --border: #D8D4CB;
+    --code-bg: #F3F1EC;
+    --surface: #FAFAF8;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --text: #E8E5DE;
+      --muted: #948F86;
+      --accent: #C99050;
+      --border: #2E2B24;
+      --code-bg: #1E1C18;
+      --surface: #161410;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --text: #E8E5DE;
+    --muted: #948F86;
+    --accent: #C99050;
+    --border: #2E2B24;
+    --code-bg: #1E1C18;
+    --surface: #161410;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.7;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+  }
+
+  /* ── Print button ── */
+  .print-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 40px;
+  }
+
+  .btn-print {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    background: none;
+    border: 1px solid var(--accent);
+    border-radius: 5px;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+
+  .btn-print:hover {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* ── Cover ── */
+  .cover {
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--text);
+  }
+
+  .cover-eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .cover h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 34px;
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 14px;
+    text-wrap: balance;
+  }
+
+  .cover-meta {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .cover-meta span { display: flex; align-items: center; gap: 5px; }
+
+  /* ── Sections ── */
+  .section { margin-bottom: 44px; }
+
+  h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 22px 0 10px;
+  }
+
+  p { margin-bottom: 12px; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 600; }
+
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: var(--code-bg);
+    color: var(--accent);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* ── Code block ── */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 6px;
+    margin: 14px 0;
+    overflow-x: auto;
+  }
+
+  .code-header {
+    padding: 8px 14px 6px;
+    border-bottom: 1px solid var(--border);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .code-block pre {
+    padding: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--text);
+    white-space: pre;
+  }
+
+  /* ── Endpoint pill ── */
+  .endpoint {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 12px 0;
+  }
+
+  .method {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    background: #D4EDDF;
+    color: #1F7A4A;
+    padding: 2px 7px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .endpoint-path {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    word-break: break-all;
+  }
+
+  /* ── Table ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 12px 0;
+  }
+
+  th {
+    text-align: left;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 6px 10px 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 9px 10px 9px 0;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text);
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  /* ── Callout ── */
+  .callout {
+    background: var(--code-bg);
+    border-left: 3px solid var(--accent);
+    padding: 12px 14px;
+    border-radius: 0 5px 5px 0;
+    font-size: 13.5px;
+    margin: 14px 0;
+    color: var(--text);
+  }
+
+  /* ── Footer ── */
+  .doc-footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* ── Print styles ── */
+  @media print {
+    body { padding: 0; max-width: 100%; font-size: 12px; }
+    .print-bar { display: none; }
+    .code-block { break-inside: avoid; }
+    .section { break-inside: avoid; }
+    h2 { break-after: avoid; }
+  }
+</style>
+
+<!-- Print button -->
+<div class="print-bar">
+  <button class="btn-print" onclick="window.print()">
+    ↓ Salvar como PDF
+  </button>
+</div>
+
+<!-- Cover -->
+<div class="cover">
+  <div class="cover-eyebrow">Documentação técnica · Somente leitura</div>
+  <h1>Partner API<br>3 Minutes for Life</h1>
+  <div class="cover-meta">
+    <span>Versão 1.0</span>
+    <span>Agosto 2026</span>
+    <span>Confidencial — uso exclusivo do parceiro</span>
+  </div>
+</div>
+
+<!-- 1. Visão geral -->
+<div class="section">
+  <h2>1. Visão geral</h2>
+  <p>A Partner API do 3 Minutes for Life oferece acesso programático somente leitura ao conteúdo de devocionais. Com ela é possível exibir o devocional do dia e acessar a biblioteca completa em português, inglês e espanhol.</p>
+  <p>A API é REST, retorna JSON e usa autenticação por API Key.</p>
+</div>
+
+<!-- 2. Autenticação -->
+<div class="section">
+  <h2>2. Autenticação</h2>
+  <p>Envie a API Key no cabeçalho <code>Authorization</code> de toda requisição:</p>
+  <div class="code-block">
+    <div class="code-header">HTTP Header</div>
+    <pre>Authorization: Bearer 3mfl_sua_chave_aqui</pre>
+  </div>
+  <div class="callout">
+    Não compartilhe a chave em código público, repositórios ou logs. Em caso de comprometimento, solicite revogação imediata.
+  </div>
+</div>
+
+<!-- 3. Base URL -->
+<div class="section">
+  <h2>3. Base URL</h2>
+  <div class="code-block">
+    <div class="code-header">URL base</div>
+    <pre>https://wacdwnlrwsbmuhwztwrz.supabase.co/functions/v1/partner-api</pre>
+  </div>
+</div>
+
+<!-- 4. Endpoints -->
+<div class="section">
+  <h2>4. Endpoints</h2>
+
+  <h3>4.1 — Devocional do dia</h3>
+  <div class="endpoint">
+    <span class="method">GET</span>
+    <span class="endpoint-path">/devotionals/today</span>
+  </div>
+  <p>Retorna o devocional publicado para a data atual (UTC).</p>
+
+  <h3>Parâmetros</h3>
+  <table>
+    <thead><tr><th>Param</th><th>Padrão</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td><code>lang</code></td><td><code>pt-BR</code></td><td>Idioma: <code>pt-BR</code>, <code>en</code>, <code>es</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Exemplo</h3>
+  <div class="code-block">
+    <div class="code-header">curl</div>
+    <pre>curl "https://wacdwnlrwsbmuhwztwrz.supabase.co/functions/v1/partner-api/devotionals/today" \
+  -H "Authorization: Bearer 3mfl_sua_chave"</pre>
+  </div>
+
+  <h3>4.2 — Biblioteca de devocionais</h3>
+  <div class="endpoint">
+    <span class="method">GET</span>
+    <span class="endpoint-path">/devotionals</span>
+  </div>
+  <p>Lista os devocionais publicados com paginação, do mais recente ao mais antigo.</p>
+
+  <h3>Parâmetros</h3>
+  <table>
+    <thead><tr><th>Param</th><th>Padrão</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td><code>lang</code></td><td><code>pt-BR</code></td><td>Idioma: <code>pt-BR</code>, <code>en</code>, <code>es</code></td></tr>
+      <tr><td><code>page</code></td><td><code>1</code></td><td>Página (começa em 1)</td></tr>
+      <tr><td><code>limit</code></td><td><code>20</code></td><td>Itens por página — máx. 100</td></tr>
+      <tr><td><code>category</code></td><td>—</td><td>UUID da categoria para filtrar</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Exemplo</h3>
+  <div class="code-block">
+    <div class="code-header">curl</div>
+    <pre>curl "https://wacdwnlrwsbmuhwztwrz.supabase.co/functions/v1/partner-api/devotionals?page=1&limit=10" \
+  -H "Authorization: Bearer 3mfl_sua_chave"</pre>
+  </div>
+
+  <h3>4.3 — Devocional por ID</h3>
+  <div class="endpoint">
+    <span class="method">GET</span>
+    <span class="endpoint-path">/devotionals/:id</span>
+  </div>
+  <p>Busca um devocional pelo UUID ou número sequencial (ex: <code>1</code>, <code>31</code>).</p>
+
+  <div class="code-block">
+    <div class="code-header">curl</div>
+    <pre>curl "https://wacdwnlrwsbmuhwztwrz.supabase.co/functions/v1/partner-api/devotionals/1" \
+  -H "Authorization: Bearer 3mfl_sua_chave"</pre>
+  </div>
+</div>
+
+<!-- 5. Idiomas -->
+<div class="section">
+  <h2>5. Idiomas</h2>
+  <table>
+    <thead><tr><th>Valor</th><th>Idioma</th><th>Fonte</th></tr></thead>
+    <tbody>
+      <tr><td><code>pt-BR</code></td><td>Português (Brasil)</td><td>Conteúdo original</td></tr>
+      <tr><td><code>en</code></td><td>English</td><td>Tradução por IA revisada</td></tr>
+      <tr><td><code>es</code></td><td>Español</td><td>Tradução por IA revisada</td></tr>
+    </tbody>
+  </table>
+  <p>Se o idioma solicitado não estiver disponível para o devocional, a API retorna <code>404 TRANSLATION_NOT_FOUND</code>.</p>
+</div>
+
+<!-- 6. Formato de resposta -->
+<div class="section">
+  <h2>6. Formato de resposta</h2>
+  <p>Toda resposta segue o mesmo envelope:</p>
+  <div class="code-block">
+    <div class="code-header">JSON — sucesso</div>
+    <pre>{
+  "data": {
+    "id": "uuid-do-devocional",
+    "publication_date": "2026-08-27",
+    "language": "pt-BR",
+    "title": "Como atravessar uma crise financeira?",
+    "principle_statement": "A escassez pode abalar...",
+    "scripture_reference": "Mateus 6.25",
+    "scripture_text": "Por isso, digo a vocês...",
+    "reflection": "&lt;p&gt;Texto HTML...&lt;/p&gt;",
+    "practical_application": "&lt;p&gt;Texto de aplicação...&lt;/p&gt;",
+    "prayer": "&lt;p&gt;Texto da oração...&lt;/p&gt;",
+    "category": { "id": "uuid", "name": "Dinheiro" },
+    "theme": null
+  },
+  "meta": { "date": "2026-08-27", "language": "pt-BR" },
+  "error": null
+}</pre>
+  </div>
+  <div class="callout">
+    Os campos <code>reflection</code>, <code>practical_application</code> e <code>prayer</code> podem conter HTML. Use innerHTML ou um sanitizador antes de renderizar.
+  </div>
+
+  <h3>Meta de paginação (apenas /devotionals)</h3>
+  <div class="code-block">
+    <div class="code-header">JSON</div>
+    <pre>"meta": {
+  "language": "pt-BR",
+  "page": 1,
+  "limit": 20,
+  "total": 31,
+  "total_pages": 2,
+  "has_next": true
+}</pre>
+  </div>
+</div>
+
+<!-- 7. Erros -->
+<div class="section">
+  <h2>7. Erros</h2>
+  <div class="code-block">
+    <div class="code-header">JSON — erro</div>
+    <pre>{
+  "data": null,
+  "meta": {},
+  "error": { "code": "INVALID_KEY", "message": "API key not found." }
+}</pre>
+  </div>
+  <table>
+    <thead><tr><th>HTTP</th><th>Código</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td>401</td><td><code>MISSING_KEY</code></td><td>Cabeçalho Authorization ausente</td></tr>
+      <tr><td>401</td><td><code>INVALID_KEY</code></td><td>Chave não encontrada ou incorreta</td></tr>
+      <tr><td>401</td><td><code>KEY_INACTIVE</code></td><td>Chave revogada</td></tr>
+      <tr><td>401</td><td><code>KEY_EXPIRED</code></td><td>Chave expirada</td></tr>
+      <tr><td>404</td><td><code>NOT_FOUND</code></td><td>Devocional não encontrado</td></tr>
+      <tr><td>404</td><td><code>TRANSLATION_NOT_FOUND</code></td><td>Tradução no idioma solicitado indisponível</td></tr>
+      <tr><td>405</td><td><code>METHOD_NOT_ALLOWED</code></td><td>Somente GET é aceito</td></tr>
+      <tr><td>429</td><td><code>RATE_LIMIT</code></td><td>Limite de requisições excedido</td></tr>
+      <tr><td>500</td><td><code>INTERNAL_ERROR</code></td><td>Erro interno — contate o suporte</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 8. Rate limiting -->
+<div class="section">
+  <h2>8. Rate limiting</h2>
+  <p>Limite padrão: <strong>1.000 requisições por hora</strong> por chave. Ao exceder, a API retorna <code>429 RATE_LIMIT</code>. O contador reinicia automaticamente após 60 minutos.</p>
+  <p>Para volumes maiores, entre em contato para ajuste do limite.</p>
+</div>
+
+<div class="doc-footer">
+  <span>3 Minutes for Life · Partner API v1</span>
+  <span>Confidencial — uso exclusivo do parceiro</span>
+</div>

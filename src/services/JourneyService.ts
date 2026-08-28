@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { authService } from './authService';
 
 // FASE 2: Eliminar N+1 via Cache de Resolução
 const idCache = new Map<number, string>();
@@ -24,8 +25,8 @@ export const JourneyService = {
   // --- CANONICAL WRITES (ZERO LEGACY WRITES) --- //
 
   async start(devotionalId: string) {
-    const userResp = await supabase.auth.getUser();
-    const userId = userResp.data.user?.id;
+    const session = await authService.getSession();
+    const userId = session?.user?.id;
     if (!userId) return;
 
     await supabase
@@ -38,8 +39,8 @@ export const JourneyService = {
   },
 
   async complete(devotionalId: string) {
-    const userResp = await supabase.auth.getUser();
-    const userId = userResp.data.user?.id;
+    const session = await authService.getSession();
+    const userId = session?.user?.id;
     if (!userId) return;
 
     const completedAt = new Date().toISOString();
@@ -54,8 +55,8 @@ export const JourneyService = {
   },
   
   async toggleFavorite(devotionalId: string) {
-    const userResp = await supabase.auth.getUser();
-    const userId = userResp.data.user?.id;
+    const session = await authService.getSession();
+    const userId = session?.user?.id;
     if (!userId) return false;
 
     // We check the new canonical column
@@ -74,7 +75,6 @@ export const JourneyService = {
       await supabase.from('favorites').insert({ 
         user_id: userId, 
         devotional_id: devotionalId
-        // principle_id is left NULL for new favorites (or we can backfill it if the DB requires it, but the migration made it nullable)
       });
     }
 
@@ -89,12 +89,20 @@ export const JourneyService = {
   },
 
   async getStatus(devotionalId: string, legacyId?: number, legacyDateStr?: string) {
+    const session = await authService.getSession();
+    const userId = session?.user?.id;
+
     // 1. Canonical Read
-    const { data, error } = await supabase
+    let query = supabase
       .from('user_devotionals')
       .select('read_at, completed_at')
-      .eq('devotional_id', devotionalId)
-      .maybeSingle();
+      .eq('devotional_id', devotionalId);
+    
+    if (userId) {
+      query = query.eq('user_id', userId);
+    }
+
+    const { data, error } = await query.maybeSingle();
     
     if (!error && data) {
       return {
@@ -105,13 +113,17 @@ export const JourneyService = {
 
     // 2. Legacy Read Fallback
     if (legacyId && legacyDateStr) {
-      const { data: legacyData } = await supabase
+      let legacyQuery = supabase
         .from('daily_progress')
         .select('started_at, completed_at')
         .eq('principle_id', legacyId)
-        .eq('date', legacyDateStr)
-        .maybeSingle();
-      
+        .eq('date', legacyDateStr);
+
+      if (userId) {
+        legacyQuery = legacyQuery.eq('user_id', userId);
+      }
+
+      const { data: legacyData } = await legacyQuery.maybeSingle();
       return legacyData;
     }
     
@@ -119,11 +131,16 @@ export const JourneyService = {
   },
 
   async isFavorite(devotionalId: string, legacyId?: number) {
+    const session = await authService.getSession();
+    const userId = session?.user?.id;
+    if (!userId) return false;
+
     // 1. Canonical Read
     const { data } = await supabase
       .from('favorites')
       .select('id')
       .eq('devotional_id', devotionalId)
+      .eq('user_id', userId)
       .maybeSingle();
     
     if (data) return true;
@@ -134,6 +151,7 @@ export const JourneyService = {
         .from('favorites')
         .select('id')
         .eq('principle_id', legacyId)
+        .eq('user_id', userId)
         .maybeSingle();
       return !!legacyData;
     }
@@ -142,10 +160,14 @@ export const JourneyService = {
   },
 
   async listFavorites(): Promise<string[]> {
-    // Returns canonical devotional_ids
+    const session = await authService.getSession();
+    const userId = session?.user?.id;
+    if (!userId) return [];
+
     const { data, error } = await supabase
       .from('favorites')
       .select('devotional_id')
+      .eq('user_id', userId)
       .not('devotional_id', 'is', null);
       
     if (error) {
@@ -153,14 +175,19 @@ export const JourneyService = {
       throw error;
     }
     
-    return data.map(f => f.devotional_id);
+    return (data || []).map(f => f.devotional_id);
   },
   
   // Legacy method to help the UI until Gate 3 is done
   async listLegacyFavorites(): Promise<number[]> {
+    const session = await authService.getSession();
+    const userId = session?.user?.id;
+    if (!userId) return [];
+
     const { data, error } = await supabase
       .from('favorites')
       .select('principle_id')
+      .eq('user_id', userId)
       .not('principle_id', 'is', null);
       
     if (error) {
@@ -168,6 +195,6 @@ export const JourneyService = {
       throw error;
     }
     
-    return data.map(f => f.principle_id);
+    return (data || []).map(f => f.principle_id);
   }
 };

@@ -66,14 +66,11 @@ serve(async (req) => {
       });
     }
 
-    const userSupabase = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: authHeader } },
-    });
-    const { data: { user }, error: authError } = await userSupabase.auth.getUser();
+    const jwt = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+    const supabaseAdmin = createClient(supabaseUrl, serviceKey);
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(jwt);
 
     if (authError || !user || !user.email) {
-      // Temporary: surface *why* auth failed during rollout — tighten once
-      // this is proven stable (don't want to leak internals long-term).
       console.error('Auth check failed:', { authError, hasUser: !!user, hasEmail: !!user?.email });
       const reason = authError?.message || (!user ? 'no user resolved' : 'user has no email');
       return new Response(JSON.stringify({ error: `Sessão inválida (${reason}).` }), {
@@ -100,10 +97,6 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
-
-    // Admin client — bypasses RLS to read the profile name and write
-    // supporters/contributions on the user's behalf.
-    const supabaseAdmin = createClient(supabaseUrl, serviceKey);
 
     const { data: profile } = await supabaseAdmin
       .from('profiles')

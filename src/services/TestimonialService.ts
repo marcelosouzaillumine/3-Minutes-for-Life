@@ -1,13 +1,15 @@
 import { supabase } from '../lib/supabase';
 import type { Testimonial, TestimonialInsert, TestimonialUserUpdate } from '../types/Testimonial';
 import { AnalyticsService } from './AnalyticsService';
+import { authService } from './authService';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export const TestimonialService = {
   async createTestimonial(data: TestimonialInsert): Promise<Testimonial> {
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-    if (userError || !userData?.user) {
+    const session = await authService.getSession();
+    const user = session?.user;
+    if (!user?.id) {
       throw new Error("User not authenticated");
     }
 
@@ -18,10 +20,9 @@ export const TestimonialService = {
     const { data: testimonial, error } = await supabase
       .from('testimonials')
       .insert([{
-        user_id: userData.user.id,
+        user_id: user.id,
         devotional_id: validDevotionalId,
         content: data.content,
-        // Status is inherently 'pending' by default in DB, no need to send it.
       }])
       .select()
       .single();
@@ -37,9 +38,14 @@ export const TestimonialService = {
   },
 
   async getUserTestimonials(): Promise<Testimonial[]> {
+    const session = await authService.getSession();
+    const user = session?.user;
+    if (!user?.id) return [];
+
     const { data, error } = await supabase
       .from('testimonials')
       .select('*')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -47,15 +53,20 @@ export const TestimonialService = {
       throw error;
     }
 
-    return data as Testimonial[];
+    return (data || []) as Testimonial[];
   },
 
   async updatePendingTestimonial(id: string, data: TestimonialUserUpdate): Promise<Testimonial> {
+    const session = await authService.getSession();
+    const user = session?.user;
+    if (!user?.id) throw new Error("User not authenticated");
+
     const { data: testimonial, error } = await supabase
       .from('testimonials')
       .update(data)
       .eq('id', id)
-      .eq('status', 'pending') // Only pending
+      .eq('user_id', user.id)
+      .eq('status', 'pending')
       .select()
       .single();
 
@@ -68,11 +79,16 @@ export const TestimonialService = {
   },
 
   async deletePendingTestimonial(id: string): Promise<void> {
+    const session = await authService.getSession();
+    const user = session?.user;
+    if (!user?.id) throw new Error("User not authenticated");
+
     const { error } = await supabase
       .from('testimonials')
       .delete()
       .eq('id', id)
-      .eq('status', 'pending'); // Only pending
+      .eq('user_id', user.id)
+      .eq('status', 'pending');
 
     if (error) {
       console.error("Error deleting testimonial:", error);
