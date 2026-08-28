@@ -1,12 +1,23 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import type { Session, User } from '@supabase/supabase-js';
 import { authService } from '../services/authService';
 import { supabase } from '../lib/supabase';
 import i18n from '../i18n/config';
 
+interface IllumineUser {
+  id: string;
+  email: string;
+  name?: string;
+  avatar?: string;
+}
+
+interface IllumineSession {
+  user: IllumineUser;
+  accessToken: string | null;
+}
+
 interface AuthContextType {
-  session: Session | null;
-  user: User | null;
+  session: IllumineSession | null;
+  user: IllumineUser | null;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -58,8 +69,8 @@ async function syncProfileLanguage(userId: string): Promise<void> {
 }
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<IllumineSession | null>(null);
+  const [user, setUser] = useState<IllumineUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
