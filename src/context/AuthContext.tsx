@@ -94,12 +94,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Listen for auth changes (login/logout/OAuth callback)
     const subscription = authService.onAuthStateChange(async (_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+      const s = session as IllumineSession | null
+      setSession(s);
+      setUser(s?.user ?? null);
 
       // Sync language on SIGNED_IN (covers OAuth callback and email login)
-      if (session?.user?.id) {
-        await syncProfileLanguage(session.user.id);
+      if (s?.user?.id) {
+        await syncProfileLanguage(s.user.id);
       }
 
       setLoading(false);

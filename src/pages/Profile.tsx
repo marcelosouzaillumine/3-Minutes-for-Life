@@ -145,7 +145,7 @@ export function Profile() {
           />
         </div>
         <div className="profile-details">
-          <p className="profile-name">{user?.user_metadata?.full_name || t('profile:userFallback', 'Usuário')}</p>
+          <p className="profile-name">{user?.name || t('profile:userFallback', 'Usuário')}</p>
           <p className="profile-email">{user?.email}</p>
         </div>
       </div>
