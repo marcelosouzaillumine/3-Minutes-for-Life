@@ -84,7 +84,7 @@ export const Login: React.FC = () => {
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
             onError={() => setError(t('login.errorGoogle'))}
-            width="100%"
+            width={340}
             text="signin_with"
             shape="rectangular"
           />

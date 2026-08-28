@@ -260,7 +260,7 @@ export const Signup: React.FC = () => {
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
             onError={() => setError(t('signup.errorGoogle'))}
-            width="100%"
+            width={340}
             text="signup_with"
             shape="rectangular"
           />
