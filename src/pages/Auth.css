@@ -178,6 +178,13 @@
   cursor: not-allowed;
 }
 
+.social-button-wrapper {
+  width: 100%;
+  margin-bottom: 0.75rem;
+  display: flex;
+  justify-content: center;
+}
+
 .social-icon {
   width: 20px;
   height: 20px;
