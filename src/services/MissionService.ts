@@ -90,17 +90,20 @@ export const MissionService = {
   },
 
   /**
-   * Creates a real Asaas PIX charge or subscription tied to a `contribution` row, so the
+   * Creates a real Asaas charge or subscription tied to a `contribution` row, so the
    * webhook can later match and activate the supporter. Requires a signed-in
    * user — the edge function rejects anonymous calls.
+   *
+   * @param paymentMethod  'pix' | 'credit_card' | 'undefined' (default — Asaas hosted page with all methods)
    */
   async createCheckout(
     amountCents: number,
     cpfCnpj: string,
-    frequency: 'one_time' | 'monthly' | 'yearly' = 'one_time'
+    frequency: 'one_time' | 'monthly' | 'yearly' = 'one_time',
+    paymentMethod: 'pix' | 'credit_card' | 'undefined' = 'undefined'
   ): Promise<{ checkoutUrl: string; contributionId: string; providerReference?: string }> {
     const { data, error } = await supabase.functions.invoke('asaas-create-checkout', {
-      body: { amount_cents: amountCents, cpf_cnpj: cpfCnpj, frequency },
+      body: { amount_cents: amountCents, cpf_cnpj: cpfCnpj, frequency, payment_method: paymentMethod },
     });
 
     if (error) {

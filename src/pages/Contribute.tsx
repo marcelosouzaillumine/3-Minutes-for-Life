@@ -34,6 +34,7 @@ export function Contribute() {
   const [activePlan, setActivePlan] = useState<ContributionPlan | null>(null);
   const [amountReais, setAmountReais] = useState('20');
   const [cpfCnpj, setCpfCnpj] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'pix' | 'credit_card'>('pix');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
@@ -53,6 +54,7 @@ export function Contribute() {
 
   const openCheckout = (plan: ContributionPlan) => {
     setFormError('');
+    setPaymentMethod('pix');
     setAmountReais(plan.defaultAmount);
     setActivePlan(plan);
   };
@@ -83,7 +85,8 @@ export function Contribute() {
       const { checkoutUrl } = await MissionService.createCheckout(
         amountCents,
         cleanCpfCnpj,
-        activePlan.frequency
+        activePlan.frequency,
+        paymentMethod
       );
       window.location.href = checkoutUrl;
     } catch (err: any) {
@@ -325,13 +328,52 @@ export function Contribute() {
               <h3 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '0.5rem', color: '#1a1a1a' }}>
                 {activePlan.title}
               </h3>
-              <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '1.5rem' }}>
-                {activePlan.frequency === 'yearly'
-                  ? 'Pagamento anual via PIX automático com renovação anual.'
-                  : activePlan.frequency === 'monthly'
-                  ? 'Pagamento mensal via PIX com renovação automática.'
-                  : 'Contribuição única avulsa via PIX.'}
-              </p>
+
+              {/* Payment method selector */}
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('pix')}
+                  style={{
+                    flex: 1,
+                    padding: '0.6rem 0.5rem',
+                    borderRadius: '8px',
+                    border: `2px solid ${paymentMethod === 'pix' ? '#2563eb' : '#ddd'}`,
+                    background: paymentMethod === 'pix' ? '#eff6ff' : '#fafafa',
+                    color: paymentMethod === 'pix' ? '#1d4ed8' : '#555',
+                    fontWeight: paymentMethod === 'pix' ? 700 : 400,
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.35rem',
+                  }}
+                >
+                  🟢 PIX
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('credit_card')}
+                  style={{
+                    flex: 1,
+                    padding: '0.6rem 0.5rem',
+                    borderRadius: '8px',
+                    border: `2px solid ${paymentMethod === 'credit_card' ? '#2563eb' : '#ddd'}`,
+                    background: paymentMethod === 'credit_card' ? '#eff6ff' : '#fafafa',
+                    color: paymentMethod === 'credit_card' ? '#1d4ed8' : '#555',
+                    fontWeight: paymentMethod === 'credit_card' ? 700 : 400,
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.35rem',
+                  }}
+                >
+                  💳 Cartão
+                </button>
+              </div>
 
               {!user ? (
                 <div style={{ textAlign: 'center', padding: '1rem 0' }}>
@@ -393,7 +435,7 @@ export function Contribute() {
                       required
                     />
                     <span style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.25rem', display: 'block' }}>
-                      Exigido pelo Banco Central para emissão do PIX.
+                      Exigido pelo Banco Central para emissão do pagamento.
                     </span>
                   </label>
 
@@ -426,8 +468,8 @@ export function Contribute() {
                       style={{ flex: 2 }}
                     >
                       {isSubmitting
-                        ? t('contribution:oneTime.submitting', 'Gerando PIX…')
-                        : 'Continuar para o PIX'}
+                        ? (paymentMethod === 'credit_card' ? 'Criando link de pagamento…' : 'Gerando PIX…')
+                        : (paymentMethod === 'credit_card' ? 'Pagar com Cartão' : 'Pagar com PIX')}
                     </button>
                   </div>
                 </form>

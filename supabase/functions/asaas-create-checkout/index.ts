@@ -5,8 +5,10 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 // =============================================================
 // asaas-create-checkout
 //
-// Handles both One-Time PIX Contributions and Recurring Subscriptions
-// (Gate 4.6 — Monthly and Yearly PIX Recurring) via Asaas API.
+// Handles One-Time and Recurring Contributions via Asaas API.
+// Supports PIX and Credit Card — billing type is chosen by the frontend.
+// Uses billingType=UNDEFINED to let Asaas show its hosted checkout page
+// with all enabled payment methods (PIX + card) when not specified.
 // Attaches all charges to the authenticated user and persists the
 // contribution row before checkout so that webhooks seamlessly activate
 // the supporter in our database.
@@ -72,6 +74,14 @@ serve(async (req) => {
     const isRecurring = ['monthly', 'yearly', 'annual', 'recurring'].includes(rawFrequency);
     const cycle = (rawFrequency === 'yearly' || rawFrequency === 'annual') ? 'YEARLY' : 'MONTHLY';
     const dbFrequency = isRecurring ? (cycle === 'YEARLY' ? 'yearly' : 'recurring') : 'one_time';
+
+    // Resolve billingType: 'pix' → 'PIX', 'credit_card' → 'CREDIT_CARD',
+    // anything else (default) → 'UNDEFINED' = Asaas hosted checkout with all enabled methods.
+    const rawPaymentMethod = String(body.payment_method || 'undefined').toLowerCase();
+    const billingType =
+      rawPaymentMethod === 'pix' ? 'PIX'
+      : rawPaymentMethod === 'credit_card' ? 'CREDIT_CARD'
+      : 'UNDEFINED';
 
     if (!Number.isFinite(amountCents) || amountCents < MIN_AMOUNT_CENTS) {
       return new Response(JSON.stringify({ error: `O valor mínimo é R$ ${(MIN_AMOUNT_CENTS / 100).toFixed(2)}.` }), {
@@ -176,7 +186,7 @@ serve(async (req) => {
         headers: asaasHeaders,
         body: JSON.stringify({
           customer: customerId,
-          billingType: 'PIX',
+          billingType,
           value: amountCents / 100,
           dueDate: dueDate.toISOString().split('T')[0],
           externalReference: contributionId,
@@ -198,7 +208,11 @@ serve(async (req) => {
 
       const paymentData = await paymentRes.json();
       providerReference = paymentData.id;
-      checkoutUrl = paymentData.invoiceUrl;
+      // invoiceUrl is the hosted checkout page (works for PIX, card, UNDEFINED)
+      checkoutUrl = paymentData.invoiceUrl || paymentData.bankSlipUrl || null;
+      if (!checkoutUrl) {
+        checkoutUrl = `https://www.asaas.com/c/${providerReference}`;
+      }
     } else {
       // RECURRING SUBSCRIPTION (MONTHLY / YEARLY)
       const nextDueDate = new Date();
@@ -208,7 +222,7 @@ serve(async (req) => {
         headers: asaasHeaders,
         body: JSON.stringify({
           customer: customerId,
-          billingType: 'PIX',
+          billingType,
           value: amountCents / 100,
           nextDueDate: nextDueDate.toISOString().split('T')[0],
           cycle: cycle,

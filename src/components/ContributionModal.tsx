@@ -40,6 +40,7 @@ export function ContributionModal({ isOpen, onClose, initialTier = 'apoio', init
   const [periodicity, setPeriodicity] = useState<Periodicity>(initialPeriodicity);
   const [customValue, setCustomValue] = useState<string>('');
   const [cpfCnpj, setCpfCnpj] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<'pix' | 'credit_card'>('pix');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
@@ -74,7 +75,8 @@ export function ContributionModal({ isOpen, onClose, initialTier = 'apoio', init
       const { checkoutUrl } = await MissionService.createCheckout(
         amountCents,
         cleanCpfCnpj,
-        frequency
+        frequency,
+        paymentMethod
       );
       window.location.href = checkoutUrl;
     } catch (err: any) {
@@ -141,6 +143,40 @@ export function ContributionModal({ isOpen, onClose, initialTier = 'apoio', init
               </select>
             </div>
 
+            {/* Seletor de meio de pagamento */}
+            <div className="form-group">
+              <label>{t('modal.paymentMethodLabel', 'Forma de pagamento')}</label>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('pix')}
+                  style={{
+                    flex: 1, padding: '0.6rem', borderRadius: '8px',
+                    border: `2px solid ${paymentMethod === 'pix' ? '#2563eb' : '#ddd'}`,
+                    background: paymentMethod === 'pix' ? '#eff6ff' : '#fafafa',
+                    color: paymentMethod === 'pix' ? '#1d4ed8' : '#555',
+                    fontWeight: paymentMethod === 'pix' ? 700 : 400,
+                    cursor: 'pointer', fontSize: '0.9rem',
+                  }}
+                >
+                  🟢 PIX
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('credit_card')}
+                  style={{
+                    flex: 1, padding: '0.6rem', borderRadius: '8px',
+                    border: `2px solid ${paymentMethod === 'credit_card' ? '#2563eb' : '#ddd'}`,
+                    background: paymentMethod === 'credit_card' ? '#eff6ff' : '#fafafa',
+                    color: paymentMethod === 'credit_card' ? '#1d4ed8' : '#555',
+                    fontWeight: paymentMethod === 'credit_card' ? 700 : 400,
+                    cursor: 'pointer', fontSize: '0.9rem',
+                  }}
+                >
+                  💳 Cartão
+                </button>
+              </div>
+            </div>
             {!isFixedAmount && (
               <div className="form-group">
                 <label>{t('modal.valueLabel')}</label>
@@ -155,6 +191,7 @@ export function ContributionModal({ isOpen, onClose, initialTier = 'apoio', init
                 />
               </div>
             )}
+
 
             <div className="form-group">
               <label>{t('oneTime.cpfLabel', 'CPF ou CNPJ')}</label>
