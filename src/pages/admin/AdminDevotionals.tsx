@@ -202,6 +202,56 @@ export function AdminDevotionals() {
     }
   };
 
+  const handleGenerateCards = async (langCode: string) => {
+    if (!editingId || editingId === 'new') return;
+    setBusy(langCode, true);
+    setErr(langCode, '');
+    try {
+      const { logoBase64 } = await import('../../constants/logoBase64');
+      const { captureCardAsBlob } = await import('../../utils/generateShareCards');
+
+      const isSource = languages.find(l => l.iso_code === langCode)?.is_source;
+      const translation = editForm.translations?.[langCode];
+      const title = (isSource ? editForm.title : translation?.title) || editForm.title;
+      const subtitle = (isSource ? editForm.principle_statement : translation?.principle_statement) || editForm.principle_statement || null;
+
+      if (!title?.trim()) {
+        setErr(langCode, 'O devocional não tem título neste idioma. Salve o conteúdo antes de gerar os cards.');
+        return;
+      }
+
+      const content = { title: title.trim(), subtitle: subtitle?.trim() || null };
+
+      const [feedBlob, storyBlob] = await Promise.all([
+        captureCardAsBlob(content, 'feed', logoBase64),
+        captureCardAsBlob(content, 'story', logoBase64),
+      ]);
+
+      const feedFile = new File([feedBlob], 'feed-generated.png', { type: 'image/png' });
+      const storyFile = new File([storyBlob], 'story-generated.png', { type: 'image/png' });
+
+      const [feedUrl, storyUrl] = await Promise.all([
+        AdminContentService.uploadShareAsset(editingId, langCode, 'feed', feedFile),
+        AdminContentService.uploadShareAsset(editingId, langCode, 'story', storyFile),
+      ]);
+
+      const currentAsset = getAssetForLang(langCode);
+      const saved = await AdminContentService.saveShareAsset({
+        devotional_id: editingId,
+        language_code: langCode,
+        whatsapp_text: currentAsset.whatsapp_text || null,
+        whatsapp_image_url: currentAsset.whatsapp_image_url || null,
+        feed_image_url: feedUrl,
+        story_image_url: storyUrl,
+      });
+      setShareAssets(prev => ({ ...prev, [langCode]: saved }));
+    } catch (err: any) {
+      setErr(langCode, 'Erro ao gerar cards: ' + err.message);
+    } finally {
+      setBusy(langCode, false);
+    }
+  };
+
   const handleImageUpload = async (
     langCode: string,
     type: 'feed' | 'story' | 'whatsapp',
@@ -926,6 +976,37 @@ export function AdminDevotionals() {
                         <div>{hasFeed ? '🟢 Feed disponível' : '🔴 Indisponível'}</div>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Generate Cards Button */}
+                  <div style={{ marginBottom: '16px' }}>
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => handleGenerateCards(lc)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '10px 18px',
+                        borderRadius: '8px',
+                        border: '1.5px solid #c8924a',
+                        background: busy ? '#f9f5f0' : '#fdf8f2',
+                        color: '#9a6e30',
+                        fontWeight: '700',
+                        fontSize: '0.88rem',
+                        cursor: busy ? 'not-allowed' : 'pointer',
+                        opacity: busy ? 0.6 : 1,
+                        transition: 'background 0.15s',
+                      }}
+                      title="Gera automaticamente os cards de Feed (1:1) e Story (9:16) com o design da marca"
+                    >
+                      <span aria-hidden="true">✨</span>
+                      {busy ? 'Gerando cards…' : 'Gerar Cards Automaticamente'}
+                    </button>
+                    <p style={{ margin: '6px 0 0', fontSize: '0.75rem', color: '#9ca3af' }}>
+                      Gera Feed (1080×1080) e Story (1080×1920) com título e princípio do devocional.
+                    </p>
                   </div>
 
                   {errMsg && (
