@@ -18,13 +18,8 @@ export function AdminDevotionals() {
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
-  // Share assets state (by language)
-  const [shareAssets, setShareAssets] = useState<Record<string, any>>({});
-  const [shareAssetsBusy, setShareAssetsBusy] = useState<Record<string, boolean>>({});
-  const [shareAssetsError, setShareAssetsError] = useState<Record<string, string>>({});
-  const feedInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
-  const storyInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
-  const whatsappInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  // WhatsApp share state
+  const [waPreviewLang, setWaPreviewLang] = useState<string | null>(null);
 
   // Content image state (Dica de conteúdo / Apoio ao projeto) — keyed by field name
   const [contentImageBusy, setContentImageBusy] = useState<Record<string, boolean>>({});
@@ -67,12 +62,8 @@ export function AdminDevotionals() {
   const handleEditClick = async (id: string) => {
     try {
       setLoading(true);
-      const [fullDevotional, existingAssets] = await Promise.all([
-        AdminContentService.getDevotional(id),
-        AdminContentService.getShareAssets(id),
-      ]);
-      
-      // Transform fetched devotional_translations into a dictionary for the form
+      const fullDevotional = await AdminContentService.getDevotional(id);
+
       const translationsMap: Record<string, any> = {};
       if (fullDevotional.devotional_translations) {
         fullDevotional.devotional_translations.forEach((t: any) => {
@@ -96,20 +87,9 @@ export function AdminDevotionals() {
         });
       }
 
-      // Build shareAssets map keyed by language_code
-      const assetsMap: Record<string, any> = {};
-      existingAssets.forEach((a: any) => {
-        assetsMap[a.language_code] = { ...a };
-      });
-
-      setEditForm({
-        ...fullDevotional,
-        translations: translationsMap
-      });
-      setShareAssets(assetsMap);
-      setShareAssetsError({});
-      setShareAssetsBusy({});
+      setEditForm({ ...fullDevotional, translations: translationsMap });
       setEditingId(id);
+      setWaPreviewLang(null);
       const sourceLang = languages.find(l => l.is_source)?.iso_code || 'pt-BR';
       setCurrentLang(sourceLang);
     } catch (err: any) {
@@ -156,191 +136,32 @@ export function AdminDevotionals() {
     setEditingId(null);
     setEditForm(null);
     setShowPreview(false);
-    setShareAssets({});
-    setShareAssetsError({});
-    setShareAssetsBusy({});
+    setWaPreviewLang(null);
     const sourceLang = languages.find(l => l.is_source)?.iso_code || 'pt-BR';
     setCurrentLang(sourceLang);
   };
 
-  // ─── Share Asset Helpers ───────────────────────────────────────────────────
+  // ─── WhatsApp Share ───────────────────────────────────────────────────────
 
-  const getAssetForLang = (langCode: string) =>
-    shareAssets[langCode] || { whatsapp_text: '', feed_image_url: null, story_image_url: null };
-
-  const setAssetField = (langCode: string, field: string, value: any) => {
-    setShareAssets(prev => ({
-      ...prev,
-      [langCode]: { ...getAssetForLang(langCode), ...prev[langCode], [field]: value }
-    }));
+  const WA_CTA: Record<string, string> = {
+    'pt-BR': '📖 Leia o devocional de hoje:',
+    'en':    '📖 Read today\'s devotional:',
+    'es':    '📖 Lee el devocional de hoy:',
   };
 
-  const setBusy = (langCode: string, busy: boolean) =>
-    setShareAssetsBusy(prev => ({ ...prev, [langCode]: busy }));
-
-  const setErr = (langCode: string, msg: string) =>
-    setShareAssetsError(prev => ({ ...prev, [langCode]: msg }));
-
-  const handleSaveWhatsappText = async (langCode: string) => {
-    if (!editingId || editingId === 'new') return;
-    setBusy(langCode, true);
-    setErr(langCode, '');
-    try {
-      const asset = getAssetForLang(langCode);
-      const saved = await AdminContentService.saveShareAsset({
-        devotional_id: editingId,
-        language_code: langCode,
-        whatsapp_text: asset.whatsapp_text || null,
-        whatsapp_image_url: asset.whatsapp_image_url || null,
-        feed_image_url: asset.feed_image_url || null,
-        story_image_url: asset.story_image_url || null,
-      });
-      setShareAssets(prev => ({ ...prev, [langCode]: saved }));
-    } catch (err: any) {
-      setErr(langCode, 'Erro ao salvar texto: ' + err.message);
-    } finally {
-      setBusy(langCode, false);
-    }
+  const buildWaText = (langCode: string): string => {
+    const isSource = languages.find(l => l.iso_code === langCode)?.is_source;
+    const tr = editForm?.translations?.[langCode];
+    const title = ((isSource ? editForm?.title : tr?.title) || editForm?.title || '').trim();
+    const principle = ((isSource ? editForm?.principle_statement : tr?.principle_statement) || editForm?.principle_statement || '').trim();
+    const cta = WA_CTA[langCode] || WA_CTA['pt-BR'];
+    const link = 'https://www.3minutesforlife.com';
+    return [title, principle ? `"${principle}"` : '', cta, link].filter(Boolean).join('\n\n');
   };
 
-  const handleGenerateCards = async (langCode: string) => {
-    if (!editingId || editingId === 'new') return;
-    setBusy(langCode, true);
-    setErr(langCode, '');
-    try {
-      const { logoBase64 } = await import('../../constants/logoBase64');
-      const { captureCardAsBlob } = await import('../../utils/generateShareCards');
-
-      const isSource = languages.find(l => l.iso_code === langCode)?.is_source;
-      const translation = editForm.translations?.[langCode];
-      const title = (isSource ? editForm.title : translation?.title) || editForm.title;
-      const subtitle = (isSource ? editForm.principle_statement : translation?.principle_statement) || editForm.principle_statement || null;
-
-      if (!title?.trim()) {
-        setErr(langCode, 'O devocional não tem título neste idioma. Salve o conteúdo antes de gerar os cards.');
-        return;
-      }
-
-      const content = { title: title.trim(), subtitle: subtitle?.trim() || null };
-
-      const [feedBlob, storyBlob] = await Promise.all([
-        captureCardAsBlob(content, 'feed', logoBase64),
-        captureCardAsBlob(content, 'story', logoBase64),
-      ]);
-
-      const feedFile = new File([feedBlob], 'feed-generated.png', { type: 'image/png' });
-      const storyFile = new File([storyBlob], 'story-generated.png', { type: 'image/png' });
-
-      const [feedUrl, storyUrl] = await Promise.all([
-        AdminContentService.uploadShareAsset(editingId, langCode, 'feed', feedFile),
-        AdminContentService.uploadShareAsset(editingId, langCode, 'story', storyFile),
-      ]);
-
-      const currentAsset = getAssetForLang(langCode);
-      const saved = await AdminContentService.saveShareAsset({
-        devotional_id: editingId,
-        language_code: langCode,
-        whatsapp_text: currentAsset.whatsapp_text || null,
-        whatsapp_image_url: currentAsset.whatsapp_image_url || null,
-        feed_image_url: feedUrl,
-        story_image_url: storyUrl,
-      });
-      setShareAssets(prev => ({ ...prev, [langCode]: saved }));
-    } catch (err: any) {
-      setErr(langCode, 'Erro ao gerar cards: ' + err.message);
-    } finally {
-      setBusy(langCode, false);
-    }
-  };
-
-  const handleImageUpload = async (
-    langCode: string,
-    type: 'feed' | 'story' | 'whatsapp',
-    file: File
-  ) => {
-    if (!editingId || editingId === 'new') return;
-
-    // Pre-upload validation
-    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-    if (!allowed.includes(file.type)) {
-      setErr(langCode, 'Formato inválido. Use JPG, PNG ou WebP.');
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setErr(langCode, 'Arquivo muito grande. Limite: 5 MB.');
-      return;
-    }
-
-    setBusy(langCode, true);
-    setErr(langCode, '');
-
-    const currentAsset = getAssetForLang(langCode);
-    const oldUrl: string | null = type === 'feed' ? currentAsset.feed_image_url : type === 'story' ? currentAsset.story_image_url : currentAsset.whatsapp_image_url;
-    let newUrl: string | null = null;
-
-    try {
-      // 1. Upload new file
-      newUrl = await AdminContentService.uploadShareAsset(editingId, langCode, type, file);
-
-      // 2. Save to DB
-      const payload = {
-        devotional_id: editingId,
-        language_code: langCode,
-        whatsapp_text: currentAsset.whatsapp_text || null,
-        whatsapp_image_url: type === 'whatsapp' ? newUrl : (currentAsset.whatsapp_image_url || null),
-        feed_image_url: type === 'feed' ? newUrl : (currentAsset.feed_image_url || null),
-        story_image_url: type === 'story' ? newUrl : (currentAsset.story_image_url || null),
-      };
-      const saved = await AdminContentService.saveShareAsset(payload);
-      setShareAssets(prev => ({ ...prev, [langCode]: saved }));
-
-      // 3. Delete old file from storage (best-effort, after DB success)
-      if (oldUrl) {
-        AdminContentService.deleteShareAssetFile(oldUrl).catch(() => {
-          // Non-blocking: old file becomes orphan but DB is clean
-        });
-      }
-    } catch (err: any) {
-      // If DB save failed and we uploaded a new file, purge it
-      if (newUrl) {
-        AdminContentService.deleteShareAssetFile(newUrl).catch(() => {});
-      }
-      setErr(langCode, 'Erro ao enviar imagem: ' + err.message);
-    } finally {
-      setBusy(langCode, false);
-    }
-  };
-
-  const handleImageRemove = async (langCode: string, type: 'feed' | 'story' | 'whatsapp') => {
-    if (!editingId || editingId === 'new') return;
-    setBusy(langCode, true);
-    setErr(langCode, '');
-
-    const currentAsset = getAssetForLang(langCode);
-    const oldUrl: string | null = type === 'feed' ? currentAsset.feed_image_url : type === 'story' ? currentAsset.story_image_url : currentAsset.whatsapp_image_url;
-
-    try {
-      // 1. Remove URL from DB first
-      const payload = {
-        devotional_id: editingId,
-        language_code: langCode,
-        whatsapp_text: currentAsset.whatsapp_text || null,
-        whatsapp_image_url: type === 'whatsapp' ? null : (currentAsset.whatsapp_image_url || null),
-        feed_image_url: type === 'feed' ? null : (currentAsset.feed_image_url || null),
-        story_image_url: type === 'story' ? null : (currentAsset.story_image_url || null),
-      };
-      const saved = await AdminContentService.saveShareAsset(payload);
-      setShareAssets(prev => ({ ...prev, [langCode]: saved }));
-
-      // 2. Delete from storage after DB success
-      if (oldUrl) {
-        AdminContentService.deleteShareAssetFile(oldUrl).catch(() => {});
-      }
-    } catch (err: any) {
-      setErr(langCode, 'Erro ao remover imagem: ' + err.message);
-    } finally {
-      setBusy(langCode, false);
-    }
+  const handleShareWhatsApp = (langCode: string) => {
+    const text = buildWaText(langCode);
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -940,26 +761,18 @@ export function AdminDevotionals() {
           </button>
         </form>
 
-        {/* ── Share Assets Section (only for saved devotionals) ── */}
+        {/* ── WhatsApp Share Section ── */}
         {editingId !== 'new' && (
           <div style={{ marginTop: '32px', borderTop: '2px solid #eee', paddingTop: '24px' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '4px' }}>📤 Compartilhamento</h3>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '4px' }}>📤 Compartilhar no WhatsApp</h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--color-text-light)', marginBottom: '20px' }}>
-              Materiais editoriais de distribuição por idioma. O texto do WhatsApp deve conter o placeholder <code style={{ background: '#f3f4f6', padding: '1px 4px', borderRadius: '4px' }}>{'{{link}}'}</code> para o link de indicação.
+              Gera e abre o WhatsApp com o texto do devocional no idioma selecionado.
             </p>
 
             {languages.map(lang => {
               const lc: string = lang.iso_code;
-              const asset = getAssetForLang(lc);
-              const busy = shareAssetsBusy[lc] || false;
-              const errMsg = shareAssetsError[lc] || '';
-              const hasLink = (asset.whatsapp_text || '').includes('{{link}}');
-              const waText = asset.whatsapp_text || '';
-              
-              const hasWaText = !!waText.trim();
-              const hasWaImage = !!asset.whatsapp_image_url;
-              const hasFeed = !!asset.feed_image_url;
-              const hasStory = !!asset.story_image_url;
+              const preview = buildWaText(lc);
+              const isActive = waPreviewLang === lc;
 
               return (
                 <div
@@ -968,166 +781,38 @@ export function AdminDevotionals() {
                     background: 'var(--color-surface)',
                     borderRadius: '12px',
                     padding: '16px',
-                    marginBottom: '16px',
+                    marginBottom: '12px',
                     border: '1px solid #e5e7eb',
                   }}
                 >
-                  {/* Detailed Header Status */}
-                  <div style={{ marginBottom: '16px', paddingBottom: '12px', borderBottom: '1px solid #e5e7eb' }}>
-                    <strong style={{ fontSize: '1rem', display: 'block', marginBottom: '8px' }}>{lang.name} ({lc})</strong>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '0.8rem', color: '#4b5563' }}>
-                      <div>
-                        <strong style={{ display: 'block', marginBottom: '4px' }}>WhatsApp</strong>
-                        <div>{hasWaText ? '🟢' : '🔴'} Texto</div>
-                        <div>{hasWaImage ? '🟢 Imagem' : hasFeed ? '🟡 Imagem usando Feed' : '🔴 Sem imagem'}</div>
-                      </div>
-                      <div>
-                        <strong style={{ display: 'block', marginBottom: '4px' }}>Instagram</strong>
-                        <div>{hasFeed ? '🟢' : '🔴'} Feed</div>
-                        <div>{hasStory ? '🟢' : '🔴'} Story</div>
-                      </div>
-                      <div>
-                        <strong style={{ display: 'block', marginBottom: '4px' }}>Facebook</strong>
-                        <div>{hasFeed ? '🟢 Feed disponível' : '🔴 Indisponível'}</div>
-                      </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                    <strong style={{ fontSize: '0.95rem' }}>{lang.flag_emoji} {lang.name}</strong>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setWaPreviewLang(isActive ? null : lc)}
+                        style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid #ddd', background: 'white', fontSize: '0.82rem', cursor: 'pointer' }}
+                      >
+                        {isActive ? 'Ocultar prévia' : 'Ver prévia'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleShareWhatsApp(lc)}
+                        style={{ padding: '6px 14px', borderRadius: '8px', border: 'none', background: '#25D366', color: 'white', fontWeight: '700', fontSize: '0.82rem', cursor: 'pointer' }}
+                      >
+                        Abrir WhatsApp
+                      </button>
                     </div>
                   </div>
 
-                  {/* Generate Cards Button */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => handleGenerateCards(lc)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '10px 18px',
-                        borderRadius: '8px',
-                        border: '1.5px solid #c8924a',
-                        background: busy ? '#f9f5f0' : '#fdf8f2',
-                        color: '#9a6e30',
-                        fontWeight: '700',
-                        fontSize: '0.88rem',
-                        cursor: busy ? 'not-allowed' : 'pointer',
-                        opacity: busy ? 0.6 : 1,
-                        transition: 'background 0.15s',
-                        whiteSpace: 'normal',
-                        textAlign: 'left',
-                        width: '100%',
-                      }}
-                      title="Gera automaticamente os cards de Feed (1:1) e Story (9:16) com o design da marca"
-                    >
-                      <span aria-hidden="true">✨</span>
-                      {busy ? 'Gerando cards…' : 'Gerar Cards Automaticamente'}
-                    </button>
-                    <p style={{ margin: '6px 0 0', fontSize: '0.75rem', color: '#9ca3af' }}>
-                      Gera Feed (1080×1080) e Story (1080×1920) com título e princípio do devocional.
-                    </p>
-                  </div>
-
-                  {errMsg && (
-                    <div style={{ background: '#fef2f2', color: '#dc2626', borderRadius: '6px', padding: '8px 12px', fontSize: '0.85rem', marginBottom: '12px' }}>
-                      {errMsg}
-                    </div>
-                  )}
-
-                  {/* WhatsApp text */}
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '4px' }}>Texto WhatsApp</label>
-                  <textarea
-                    value={waText}
-                    onChange={e => setAssetField(lc, 'whatsapp_text', e.target.value)}
-                    rows={4}
-                    placeholder={`Texto para compartilhar... Use {{link}} para inserir o link de indicação.`}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${!hasLink && waText ? '#f59e0b' : '#ddd'}`, resize: 'vertical', fontSize: '0.9rem', boxSizing: 'border-box' }}
-                  />
-                  {waText && !hasLink && (
-                    <div style={{ fontSize: '0.78rem', color: '#d97706', marginBottom: '4px' }}>⚠️ O texto não contém o placeholder <code>{'{{link}}'}</code>. O link de indicação não será inserido.</div>
-                  )}
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => handleSaveWhatsappText(lc)}
-                    style={{ marginTop: '6px', padding: '6px 14px', borderRadius: '6px', border: 'none', background: 'var(--color-primary)', color: 'white', fontWeight: 'bold', fontSize: '0.85rem', cursor: busy ? 'not-allowed' : 'pointer', opacity: busy ? 0.6 : 1 }}
-                  >
-                    {busy ? 'Salvando…' : 'Salvar Texto'}
-                  </button>
-
-                  {/* WhatsApp Preview */}
-                  {waText && (
+                  {isActive && (
                     <div style={{ marginTop: '12px' }}>
-                      <div style={{ fontSize: '0.78rem', fontWeight: 'bold', color: '#6b7280', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Pré-visualização WhatsApp</div>
-                      <div style={{ background: '#dcf8c6', borderRadius: '12px', borderBottomLeftRadius: '4px', padding: '10px 14px', fontSize: '0.875rem', lineHeight: '1.5', maxWidth: '340px', whiteSpace: 'pre-wrap', wordBreak: 'break-word', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                        {waText.replace('{{link}}', '🔗 https://3minutosparaavida.com/c/SEU_CODIGO')}
+                      <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#6b7280', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Prévia do texto</div>
+                      <div style={{ background: '#dcf8c6', borderRadius: '12px', borderBottomLeftRadius: '4px', padding: '12px 14px', fontSize: '0.875rem', lineHeight: '1.6', whiteSpace: 'pre-wrap', wordBreak: 'break-word', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                        {preview || <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>Salve o devocional antes de compartilhar.</span>}
                       </div>
                     </div>
                   )}
-
-                  {/* Images */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginTop: '16px' }}>
-                    {(['whatsapp', 'feed', 'story'] as const).map(type => {
-                      const url: string | null = type === 'whatsapp' ? asset.whatsapp_image_url : type === 'feed' ? asset.feed_image_url : asset.story_image_url;
-                      const label = type === 'whatsapp' ? '💬 WhatsApp Opcional' : type === 'feed' ? '📸 Feed / Facebook' : '📱 Story';
-                      const ratio = type === 'story' ? '9/16' : '1/1';
-                      const inputRef = type === 'whatsapp' ? whatsappInputRefs : type === 'feed' ? feedInputRefs : storyInputRefs;
-                      
-                      // For whatsapp image, if it doesn't exist but feed exists, show a placeholder indication
-                      const isFallbackWa = type === 'whatsapp' && !url && hasFeed;
-
-                      return (
-                        <div key={type}>
-                          <div style={{ fontSize: '0.82rem', fontWeight: 'bold', marginBottom: '6px' }}>{label}</div>
-                          {url ? (
-                            <div style={{ position: 'relative' }}>
-                              <img
-                                src={url}
-                                alt={`${type} ${lc}`}
-                                style={{ width: '100%', borderRadius: '8px', aspectRatio: ratio, objectFit: 'cover', border: '1px solid #e5e7eb' }}
-                              />
-                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px' }}>
-                                <button
-                                  type="button"
-                                  disabled={busy}
-                                  onClick={() => inputRef.current[lc]?.click()}
-                                  style={{ flex: 1, padding: '5px', borderRadius: '6px', border: '1px solid #ddd', background: 'white', fontSize: '0.78rem', cursor: 'pointer' }}
-                                >
-                                  Subst
-                                </button>
-                                <button
-                                  type="button"
-                                  disabled={busy}
-                                  onClick={() => { if (window.confirm('Remover esta imagem?')) handleImageRemove(lc, type); }}
-                                  style={{ flex: 1, padding: '5px', borderRadius: '6px', border: '1px solid #fca5a5', background: '#fef2f2', color: '#dc2626', fontSize: '0.78rem', cursor: 'pointer' }}
-                                >
-                                  Remov
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <div
-                              onClick={() => !busy && inputRef.current[lc]?.click()}
-                              style={{ border: '2px dashed #d1d5db', borderRadius: '8px', aspectRatio: ratio, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: busy ? 'not-allowed' : 'pointer', background: isFallbackWa ? '#fef3c7' : '#f9fafb', color: isFallbackWa ? '#d97706' : '#9ca3af', fontSize: '0.75rem', textAlign: 'center', padding: '8px' }}
-                            >
-                              <span style={{ fontSize: '1.5rem', marginBottom: '4px' }}>{isFallbackWa ? '👁️' : '+'}</span>
-                              {isFallbackWa ? 'Usando imagem do Feed' : 'Adicionar imagem'}
-                            </div>
-                          )}
-                          <input
-                            ref={el => { inputRef.current[lc] = el; }}
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp"
-                            style={{ display: 'none' }}
-                            onChange={e => {
-                              const file = e.target.files?.[0];
-                              if (file) handleImageUpload(lc, type, file);
-                              e.target.value = '';
-                            }}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
                 </div>
               );
             })}
