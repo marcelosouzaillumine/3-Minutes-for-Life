@@ -865,7 +865,7 @@
 
   align-self: center;
 
-  white-space: nowrap;
+  white-space: normal;
 
   outline: none;
 }
