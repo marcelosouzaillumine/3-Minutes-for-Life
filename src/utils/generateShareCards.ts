@@ -123,7 +123,7 @@ async function ensureFontLoaded(): Promise<void> {
   });
   document.body.appendChild(probe);
   await document.fonts.load("700 40px 'Fraunces'");
-  await document.fonts.load("600italic 40px 'Fraunces'");
+  await document.fonts.load("italic 600 40px 'Fraunces'");
   await document.fonts.ready;
   probe.parentNode?.removeChild(probe);
   // Extra tick for paint
