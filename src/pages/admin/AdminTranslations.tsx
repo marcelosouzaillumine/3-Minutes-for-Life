@@ -108,7 +108,7 @@ export function AdminTranslations() {
 
   const handleTranslateAcervo = async (isoCode: string) => {
     if (!confirm(`Deseja enviar todo o acervo não traduzido para a fila de tradução automática (${isoCode})?`)) return;
-    
+
     try {
       const { data: devotionals } = await supabase.from('devotionals').select('id, status').eq('status', 'published');
       if (!devotionals) return;
@@ -125,7 +125,14 @@ export function AdminTranslations() {
         .upsert(jobs, { onConflict: 'devotional_id,source_language,target_language' });
 
       if (error) throw error;
-      alert('Traduções enviadas para a fila automática!');
+
+      // Trigger the translation worker to process the queued jobs
+      const { error: fnError } = await supabase.functions.invoke('translate-devotional');
+      if (fnError) {
+        console.warn('Translation worker error (jobs remain queued):', fnError.message);
+      }
+
+      alert('Tradução iniciada! Aguarde alguns instantes e recarregue a página para ver o progresso.');
       loadData();
     } catch (err: any) {
       alert('Erro: ' + err.message);

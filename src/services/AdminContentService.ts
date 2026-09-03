@@ -150,6 +150,15 @@ export const AdminContentService = {
     if (error) throw error;
   },
 
+  async deleteDevotional(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('devotionals')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  },
+
   async getDevotionalsForManualTranslation(targetLanguage: string): Promise<any[]> {
     const { data, error } = await supabase
       .from('devotionals')

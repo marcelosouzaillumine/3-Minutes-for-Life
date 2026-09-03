@@ -40,6 +40,7 @@ export function AdminDevotionals() {
   const [editingCategoryName, setEditingCategoryName] = useState('');
   const [categoryActionError, setCategoryActionError] = useState('');
   const [deletingCategoryId, setDeletingCategoryId] = useState<string | null>(null);
+  const [deletingDevotionalId, setDeletingDevotionalId] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -440,6 +441,20 @@ export function AdminDevotionals() {
       setCategoryActionError('Erro ao excluir categoria: ' + err.message);
     } finally {
       setDeletingCategoryId(null);
+    }
+  };
+
+  const handleDeleteDevotional = async (e: React.MouseEvent, devo: any) => {
+    e.stopPropagation();
+    if (!window.confirm(`Excluir o devocional "${devo.title}"? Esta ação não pode ser desfeita.`)) return;
+    try {
+      setDeletingDevotionalId(devo.id);
+      await AdminContentService.deleteDevotional(devo.id);
+      setDevotionals(prev => prev.filter(d => d.id !== devo.id));
+    } catch (err: any) {
+      alert('Erro ao excluir devocional: ' + err.message);
+    } finally {
+      setDeletingDevotionalId(null);
     }
   };
 
@@ -1274,7 +1289,26 @@ export function AdminDevotionals() {
                 <h3 style={{ fontSize: '1rem', fontWeight: 'bold', margin: 0, flex: 1, paddingRight: '12px' }}>
                   {devo.title}
                 </h3>
-                {getStatusBadge(devo.status || 'published')}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                  {getStatusBadge(devo.status || 'published')}
+                  <button
+                    type="button"
+                    disabled={deletingDevotionalId === devo.id}
+                    onClick={(e) => handleDeleteDevotional(e, devo)}
+                    style={{
+                      background: '#fef2f2',
+                      color: '#dc2626',
+                      border: '1px solid #fca5a5',
+                      borderRadius: '6px',
+                      padding: '3px 8px',
+                      fontSize: '0.78rem',
+                      cursor: deletingDevotionalId === devo.id ? 'not-allowed' : 'pointer',
+                      opacity: deletingDevotionalId === devo.id ? 0.6 : 1,
+                    }}
+                  >
+                    {deletingDevotionalId === devo.id ? '…' : 'Excluir'}
+                  </button>
+                </div>
               </div>
               <div style={{ fontSize: '0.85rem', color: 'var(--color-text-light)', display: 'flex', gap: '12px' }}>
                 <span>📅 {devo.publication_date}</span>
