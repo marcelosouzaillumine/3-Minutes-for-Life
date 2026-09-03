@@ -10,6 +10,53 @@ const TITLE_COLOR = '#ffffff';
 const SUBTITLE_COLOR = '#c8924a';
 const FONT = "'Fraunces', 'Georgia', serif";
 
+// Cache the embedded CSS so we only fetch once per session
+let cachedFontCss: string | null = null;
+
+async function fetchFrauncesCss(): Promise<string> {
+  if (cachedFontCss !== null) return cachedFontCss;
+
+  const cssUrl =
+    'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,600&display=swap';
+
+  let css: string;
+  try {
+    const res = await fetch(cssUrl);
+    css = await res.text();
+  } catch {
+    cachedFontCss = '';
+    return '';
+  }
+
+  // Extract unique woff2 URLs
+  const urlMatches = [...css.matchAll(/url\((https:\/\/fonts\.gstatic\.com[^)]+)\)/g)];
+  const fontUrls = [...new Set(urlMatches.map(m => m[1]))];
+
+  // Fetch each font file and replace URL with base64 data URI
+  let embedded = css;
+  await Promise.all(
+    fontUrls.map(async (url) => {
+      try {
+        const res = await fetch(url);
+        const buf = await res.arrayBuffer();
+        // Safe base64 encoding for large buffers
+        const bytes = new Uint8Array(buf);
+        let binary = '';
+        for (let i = 0; i < bytes.byteLength; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const b64 = btoa(binary);
+        embedded = embedded.split(url).join(`data:font/woff2;base64,${b64}`);
+      } catch {
+        // keep original URL
+      }
+    })
+  );
+
+  cachedFontCss = embedded;
+  return embedded;
+}
+
 function buildCardEl(
   content: CardContent,
   format: 'feed' | 'story',
@@ -108,28 +155,6 @@ function buildCardEl(
   return root;
 }
 
-async function ensureFontLoaded(): Promise<void> {
-  // Force Fraunces to load by rendering hidden text with it
-  const probe = document.createElement('span');
-  probe.textContent = 'Aa';
-  Object.assign(probe.style, {
-    fontFamily: "'Fraunces', serif",
-    fontSize: '40px',
-    fontWeight: '700',
-    position: 'fixed',
-    left: '-9999px',
-    top: '0',
-    visibility: 'hidden',
-  });
-  document.body.appendChild(probe);
-  await document.fonts.load("700 40px 'Fraunces'");
-  await document.fonts.load("italic 600 40px 'Fraunces'");
-  await document.fonts.ready;
-  probe.parentNode?.removeChild(probe);
-  // Extra tick for paint
-  await new Promise(r => setTimeout(r, 300));
-}
-
 export async function captureCardAsBlob(
   content: CardContent,
   format: 'feed' | 'story',
@@ -138,18 +163,26 @@ export async function captureCardAsBlob(
   const W = 540;
   const H = format === 'story' ? 960 : 540;
 
-  await ensureFontLoaded();
+  // Fetch and embed Fraunces font as base64 so html-to-image
+  // can inline it without cross-origin issues
+  const fontEmbedCSS = await fetchFrauncesCss();
 
   const el = buildCardEl(content, format, logoSrc);
   document.body.appendChild(el);
 
+  const options = {
+    width: W,
+    height: H,
+    backgroundColor: BG,
+    ...(fontEmbedCSS ? { fontEmbedCSS } : {}),
+  };
+
   try {
-    // Three passes: first two prime font+image cache inside html-to-image
-    await toBlob(el, { pixelRatio: 1, width: W, height: H });
-    await toBlob(el, { pixelRatio: 1, width: W, height: H });
+    // Two warm-up passes so html-to-image caches resources
+    await toBlob(el, { ...options, pixelRatio: 1 });
+    await toBlob(el, { ...options, pixelRatio: 1 });
 
-    const blob = await toBlob(el, { pixelRatio: 2, width: W, height: H });
-
+    const blob = await toBlob(el, { ...options, pixelRatio: 2 });
     if (!blob) throw new Error('Captura retornou vazio.');
     return blob;
   } finally {
