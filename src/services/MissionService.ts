@@ -89,39 +89,66 @@ export const MissionService = {
     return data || [];
   },
 
-  /**
-   * Creates a real Asaas charge or subscription tied to a `contribution` row, so the
-   * webhook can later match and activate the supporter. Requires a signed-in
-   * user — the edge function rejects anonymous calls.
-   *
-   * @param paymentMethod  'pix' | 'credit_card' | 'undefined' (default — Asaas hosted page with all methods)
-   */
   async createCheckout(
     amountCents: number,
     cpfCnpj: string,
     frequency: 'one_time' | 'monthly' | 'yearly' = 'one_time',
     paymentMethod: 'pix' | 'credit_card' | 'undefined' = 'undefined'
   ): Promise<{ checkoutUrl: string; contributionId: string; providerReference?: string }> {
-    const { data, error } = await supabase.functions.invoke('asaas-create-checkout', {
-      body: { amount_cents: amountCents, cpf_cnpj: cpfCnpj, frequency, payment_method: paymentMethod },
+    const { illumineFetch } = await import('../lib/illumine');
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user?.email) throw new Error('Autenticação necessária.');
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('id', user.id)
+      .maybeSingle();
+    const customerName = profile?.full_name || user.user_metadata?.full_name || user.email.split('@')[0];
+
+    const isRecurring = frequency === 'monthly' || frequency === 'yearly';
+    const billingType =
+      paymentMethod === 'pix' ? 'PIX'
+      : paymentMethod === 'credit_card' ? 'CREDIT_CARD'
+      : 'UNDEFINED';
+
+    // 1. Create Asaas payment/subscription via Illumine gateway
+    const illumineRes = await illumineFetch('/asaas/checkout', {
+      method: 'POST',
+      body: JSON.stringify({
+        billingType,
+        amountCents,
+        customer: { name: customerName, email: user.email, cpfCnpj: cpfCnpj.replace(/\D/g, '') },
+        isRecurring,
+        cycle: frequency === 'yearly' ? 'YEARLY' : 'MONTHLY',
+        description: 'Apoio à Missão 3 Minutes for Life',
+      }),
     });
 
-    if (error) {
-      let message = error.message || 'Erro ao criar o checkout.';
-      try {
-        const body = await error.context?.json();
-        if (body?.error) message = body.error;
-      } catch {
-        // context wasn't JSON
-      }
-      throw new Error(message);
+    if (!illumineRes.ok) {
+      const err = await illumineRes.json().catch(() => ({}));
+      throw new Error(err.error || 'Erro ao criar o pagamento.');
     }
 
-    if (!data?.checkoutUrl) {
-      throw new Error(data?.error || 'Erro ao criar o checkout.');
+    const payload = await illumineRes.json();
+    const checkoutUrl: string = payload.checkoutUrl;
+    const providerRef: string = payload.asaasPaymentId || payload.asaasSubscriptionId;
+    if (!checkoutUrl) throw new Error('Checkout URL não retornado pelo gateway.');
+
+    // 2. Record contribution in Supabase (service-level write via edge function)
+    const { data, error } = await supabase.functions.invoke('asaas-create-checkout', {
+      body: { asaas_payment_id: providerRef, amount_cents: amountCents, frequency },
+    });
+
+    if (error || !data?.contributionId) {
+      console.error('Failed to record contribution:', error || data);
     }
 
-    return data;
+    return {
+      checkoutUrl,
+      contributionId: data?.contributionId || '',
+      providerReference: providerRef,
+    };
   },
 
   async createOneTimePixCheckout(amountCents: number, cpfCnpj: string): Promise<{ checkoutUrl: string; contributionId: string }> {
