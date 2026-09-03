@@ -998,6 +998,9 @@ export function AdminDevotionals() {
                         cursor: busy ? 'not-allowed' : 'pointer',
                         opacity: busy ? 0.6 : 1,
                         transition: 'background 0.15s',
+                        whiteSpace: 'normal',
+                        textAlign: 'left',
+                        width: '100%',
                       }}
                       title="Gera automaticamente os cards de Feed (1:1) e Story (9:16) com o design da marca"
                     >
