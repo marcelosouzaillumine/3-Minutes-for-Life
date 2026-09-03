@@ -108,6 +108,28 @@ function buildCardEl(
   return root;
 }
 
+async function ensureFontLoaded(): Promise<void> {
+  // Force Fraunces to load by rendering hidden text with it
+  const probe = document.createElement('span');
+  probe.textContent = 'Aa';
+  Object.assign(probe.style, {
+    fontFamily: "'Fraunces', serif",
+    fontSize: '40px',
+    fontWeight: '700',
+    position: 'fixed',
+    left: '-9999px',
+    top: '0',
+    visibility: 'hidden',
+  });
+  document.body.appendChild(probe);
+  await document.fonts.load("700 40px 'Fraunces'");
+  await document.fonts.load("600italic 40px 'Fraunces'");
+  await document.fonts.ready;
+  probe.parentNode?.removeChild(probe);
+  // Extra tick for paint
+  await new Promise(r => setTimeout(r, 300));
+}
+
 export async function captureCardAsBlob(
   content: CardContent,
   format: 'feed' | 'story',
@@ -116,13 +138,14 @@ export async function captureCardAsBlob(
   const W = 540;
   const H = format === 'story' ? 960 : 540;
 
+  await ensureFontLoaded();
+
   const el = buildCardEl(content, format, logoSrc);
   document.body.appendChild(el);
 
   try {
-    await document.fonts.ready;
-
-    // First pass primes the font cache inside html-to-image
+    // Three passes: first two prime font+image cache inside html-to-image
+    await toBlob(el, { pixelRatio: 1, width: W, height: H });
     await toBlob(el, { pixelRatio: 1, width: W, height: H });
 
     const blob = await toBlob(el, { pixelRatio: 2, width: W, height: H });
