@@ -114,6 +114,25 @@ export function resolveTranslation(
   };
 }
 
+// Lightweight select for browse/explore — no heavy HTML content, no share_assets
+const selectQueryBrowse = `
+  id,
+  title,
+  principle_statement,
+  publication_date,
+  categories (
+    name
+  ),
+  devotional_translations (
+    id,
+    language,
+    title,
+    principle_statement,
+    status,
+    translation_source
+  )
+`;
+
 const selectQuery = `
   id,
   title,
@@ -295,5 +314,54 @@ export const DevotionalService = {
       }
       throw err;
     }
-  }
+  },
+
+  // Lightweight fetch for category browsing — no heavy HTML content or share_assets
+  async getDevotionalsForBrowse(requestedLanguage?: string): Promise<Pick<Devotional, 'id' | 'title' | 'principle_statement' | 'publication_date' | 'categories'>[]> {
+    const rawLanguage = requestedLanguage || i18n.language || 'pt-BR';
+    const contentLanguage = normalizeLanguage(rawLanguage);
+    const today = getTodayInSaoPaulo();
+
+    const { data, error } = await supabase
+      .from('devotionals')
+      .select(selectQueryBrowse)
+      .eq('status', 'published')
+      .lte('publication_date', today)
+      .order('publication_date', { ascending: true }) as any;
+
+    if (error) throw error;
+
+    return (data as any[]).map(d => {
+      const resolved = resolveTranslation(d, contentLanguage, 'supabase', false);
+      return {
+        id: resolved.id,
+        title: resolved.title,
+        principle_statement: resolved.principle_statement,
+        publication_date: d.publication_date,
+        categories: d.categories,
+      };
+    });
+  },
+
+  // Fetch only specific devotionals by ID — used by Favorites to avoid loading the full library
+  async getDevotionalsByIds(ids: string[], requestedLanguage?: string): Promise<Devotional[]> {
+    if (!ids.length) return [];
+    const rawLanguage = requestedLanguage || i18n.language || 'pt-BR';
+    const contentLanguage = normalizeLanguage(rawLanguage);
+
+    const { data, error } = await supabase
+      .from('devotionals')
+      .select(selectQuery)
+      .in('id', ids)
+      .eq('status', 'published') as any;
+
+    if (error) throw error;
+
+    return (data as any[]).map(d => {
+      const resolved = resolveTranslation(d, contentLanguage, 'supabase', false);
+      resolved.share_assets = resolveShareAssets(contentLanguage, d.devotional_share_assets || []);
+      delete (resolved as any).devotional_share_assets;
+      return resolved;
+    });
+  },
 };

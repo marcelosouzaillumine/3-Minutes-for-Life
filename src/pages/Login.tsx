@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { authService } from '../services/authService';
 import { useTranslation } from 'react-i18next';
@@ -7,13 +8,15 @@ import './Auth.css';
 
 export const Login: React.FC = () => {
   const { t } = useTranslation('auth');
+  const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const searchParams = new URLSearchParams(window.location.search);
-  const redirectTo = searchParams.get('redirectTo') || '/app';
+  const searchParams = new URLSearchParams(location.search);
+  const redirectTo = searchParams.get('redirectTo') || (location.state as any)?.from?.pathname || '/app';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +24,7 @@ export const Login: React.FC = () => {
     setLoading(true);
     try {
       await authService.signIn(email, password);
-      window.location.href = redirectTo;
+      navigate(redirectTo, { replace: true });
     } catch (err: any) {
       console.error(err);
       setError(t('login.errorIncorrect'));
@@ -34,7 +37,7 @@ export const Login: React.FC = () => {
     setLoading(true);
     try {
       await authService.signInWithOAuth('google', response.credential);
-      window.location.href = redirectTo;
+      navigate(redirectTo, { replace: true });
     } catch (err: any) {
       console.error(err);
       setError(t('login.errorGoogle'));
@@ -45,7 +48,7 @@ export const Login: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <button className="auth-back-btn" onClick={() => window.location.href = '/'} aria-label="Voltar">
+        <button className="auth-back-btn" onClick={() => navigate('/')} aria-label="Voltar">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
@@ -91,7 +94,7 @@ export const Login: React.FC = () => {
         </div>
 
         <div className="auth-footer">
-          {t('login.noAccount')} <a href={`/signup${window.location.search}`}>{t('login.signupLink')}</a>
+          {t('login.noAccount')} <Link to={`/signup${location.search}`}>{t('login.signupLink')}</Link>
         </div>
       </div>
     </div>

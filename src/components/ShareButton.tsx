@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { Share } from '@capacitor/share';
 import { AnalyticsService } from '../services/AnalyticsService';
 import { useAuth } from '../context/AuthContext';
 import type { Devotional } from '../types/Devotional';
@@ -113,15 +115,26 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
         language: lang,
       });
 
-      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      // On native (Capacitor), use the OS share sheet — opens WhatsApp, Telegram, etc.
+      if (Capacitor.isNativePlatform()) {
+        try {
+          await Share.share({ text });
+          return;
+        } catch (error) {
+          if (error instanceof Error && error.name === 'AbortError') return;
+          // user dismissed share sheet — not an error
+          return;
+        }
+      }
 
+      // On web: use Web Share API on mobile browsers, fallback to wa.me on desktop
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
       if (isMobile && navigator.share) {
         try {
           await navigator.share({ text });
           return;
         } catch (error) {
           if (error instanceof Error && error.name === 'AbortError') return;
-          // fall through to wa.me
         }
       }
 

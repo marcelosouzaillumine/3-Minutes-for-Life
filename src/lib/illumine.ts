@@ -1,56 +1,66 @@
+import { storage } from './storage';
+
 const BASE_URL = import.meta.env.VITE_ILLUMINE_URL || 'http://localhost:3000'
 
 let accessToken: string | null = null
 let refreshToken: string | null = null
 let storedUser: any = null
+let _initialized = false
 
-function getStoredTokens() {
+// Call once at app startup (before any illumineFetch). Safe to call multiple times.
+async function init(): Promise<void> {
+  if (_initialized) return
+  _initialized = true
   try {
-    accessToken = localStorage.getItem('illumine_access_token')
-    refreshToken = localStorage.getItem('illumine_refresh_token')
-    const userJson = localStorage.getItem('illumine_user')
-    if (userJson) {
-      storedUser = JSON.parse(userJson)
-    }
-  } catch {}
+    accessToken = await storage.get('illumine_access_token')
+    refreshToken = await storage.get('illumine_refresh_token')
+    const userJson = await storage.get('illumine_user')
+    if (userJson) storedUser = JSON.parse(userJson)
+  } catch (e) {
+    console.warn('[Illumine] Could not read tokens from storage:', e)
+  }
 }
 
-function saveTokens(at: string, rt: string, user?: any) {
+async function saveTokens(at: string, rt: string, user?: any): Promise<void> {
   accessToken = at
   refreshToken = rt
   try {
-    localStorage.setItem('illumine_access_token', at)
-    localStorage.setItem('illumine_refresh_token', rt)
+    await storage.set('illumine_access_token', at)
+    await storage.set('illumine_refresh_token', rt)
     if (user) {
       storedUser = user
-      localStorage.setItem('illumine_user', JSON.stringify(user))
+      await storage.set('illumine_user', JSON.stringify(user))
     }
-  } catch {}
+  } catch (e) {
+    console.warn('[Illumine] Could not persist tokens to storage:', e)
+  }
 }
 
-function clearTokens() {
+async function clearTokens(): Promise<void> {
   accessToken = null
   refreshToken = null
   storedUser = null
   try {
-    localStorage.removeItem('illumine_access_token')
-    localStorage.removeItem('illumine_refresh_token')
-    localStorage.removeItem('illumine_user')
-  } catch {}
+    await storage.remove('illumine_access_token')
+    await storage.remove('illumine_refresh_token')
+    await storage.remove('illumine_user')
+  } catch (e) {
+    console.warn('[Illumine] Could not clear tokens from storage:', e)
+  }
 }
 
-function saveUser(user: any) {
+async function saveUser(user: any): Promise<void> {
   storedUser = user
   try {
     if (user) {
-      localStorage.setItem('illumine_user', JSON.stringify(user))
+      await storage.set('illumine_user', JSON.stringify(user))
     } else {
-      localStorage.removeItem('illumine_user')
+      await storage.remove('illumine_user')
     }
-  } catch {}
+  } catch (e) {
+    console.warn('[Illumine] Could not save user to storage:', e)
+  }
 }
-
-getStoredTokens()
 
 async function tryRefresh(): Promise<boolean> {
   if (!refreshToken) return false
@@ -60,9 +70,9 @@ async function tryRefresh(): Promise<boolean> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken }),
     })
-    if (!res.ok) { clearTokens(); return false }
+    if (!res.ok) { await clearTokens(); return false }
     const data = await res.json()
-    saveTokens(data.accessToken, data.refreshToken, data.user)
+    await saveTokens(data.accessToken, data.refreshToken, data.user)
     return true
   } catch {
     return false
@@ -70,6 +80,8 @@ async function tryRefresh(): Promise<boolean> {
 }
 
 export async function illumineFetch(path: string, options: RequestInit = {}): Promise<Response> {
+  await init()
+
   const makeRequest = (token: string | null) =>
     fetch(`${BASE_URL}${path}`, {
       ...options,
@@ -92,6 +104,7 @@ export async function illumineFetch(path: string, options: RequestInit = {}): Pr
 }
 
 export const illumineAuth = {
+  init,
   saveTokens,
   saveUser,
   clearTokens,

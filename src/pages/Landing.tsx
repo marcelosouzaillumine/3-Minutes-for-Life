@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Landing.css';
 import { PrincipleView } from '../components/PrincipleView';
 import type { Devotional } from '../types/Devotional';
@@ -46,6 +47,7 @@ function useIntersectionObserver() {
 
 export function Landing() {
   const { t } = useTranslation(['landing']);
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const setRef = useIntersectionObserver();
 
@@ -63,7 +65,7 @@ export function Landing() {
   };
 
   const startApp = () => {
-    window.location.href = '/login';
+    navigate('/login');
   };
 
   const closeMenu = () => {
@@ -589,8 +591,7 @@ export function Landing() {
           <button
             type="button"
             onClick={() => {
-              window.location.href =
-                '/login';
+              navigate('/login');
             }}
             style={{
               background: 'none',
@@ -668,8 +669,7 @@ export function Landing() {
                 type="button"
                 className="btn-support"
                 onClick={() => {
-                  window.location.href =
-                    '/missao';
+                  navigate('/missao');
                 }}
               >
                 {t(

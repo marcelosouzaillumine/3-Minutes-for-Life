@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { PrayerRequestService } from '../services/PrayerRequestService';
@@ -19,6 +20,7 @@ interface PrayerRequestModalProps {
 export function PrayerRequestModal({ isOpen: controlledIsOpen, onClose, devotionalId }: PrayerRequestModalProps) {
   const { t, i18n } = useTranslation(['common']);
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -97,7 +99,7 @@ export function PrayerRequestModal({ isOpen: controlledIsOpen, onClose, devotion
     currentUrl.searchParams.set('intent', 'prayer_request');
     if (devotionalId) currentUrl.searchParams.set('d', devotionalId);
     const returnPath = currentUrl.pathname + currentUrl.search;
-    window.location.href = `/login?redirectTo=${encodeURIComponent(returnPath)}`;
+    navigate(`/login?redirectTo=${encodeURIComponent(returnPath)}`);
   };
 
   return (

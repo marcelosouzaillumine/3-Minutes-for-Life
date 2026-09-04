@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { AdminService } from '../services/AdminService';
 
@@ -31,8 +32,8 @@ export function AdminLayout() {
   const [isAdmin, setIsAdmin] =
     useState(false);
 
-  const pathname =
-    window.location.pathname;
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
 
   // =========================================================
   // ADMIN ACCESS
@@ -47,8 +48,7 @@ export function AdminLayout() {
 
       if (!authorized) {
 
-        window.location.href =
-          '/app';
+        navigate('/app', { replace: true });
 
       } else {
 

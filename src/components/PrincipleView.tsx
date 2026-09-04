@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { Devotional } from '../types/Devotional';
 import { JourneyService } from '../services/JourneyService';
 import { useTranslation } from 'react-i18next';
@@ -34,6 +35,7 @@ export function PrincipleView({
 }: PrincipleViewProps) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [saved, setSaved] = useState(false);
   const [reflectionContent, setReflectionContent] = useState('');
@@ -167,12 +169,8 @@ export function PrincipleView({
    */
 
   const handleLoginForReflection = () => {
-    const currentUrl = encodeURIComponent(
-      window.location.href
-    );
-
-    window.location.href =
-      `/login?redirectTo=${currentUrl}`;
+    const currentUrl = encodeURIComponent(window.location.href);
+    navigate(`/login?redirectTo=${currentUrl}`);
   };
 
   /*

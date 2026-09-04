@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { About } from './About';
 import { TestimonialList } from '../components/TestimonialList';
@@ -15,6 +16,7 @@ import { CommunicationInboxService } from '../services/CommunicationInboxService
 export function Profile() {
   const { t } = useTranslation(['profile', 'common']);
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [showAbout, setShowAbout] = useState(false);
   const [showReflections, setShowReflections] = useState(false);
   const [showTestimonials, setShowTestimonials] = useState(false);
@@ -258,7 +260,7 @@ export function Profile() {
       <div className="profile-section">
         <h3 className="section-title">{t('more')}</h3>
         <div className="settings-list">
-          <div className="settings-item clickable" onClick={() => { window.location.href = '/apoiar'; }}>
+          <div className="settings-item clickable" onClick={() => { navigate('/apoiar'); }}>
              <div className="settings-item-left">
               <div className="settings-icon-bg">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">

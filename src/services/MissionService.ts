@@ -143,8 +143,8 @@ export const MissionService = {
             return { checkoutUrl, contributionId: data?.contributionId || '', providerReference: providerRef };
           }
         }
-      } catch {
-        // fall through to legacy path
+      } catch (e) {
+        console.warn('[Mission] Illumine checkout failed, falling back to legacy:', e)
       }
     }
 

@@ -1,7 +1,8 @@
+import { useLocation, Link } from 'react-router-dom';
+
 export function AdminBottomNav() {
 
-  const pathname =
-    window.location.pathname;
+  const { pathname } = useLocation();
 
   return (
     <nav className="bottom-nav">
@@ -10,8 +11,8 @@ export function AdminBottomNav() {
                 VOLTAR PARA O APP
             ================================================= */}
 
-      <a
-        href="/app"
+      <Link
+        to="/app"
         className="nav-item"
         style={{
           textDecoration: 'none',
@@ -34,14 +35,14 @@ export function AdminBottomNav() {
 
         Voltar
 
-      </a>
+      </Link>
 
       {/* =================================================
                 DASHBOARD
             ================================================= */}
 
-      <a
-        href="/admin/dashboard"
+      <Link
+        to="/admin/dashboard"
         className={`nav-item ${pathname.includes('/dashboard') ||
             pathname === '/admin'
             ? 'active'
@@ -68,14 +69,14 @@ export function AdminBottomNav() {
 
         Dashboard
 
-      </a>
+      </Link>
 
       {/* =================================================
                 CONTEÚDO
             ================================================= */}
 
-      <a
-        href="/admin/devotionals"
+      <Link
+        to="/admin/devotionals"
         className={`nav-item ${pathname.includes('/devotionals')
             ? 'active'
             : ''
@@ -101,14 +102,14 @@ export function AdminBottomNav() {
 
         Conteúdo
 
-      </a>
+      </Link>
 
       {/* =================================================
                 TRADUÇÕES
             ================================================= */}
 
-      <a
-        href="/admin/translations"
+      <Link
+        to="/admin/translations"
         className={`nav-item ${pathname.includes('/translations')
             ? 'active'
             : ''
@@ -134,14 +135,14 @@ export function AdminBottomNav() {
 
         Traduções
 
-      </a>
+      </Link>
 
       {/* =================================================
                 RELACIONAMENTO
             ================================================= */}
 
-      <a
-        href="/admin/relationship"
+      <Link
+        to="/admin/relationship"
         className={`nav-item ${pathname.includes('/relationship') ||
             pathname.includes('/testimonials')
             ? 'active'
@@ -168,14 +169,14 @@ export function AdminBottomNav() {
 
         Relacionamento
 
-      </a>
+      </Link>
 
       {/* =================================================
                 COMUNICAÇÃO
             ================================================= */}
 
-      <a
-        href="/admin/communication"
+      <Link
+        to="/admin/communication"
         className={`nav-item ${pathname.includes('/communication')
             ? 'active'
             : ''
@@ -201,14 +202,14 @@ export function AdminBottomNav() {
 
         Comunicação
 
-      </a>
+      </Link>
 
       {/* =================================================
                 USUÁRIOS
             ================================================= */}
 
-      <a
-        href="/admin/users"
+      <Link
+        to="/admin/users"
         className={`nav-item ${pathname.includes('/users')
             ? 'active'
             : ''
@@ -234,14 +235,14 @@ export function AdminBottomNav() {
 
         Usuários
 
-      </a>
+      </Link>
 
       {/* =================================================
                 APOIADORES
             ================================================= */}
 
-      <a
-        href="/admin/supporters"
+      <Link
+        to="/admin/supporters"
         className={`nav-item ${pathname.includes('/supporters')
             ? 'active'
             : ''
@@ -267,14 +268,14 @@ export function AdminBottomNav() {
 
         Apoiadores
 
-      </a>
+      </Link>
 
       {/* =================================================
                 IDENTIDADE
             ================================================= */}
 
-      <a
-        href="/admin/identity"
+      <Link
+        to="/admin/identity"
         className={`nav-item ${pathname.includes('/identity')
             ? 'active'
             : ''
@@ -300,7 +301,7 @@ export function AdminBottomNav() {
 
         Identidade
 
-      </a>
+      </Link>
 
     </nav>
   );

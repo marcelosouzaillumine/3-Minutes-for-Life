@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { DevotionalService } from '../services/DevotionalService';
 import { AnalyticsService } from '../services/AnalyticsService';
 import type { Devotional } from '../types/Devotional';
@@ -11,6 +12,8 @@ import { DevotionalHeader } from '../components/DevotionalHeader';
 export function SharedDevotional() {
   const { t, i18n } = useTranslation(['common']);
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const [devotional, setDevotional] =
     useState<Devotional | null>(null);
@@ -35,7 +38,7 @@ export function SharedDevotional() {
 
     const searchParams =
       new URLSearchParams(
-        window.location.search
+        location.search
       );
 
     const devotionalId =
@@ -45,7 +48,7 @@ export function SharedDevotional() {
       searchParams.get('lang');
 
     const pathname =
-      window.location.pathname;
+      location.pathname;
 
     const code = pathname
       .replace('/r/', '')
@@ -197,8 +200,7 @@ export function SharedDevotional() {
    */
 
   const handleCtaClick = () => {
-    window.location.href =
-      '/login';
+    navigate('/login');
   };
 
   /*
@@ -239,7 +241,7 @@ export function SharedDevotional() {
    */
 
   if (error || !devotional) {
-    window.location.href = '/';
+    navigate('/', { replace: true });
     return null;
   }
 

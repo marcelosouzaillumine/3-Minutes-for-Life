@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 interface RelationshipNavProps {
   activeTab: 'overview' | 'testimonials' | 'prayer_requests';
@@ -7,12 +8,13 @@ interface RelationshipNavProps {
 
 export function RelationshipNav({ activeTab, onTabChange }: RelationshipNavProps) {
   const { t } = useTranslation(['common']);
+  const navigate = useNavigate();
 
   const handleNavigate = (path: string, tab: 'overview' | 'testimonials' | 'prayer_requests') => {
     if (onTabChange) {
       onTabChange(tab);
     } else {
-      window.location.href = path;
+      navigate(path);
     }
   };
 

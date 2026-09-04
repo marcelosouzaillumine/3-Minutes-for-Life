@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { LanguageSelector } from '../components/LanguageSelector';
 /* A Mission compartilha header, nav, botões e rodapé com a Landing.
@@ -50,9 +51,10 @@ export function Mission() {
   const [currentUsers, setCurrentUsers] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const startApp = () => { window.location.href = '/login'; };
+  const navigate = useNavigate();
+  const startApp = () => { navigate('/login'); };
   const closeMenu = () => { setIsMenuOpen(false); };
-  const goToContributePage = () => { window.location.href = '/apoiar'; };
+  const goToContributePage = () => { navigate('/apoiar'); };
 
   useEffect(() => {
     let mounted = true;
@@ -65,7 +67,7 @@ export function Mission() {
   const handleCheckoutRedirect = (tier: string, periodicity: string) => {
     // Redireciona para /apoiar com o plano pré-selecionado via query string.
     // O checkout dinâmico via API fica centralizado em Contribute.tsx.
-    window.location.href = `/apoiar?tier=${tier}&periodicity=${periodicity}`;
+    navigate(`/apoiar?tier=${tier}&periodicity=${periodicity}`);
   };
 
   return (

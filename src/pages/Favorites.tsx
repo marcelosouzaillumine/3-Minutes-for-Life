@@ -13,12 +13,12 @@ export function Favorites() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      JourneyService.listFavorites(),
-      DevotionalService.getDevotionals(i18n.language)
-    ])
-      .then(([ids, data]) => {
+    JourneyService.listFavorites()
+      .then(ids => {
         setFavoriteIds(ids);
+        return DevotionalService.getDevotionalsByIds(ids, i18n.language);
+      })
+      .then(data => {
         setDevotionals(data);
         setLoading(false);
       })
@@ -41,7 +41,7 @@ export function Favorites() {
     );
   }
 
-  const favoriteDevotionals = devotionals.filter(d => favoriteIds.includes(d.id));
+  const favoriteDevotionals = devotionals.filter(d => favoriteIds.includes(d.id)); // already filtered by ID, but guards against stale state
 
   return (
     <div>

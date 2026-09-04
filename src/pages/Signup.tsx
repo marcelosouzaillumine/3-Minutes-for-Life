@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { authService } from '../services/authService';
 import { AnalyticsService } from '../services/AnalyticsService';
@@ -11,18 +12,20 @@ import './Auth.css';
 
 export const Signup: React.FC = () => {
   const { t } = useTranslation('auth');
+  const navigate = useNavigate();
+  const location = useLocation();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [acceptsUpdates, setAcceptsUpdates] = useState(false);
   const [password, setPassword] = useState('');
-  
+
   // Location States
   const [isForeign, setIsForeign] = useState(false);
   const [country, setCountry] = useState('Brasil');
   const [state, setState] = useState('');
   const [city, setCity] = useState('');
-  
+
   // Data States
   const [states, setStates] = useState<State[]>([]);
   const [cities, setCities] = useState<City[]>([]);
@@ -30,8 +33,8 @@ export const Signup: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const searchParams = new URLSearchParams(window.location.search);
-  const redirectTo = searchParams.get('redirectTo') || '/app';
+  const searchParams = new URLSearchParams(location.search);
+  const redirectTo = searchParams.get('redirectTo') || (location.state as any)?.from?.pathname || '/app';
 
   useEffect(() => {
     // Carrega os estados do Brasil ao montar
@@ -90,7 +93,7 @@ export const Signup: React.FC = () => {
         }
       }
       
-      window.location.href = redirectTo;
+      navigate(redirectTo, { replace: true });
     } catch (err: any) {
       console.error(err);
       if (err.message?.includes('already registered')) {
@@ -108,7 +111,7 @@ export const Signup: React.FC = () => {
     setLoading(true);
     try {
       await authService.signInWithOAuth('google', response.credential);
-      window.location.href = redirectTo;
+      navigate(redirectTo, { replace: true });
     } catch (err: any) {
       console.error(err);
       setError(t('signup.errorGoogle'));
@@ -119,7 +122,7 @@ export const Signup: React.FC = () => {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <button className="auth-back-btn" onClick={() => window.location.href = '/'} aria-label="Voltar">
+        <button className="auth-back-btn" onClick={() => navigate('/')} aria-label="Voltar">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
@@ -267,7 +270,7 @@ export const Signup: React.FC = () => {
         </div>
 
         <div className="auth-footer">
-          {t('signup.haveAccount')} <a href={`/login${window.location.search}`}>{t('signup.loginLink')}</a>
+          {t('signup.haveAccount')} <Link to={`/login${location.search}`}>{t('signup.loginLink')}</Link>
         </div>
       </div>
     </div>

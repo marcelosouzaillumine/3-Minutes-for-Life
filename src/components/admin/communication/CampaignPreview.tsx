@@ -1,6 +1,7 @@
 import type {
   CommunicationCampaign,
 } from '../../../types/Communication';
+import { sanitizeHtml } from '../../../lib/sanitizer';
 
 interface CampaignPreviewProps {
   campaign: CommunicationCampaign;
@@ -212,7 +213,7 @@ export default function CampaignPreview({
               overflowWrap: 'anywhere',
             }}
             dangerouslySetInnerHTML={{
-              __html: body || '<p></p>',
+              __html: sanitizeHtml(body || ''),
             }}
           />
 

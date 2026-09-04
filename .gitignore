@@ -28,3 +28,14 @@ service-role-keys
 *.sln
 *.sw?
 .vercel
+
+# Backup/debug files — never commit these
+*.illumine-backup
+*.orig
+*.save
+check_supabase*.js
+check_supabase*.ts
+test-*.js
+test-*.ts
+diagnostic_*.js
+scripts/create-partner-key.js

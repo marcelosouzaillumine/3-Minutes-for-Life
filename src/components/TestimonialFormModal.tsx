@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { TestimonialService } from '../services/TestimonialService';
@@ -15,6 +16,7 @@ interface TestimonialFormModalProps {
 export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess }: TestimonialFormModalProps) {
   const { t } = useTranslation(['common']);
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [content, setContent] = useState('');
   const [selectedDevotionalId, setSelectedDevotionalId] = useState<string>(devotionalId || '');
   const [devotionals, setDevotionals] = useState<Devotional[]>([]);
@@ -69,7 +71,7 @@ export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess 
       currentUrl.searchParams.set('d', selectedDevotionalId || devotionalId || '');
     }
     const returnPath = currentUrl.pathname + currentUrl.search;
-    window.location.href = `/login?redirectTo=${encodeURIComponent(returnPath)}`;
+    navigate(`/login?redirectTo=${encodeURIComponent(returnPath)}`);
   };
 
   return (

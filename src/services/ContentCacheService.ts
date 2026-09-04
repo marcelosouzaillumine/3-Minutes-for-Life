@@ -11,6 +11,7 @@ export interface CachedDevotional {
 const DB_NAME = '3minutes_cache';
 const DB_VERSION = 2;
 const STORE_NAME = 'devotional_cache';
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 class IndexedDBWrapper {
   private db: IDBDatabase | null = null;
@@ -95,6 +96,7 @@ export const ContentCacheService = {
     const key = `${id}_${language}`;
     const result = await dbWrapper.get(key) as CachedDevotional | undefined;
     if (result && result.payload) {
+      if (Date.now() - (result.cached_at || 0) > CACHE_TTL_MS) return null; // expired
       return result.payload;
     }
     return null;
@@ -102,14 +104,15 @@ export const ContentCacheService = {
 
   async setDaily(dateStr: string, devotional: Devotional, language: string): Promise<void> {
     const key = `DAILY_${dateStr}_${language}`;
-    await dbWrapper.put({ id: key, payload: devotional });
+    await dbWrapper.put({ id: key, payload: devotional, cached_at: Date.now() });
     await this.setDevotional(devotional, language);
   },
 
   async getDaily(dateStr: string, language: string): Promise<Devotional | null> {
     const key = `DAILY_${dateStr}_${language}`;
-    const result = await dbWrapper.get(key) as { payload: Devotional } | undefined;
+    const result = await dbWrapper.get(key) as { payload: Devotional; cached_at?: number } | undefined;
     if (result && result.payload) {
+      if (Date.now() - (result.cached_at || 0) > CACHE_TTL_MS) return null; // expired
       return result.payload;
     }
     return null;
@@ -117,8 +120,7 @@ export const ContentCacheService = {
 
   async setLibrary(devotionals: Devotional[], language: string): Promise<void> {
     const key = `LIBRARY_${language}`;
-    await dbWrapper.put({ id: key, payload: devotionals });
-    // Also cache individually
+    await dbWrapper.put({ id: key, payload: devotionals, cached_at: Date.now() });
     for (const d of devotionals) {
       await this.setDevotional(d, language);
     }
@@ -126,7 +128,9 @@ export const ContentCacheService = {
 
   async getLibrary(language: string): Promise<Devotional[] | null> {
     const key = `LIBRARY_${language}`;
-    const result = await dbWrapper.get(key) as { payload: Devotional[] } | undefined;
-    return result ? result.payload : null;
+    const result = await dbWrapper.get(key) as { payload: Devotional[]; cached_at?: number } | undefined;
+    if (!result?.payload) return null;
+    if (Date.now() - (result.cached_at || 0) > CACHE_TTL_MS) return null; // expired
+    return result.payload;
   }
 };

@@ -56,7 +56,7 @@ export const authService = {
       if (res.ok) {
         const illData = await res.json()
         if (illData.accessToken) {
-          illumineAuth.saveTokens(illData.accessToken, illData.refreshToken, illData.user)
+          await illumineAuth.saveTokens(illData.accessToken, illData.refreshToken, illData.user)
         }
       }
     } catch (e) {
@@ -128,7 +128,7 @@ export const authService = {
         if (regRes.ok) {
           const regData = await regRes.json()
           if (regData.accessToken) {
-            illumineAuth.saveTokens(regData.accessToken, regData.refreshToken, regData.user)
+            await illumineAuth.saveTokens(regData.accessToken, regData.refreshToken, regData.user)
           }
         }
       }
@@ -219,11 +219,15 @@ export const authService = {
   async signOut() {
     try {
       await supabase.auth.signOut()
-    } catch {}
+    } catch (e) {
+      console.warn('[Auth] Supabase signOut warning:', e)
+    }
     try {
       await illumineFetch('/auth/logout', { method: 'POST' })
-    } catch {}
-    illumineAuth.clearTokens()
+    } catch (e) {
+      console.warn('[Auth] Illumine logout warning:', e)
+    }
+    await illumineAuth.clearTokens()
   },
 
   async getSession() {
@@ -255,7 +259,7 @@ export const authService = {
         const res = await illumineFetch('/users/me')
         if (res.ok) {
           const user = await res.json()
-          illumineAuth.saveUser(user)
+          await illumineAuth.saveUser(user)
           return { user, accessToken: illumineAuth.getAccessToken() }
         }
       } catch (e) {

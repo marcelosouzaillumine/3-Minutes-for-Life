@@ -12,11 +12,12 @@ export function Explore() {
   
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedDevotional, setSelectedDevotional] = useState<Devotional | null>(null);
+  const [loadingDevotional, setLoadingDevotional] = useState(false);
 
   useEffect(() => {
-    DevotionalService.getDevotionals(i18n.language)
+    DevotionalService.getDevotionalsForBrowse(i18n.language)
       .then(data => {
-        setDevotionals(data);
+        setDevotionals(data as any);
         setLoading(false);
       })
       .catch(err => {
@@ -53,8 +54,28 @@ export function Explore() {
     )
   );
 
+  const handleSelectDevotional = async (id: string) => {
+    setLoadingDevotional(true);
+    try {
+      const full = await DevotionalService.getDevotional(id, i18n.language);
+      setSelectedDevotional(full);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingDevotional(false);
+    }
+  };
+
   if (selectedDevotional) {
     return <PrincipleView devotional={selectedDevotional} onBack={() => setSelectedDevotional(null)} />;
+  }
+
+  if (loadingDevotional) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '200px' }}>
+        <span className="label" style={{ opacity: 0.5 }}>{t('loading')}</span>
+      </div>
+    );
   }
 
   if (selectedCategory) {
@@ -70,10 +91,10 @@ export function Explore() {
         <h2 style={{ marginBottom: '1.5rem', fontWeight: 500 }}>{selectedCategory}</h2>
         <div className="category-list">
           {categoryDevotionals.map(d => (
-            <div key={d.id} className="principle-list-item" onClick={() => setSelectedDevotional(d)}>
+            <div key={d.id} className="principle-list-item" onClick={() => handleSelectDevotional(d.id)}>
               <h3 className="principle-list-title">{d.title}</h3>
               <p className="principle-list-preview">
-                {d.principle_statement ? d.principle_statement : d.reflection.split(/(?:\r?\n|\\n)\s*(?:\r?\n|\\n)/)[0]}
+                {d.principle_statement || ''}
               </p>
             </div>
           ))}

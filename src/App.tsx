@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Explore } from './pages/Explore';
 import { Favorites } from './pages/Favorites';
@@ -13,99 +14,121 @@ import { Contribute } from './pages/Contribute';
 import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
 import { useAuth } from './context/AuthContext';
+import { useState, useEffect } from 'react';
 import { AnalyticsService } from './services/AnalyticsService';
-import { AdminLayout } from './layouts/AdminLayout';
+
+const AdminLayout = lazy(() => import('./layouts/AdminLayout').then(m => ({ default: m.AdminLayout })));
 
 type Tab = 'home' | 'explore' | 'favorites' | 'profile';
 
-function App() {
+const LoadingScreen = () => (
+  <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    Carregando...
+  </div>
+);
+
+// Guard: redirects to /login if not authenticated
+function RequireAuth({ children }: { children: React.ReactNode }) {
   const { session, loading } = useAuth();
-  const pathname = window.location.pathname;
-  const isAppPath = pathname === '/app';
-  const isLoginPath = pathname === '/login';
-  const isSignupPath = pathname === '/signup';
-  const isMissionPath = pathname === '/missao';
-  const isContributePath = pathname === '/apoiar';
-  const isPrivacyPath = pathname === '/privacidade';
-  const isTermsPath = pathname === '/termos';
-  const isReferralPath = pathname.startsWith('/r/');
+  const location = useLocation();
+  if (loading) return <LoadingScreen />;
+  if (!session) return <Navigate to="/login" state={{ from: location }} replace />;
+  return <>{children}</>;
+}
+
+// Guard: redirects authenticated users away from login/signup
+function RequireGuest({ children }: { children: React.ReactNode }) {
+  const { session, loading } = useAuth();
+  const location = useLocation();
+  if (loading) return <LoadingScreen />;
+  const redirectTo = (location.state as any)?.from?.pathname || '/app';
+  if (session) return <Navigate to={redirectTo} replace />;
+  return <>{children}</>;
+}
+
+// The /app shell with bottom navigation and tab routing
+function AppShell() {
   const [currentTab, setCurrentTab] = useState<Tab>('home');
-
-  useEffect(() => {
-    if (isReferralPath) {
-      const code = pathname.replace('/r/', '').split('?')[0].replace('/', '');
-      const searchParams = new URLSearchParams(window.location.search);
-      const devotionalId = searchParams.get('d');
-
-      if (code && devotionalId) {
-        AnalyticsService.saveReferralContext(code, devotionalId);
-        AnalyticsService.trackEvent('referral_click', { code, devotional_id: devotionalId });
-      }
-    }
-  }, [isReferralPath, pathname]);
-
-  if (loading) {
-    return <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Carregando...</div>;
-  }
-
-  // Se tentar acessar o /app sem sessão, joga pro login
-  if (isAppPath && !session) {
-    window.location.href = '/login';
-    return null;
-  }
-
-  // Se tentar acessar o login ou signup com sessão, redireciona para redirectTo ou /app
-  if ((isLoginPath || isSignupPath) && session) {
-    const searchParams = new URLSearchParams(window.location.search);
-    const redirectTo = searchParams.get('redirectTo') || '/app';
-    window.location.href = redirectTo;
-    return null;
-  }
-
-  if (isLoginPath) return <Login />;
-  if (isSignupPath) return <Signup />;
-  if (isMissionPath) return <Mission />;
-  if (isContributePath) return <Contribute />;
-  if (isPrivacyPath) return <Privacy />;
-  if (isTermsPath) return <Terms />;
-  if (isReferralPath) return <SharedDevotional />;
-
-  const isAdminPath = pathname.startsWith('/admin');
-
-  if (isAdminPath) {
-    if (!session) {
-      window.location.href = '/login';
-      return null;
-    }
-    return <AdminLayout />;
-  }
-
-  if (!isAppPath) {
-    return <Landing />;
-  }
+  const navigate = useNavigate();
 
   const renderContent = () => {
     switch (currentTab) {
-      case 'home':
-        return <Home onExplore={() => setCurrentTab('explore')} />;
-      case 'explore':
-        return <Explore />;
-      case 'favorites':
-        return <Favorites />;
-      case 'profile':
-        return <Profile />;
-      default:
-        return <Home onExplore={() => setCurrentTab('explore')} />;
+      case 'home':     return <Home onExplore={() => setCurrentTab('explore')} />;
+      case 'explore':  return <Explore />;
+      case 'favorites': return <Favorites />;
+      case 'profile':  return <Profile />;
+      default:         return <Home onExplore={() => setCurrentTab('explore')} />;
     }
   };
 
   return (
     <div className="app-container">
-      <main className="content-area">
-        {renderContent()}
-      </main>
+      <main className="content-area">{renderContent()}</main>
       <BottomNav currentTab={currentTab} setTab={setCurrentTab} />
     </div>
+  );
+}
+
+// Referral tracking on /r/:code routes
+function ReferralTracker() {
+  const location = useLocation();
+  useEffect(() => {
+    const match = location.pathname.match(/^\/r\/([^/?]+)/);
+    if (!match) return;
+    const code = match[1];
+    const searchParams = new URLSearchParams(location.search);
+    const devotionalId = searchParams.get('d');
+    if (code && devotionalId) {
+      AnalyticsService.saveReferralContext(code, devotionalId);
+      AnalyticsService.trackEvent('referral_click', { code, devotional_id: devotionalId });
+    }
+  }, [location]);
+  return null;
+}
+
+function AppRoutes() {
+  const { loading } = useAuth();
+  if (loading) return <LoadingScreen />;
+
+  return (
+    <>
+      <ReferralTracker />
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/missao" element={<Mission />} />
+        <Route path="/apoiar" element={<Contribute />} />
+        <Route path="/privacidade" element={<Privacy />} />
+        <Route path="/termos" element={<Terms />} />
+        <Route path="/r/:code" element={<SharedDevotional />} />
+
+        <Route path="/login" element={<RequireGuest><Login /></RequireGuest>} />
+        <Route path="/signup" element={<RequireGuest><Signup /></RequireGuest>} />
+
+        <Route path="/app" element={<RequireAuth><AppShell /></RequireAuth>} />
+
+        <Route
+          path="/admin/*"
+          element={
+            <RequireAuth>
+              <Suspense fallback={<LoadingScreen />}>
+                <AdminLayout />
+              </Suspense>
+            </RequireAuth>
+          }
+        />
+
+        {/* Catch-all: send unknown paths to landing */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   );
 }
 
