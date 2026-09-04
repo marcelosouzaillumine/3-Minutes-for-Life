@@ -112,43 +112,53 @@ export const MissionService = {
       : paymentMethod === 'credit_card' ? 'CREDIT_CARD'
       : 'UNDEFINED';
 
-    // 1. Create Asaas payment/subscription via Illumine gateway
-    const illumineRes = await illumineFetch('/asaas/checkout', {
-      method: 'POST',
-      body: JSON.stringify({
-        billingType,
-        amountCents,
-        customer: { name: customerName, email: user.email, cpfCnpj: cpfCnpj.replace(/\D/g, '') },
-        isRecurring,
-        cycle: frequency === 'yearly' ? 'YEARLY' : 'MONTHLY',
-        description: 'Apoio à Missão 3 Minutes for Life',
-      }),
-    });
+    const { illumineAuth } = await import('../lib/illumine');
 
-    if (!illumineRes.ok) {
-      const err = await illumineRes.json().catch(() => ({}));
-      throw new Error(err.error || 'Erro ao criar o pagamento.');
+    // If the user has an active Illumine session, delegate to the gateway.
+    // Otherwise fall back to the Edge Function (which calls Asaas directly).
+    if (illumineAuth.isAuthenticated()) {
+      const illumineRes = await illumineFetch('/asaas/checkout', {
+        method: 'POST',
+        body: JSON.stringify({
+          billingType,
+          amountCents,
+          customer: { name: customerName, email: user.email, cpfCnpj: cpfCnpj.replace(/\D/g, '') },
+          isRecurring,
+          cycle: frequency === 'yearly' ? 'YEARLY' : 'MONTHLY',
+          description: 'Apoio à Missão 3 Minutes for Life',
+        }),
+      });
+
+      if (illumineRes.ok) {
+        const payload = await illumineRes.json();
+        const checkoutUrl: string = payload.checkoutUrl;
+        const providerRef: string = payload.asaasPaymentId || payload.asaasSubscriptionId;
+        if (checkoutUrl) {
+          const { data } = await supabase.functions.invoke('asaas-create-checkout', {
+            body: { asaas_payment_id: providerRef, amount_cents: amountCents, frequency },
+          });
+          return {
+            checkoutUrl,
+            contributionId: data?.contributionId || '',
+            providerReference: providerRef,
+          };
+        }
+      }
+      // fall through to legacy path on gateway error
     }
 
-    const payload = await illumineRes.json();
-    const checkoutUrl: string = payload.checkoutUrl;
-    const providerRef: string = payload.asaasPaymentId || payload.asaasSubscriptionId;
-    if (!checkoutUrl) throw new Error('Checkout URL não retornado pelo gateway.');
-
-    // 2. Record contribution in Supabase (service-level write via edge function)
+    // Legacy path: Edge Function calls Asaas directly (no Illumine token required)
     const { data, error } = await supabase.functions.invoke('asaas-create-checkout', {
-      body: { asaas_payment_id: providerRef, amount_cents: amountCents, frequency },
+      body: { amount_cents: amountCents, cpf_cnpj: cpfCnpj, frequency, payment_method: paymentMethod },
     });
 
-    if (error || !data?.contributionId) {
-      console.error('Failed to record contribution:', error || data);
+    if (error) {
+      let message = error.message || 'Erro ao criar o checkout.';
+      try { const b = await (error as any).context?.json(); if (b?.error) message = b.error; } catch { /* noop */ }
+      throw new Error(message);
     }
-
-    return {
-      checkoutUrl,
-      contributionId: data?.contributionId || '',
-      providerReference: providerRef,
-    };
+    if (!data?.checkoutUrl) throw new Error(data?.error || 'Erro ao criar o checkout.');
+    return data;
   },
 
   async createOneTimePixCheckout(amountCents: number, cpfCnpj: string): Promise<{ checkoutUrl: string; contributionId: string }> {
