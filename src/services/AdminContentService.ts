@@ -384,6 +384,29 @@ export const AdminContentService = {
     return data.publicUrl;
   },
 
+  async listLibraryImages(): Promise<Array<{ name: string; url: string }>> {
+    const { data, error } = await supabase.storage
+      .from('share-assets')
+      .list('library', { limit: 200, sortBy: { column: 'created_at', order: 'desc' } });
+    if (error) throw error;
+    return (data || [])
+      .filter(f => f.id !== null)
+      .map(f => ({
+        name: f.name,
+        url: supabase.storage.from('share-assets').getPublicUrl(`library/${f.name}`).data.publicUrl,
+      }));
+  },
+
+  async uploadLibraryImage(file: File): Promise<string> {
+    const ext = file.name.split('.').pop() || 'jpg';
+    const path = `library/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await supabase.storage
+      .from('share-assets')
+      .upload(path, file, { upsert: false, contentType: file.type });
+    if (error) throw error;
+    return supabase.storage.from('share-assets').getPublicUrl(path).data.publicUrl;
+  },
+
   async deleteShareAssetFile(url: string): Promise<void> {
     // Extract relative path: everything after /share-assets/
     const marker = '/share-assets/';

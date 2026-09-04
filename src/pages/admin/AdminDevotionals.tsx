@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AdminContentService } from '../../services/AdminContentService';
 import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { PrincipleView } from '../../components/PrincipleView';
+import { MediaLibraryPicker } from '../../components/admin/MediaLibraryPicker';
 import '../../styles/admin.css';
 
 export function AdminDevotionals() {
@@ -22,10 +23,11 @@ export function AdminDevotionals() {
   const [waPreviewLang, setWaPreviewLang] = useState<string | null>(null);
 
   // Content image state (Dica de conteúdo / Apoio ao projeto) — keyed by field name
-  const [contentImageBusy, setContentImageBusy] = useState<Record<string, boolean>>({});
   const [contentImageError, setContentImageError] = useState<Record<string, string>>({});
-  const contentTipImageInputRef = useRef<HTMLInputElement | null>(null);
-  const supportBannerInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Media library picker state
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+  const [mediaPickerTarget, setMediaPickerTarget] = useState<'content_tip_image_url' | 'support_banner_url' | null>(null);
 
   // States for Category Management
   const [showCategoryManager, setShowCategoryManager] = useState(false);
@@ -467,43 +469,6 @@ export function AdminDevotionals() {
               }
             };
 
-            const handleContentImageUpload = async (
-              field: 'content_tip_image_url' | 'support_banner_url',
-              storageField: 'content_tip_image' | 'support_banner',
-              file: File
-            ) => {
-              if (!editingId || editingId === 'new') {
-                setContentImageError(prev => ({ ...prev, [field]: 'Salve o devocional antes de enviar imagens.' }));
-                return;
-              }
-              const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-              if (!allowed.includes(file.type)) {
-                setContentImageError(prev => ({ ...prev, [field]: 'Formato inválido. Use JPG, PNG ou WebP.' }));
-                return;
-              }
-              if (file.size > 5 * 1024 * 1024) {
-                setContentImageError(prev => ({ ...prev, [field]: 'Arquivo muito grande. Limite: 5 MB.' }));
-                return;
-              }
-
-              setContentImageBusy(prev => ({ ...prev, [field]: true }));
-              setContentImageError(prev => ({ ...prev, [field]: '' }));
-
-              const oldUrl = getValue(field);
-
-              try {
-                const newUrl = await AdminContentService.uploadContentImage(editingId, currentLang, storageField, file);
-                setValue(field, newUrl);
-                if (oldUrl) {
-                  AdminContentService.deleteShareAssetFile(oldUrl).catch(() => {});
-                }
-              } catch (err: any) {
-                setContentImageError(prev => ({ ...prev, [field]: 'Erro ao enviar imagem: ' + err.message }));
-              } finally {
-                setContentImageBusy(prev => ({ ...prev, [field]: false }));
-              }
-            };
-
             const handleContentImageRemove = (field: 'content_tip_image_url' | 'support_banner_url') => {
               const oldUrl = getValue(field);
               setValue(field, '');
@@ -604,6 +569,13 @@ export function AdminDevotionals() {
                         />
                         <button
                           type="button"
+                          onClick={() => { setMediaPickerTarget('content_tip_image_url'); setMediaPickerOpen(true); }}
+                          style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fafafa', cursor: 'pointer' }}
+                        >
+                          Trocar
+                        </button>
+                        <button
+                          type="button"
                           onClick={() => handleContentImageRemove('content_tip_image_url')}
                           style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fff', cursor: 'pointer' }}
                         >
@@ -611,32 +583,13 @@ export function AdminDevotionals() {
                         </button>
                       </div>
                     ) : (
-                      <>
-                        <input
-                          ref={contentTipImageInputRef}
-                          type="file"
-                          accept="image/jpeg,image/png,image/webp"
-                          style={{ display: 'none' }}
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleContentImageUpload('content_tip_image_url', 'content_tip_image', file);
-                            e.target.value = '';
-                          }}
-                        />
-                        <button
-                          type="button"
-                          disabled={!editingId || editingId === 'new' || !!contentImageBusy['content_tip_image_url']}
-                          onClick={() => contentTipImageInputRef.current?.click()}
-                          style={{ padding: '8px 14px', fontSize: '0.85rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fafafa', cursor: 'pointer' }}
-                        >
-                          {contentImageBusy['content_tip_image_url'] ? 'Enviando...' : 'Enviar imagem'}
-                        </button>
-                        {(!editingId || editingId === 'new') && (
-                          <span style={{ marginLeft: '8px', fontSize: '0.78rem', color: '#b45309' }}>
-                            Salve o devocional primeiro para poder enviar imagens.
-                          </span>
-                        )}
-                      </>
+                      <button
+                        type="button"
+                        onClick={() => { setMediaPickerTarget('content_tip_image_url'); setMediaPickerOpen(true); }}
+                        style={{ padding: '8px 14px', fontSize: '0.85rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fafafa', cursor: 'pointer' }}
+                      >
+                        🖼️ Selecionar da biblioteca
+                      </button>
                     )}
                     {contentImageError['content_tip_image_url'] && (
                       <p style={{ margin: '6px 0 0', fontSize: '0.78rem', color: '#dc2626' }}>
@@ -682,41 +635,31 @@ export function AdminDevotionals() {
                           alt="Prévia"
                           style={{ width: '100%', maxWidth: '320px', aspectRatio: '16 / 9', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd', display: 'block', marginBottom: '8px' }}
                         />
-                        <button
-                          type="button"
-                          onClick={() => handleContentImageRemove('support_banner_url')}
-                          style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fff', cursor: 'pointer' }}
-                        >
-                          Remover
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button
+                            type="button"
+                            onClick={() => { setMediaPickerTarget('support_banner_url'); setMediaPickerOpen(true); }}
+                            style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fafafa', cursor: 'pointer' }}
+                          >
+                            Trocar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleContentImageRemove('support_banner_url')}
+                            style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fff', cursor: 'pointer' }}
+                          >
+                            Remover
+                          </button>
+                        </div>
                       </div>
                     ) : (
-                      <>
-                        <input
-                          ref={supportBannerInputRef}
-                          type="file"
-                          accept="image/jpeg,image/png,image/webp"
-                          style={{ display: 'none' }}
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleContentImageUpload('support_banner_url', 'support_banner', file);
-                            e.target.value = '';
-                          }}
-                        />
-                        <button
-                          type="button"
-                          disabled={!editingId || editingId === 'new' || !!contentImageBusy['support_banner_url']}
-                          onClick={() => supportBannerInputRef.current?.click()}
-                          style={{ padding: '8px 14px', fontSize: '0.85rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fafafa', cursor: 'pointer' }}
-                        >
-                          {contentImageBusy['support_banner_url'] ? 'Enviando...' : 'Enviar banner'}
-                        </button>
-                        {(!editingId || editingId === 'new') && (
-                          <span style={{ marginLeft: '8px', fontSize: '0.78rem', color: '#b45309' }}>
-                            Salve o devocional primeiro para poder enviar imagens.
-                          </span>
-                        )}
-                      </>
+                      <button
+                        type="button"
+                        onClick={() => { setMediaPickerTarget('support_banner_url'); setMediaPickerOpen(true); }}
+                        style={{ padding: '8px 14px', fontSize: '0.85rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fafafa', cursor: 'pointer' }}
+                      >
+                        🖼️ Selecionar da biblioteca
+                      </button>
                     )}
                     {contentImageError['support_banner_url'] && (
                       <p style={{ margin: '6px 0 0', fontSize: '0.78rem', color: '#dc2626' }}>
@@ -1007,6 +950,20 @@ export function AdminDevotionals() {
             </div>
           )}
         </div>
+      )}
+
+      {mediaPickerOpen && mediaPickerTarget && (
+        <MediaLibraryPicker
+          onSelect={(url) => {
+            setValue(mediaPickerTarget, url);
+            setMediaPickerOpen(false);
+            setMediaPickerTarget(null);
+          }}
+          onClose={() => {
+            setMediaPickerOpen(false);
+            setMediaPickerTarget(null);
+          }}
+        />
       )}
     </div>
   );
