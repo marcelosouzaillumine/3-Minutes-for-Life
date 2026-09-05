@@ -1,23 +1,19 @@
 // @ts-nocheck
 import { serve } from "https://deno.land/std@0.192.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-import { Configuration, OpenAIApi } from "https://esm.sh/openai@3.3.0";
+import Anthropic from "https://esm.sh/@anthropic-ai/sdk@0.27.3";
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY') || '';
+const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') || '';
 
-// Configuration via Env Vars
 const TRANSLATION_BATCH_SIZE = parseInt(Deno.env.get('TRANSLATION_BATCH_SIZE') || '5', 10);
 const TRANSLATION_MAX_RETRIES = parseInt(Deno.env.get('TRANSLATION_MAX_RETRIES') || '3', 10);
-const TRANSLATION_PROVIDER = Deno.env.get('TRANSLATION_PROVIDER') || 'openai';
-const TRANSLATION_MODEL = Deno.env.get('TRANSLATION_MODEL') || 'gpt-4o-mini';
+const TRANSLATION_MODEL = Deno.env.get('TRANSLATION_MODEL') || 'claude-haiku-4-5-20251001';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 const workerId = `worker-${crypto.randomUUID()}`;
-
-const openaiConfig = new Configuration({ apiKey: OPENAI_API_KEY });
-const openai = new OpenAIApi(openaiConfig);
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -30,69 +26,64 @@ async function getGlossary(sourceLang: string, targetLang: string) {
     .select('source_term, target_term')
     .eq('source_language', sourceLang)
     .eq('target_language', targetLang);
-  
+
   if (!data || data.length === 0) return '';
-  return "Glossário Editorial (Sempre use estas traduções para estes termos):\n" + 
+  return "Glossário Editorial (Sempre use estas traduções para estes termos):\n" +
     data.map((g: any) => `- "${g.source_term}" -> "${g.target_term}"`).join('\n');
 }
 
-async function callOpenAI(devotional: any, targetLang: string, glossaryContext: string) {
-  const prompt = `
-  Traduza este conteúdo devocional do Português (Brasil) para o idioma de código ISO "${targetLang}".
-  
-  REGRAS EDITORIAIS:
-  1. A tradução deve ser natural, contemporânea e com tom pastoral e acolhedor.
-  2. Preservar o sentido teológico e referências bíblicas.
-  3. Não adicione ideias inexistentes e não remova conceitos importantes.
-  
-  REGRAS ESTRUTURAIS:
-  1. Você DEVE devolver a tradução como um JSON estrito com as chaves: title, principle_statement, scripture_reference, scripture_text, reflection, practical_application, prayer.
-  2. Preserve TODAS as tags HTML exatas do conteúdo (como <p>, <strong>, <em>, <u>, <h2>, <h3>, <blockquote>).
-  3. Não traduza nomes de classes ou atributos de HTML técnicos.
-  4. Se houver blocos estruturais de CTA no formato <div data-type="cta" data-title="..." data-description="..." data-label="..." data-url="..." data-action="..."></div>:
-     - Preserve a tag <div> e sua posição exata dentro do texto.
-     - Traduza apenas os valores de data-title, data-description e data-label.
-     - NUNCA altere ou traduza os valores de data-type, data-url e data-action.
-     - NUNCA remova, recrie ou reposicione o bloco de CTA.
-  
-  ${glossaryContext}
-  
-  CONTEÚDO ORIGINAL:
-  Title: ${devotional.title}
-  Principle Statement: ${devotional.principle_statement || ''}
-  Scripture Reference: ${devotional.scripture_reference || ''}
-  Scripture Text: ${devotional.scripture_text || ''}
-  Reflection:
-  ${devotional.reflection || ''}
-  
-  Practical Application:
-  ${devotional.practical_application || ''}
-  
-  Prayer:
-  ${devotional.prayer || ''}
-  `;
+async function callClaude(devotional: any, targetLang: string, glossaryContext: string) {
+  const prompt = `Traduza este conteúdo devocional do Português (Brasil) para o idioma de código ISO "${targetLang}".
 
-  const response = await openai.createChatCompletion({
+REGRAS EDITORIAIS:
+1. A tradução deve ser natural, contemporânea e com tom pastoral e acolhedor.
+2. Preservar o sentido teológico e referências bíblicas.
+3. Não adicione ideias inexistentes e não remova conceitos importantes.
+
+REGRAS ESTRUTURAIS:
+1. Você DEVE devolver a tradução como um JSON estrito com as chaves: title, principle_statement, scripture_reference, scripture_text, reflection, practical_application, prayer.
+2. Preserve TODAS as tags HTML exatas do conteúdo (como <p>, <strong>, <em>, <u>, <h2>, <h3>, <blockquote>).
+3. Não traduza nomes de classes ou atributos de HTML técnicos.
+4. Se houver blocos estruturais de CTA no formato <div data-type="cta" data-title="..." data-description="..." data-label="..." data-url="..." data-action="..."></div>:
+   - Preserve a tag <div> e sua posição exata dentro do texto.
+   - Traduza apenas os valores de data-title, data-description e data-label.
+   - NUNCA altere ou traduza os valores de data-type, data-url e data-action.
+   - NUNCA remova, recrie ou reposicione o bloco de CTA.
+
+${glossaryContext}
+
+CONTEÚDO ORIGINAL:
+Title: ${devotional.title}
+Principle Statement: ${devotional.principle_statement || ''}
+Scripture Reference: ${devotional.scripture_reference || ''}
+Scripture Text: ${devotional.scripture_text || ''}
+Reflection:
+${devotional.reflection || ''}
+
+Practical Application:
+${devotional.practical_application || ''}
+
+Prayer:
+${devotional.prayer || ''}`;
+
+  const message = await anthropic.messages.create({
     model: TRANSLATION_MODEL,
-    messages: [
-      { role: "system", content: "Você é um tradutor teológico profissional especializado em devocionais cristãos. Retorne apenas JSON válido contendo as chaves: title, principle_statement, scripture_reference, scripture_text, reflection, practical_application, prayer." },
-      { role: "user", content: prompt }
-    ],
-    temperature: 0.3,
+    max_tokens: 4096,
+    system: "Você é um tradutor teológico profissional especializado em devocionais cristãos. Retorne apenas JSON válido contendo as chaves: title, principle_statement, scripture_reference, scripture_text, reflection, practical_application, prayer. Não inclua markdown, blocos de código ou texto fora do JSON.",
+    messages: [{ role: "user", content: prompt }],
   });
 
-  const content = response.data.choices[0].message?.content || '{}';
-  // Attempt to parse JSON from Markdown block if present
-  let jsonStr = content.trim();
-  if (jsonStr.startsWith('```json')) jsonStr = jsonStr.replace(/```json\n/, '').replace(/\n```$/, '');
-  
+  let jsonStr = (message.content[0] as any).text.trim();
+  if (jsonStr.startsWith('```json')) jsonStr = jsonStr.replace(/^```json\n?/, '').replace(/\n?```$/, '');
+  if (jsonStr.startsWith('```')) jsonStr = jsonStr.replace(/^```\n?/, '').replace(/\n?```$/, '');
+
   return JSON.parse(jsonStr);
 }
 
 function validateTranslation(original: any, translated: any) {
   const warnings = [];
   let isPass = true;
-  
+
   const requiredFields = ['title', 'principle_statement', 'reflection'];
   for (const field of requiredFields) {
     if (!translated[field] || translated[field].trim() === '') {
@@ -101,14 +92,13 @@ function validateTranslation(original: any, translated: any) {
     }
   }
 
-  // Check significant length differences (Warning only)
   const origLength = original.reflection?.length || 0;
   const transLength = translated.reflection?.length || 0;
   if (origLength > 0 && (transLength < origLength * 0.5 || transLength > origLength * 1.5)) {
     warnings.push("Significant length variation in reflection");
   }
 
-  return { pass: warnings.length === 0, warnings };
+  return { pass: isPass && warnings.length === 0, warnings };
 }
 
 serve(async (req: Request) => {
@@ -148,10 +138,9 @@ serve(async (req: Request) => {
   }
 
   try {
-    // 1. Claim Jobs Atomically
     const { data: jobs, error: claimError } = await supabase.rpc('claim_translation_jobs', {
       p_worker_id: workerId,
-      p_limit: TRANSLATION_BATCH_SIZE
+      p_limit: TRANSLATION_BATCH_SIZE,
     });
 
     if (claimError) throw claimError;
@@ -168,7 +157,6 @@ serve(async (req: Request) => {
       let errorDetails = null;
 
       try {
-        // Fetch original devotional
         const { data: devotional } = await supabase
           .from('devotionals')
           .select('*')
@@ -178,19 +166,9 @@ serve(async (req: Request) => {
         if (!devotional) throw new Error("Original devotional not found.");
 
         const glossaryContext = await getGlossary(job.source_language, job.target_language);
-        
-        // Translate via Provider
-        let translatedData;
-        if (TRANSLATION_PROVIDER === 'openai') {
-          translatedData = await callOpenAI(devotional, job.target_language, glossaryContext);
-        } else {
-          throw new Error(`Unsupported provider: ${TRANSLATION_PROVIDER}`);
-        }
-
-        // Validate
+        const translatedData = await callClaude(devotional, job.target_language, glossaryContext);
         const validation = validateTranslation(devotional, translatedData);
 
-        // Upsert Translation
         const { error: upsertError } = await supabase
           .from('devotional_translations')
           .upsert({
@@ -206,15 +184,19 @@ serve(async (req: Request) => {
             source_content_hash: devotional.content_hash,
             status: validation.pass ? 'published' : 'draft',
             validation_warnings: validation.warnings.length > 0 ? validation.warnings : null,
-            translation_source: 'ai'
+            translation_source: 'ai',
           }, { onConflict: 'devotional_id,language,translation_source' });
 
         if (upsertError) throw upsertError;
 
-        // Mark job as completed
         await supabase
           .from('translation_jobs')
-          .update({ status: 'completed', error_message: null, warning_details: validation.warnings.length > 0 ? validation.warnings : null, updated_at: new Date().toISOString() })
+          .update({
+            status: 'completed',
+            error_message: null,
+            warning_details: validation.warnings.length > 0 ? validation.warnings : null,
+            updated_at: new Date().toISOString(),
+          })
           .eq('id', job.id);
 
         results.push({ job_id: job.id, status: 'completed' });
@@ -223,9 +205,8 @@ serve(async (req: Request) => {
         attemptStatus = 'error';
         errorDetails = err.message;
 
-        // Determine if we should fail the job or requeue
         const newStatus = job.attempts >= TRANSLATION_MAX_RETRIES ? 'failed' : 'queued';
-        
+
         await supabase
           .from('translation_jobs')
           .update({ status: newStatus, error_message: err.message, updated_at: new Date().toISOString() })
@@ -234,14 +215,13 @@ serve(async (req: Request) => {
         results.push({ job_id: job.id, status: newStatus, error: err.message });
       }
 
-      // Record Attempt History
       await supabase.from('translation_job_attempts').insert({
         job_id: job.id,
         attempt_number: job.attempts,
         status: attemptStatus,
         error_details: errorDetails,
-        provider: TRANSLATION_PROVIDER,
-        model: TRANSLATION_MODEL
+        provider: 'claude',
+        model: TRANSLATION_MODEL,
       });
     }
 
