@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { authService } from './authService';
+import { illumineFetch, illumineAuth } from '../lib/illumine';
 
 // FASE 2: Eliminar N+1 via Cache de Resolução
 const idCache = new Map<number, string>();
@@ -21,24 +22,31 @@ async function resolveDevotionalId(principleId: number): Promise<string | null> 
   return data.id;
 }
 
+function illumineJourneyWrite(path: string, method: 'POST' | 'DELETE' = 'POST'): void {
+  if (!illumineAuth.isAuthenticated()) return;
+  illumineFetch(path, { method }).catch(e => console.warn('[Journey] Illumine write warning:', e));
+}
+
 export const JourneyService = {
   // --- CANONICAL WRITES (ZERO LEGACY WRITES) --- //
 
-  async start(devotionalId: string) {
+  async start(devotionalId: string, legacyId?: number) {
     const session = await authService.getSession();
     const userId = session?.user?.id;
     if (!userId) return;
 
     await supabase
       .from('user_devotionals')
-      .upsert({ 
+      .upsert({
         user_id: userId,
         devotional_id: devotionalId,
         read_at: new Date().toISOString()
       }, { onConflict: 'user_id, devotional_id', ignoreDuplicates: true });
+
+    if (legacyId) illumineJourneyWrite(`/devotionals/legacy/${legacyId}/read`);
   },
 
-  async complete(devotionalId: string) {
+  async complete(devotionalId: string, legacyId?: number) {
     const session = await authService.getSession();
     const userId = session?.user?.id;
     if (!userId) return;
@@ -47,14 +55,16 @@ export const JourneyService = {
 
     await supabase
       .from('user_devotionals')
-      .upsert({ 
+      .upsert({
         user_id: userId,
         devotional_id: devotionalId,
         completed_at: completedAt
       }, { onConflict: 'user_id, devotional_id' });
+
+    if (legacyId) illumineJourneyWrite(`/devotionals/legacy/${legacyId}/complete`);
   },
-  
-  async toggleFavorite(devotionalId: string) {
+
+  async toggleFavorite(devotionalId: string, legacyId?: number) {
     const session = await authService.getSession();
     const userId = session?.user?.id;
     if (!userId) return false;
@@ -71,11 +81,13 @@ export const JourneyService = {
 
     if (isFavorited) {
       await supabase.from('favorites').delete().eq('devotional_id', devotionalId).eq('user_id', userId);
+      if (legacyId) illumineJourneyWrite(`/devotionals/legacy/${legacyId}/favorite`, 'DELETE');
     } else {
-      await supabase.from('favorites').insert({ 
-        user_id: userId, 
+      await supabase.from('favorites').insert({
+        user_id: userId,
         devotional_id: devotionalId
       });
+      if (legacyId) illumineJourneyWrite(`/devotionals/legacy/${legacyId}/favorite`);
     }
 
     return !isFavorited;

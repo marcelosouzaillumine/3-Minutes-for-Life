@@ -52,7 +52,7 @@ export function PrincipleView({
   useEffect(() => {
     let mounted = true;
 
-    JourneyService.start(devotional.id).catch(console.error);
+    JourneyService.start(devotional.id, devotional.legacy_id).catch(console.error);
 
     JourneyService.listFavorites()
       .then((ids) => {
@@ -88,7 +88,8 @@ export function PrincipleView({
   const toggleSave = async () => {
     try {
       const isSaved = await JourneyService.toggleFavorite(
-        devotional.id
+        devotional.id,
+        devotional.legacy_id
       );
 
       setSaved(isSaved);
@@ -112,7 +113,7 @@ export function PrincipleView({
 
   const markComplete = async () => {
     try {
-      await JourneyService.complete(devotional.id);
+      await JourneyService.complete(devotional.id, devotional.legacy_id);
       alert(t('completed'));
     } catch (err) {
       console.error(err);
