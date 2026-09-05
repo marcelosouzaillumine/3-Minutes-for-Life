@@ -1,5 +1,27 @@
 /* 3MinutesforLife - Admin Intelligence Styles (Clean Mobile First) */
 
+/* ============================================================
+   Admin bottom nav — wider to fit all 9 items without clipping
+   ============================================================ */
+.admin-layout .bottom-nav {
+  max-width: min(90vw, 820px);
+  width: calc(100% - 2rem);
+  padding: 0.6rem 0.75rem;
+  justify-content: space-between;
+}
+
+.admin-layout .nav-item {
+  min-width: 52px;
+  font-size: 0.6rem;
+  gap: 3px;
+  flex: 1;
+}
+
+.admin-layout .nav-icon {
+  width: 20px;
+  height: 20px;
+}
+
 .admin-loading-state,
 .admin-empty-state,
 .admin-error-state {

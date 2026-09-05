@@ -251,7 +251,7 @@ export function AdminLayout() {
   // =========================================================
 
   return (
-    <div className="app-container">
+    <div className="app-container admin-layout">
 
       <main className="content-area">
         <Suspense
