@@ -55,8 +55,18 @@ export function AdminTranslations() {
           { onConflict: 'devotional_id,source_language,target_language' }
         );
       }
-      const { error: fnError } = await supabase.functions.invoke('translate-devotional');
-      if (fnError) { alert('Erro ao executar tradução: ' + fnError.message); return; }
+      const { data: fnResult, error: fnError } = await supabase.functions.invoke('translate-devotional');
+      if (fnError) {
+        let detail = fnError.message;
+        try {
+          const body = await (fnError as any).context?.json?.();
+          detail = body?.error || body?.message || detail;
+        } catch {}
+        alert('Erro ao executar tradução:\n' + detail);
+        return;
+      }
+      const failed = (fnResult?.results || []).find((r: any) => r.status !== 'completed');
+      if (failed) { alert('Tradução falhou: ' + (failed.error || 'erro desconhecido')); return; }
       await loadData();
     } catch (err: any) {
       alert('Erro: ' + err.message);

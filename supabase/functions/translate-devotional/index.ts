@@ -1,7 +1,6 @@
 // @ts-nocheck
 import { serve } from "https://deno.land/std@0.192.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
-import Anthropic from "https://esm.sh/@anthropic-ai/sdk@0.27.3";
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
@@ -12,7 +11,6 @@ const TRANSLATION_MAX_RETRIES = parseInt(Deno.env.get('TRANSLATION_MAX_RETRIES')
 const TRANSLATION_MODEL = Deno.env.get('TRANSLATION_MODEL') || 'claude-haiku-4-5-20251001';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 const workerId = `worker-${crypto.randomUUID()}`;
 
 const corsHeaders = {
@@ -66,14 +64,28 @@ ${devotional.practical_application || ''}
 Prayer:
 ${devotional.prayer || ''}`;
 
-  const message = await anthropic.messages.create({
-    model: TRANSLATION_MODEL,
-    max_tokens: 4096,
-    system: "Você é um tradutor teológico profissional especializado em devocionais cristãos. Retorne apenas JSON válido contendo as chaves: title, principle_statement, scripture_reference, scripture_text, reflection, practical_application, prayer. Não inclua markdown, blocos de código ou texto fora do JSON.",
-    messages: [{ role: "user", content: prompt }],
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: TRANSLATION_MODEL,
+      max_tokens: 4096,
+      system: "Você é um tradutor teológico profissional especializado em devocionais cristãos. Retorne apenas JSON válido contendo as chaves: title, principle_statement, scripture_reference, scripture_text, reflection, practical_application, prayer. Não inclua markdown, blocos de código ou texto fora do JSON.",
+      messages: [{ role: "user", content: prompt }],
+    }),
   });
 
-  let jsonStr = (message.content[0] as any).text.trim();
+  if (!response.ok) {
+    const errBody = await response.text();
+    throw new Error(`Anthropic API error ${response.status}: ${errBody}`);
+  }
+
+  const result = await response.json();
+  let jsonStr = result.content[0].text.trim();
   if (jsonStr.startsWith('```json')) jsonStr = jsonStr.replace(/^```json\n?/, '').replace(/\n?```$/, '');
   if (jsonStr.startsWith('```')) jsonStr = jsonStr.replace(/^```\n?/, '').replace(/\n?```$/, '');
 
