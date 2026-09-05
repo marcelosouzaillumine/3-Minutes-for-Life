@@ -159,6 +159,44 @@ export const AdminContentService = {
     if (error) throw error;
   },
 
+  async getDevotionalsWithAllTranslations(): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('devotionals')
+      .select(`
+        id, legacy_id, title, publication_date, status, content_hash,
+        principle_statement, reflection, practical_application, prayer,
+        scripture_reference, scripture_text, content_tip, content_tip_image_url,
+        content_tip_url, support_message, support_banner_url, support_link_url,
+        category_id, categories(id, name),
+        devotional_translations (*)
+      `)
+      .eq('status', 'published')
+      .order('publication_date', { ascending: false });
+
+    if (error) throw error;
+
+    return (data || []).map(devotional => {
+      const langMap: Record<string, { manual: any; ai: any; state: string }> = {};
+
+      for (const t of devotional.devotional_translations || []) {
+        const lang = t.language;
+        if (!langMap[lang]) langMap[lang] = { manual: null, ai: null, state: 'none' };
+        if (t.translation_source === 'manual') langMap[lang].manual = t;
+        else langMap[lang].ai = t;
+      }
+
+      for (const lang of Object.keys(langMap)) {
+        const { manual, ai } = langMap[lang];
+        if (manual?.status === 'published') langMap[lang].state = 'manual_published';
+        else if (manual?.status === 'draft') langMap[lang].state = 'draft';
+        else if (ai?.status === 'published') langMap[lang].state = 'ai_published';
+        else langMap[lang].state = 'draft';
+      }
+
+      return { ...devotional, langMap };
+    });
+  },
+
   async getDevotionalsForManualTranslation(targetLanguage: string): Promise<any[]> {
     const { data, error } = await supabase
       .from('devotionals')
