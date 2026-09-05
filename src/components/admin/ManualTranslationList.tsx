@@ -10,6 +10,7 @@ interface ManualTranslationListProps {
   devotionals: any[];
   onSelectDevotional: (devotional: any) => void;
   onBack: () => void;
+  onTranslateWithAI?: (devotionalId: string) => Promise<void>;
 }
 
 type FilterTab = 'all' | 'pending' | 'draft' | 'published';
@@ -18,10 +19,12 @@ export const ManualTranslationList: React.FC<ManualTranslationListProps> = ({
   language,
   devotionals,
   onSelectDevotional,
-  onBack
+  onBack,
+  onTranslateWithAI,
 }) => {
   const [filterTab, setFilterTab] = useState<FilterTab>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [translatingIds, setTranslatingIds] = useState<Set<string>>(new Set());
 
   // Counters
   const totalCount = devotionals.length;
@@ -281,8 +284,36 @@ export const ManualTranslationList: React.FC<ManualTranslationListProps> = ({
                 )}
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                 {renderOriginBadge(devo.translationState)}
+
+                {devo.translationState === 'none' && onTranslateWithAI && (
+                  <button
+                    disabled={translatingIds.has(devo.id)}
+                    onClick={async () => {
+                      setTranslatingIds(prev => new Set(prev).add(devo.id));
+                      try {
+                        await onTranslateWithAI(devo.id);
+                      } finally {
+                        setTranslatingIds(prev => { const s = new Set(prev); s.delete(devo.id); return s; });
+                      }
+                    }}
+                    style={{
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #ddd',
+                      background: 'var(--color-surface)',
+                      color: 'var(--color-text)',
+                      fontWeight: 600,
+                      fontSize: '0.8rem',
+                      cursor: translatingIds.has(devo.id) ? 'not-allowed' : 'pointer',
+                      whiteSpace: 'nowrap',
+                      opacity: translatingIds.has(devo.id) ? 0.6 : 1,
+                    }}
+                  >
+                    {translatingIds.has(devo.id) ? '⏳ Traduzindo...' : '✨ Traduzir com IA'}
+                  </button>
+                )}
 
                 <button
                   onClick={() => onSelectDevotional(devo)}

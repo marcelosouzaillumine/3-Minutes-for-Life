@@ -106,37 +106,26 @@ export function AdminTranslations() {
     }
   };
 
-  const handleTranslateAcervo = async (isoCode: string) => {
-    if (!confirm(`Deseja enviar todo o acervo não traduzido para a fila de tradução automática (${isoCode})?`)) return;
+  const handleTranslateDevotionalWithAI = async (devotionalId: string) => {
+    if (!selectedLangForManual) return;
+    const isoCode = selectedLangForManual.iso_code;
 
-    try {
-      const { data: devotionals } = await supabase.from('devotionals').select('id, status').eq('status', 'published');
-      if (!devotionals) return;
+    const { error } = await supabase
+      .from('translation_jobs')
+      .upsert(
+        [{ devotional_id: devotionalId, source_language: 'pt-BR', target_language: isoCode, status: 'queued', attempts: 0, error_message: null }],
+        { onConflict: 'devotional_id,source_language,target_language' }
+      );
 
-      const jobs = devotionals.map(d => ({
-        devotional_id: d.id,
-        source_language: 'pt-BR',
-        target_language: isoCode,
-        status: 'queued'
-      }));
+    if (error) { alert('Erro ao enfileirar tradução: ' + error.message); return; }
 
-      const { error } = await supabase
-        .from('translation_jobs')
-        .upsert(jobs, { onConflict: 'devotional_id,source_language,target_language' });
+    const { data: result, error: fnError } = await supabase.functions.invoke('translate-devotional');
+    if (fnError) { alert('Erro ao executar tradução: ' + fnError.message); return; }
 
-      if (error) throw error;
+    const failed = (result?.results || []).find((r: any) => r.status !== 'completed');
+    if (failed) { alert('Tradução falhou: ' + (failed.error || 'erro desconhecido')); return; }
 
-      // Trigger the translation worker to process the queued jobs
-      const { error: fnError } = await supabase.functions.invoke('translate-devotional');
-      if (fnError) {
-        console.warn('Translation worker error (jobs remain queued):', fnError.message);
-      }
-
-      alert('Tradução iniciada! Aguarde alguns instantes e recarregue a página para ver o progresso.');
-      loadData();
-    } catch (err: any) {
-      alert('Erro: ' + err.message);
-    }
+    await handleRefreshManualList();
   };
 
   if (loading) {
@@ -174,6 +163,7 @@ export function AdminTranslations() {
             language={selectedLangForManual}
             devotionals={manualDevotionals}
             onSelectDevotional={(dev) => setSelectedDevotionalForManual(dev)}
+            onTranslateWithAI={handleTranslateDevotionalWithAI}
             onBack={() => {
               setSelectedLangForManual(null);
               setSelectedDevotionalForManual(null);
