@@ -153,7 +153,7 @@ export function AdminTranslations() {
   // View: Manual Translation List for selected language
   if (selectedLangForManual) {
     return (
-      <div style={{ padding: '20px', paddingBottom: '100px', width: '100%' }}>
+      <div style={{ padding: '20px', paddingBottom: '140px', width: '100%' }}>
         {loadingDevotionals ? (
           <div style={{ padding: '40px', textAlign: 'center' }}>
             <div className="admin-spinner" style={{ margin: '0 auto' }}></div>
@@ -192,23 +192,7 @@ export function AdminTranslations() {
                 </h3>
 
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-                  <button 
-                    onClick={() => handleTranslateAcervo(lang.iso_code)}
-                    style={{
-                      background: 'var(--color-surface, #ffffff)',
-                      border: '1px solid #ddd',
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      fontSize: '0.85rem',
-                      fontWeight: 'bold',
-                      cursor: 'pointer',
-                      color: 'var(--color-text, #1a1a1a)'
-                    }}
-                  >
-                    Traduzir com IA
-                  </button>
-
-                  <button 
+                  <button
                     onClick={() => handleOpenManualTranslation(lang)}
                     style={{
                       background: '#c46d53',
