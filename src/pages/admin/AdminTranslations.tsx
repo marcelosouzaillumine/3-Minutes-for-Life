@@ -55,14 +55,19 @@ export function AdminTranslations() {
           { onConflict: 'devotional_id,source_language,target_language' }
         );
       }
-      const { data: fnResult, error: fnError } = await supabase.functions.invoke('translate-devotional');
-      if (fnError) {
-        let detail = fnError.message;
-        try {
-          const body = await (fnError as any).context?.json?.();
-          detail = body?.error || body?.message || detail;
-        } catch {}
-        alert('Erro ao executar tradução:\n' + detail);
+      const { data: { session } } = await supabase.auth.getSession();
+      const fnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translate-devotional`;
+      const fnResp = await fetch(fnUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token || ''}`,
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          'Content-Type': 'application/json',
+        },
+      });
+      const fnResult = await fnResp.json().catch(() => ({}));
+      if (!fnResp.ok) {
+        alert('Erro ao executar tradução:\n' + (fnResult?.error || fnResult?.message || `HTTP ${fnResp.status}`));
         return;
       }
       const failed = (fnResult?.results || []).find((r: any) => r.status !== 'completed');
