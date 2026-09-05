@@ -127,12 +127,10 @@ serve(async (req: Request) => {
     });
   }
   const callerToken = authHeader.replace('Bearer ', '');
-  const callerClient = createClient(SUPABASE_URL, Deno.env.get('SUPABASE_ANON_KEY') || '', {
-    global: { headers: { Authorization: `Bearer ${callerToken}` } },
-  });
-  const { data: { user }, error: authError } = await callerClient.auth.getUser();
+  // Use the service-role client to verify the caller's JWT — avoids needing SUPABASE_ANON_KEY
+  const { data: { user }, error: authError } = await supabase.auth.getUser(callerToken);
   if (authError || !user) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+    return new Response(JSON.stringify({ error: 'Unauthorized', detail: authError?.message }), {
       status: 401,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
