@@ -167,7 +167,7 @@ export function AdminBottomNav() {
           />
         </svg>
 
-        Relacionamento
+        Pastoral
 
       </Link>
 
