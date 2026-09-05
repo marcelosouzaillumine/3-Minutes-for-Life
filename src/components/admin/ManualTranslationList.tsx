@@ -133,163 +133,184 @@ export const ManualTranslationList: React.FC<ManualTranslationListProps> = ({
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: '900px', margin: '0 auto' }}>
-      {/* Top bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <button 
+    <div style={{ width: '100%', maxWidth: '860px', margin: '0 auto' }}>
+
+      {/* Header */}
+      <div style={{ marginBottom: '20px' }}>
+        <button
           onClick={onBack}
-          style={{ 
-            background: 'none', 
-            border: 'none', 
-            color: 'var(--color-primary)', 
-            fontWeight: 'bold', 
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--color-text-light)',
             cursor: 'pointer',
             padding: 0,
-            fontSize: '0.95rem'
+            fontSize: '0.82rem',
+            marginBottom: '16px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px',
           }}
         >
-          &larr; Voltar ao Translation Center
+          ← Translation Center
         </button>
-      </div>
 
-      {/* Header section */}
-      <div style={{
-        background: 'var(--color-surface)',
-        padding: '24px',
-        borderRadius: '12px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-        marginBottom: '24px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-          <span style={{ fontSize: '2rem' }}>{language.flag_emoji}</span>
-          <div>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 'bold', margin: 0 }}>
-              {language.name}
-            </h2>
-            <span style={{ fontSize: '0.85rem', color: 'var(--color-text-light)' }}>
-              Tradução Editorial / Manual ({language.native_name})
-            </span>
+        {/* Language title + stats inline */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '12px',
+          marginBottom: '16px',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '1.6rem', lineHeight: 1 }}>{language.flag_emoji}</span>
+            <div>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0, lineHeight: 1.2 }}>
+                {language.name}
+              </h2>
+              <span style={{ fontSize: '0.78rem', color: 'var(--color-text-light)' }}>
+                {language.native_name}
+              </span>
+            </div>
           </div>
-        </div>
 
-        {/* Counter cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px', marginTop: '16px' }}>
-          <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', textAlign: 'center' }}>
-            <div style={{ fontSize: '1.3rem', fontWeight: 'bold', color: 'var(--color-text)' }}>{totalCount}</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>Total</div>
-          </div>
-          <div style={{ background: '#ecfdf5', padding: '12px', borderRadius: '8px', textAlign: 'center' }}>
-            <div style={{ fontSize: '1.3rem', fontWeight: 'bold', color: '#059669' }}>{publishedCount}</div>
-            <div style={{ fontSize: '0.75rem', color: '#059669' }}>Traduzidos</div>
-          </div>
-          <div style={{ background: '#fffbeb', padding: '12px', borderRadius: '8px', textAlign: 'center' }}>
-            <div style={{ fontSize: '1.3rem', fontWeight: 'bold', color: '#d97706' }}>{draftCount}</div>
-            <div style={{ fontSize: '0.75rem', color: '#d97706' }}>Rascunhos</div>
-          </div>
-          <div style={{ background: '#eff6ff', padding: '12px', borderRadius: '8px', textAlign: 'center' }}>
-            <div style={{ fontSize: '1.3rem', fontWeight: 'bold', color: '#2563eb' }}>{pendingCount}</div>
-            <div style={{ fontSize: '0.75rem', color: '#2563eb' }}>Pendentes</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filter and search controls */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
-        {/* Search input */}
-        <input 
-          type="text"
-          placeholder="Buscar por título, ID ou data..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '12px 16px',
-            borderRadius: '8px',
-            border: '1px solid #ddd',
-            fontSize: '0.95rem',
-            background: 'var(--color-surface)',
-            color: 'var(--color-text)'
-          }}
-        />
-
-        {/* Filter tabs */}
-        <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
-          {[
-            { id: 'all' as FilterTab, label: `Todos (${totalCount})` },
-            { id: 'pending' as FilterTab, label: `Pendentes (${pendingCount})` },
-            { id: 'draft' as FilterTab, label: `Rascunhos (${draftCount})` },
-            { id: 'published' as FilterTab, label: `Publicados (${publishedCount})` }
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setFilterTab(tab.id)}
-              style={{
-                padding: '8px 16px',
+          {/* Stats pills */}
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {[
+              { label: 'Total', value: totalCount, color: '#64748b', bg: '#f1f5f9' },
+              { label: 'Traduzidos', value: publishedCount, color: '#059669', bg: '#ecfdf5' },
+              { label: 'Rascunhos', value: draftCount, color: '#d97706', bg: '#fffbeb' },
+              { label: 'Pendentes', value: pendingCount, color: '#2563eb', bg: '#eff6ff' },
+            ].map(stat => (
+              <div key={stat.label} style={{
+                background: stat.bg,
+                padding: '4px 10px',
                 borderRadius: '20px',
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                fontSize: '0.85rem',
-                whiteSpace: 'nowrap',
-                background: filterTab === tab.id ? 'var(--color-primary)' : 'var(--color-surface)',
-                color: filterTab === tab.id ? 'white' : 'var(--color-text)',
-                boxShadow: filterTab === tab.id ? '0 2px 6px rgba(0,0,0,0.1)' : 'none'
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+              }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: stat.color }}>{stat.value}</span>
+                <span style={{ fontSize: '0.72rem', color: stat.color, opacity: 0.8 }}>{stat.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Search + filter row */}
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <input
+            type="text"
+            placeholder="Buscar por título, ID ou data..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{
+              flex: '1 1 200px',
+              padding: '9px 14px',
+              borderRadius: '8px',
+              border: '1px solid #e2e8f0',
+              fontSize: '0.875rem',
+              background: 'var(--color-surface)',
+              color: 'var(--color-text)',
+              outline: 'none',
+            }}
+          />
+          <div style={{ display: 'flex', gap: '6px', overflowX: 'auto', flexShrink: 0 }}>
+            {[
+              { id: 'all' as FilterTab, label: 'Todos' },
+              { id: 'pending' as FilterTab, label: 'Pendentes' },
+              { id: 'draft' as FilterTab, label: 'Rascunhos' },
+              { id: 'published' as FilterTab, label: 'Publicados' },
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setFilterTab(tab.id)}
+                style={{
+                  padding: '7px 14px',
+                  borderRadius: '6px',
+                  border: filterTab === tab.id ? '1px solid #c46d53' : '1px solid #e2e8f0',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  fontSize: '0.8rem',
+                  whiteSpace: 'nowrap',
+                  background: filterTab === tab.id ? '#c46d53' : 'var(--color-surface)',
+                  color: filterTab === tab.id ? '#fff' : 'var(--color-text-light)',
+                  transition: 'all 0.15s',
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Devotionals list */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {filteredDevotionals.map((devo, idx) => {
-          const isTranslated = devo.translationState !== 'none';
           const buttonLabel = devo.translationState === 'none' ? 'Inserir tradução' : 'Editar tradução';
+          const isTranslating = translatingIds.has(devo.id);
 
           return (
             <div
               key={devo.id}
               style={{
                 background: 'var(--color-surface, #ffffff)',
-                borderRadius: '12px',
+                borderRadius: '10px',
                 padding: '16px 20px',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
-                border: '1px solid rgba(0,0,0,0.06)',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+                border: '1px solid rgba(0,0,0,0.07)',
                 display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: '16px'
+                flexDirection: 'column',
+                gap: '6px',
               }}
             >
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--color-text-light)', textTransform: 'uppercase' }}>
-                    DEVOCIONAL #{devo.legacy_id || idx + 1}
-                  </span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--color-text-light)' }}>
-                    • 📅 {devo.publication_date}
-                  </span>
-                </div>
+              {/* Row 1: Title */}
+              <div style={{
+                fontSize: '1rem',
+                fontWeight: 700,
+                color: 'var(--color-text)',
+                lineHeight: 1.3,
+              }}>
+                {devo.title}
+              </div>
 
-                <div style={{ fontSize: '1rem', fontWeight: 'bold', color: 'var(--color-text)', marginBottom: '4px' }}>
-                  {devo.title}
-                </div>
-
-                {isTranslated && (devo.manualTranslation?.title || devo.aiTranslation?.title) && (
-                  <div style={{ fontSize: '0.85rem', color: 'var(--color-text-light)', fontStyle: 'italic' }}>
-                    &ldquo;{devo.manualTranslation?.title || devo.aiTranslation?.title}&rdquo;
-                  </div>
+              {/* Row 2: Meta */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '0.78rem',
+                color: 'var(--color-text-light)',
+              }}>
+                <span style={{ fontWeight: 600 }}>#{devo.legacy_id || idx + 1}</span>
+                <span style={{ opacity: 0.4 }}>·</span>
+                <span>{devo.publication_date}</span>
+                {(devo.manualTranslation?.title || devo.aiTranslation?.title) && (
+                  <>
+                    <span style={{ opacity: 0.4 }}>·</span>
+                    <span style={{ fontStyle: 'italic', color: 'var(--color-text-light)' }}>
+                      {devo.manualTranslation?.title || devo.aiTranslation?.title}
+                    </span>
+                  </>
                 )}
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+              {/* Row 3: Badges + Actions */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                flexWrap: 'wrap',
+                marginTop: '2px',
+              }}>
                 {renderOriginBadge(devo.translationState)}
 
                 {devo.translationState === 'none' && onTranslateWithAI && (
                   <button
-                    disabled={translatingIds.has(devo.id)}
+                    disabled={isTranslating}
                     onClick={async () => {
                       setTranslatingIds(prev => new Set(prev).add(devo.id));
                       try {
@@ -299,34 +320,35 @@ export const ManualTranslationList: React.FC<ManualTranslationListProps> = ({
                       }
                     }}
                     style={{
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      border: '1px solid #ddd',
-                      background: 'var(--color-surface)',
-                      color: 'var(--color-text)',
+                      padding: '6px 12px',
+                      borderRadius: '6px',
+                      border: '1px solid #d1d5db',
+                      background: '#f9fafb',
+                      color: '#374151',
                       fontWeight: 600,
-                      fontSize: '0.8rem',
-                      cursor: translatingIds.has(devo.id) ? 'not-allowed' : 'pointer',
+                      fontSize: '0.78rem',
+                      cursor: isTranslating ? 'not-allowed' : 'pointer',
                       whiteSpace: 'nowrap',
-                      opacity: translatingIds.has(devo.id) ? 0.6 : 1,
+                      opacity: isTranslating ? 0.55 : 1,
+                      transition: 'opacity 0.15s',
                     }}
                   >
-                    {translatingIds.has(devo.id) ? '⏳ Traduzindo...' : '✨ Traduzir com IA'}
+                    {isTranslating ? '⏳ Traduzindo...' : '✨ Traduzir com IA'}
                   </button>
                 )}
 
                 <button
                   onClick={() => onSelectDevotional(devo)}
                   style={{
-                    padding: '8px 16px',
-                    borderRadius: '8px',
+                    padding: '6px 14px',
+                    borderRadius: '6px',
                     border: '1px solid #c46d53',
-                    background: devo.translationState === 'none' ? '#c46d53' : '#fdf8f6',
+                    background: devo.translationState === 'none' ? '#c46d53' : 'transparent',
                     color: devo.translationState === 'none' ? '#ffffff' : '#c46d53',
                     fontWeight: 700,
-                    fontSize: '0.85rem',
+                    fontSize: '0.78rem',
                     cursor: 'pointer',
-                    whiteSpace: 'nowrap'
+                    whiteSpace: 'nowrap',
                   }}
                 >
                   {buttonLabel}
@@ -341,8 +363,9 @@ export const ManualTranslationList: React.FC<ManualTranslationListProps> = ({
             textAlign: 'center',
             padding: '40px 20px',
             background: 'var(--color-surface)',
-            borderRadius: '12px',
-            color: 'var(--color-text-light)'
+            borderRadius: '10px',
+            color: 'var(--color-text-light)',
+            fontSize: '0.9rem',
           }}>
             Nenhum devocional encontrado para os filtros selecionados.
           </div>
