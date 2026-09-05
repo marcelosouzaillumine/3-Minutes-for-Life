@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Explore } from './pages/Explore';
 import { Favorites } from './pages/Favorites';
@@ -49,8 +49,6 @@ function RequireGuest({ children }: { children: React.ReactNode }) {
 // The /app shell with bottom navigation and tab routing
 function AppShell() {
   const [currentTab, setCurrentTab] = useState<Tab>('home');
-  const navigate = useNavigate();
-
   const renderContent = () => {
     switch (currentTab) {
       case 'home':     return <Home onExplore={() => setCurrentTab('explore')} />;

@@ -23,7 +23,7 @@ export function AdminDevotionals() {
   const [waPreviewLang, setWaPreviewLang] = useState<string | null>(null);
 
   // Content image state (Dica de conteúdo / Apoio ao projeto) — keyed by field name
-  const [contentImageError, setContentImageError] = useState<Record<string, string>>({});
+  const [contentImageError] = useState<Record<string, string>>({});
 
   // Media library picker state
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
@@ -955,7 +955,7 @@ export function AdminDevotionals() {
       {mediaPickerOpen && mediaPickerTarget && (
         <MediaLibraryPicker
           onSelect={(url) => {
-            setValue(mediaPickerTarget, url);
+            setEditForm({ ...editForm, [mediaPickerTarget]: url });
             setMediaPickerOpen(false);
             setMediaPickerTarget(null);
           }}
