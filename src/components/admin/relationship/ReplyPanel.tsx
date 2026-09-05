@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AdminRelationshipService, buildReplyLink } from '../../../services/AdminRelationshipService';
+import { WhatsappService } from '../../../services/WhatsappService';
 import type { RelationshipContact, RelationshipReply } from '../../../types/Relationship';
 
 interface ReplyPanelProps {
@@ -28,6 +29,11 @@ export function ReplyPanel({ relationshipType, relationshipId, onReplied }: Repl
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
   const [validationError, setValidationError] = useState('');
+  const [whatsappApiAvailable, setWhatsappApiAvailable] = useState(false);
+
+  useEffect(() => {
+    WhatsappService.isConfigured().then(setWhatsappApiAvailable);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -63,17 +69,21 @@ export function ReplyPanel({ relationshipType, relationshipId, onReplied }: Repl
     }
     setValidationError('');
 
-    // in_app não sai do sistema: a resposta aparece na área logada da
-    // pessoa. Só os canais externos precisam de link e de contato.
     let link: string | null = null;
     if (channel !== 'in_app') {
-      link = buildReplyLink(channel, contact, message);
-      if (!link) {
-        setValidationError(
-          channel === 'whatsapp'
-            ? t('admin.relationship.reply.noPhone', 'Esta pessoa não cadastrou telefone.')
-            : t('admin.relationship.reply.noEmail', 'Esta pessoa não tem e-mail cadastrado.')
-        );
+      // If WhatsApp API is configured, skip link — we send directly
+      if (channel !== 'whatsapp' || !whatsappApiAvailable) {
+        link = buildReplyLink(channel, contact, message);
+        if (!link) {
+          setValidationError(
+            channel === 'whatsapp'
+              ? t('admin.relationship.reply.noPhone', 'Esta pessoa não cadastrou telefone.')
+              : t('admin.relationship.reply.noEmail', 'Esta pessoa não tem e-mail cadastrado.')
+          );
+          return;
+        }
+      } else if (!contact.phone) {
+        setValidationError(t('admin.relationship.reply.noPhone', 'Esta pessoa não cadastrou telefone.'));
         return;
       }
     }
@@ -82,8 +92,21 @@ export function ReplyPanel({ relationshipType, relationshipId, onReplied }: Repl
     setError('');
 
     try {
-      // Registra primeiro. Se falhar, não abrimos o canal — evita
-      // resposta enviada sem histórico.
+      // When WhatsApp API is available, send directly — no link needed
+      if (channel === 'whatsapp' && whatsappApiAvailable && contact.phone) {
+        try {
+          await WhatsappService.sendText(contact.phone, message);
+        } catch (err: any) {
+          if (err.message === 'NOT_CONFIGURED') {
+            // API not configured yet — fall back to link
+            const fallbackLink = buildReplyLink('whatsapp', contact, message);
+            if (fallbackLink) window.open(fallbackLink, '_blank', 'noopener,noreferrer');
+          } else {
+            throw err;
+          }
+        }
+      }
+
       await AdminRelationshipService.recordReply({
         relationshipType,
         relationshipId,
@@ -195,7 +218,9 @@ export function ReplyPanel({ relationshipType, relationshipId, onReplied }: Repl
             onClick={() => handleSend('whatsapp')}
             className="reply-panel-btn"
           >
-            {t('admin.relationship.reply.openWhatsapp', 'Abrir no WhatsApp e registrar')}
+            {whatsappApiAvailable
+              ? t('admin.relationship.reply.sendWhatsapp', 'Enviar pelo WhatsApp')
+              : t('admin.relationship.reply.openWhatsapp', 'Abrir no WhatsApp e registrar')}
           </button>
 
           <button

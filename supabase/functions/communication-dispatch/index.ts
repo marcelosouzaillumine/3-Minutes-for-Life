@@ -818,6 +818,63 @@ Deno.serve(async (req) => {
 
     /*
      * ============================================================
+     * 16. ENVIAR WHATSAPP VIA ILLUMINE
+     * ============================================================
+     * Requires env vars: ILLUMINE_URL, ILLUMINE_SERVICE_TOKEN
+     * These are set in Supabase secrets once the WhatsApp Business
+     * account is configured in the Illumine OS gateway.
+     * Without them this block is a no-op and deliveries stay 'pending'.
+     * ============================================================
+     */
+    const ILLUMINE_URL = Deno.env.get('ILLUMINE_URL');
+    const ILLUMINE_SERVICE_TOKEN = Deno.env.get('ILLUMINE_SERVICE_TOKEN');
+
+    if (ILLUMINE_URL && ILLUMINE_SERVICE_TOKEN && whatsappEligible > 0) {
+      const whatsappDeliveries = deliveries.filter(
+        d => d.channel === 'whatsapp' && d.status === 'pending' && d.recipient_phone
+      );
+
+      // Fire-and-forget in the background — don't block campaign start on this
+      (async () => {
+        for (const delivery of whatsappDeliveries) {
+          try {
+            const res = await fetch(`${ILLUMINE_URL}/whatsapp/send/text`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${ILLUMINE_SERVICE_TOKEN}`,
+              },
+              body: JSON.stringify({
+                to: delivery.recipient_phone!.replace(/\D/g, ''),
+                text: delivery.body,
+              }),
+            });
+
+            const delivered = res.ok;
+            await supabase
+              .from('communication_deliveries')
+              .update({
+                status: delivered ? 'sent' : 'failed',
+                delivered_at: delivered ? new Date().toISOString() : null,
+              })
+              .eq('campaign_id', delivery.campaign_id)
+              .eq('user_id', delivery.user_id)
+              .eq('channel', 'whatsapp');
+          } catch {
+            // Silently mark as failed — campaign continues regardless
+            await supabase
+              .from('communication_deliveries')
+              .update({ status: 'failed' })
+              .eq('campaign_id', delivery.campaign_id)
+              .eq('user_id', delivery.user_id)
+              .eq('channel', 'whatsapp');
+          }
+        }
+      })();
+    }
+
+    /*
+     * ============================================================
      * 16. INICIAR CAMPANHA
      * ============================================================
      */
