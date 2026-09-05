@@ -4,6 +4,22 @@ import { AnalyticsService } from './AnalyticsService'
 
 const TENANT_SLUG = import.meta.env.VITE_TENANT_SLUG || '3minutes'
 
+async function exchangeSupabaseJwt(supabaseToken: string): Promise<boolean> {
+  try {
+    const res = await illumineFetch('/auth/exchange/supabase', {
+      method: 'POST',
+      body: JSON.stringify({ supabaseToken, tenantSlug: TENANT_SLUG }),
+    })
+    if (!res.ok) return false
+    const data = await res.json()
+    await illumineAuth.saveTokens(data.accessToken, data.refreshToken, data.user)
+    return true
+  } catch (e) {
+    console.warn('[Auth] Supabase JWT exchange warning:', e)
+    return false
+  }
+}
+
 export const authService = {
   async signUp(
     email: string,
@@ -104,36 +120,9 @@ export const authService = {
       console.warn('Supabase sign-in warning:', err)
     }
 
-    // 2. Lazy Migration / JIT Sync com o Illumine OS
-    try {
-      const illRes = await illumineFetch('/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ email, password, tenantSlug: TENANT_SLUG }),
-      })
-
-      if (illRes.ok) {
-        const illData = await illRes.json()
-        illumineAuth.saveTokens(illData.accessToken, illData.refreshToken, illData.user)
-      } else if (supabaseResult?.user && (illRes.status === 401 || illRes.status === 404)) {
-        // Usuário autenticado no Supabase mas ainda não existe no Illumine OS -> Cadastra sob demanda!
-        const regRes = await illumineFetch('/auth/register', {
-          method: 'POST',
-          body: JSON.stringify({
-            email,
-            password,
-            name: supabaseResult.user.user_metadata?.full_name || supabaseResult.user.email?.split('@')[0] || 'User',
-            tenantSlug: TENANT_SLUG,
-          }),
-        })
-        if (regRes.ok) {
-          const regData = await regRes.json()
-          if (regData.accessToken) {
-            await illumineAuth.saveTokens(regData.accessToken, regData.refreshToken, regData.user)
-          }
-        }
-      }
-    } catch (e) {
-      console.warn('Illumine OS sync/login warning:', e)
+    // 2. Trocar JWT Supabase por token Illumine OS (sem enviar senha)
+    if (supabaseResult?.session?.access_token) {
+      await exchangeSupabaseJwt(supabaseResult.session.access_token)
     }
 
     // Se o login no Supabase teve sucesso
@@ -170,21 +159,9 @@ export const authService = {
         console.warn('Supabase signInWithIdToken warning:', e)
       }
 
-      // 2. Sincroniza com Illumine OS
-      try {
-        const res = await illumineFetch('/auth/oauth', {
-          method: 'POST',
-          body: JSON.stringify({ provider, idToken: idTokenOrRedirect, tenantSlug: TENANT_SLUG }),
-        })
-        if (res.ok) {
-          const data = await res.json()
-          illumineAuth.saveTokens(data.accessToken, data.refreshToken, data.user)
-          if (!supabaseUser) {
-            supabaseUser = data.user
-          }
-        }
-      } catch (e) {
-        console.warn('Illumine OAuth sync warning:', e)
+      // 2. Trocar JWT Supabase por token Illumine OS
+      if (supabaseSession?.access_token) {
+        await exchangeSupabaseJwt(supabaseSession.access_token)
       }
 
       if (supabaseUser?.id) {
@@ -235,6 +212,10 @@ export const authService = {
     try {
       const { data: { session }, error } = await supabase.auth.getSession()
       if (!error && session?.user) {
+        // Se ainda não temos token Illumine, troca agora (lazy exchange)
+        if (!illumineAuth.isAuthenticated() && session.access_token) {
+          await exchangeSupabaseJwt(session.access_token)
+        }
         return {
           session,
           user: {
