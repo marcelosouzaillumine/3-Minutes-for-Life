@@ -101,92 +101,97 @@ export const JourneyService = {
   },
 
   async getStatus(devotionalId: string, legacyId?: number, legacyDateStr?: string) {
+    // 1. Try Illumine OS via legacyId (fast single-row lookup)
+    if (legacyId && illumineAuth.isAuthenticated()) {
+      try {
+        const res = await illumineFetch(`/devotionals/legacy/${legacyId}/status`);
+        if (res.ok) {
+          const d = await res.json();
+          if (d.readAt || d.completedAt) {
+            return { started_at: d.readAt, completed_at: d.completedAt };
+          }
+        }
+      } catch (e) {
+        console.warn('[Journey] Illumine getStatus failed, falling back:', e);
+      }
+    }
+
+    // 2. Supabase canonical read
     const session = await authService.getSession();
     const userId = session?.user?.id;
 
-    // 1. Canonical Read
     let query = supabase
       .from('user_devotionals')
       .select('read_at, completed_at')
       .eq('devotional_id', devotionalId);
-    
-    if (userId) {
-      query = query.eq('user_id', userId);
-    }
-
+    if (userId) query = query.eq('user_id', userId);
     const { data, error } = await query.maybeSingle();
-    
-    if (!error && data) {
-      return {
-        started_at: data.read_at,
-        completed_at: data.completed_at
-      };
-    }
+    if (!error && data) return { started_at: data.read_at, completed_at: data.completed_at };
 
-    // 2. Legacy Read Fallback
+    // 3. Legacy fallback
     if (legacyId && legacyDateStr) {
       let legacyQuery = supabase
         .from('daily_progress')
         .select('started_at, completed_at')
         .eq('principle_id', legacyId)
         .eq('date', legacyDateStr);
-
-      if (userId) {
-        legacyQuery = legacyQuery.eq('user_id', userId);
-      }
-
+      if (userId) legacyQuery = legacyQuery.eq('user_id', userId);
       const { data: legacyData } = await legacyQuery.maybeSingle();
       return legacyData;
     }
-    
+
     return null;
   },
 
   async isFavorite(devotionalId: string, legacyId?: number) {
-    const session = await authService.getSession();
-    const userId = session?.user?.id;
-    if (!userId) return false;
+    // Reuse listFavorites (cached via Illumine or Supabase)
+    const favIds = await this.listFavorites();
+    if (favIds.includes(devotionalId)) return true;
 
-    // 1. Canonical Read
-    const { data } = await supabase
-      .from('favorites')
-      .select('id')
-      .eq('devotional_id', devotionalId)
-      .eq('user_id', userId)
-      .maybeSingle();
-    
-    if (data) return true;
-
-    // 2. Legacy Read Fallback
+    // Legacy fallback via Supabase principle_id
     if (legacyId) {
-      const { data: legacyData } = await supabase
+      const session = await authService.getSession();
+      const userId = session?.user?.id;
+      if (!userId) return false;
+      const { data } = await supabase
         .from('favorites')
         .select('id')
         .eq('principle_id', legacyId)
         .eq('user_id', userId)
         .maybeSingle();
-      return !!legacyData;
+      return !!data;
     }
 
     return false;
   },
 
   async listFavorites(): Promise<string[]> {
+    // 1. Try Illumine OS — returns supabaseId as the devotional identifier
+    if (illumineAuth.isAuthenticated()) {
+      try {
+        const res = await illumineFetch('/devotionals/favorites');
+        if (res.ok) {
+          const data = await res.json();
+          const ids = (data as any[])
+            .map(f => f.devotional?.supabaseId ?? f.devotional?.id)
+            .filter(Boolean);
+          if (ids.length > 0) return ids;
+        }
+      } catch (e) {
+        console.warn('[Journey] Illumine listFavorites failed, falling back:', e);
+      }
+    }
+
+    // 2. Fall back to Supabase
     const session = await authService.getSession();
     const userId = session?.user?.id;
     if (!userId) return [];
-
     const { data, error } = await supabase
       .from('favorites')
       .select('devotional_id')
       .eq('user_id', userId)
       .not('devotional_id', 'is', null);
-      
-    if (error) {
-      console.error('Error listing favorites:', error);
-      throw error;
-    }
-    
+    if (error) { console.error('Error listing favorites:', error); throw error; }
     return (data || []).map(f => f.devotional_id);
   },
   
