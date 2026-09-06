@@ -529,6 +529,7 @@ export function PrincipleView({
                     src={devotional.support_banner_url}
                     alt=""
                     className="principle-support-banner"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                   />
                 </a>
               ) : (
@@ -536,6 +537,7 @@ export function PrincipleView({
                   src={devotional.support_banner_url}
                   alt=""
                   className="principle-support-banner"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                 />
               )
             )}
