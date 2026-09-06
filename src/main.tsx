@@ -6,6 +6,7 @@ import './i18n/config'
 import App from './App.tsx'
 import { AuthProvider } from './context/AuthContext'
 import { illumineAuth } from './lib/illumine'
+import { initBranding } from './lib/branding'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
 
@@ -15,6 +16,8 @@ if (!GOOGLE_CLIENT_ID) {
 
 // Initialize Illumine tokens from storage before rendering (async, non-blocking)
 illumineAuth.init().catch(e => console.warn('[Illumine] init warning:', e))
+// Fetch tenant branding and apply CSS variables (fire-and-forget; falls back to hardcoded CSS)
+initBranding().catch(() => {})
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
