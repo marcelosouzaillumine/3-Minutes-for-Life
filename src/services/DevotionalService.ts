@@ -250,7 +250,28 @@ export const DevotionalService = {
     const rawLanguage = requestedLanguage || i18n.language || 'pt-BR';
     const contentLanguage = normalizeLanguage(rawLanguage);
 
-    // 1. Try Illumine OS (Railway) first
+    // 1. Serve from IndexedDB cache immediately (cache-first)
+    const cached = await ContentCacheService.getDaily(dateStr, contentLanguage);
+    if (cached) {
+      // Refresh in the background so next open gets fresh content
+      this._refreshDailyInBackground(dateStr, contentLanguage);
+      return { ...cached, isCached: true, source: 'indexeddb' };
+    }
+
+    // 2. No cache — fetch from network
+    return this._fetchDailyFromNetwork(dateStr, contentLanguage);
+  },
+
+  async _refreshDailyInBackground(dateStr: string, contentLanguage: string): Promise<void> {
+    try {
+      await this._fetchDailyFromNetwork(dateStr, contentLanguage);
+    } catch {
+      // silent — cache is still valid
+    }
+  },
+
+  async _fetchDailyFromNetwork(dateStr: string, contentLanguage: string): Promise<Devotional> {
+    // Try Illumine OS (Railway) first
     if (illumineAuth.isAuthenticated()) {
       try {
         const res = await illumineFetch(`/devotionals/date/${dateStr}`);
@@ -272,43 +293,30 @@ export const DevotionalService = {
       }
     }
 
-    // 2. Fall back to Supabase
-    try {
-      const { data, error } = await supabase
-        .from('devotionals')
-        .select(selectQuery)
-        .eq('status', 'published')
-        .eq('publication_date', dateStr)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle() as any;
+    // Fall back to Supabase
+    const { data, error } = await supabase
+      .from('devotionals')
+      .select(selectQuery)
+      .eq('status', 'published')
+      .eq('publication_date', dateStr)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle() as any;
 
-      if (error) throw error;
-      if (!data) throw new Error(`Content not found in Supabase for publication_date ${dateStr}`);
+    if (error) throw error;
+    if (!data) throw new Error(`Content not found for publication_date ${dateStr}`);
 
-      const resolvedDevotional = resolveTranslation(data, contentLanguage, 'supabase', false);
-      resolvedDevotional.share_assets = resolveShareAssets(contentLanguage, data.devotional_share_assets || []);
-      delete (resolvedDevotional as any).devotional_share_assets;
+    const resolvedDevotional = resolveTranslation(data, contentLanguage, 'supabase', false);
+    resolvedDevotional.share_assets = resolveShareAssets(contentLanguage, data.devotional_share_assets || []);
+    delete (resolvedDevotional as any).devotional_share_assets;
 
-      const p = principles.find(p => p.title === data.title);
-      resolvedDevotional.share_quote = contentLanguage === 'pt-BR'
-        ? (p?.principle || resolvedDevotional.principle_statement || resolvedDevotional.title)
-        : (resolvedDevotional.principle_statement || resolvedDevotional.title);
+    const p = principles.find(p => p.title === data.title);
+    resolvedDevotional.share_quote = contentLanguage === 'pt-BR'
+      ? (p?.principle || resolvedDevotional.principle_statement || resolvedDevotional.title)
+      : (resolvedDevotional.principle_statement || resolvedDevotional.title);
 
-      await ContentCacheService.setDaily(dateStr, resolvedDevotional, contentLanguage);
-      return resolvedDevotional;
-    } catch (err: any) {
-      if (isAuthError(err)) {
-        console.error("Authorization error fetching daily devotional. Not falling back to cache.", err);
-        throw err;
-      }
-      console.warn("Canonical fetch failed (network/server), attempting cache:", err);
-      const cached = await ContentCacheService.getDaily(dateStr, contentLanguage);
-      if (cached) {
-        return { ...cached, isCached: true, source: 'indexeddb' };
-      }
-      throw err;
-    }
+    await ContentCacheService.setDaily(dateStr, resolvedDevotional, contentLanguage);
+    return resolvedDevotional;
   },
 
   async getDevotional(id: string, requestedLanguage?: string): Promise<Devotional> {
@@ -359,7 +367,20 @@ export const DevotionalService = {
     const contentLanguage = normalizeLanguage(rawLanguage);
     const today = getTodayInSaoPaulo();
 
-    // 1. Try Illumine OS (Railway) first
+    // 1. Serve from IndexedDB cache immediately (cache-first)
+    const cachedLibrary = await ContentCacheService.getLibrary(contentLanguage);
+    if (cachedLibrary) {
+      // Refresh in the background so next open gets fresh content
+      this._fetchLibraryFromNetwork(contentLanguage, today).catch(() => {});
+      return cachedLibrary.map(d => ({ ...d, isCached: true, source: 'indexeddb' as const }));
+    }
+
+    // 2. No cache — fetch from network
+    return this._fetchLibraryFromNetwork(contentLanguage, today);
+  },
+
+  async _fetchLibraryFromNetwork(contentLanguage: string, today: string): Promise<Devotional[]> {
+    // Try Illumine OS (Railway) first
     if (illumineAuth.isAuthenticated()) {
       try {
         const res = await illumineFetch(`/devotionals?status=published&perPage=200`);
@@ -388,7 +409,7 @@ export const DevotionalService = {
       }
     }
 
-    // 2. Fall back to Supabase
+    // Fall back to Supabase
     try {
       const { data, error } = await supabase
         .from('devotionals')
