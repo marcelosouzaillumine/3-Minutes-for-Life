@@ -761,8 +761,36 @@ export function AdminDevotionals() {
             })}
           </div>
         )}
-      </div>
-    );
+      {mediaPickerOpen && mediaPickerTarget && (
+        <MediaLibraryPicker
+          onSelect={(url) => {
+            const isSource = languages.find(l => l.iso_code === currentLang)?.is_source;
+            if (isSource) {
+              setEditForm((prev: any) => ({ ...prev, [mediaPickerTarget]: url }));
+            } else {
+              setEditForm((prev: any) => ({
+                ...prev,
+                translations: {
+                  ...prev.translations,
+                  [currentLang]: {
+                    ...(prev.translations?.[currentLang] || {}),
+                    [mediaPickerTarget]: url,
+                  },
+                },
+              }));
+            }
+            setMediaPickerOpen(false);
+            setMediaPickerTarget(null);
+          }}
+          onClose={() => {
+            setMediaPickerOpen(false);
+            setMediaPickerTarget(null);
+          }}
+        />
+      )}
+    </div>
+  );
+
   }
 
   if (showCategoryManager) {
@@ -952,19 +980,6 @@ export function AdminDevotionals() {
         </div>
       )}
 
-      {mediaPickerOpen && mediaPickerTarget && (
-        <MediaLibraryPicker
-          onSelect={(url) => {
-            setEditForm({ ...editForm, [mediaPickerTarget]: url });
-            setMediaPickerOpen(false);
-            setMediaPickerTarget(null);
-          }}
-          onClose={() => {
-            setMediaPickerOpen(false);
-            setMediaPickerTarget(null);
-          }}
-        />
-      )}
     </div>
   );
 }

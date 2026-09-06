@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 import { About } from './About';
 import { TestimonialList } from '../components/TestimonialList';
 import { LanguageSelector } from '../components/LanguageSelector';
@@ -23,7 +24,17 @@ export function Profile() {
   const [showMessages, setShowMessages] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [tokenCopied, setTokenCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function copyAdminToken() {
+    const { data } = await supabase.auth.refreshSession();
+    const token = data.session?.access_token;
+    if (!token) return;
+    await navigator.clipboard.writeText(token);
+    setTokenCopied(true);
+    setTimeout(() => setTokenCopied(false), 2000);
+  }
 
   useEffect(() => {
     if (!user) return;
@@ -290,6 +301,12 @@ export function Profile() {
       </div>
 
       <div className="profile-actions">
+        <button onClick={copyAdminToken} className="copy-token-btn">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          {tokenCopied ? 'Token copiado!' : 'Copiar token admin'}
+        </button>
         <button onClick={signOut} className="logout-btn-premium">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
