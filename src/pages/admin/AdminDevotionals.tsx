@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AdminContentService } from '../../services/AdminContentService';
 import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { PrincipleView } from '../../components/PrincipleView';
@@ -312,38 +313,46 @@ export function AdminDevotionals() {
   };
 
   if (showPreview && editForm) {
-    return (
-      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'white', zIndex: 9999, overflowY: 'auto' }}>
-        <button
-          onClick={() => setShowPreview(false)}
-          style={{
-            position: 'fixed',
-            top: '16px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 10000,
-            background: 'rgba(255,255,255,0.92)',
-            color: 'var(--color-text)',
-            border: '1px solid #ddd',
-            borderRadius: '20px',
-            padding: '8px 20px',
-            fontWeight: 'bold',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.12)',
-            backdropFilter: 'blur(8px)',
-            cursor: 'pointer',
-          }}
-        >
-          &larr; Fechar Preview
-        </button>
-        <div style={{ paddingTop: '60px', display: 'flex', justifyContent: 'center' }}>
-          <div style={{ width: '100%', maxWidth: '600px', margin: '0 auto' }}>
+    return createPortal(
+      <div style={{ position: 'fixed', inset: 0, background: 'white', zIndex: 9999, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+        <div style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 10000,
+          display: 'flex',
+          justifyContent: 'center',
+          padding: '10px 16px',
+          background: 'rgba(255,255,255,0.95)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid rgba(0,0,0,0.06)',
+        }}>
+          <button
+            onClick={() => setShowPreview(false)}
+            style={{
+              background: 'white',
+              color: 'var(--color-text)',
+              border: '1px solid #ddd',
+              borderRadius: '20px',
+              padding: '8px 20px',
+              fontWeight: 'bold',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+            }}
+          >
+            &larr; Fechar Preview
+          </button>
+        </div>
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+          <div style={{ width: '100%', maxWidth: '480px' }}>
             <PrincipleView
               devotional={editForm as any}
               onBack={() => setShowPreview(false)}
             />
           </div>
         </div>
-      </div>
+      </div>,
+      document.body
     );
   }
 

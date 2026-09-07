@@ -6,7 +6,6 @@
 .admin-layout .bottom-nav {
   width: calc(100% - 2rem);
   max-width: 640px;
-  padding: 0;
   justify-content: flex-start;
   overflow-x: auto;
   overflow-y: hidden;
@@ -37,31 +36,39 @@
 }
 
 /* ============================================================
-   Desktop — expand content, center nav, distribute items
+   Desktop/Tablet — 768px+ (laptops, notebooks, desktops)
    ============================================================ */
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .app-container.admin-layout {
     max-width: 1280px;
     padding-bottom: 120px;
   }
 
   .admin-layout .bottom-nav {
-    max-width: 960px;
-    width: calc(100% - 4rem);
+    width: auto;
+    max-width: calc(100% - 3rem);
     justify-content: center;
     overflow-x: visible;
     border-radius: 20px;
-    padding: 0.6rem 1rem;
+    padding: 0.55rem 1.25rem;
+    gap: 2px;
   }
 
   .admin-layout .nav-item {
-    min-width: 72px;
-    padding: 0.5rem 0.8rem;
-    font-size: 0.7rem;
+    flex: 0 0 auto;
+    min-width: 0;
+    padding: 0.45rem 0.65rem;
+    font-size: 0.67rem;
+    white-space: nowrap;
+  }
+
+  .admin-layout .nav-icon {
+    width: 18px;
+    height: 18px;
   }
 
   .admin-layout .content-area {
-    padding: 2.5rem 3rem;
+    padding: 2rem 3rem;
     max-width: 100%;
   }
 }
