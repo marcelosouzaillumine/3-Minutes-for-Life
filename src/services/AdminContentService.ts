@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { sanitizeHtml } from '../lib/sanitizer';
+import { illumineFetch, illumineAuth } from '../lib/illumine';
 
 export const AdminContentService = {
   async getLanguages(): Promise<any[]> {
@@ -380,18 +381,29 @@ export const AdminContentService = {
     type: 'feed' | 'story' | 'whatsapp',
     file: File
   ): Promise<string> {
-    const ext = file.name.split('.').pop() || 'jpg';
-    const timestamp = Date.now();
-    const path = `${devotionalId}/${languageCode}/${type}-${timestamp}.${ext}`;
+    if (illumineAuth.isAuthenticated()) {
+      try {
+        const urlRes = await illumineFetch('/media/upload-url', {
+          method: 'POST',
+          body: JSON.stringify({ filename: file.name, mimeType: file.type, folder: `share-assets/${devotionalId}/${languageCode}` }),
+        });
+        if (urlRes.ok) {
+          const { uploadUrl, publicUrl } = await urlRes.json();
+          await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+          return publicUrl;
+        }
+      } catch (e) {
+        console.warn('[Upload] Illumine uploadShareAsset failed, falling back:', e);
+      }
+    }
 
+    const ext = file.name.split('.').pop() || 'jpg';
+    const path = `${devotionalId}/${languageCode}/${type}-${Date.now()}.${ext}`;
     const { error: uploadError } = await supabase.storage
       .from('share-assets')
       .upload(path, file, { upsert: true, contentType: file.type });
-
     if (uploadError) throw uploadError;
-
-    const { data } = supabase.storage.from('share-assets').getPublicUrl(path);
-    return data.publicUrl;
+    return supabase.storage.from('share-assets').getPublicUrl(path).data.publicUrl;
   },
 
   /**
@@ -408,18 +420,29 @@ export const AdminContentService = {
     field: 'content_tip_image' | 'support_banner',
     file: File
   ): Promise<string> {
-    const ext = file.name.split('.').pop() || 'jpg';
-    const timestamp = Date.now();
-    const path = `${devotionalId}/${languageCode}/${field}-${timestamp}.${ext}`;
+    if (illumineAuth.isAuthenticated()) {
+      try {
+        const urlRes = await illumineFetch('/media/upload-url', {
+          method: 'POST',
+          body: JSON.stringify({ filename: file.name, mimeType: file.type, folder: `devotionals/${devotionalId}/${languageCode}` }),
+        });
+        if (urlRes.ok) {
+          const { uploadUrl, publicUrl } = await urlRes.json();
+          await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+          return publicUrl;
+        }
+      } catch (e) {
+        console.warn('[Upload] Illumine uploadContentImage failed, falling back:', e);
+      }
+    }
 
+    const ext = file.name.split('.').pop() || 'jpg';
+    const path = `${devotionalId}/${languageCode}/${field}-${Date.now()}.${ext}`;
     const { error: uploadError } = await supabase.storage
       .from('share-assets')
       .upload(path, file, { upsert: true, contentType: file.type });
-
     if (uploadError) throw uploadError;
-
-    const { data } = supabase.storage.from('share-assets').getPublicUrl(path);
-    return data.publicUrl;
+    return supabase.storage.from('share-assets').getPublicUrl(path).data.publicUrl;
   },
 
   async listLibraryImages(): Promise<Array<{ name: string; url: string }>> {
@@ -436,6 +459,22 @@ export const AdminContentService = {
   },
 
   async uploadLibraryImage(file: File): Promise<string> {
+    if (illumineAuth.isAuthenticated()) {
+      try {
+        const urlRes = await illumineFetch('/media/upload-url', {
+          method: 'POST',
+          body: JSON.stringify({ filename: file.name, mimeType: file.type, folder: 'library' }),
+        });
+        if (urlRes.ok) {
+          const { uploadUrl, publicUrl } = await urlRes.json();
+          await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+          return publicUrl;
+        }
+      } catch (e) {
+        console.warn('[Upload] Illumine uploadLibraryImage failed, falling back:', e);
+      }
+    }
+
     const ext = file.name.split('.').pop() || 'jpg';
     const path = `library/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
     const { error } = await supabase.storage
