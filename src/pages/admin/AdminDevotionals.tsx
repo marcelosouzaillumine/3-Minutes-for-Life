@@ -314,29 +314,34 @@ export function AdminDevotionals() {
   if (showPreview && editForm) {
     return (
       <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'white', zIndex: 9999, overflowY: 'auto' }}>
-        <button 
+        <button
           onClick={() => setShowPreview(false)}
-          style={{ 
-            position: 'absolute', 
-            top: '16px', 
-            left: '16px', 
-            zIndex: 10000, 
-            background: 'rgba(255,255,255,0.9)', 
-            color: 'var(--color-text)', 
-            border: '1px solid #ddd', 
-            borderRadius: '20px', 
-            padding: '8px 16px', 
+          style={{
+            position: 'fixed',
+            top: '16px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 10000,
+            background: 'rgba(255,255,255,0.92)',
+            color: 'var(--color-text)',
+            border: '1px solid #ddd',
+            borderRadius: '20px',
+            padding: '8px 20px',
             fontWeight: 'bold',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            boxShadow: '0 2px 12px rgba(0,0,0,0.12)',
+            backdropFilter: 'blur(8px)',
+            cursor: 'pointer',
           }}
         >
           &larr; Fechar Preview
         </button>
-        <div style={{ paddingTop: '60px' }}>
-          <PrincipleView 
-            devotional={editForm as any}
-            onBack={() => setShowPreview(false)}
-          />
+        <div style={{ paddingTop: '60px', display: 'flex', justifyContent: 'center' }}>
+          <div style={{ width: '100%', maxWidth: '600px', margin: '0 auto' }}>
+            <PrincipleView
+              devotional={editForm as any}
+              onBack={() => setShowPreview(false)}
+            />
+          </div>
         </div>
       </div>
     );

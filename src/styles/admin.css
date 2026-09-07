@@ -1,11 +1,11 @@
 /* 3MinutesforLife - Admin Intelligence Styles (Clean Mobile First) */
 
 /* ============================================================
-   Admin bottom nav — scrollable horizontal strip
+   Admin bottom nav — scrollable horizontal strip (mobile)
    ============================================================ */
 .admin-layout .bottom-nav {
-  width: 100%;
-  max-width: 100%;
+  width: calc(100% - 2rem);
+  max-width: 640px;
   padding: 0;
   justify-content: flex-start;
   overflow-x: auto;
@@ -14,6 +14,8 @@
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   gap: 0;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .admin-layout .bottom-nav::-webkit-scrollbar {
@@ -32,6 +34,36 @@
 .admin-layout .nav-icon {
   width: 20px;
   height: 20px;
+}
+
+/* ============================================================
+   Desktop — expand content, center nav, distribute items
+   ============================================================ */
+@media (min-width: 1024px) {
+  .app-container.admin-layout {
+    max-width: 1280px;
+    padding-bottom: 120px;
+  }
+
+  .admin-layout .bottom-nav {
+    max-width: 960px;
+    width: calc(100% - 4rem);
+    justify-content: center;
+    overflow-x: visible;
+    border-radius: 20px;
+    padding: 0.6rem 1rem;
+  }
+
+  .admin-layout .nav-item {
+    min-width: 72px;
+    padding: 0.5rem 0.8rem;
+    font-size: 0.7rem;
+  }
+
+  .admin-layout .content-area {
+    padding: 2.5rem 3rem;
+    max-width: 100%;
+  }
 }
 
 .admin-loading-state,
