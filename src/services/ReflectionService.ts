@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { authService } from './authService';
+import { illumineFetch, illumineAuth } from '../lib/illumine';
 
 export interface PersonalReflection {
   id: string;
@@ -14,12 +15,31 @@ export interface PersonalReflectionWithDevotional extends PersonalReflection {
   devotionals?: { title: string };
 }
 
+function normalizeReflection(r: any): PersonalReflection {
+  return {
+    id: r.id,
+    user_id: r.userId ?? r.user_id,
+    devotional_id: r.devotionalId ?? r.devotional_id,
+    content: r.content,
+    created_at: r.createdAt ?? r.created_at,
+    updated_at: r.updatedAt ?? r.updated_at,
+  };
+}
+
 export const ReflectionService = {
-  /**
-   * Obtém a reflexão pessoal do usuário autenticado para um devocional específico.
-   * Retorna o conteúdo da reflexão ou null se não existir.
-   */
   async getReflection(devotionalId: string): Promise<string | null> {
+    if (illumineAuth.isAuthenticated()) {
+      try {
+        const res = await illumineFetch(`/users/me/reflections?devotionalId=${encodeURIComponent(devotionalId)}`);
+        if (res.ok) {
+          const rows: any[] = await res.json();
+          if (rows.length > 0) return rows[0].content;
+        }
+      } catch (e) {
+        console.warn('[Reflection] Illumine get failed, falling back:', e);
+      }
+    }
+
     const session = await authService.getSession();
     const userId = session?.user?.id;
     if (!userId) return null;
@@ -31,7 +51,6 @@ export const ReflectionService = {
         .eq('devotional_id', devotionalId)
         .eq('user_id', userId)
         .maybeSingle();
-
       if (error) throw error;
       return data?.content || null;
     } catch (err) {
@@ -40,10 +59,19 @@ export const ReflectionService = {
     }
   },
 
-  /**
-   * Obtém todas as reflexões pessoais do usuário autenticado.
-   */
   async getUserReflections(): Promise<PersonalReflectionWithDevotional[]> {
+    if (illumineAuth.isAuthenticated()) {
+      try {
+        const res = await illumineFetch('/users/me/reflections');
+        if (res.ok) {
+          const rows: any[] = await res.json();
+          return rows.map(normalizeReflection);
+        }
+      } catch (e) {
+        console.warn('[Reflection] Illumine list failed, falling back:', e);
+      }
+    }
+
     const session = await authService.getSession();
     const userId = session?.user?.id;
     if (!userId) throw new Error('User must be authenticated');
@@ -54,41 +82,44 @@ export const ReflectionService = {
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching personal reflections:', error);
-      throw error;
-    }
+    if (error) throw error;
     return data as PersonalReflectionWithDevotional[];
   },
 
-  /**
-   * Salva (insere ou atualiza) a reflexão pessoal do usuário autenticado.
-   */
   async saveReflection(devotionalId: string, content: string): Promise<void> {
+    if (illumineAuth.isAuthenticated()) {
+      try {
+        const res = await illumineFetch(`/users/me/reflections/${encodeURIComponent(devotionalId)}`, {
+          method: 'PUT',
+          body: JSON.stringify({ content }),
+        });
+        if (res.ok) return;
+      } catch (e) {
+        console.warn('[Reflection] Illumine save failed, falling back:', e);
+      }
+    }
+
     const session = await authService.getSession();
     const userId = session?.user?.id;
     if (!userId) throw new Error('User must be authenticated to save a reflection');
 
     const { error } = await supabase
       .from('personal_reflections')
-      .upsert({
-        user_id: userId,
-        devotional_id: devotionalId,
-        content: content
-      }, {
-        onConflict: 'user_id, devotional_id'
-      });
+      .upsert({ user_id: userId, devotional_id: devotionalId, content }, { onConflict: 'user_id, devotional_id' });
 
-    if (error) {
-      console.error('Error saving personal reflection:', error);
-      throw error;
-    }
+    if (error) throw error;
   },
 
-  /**
-   * Remove a reflexão pessoal do usuário para um devocional (se necessário futuramente).
-   */
   async deleteReflection(devotionalId: string): Promise<void> {
+    if (illumineAuth.isAuthenticated()) {
+      try {
+        const res = await illumineFetch(`/users/me/reflections/${encodeURIComponent(devotionalId)}`, { method: 'DELETE' });
+        if (res.ok || res.status === 204) return;
+      } catch (e) {
+        console.warn('[Reflection] Illumine delete failed, falling back:', e);
+      }
+    }
+
     const session = await authService.getSession();
     const userId = session?.user?.id;
     if (!userId) throw new Error('User must be authenticated to delete a reflection');
@@ -99,9 +130,6 @@ export const ReflectionService = {
       .eq('devotional_id', devotionalId)
       .eq('user_id', userId);
 
-    if (error) {
-      console.error('Error deleting personal reflection:', error);
-      throw error;
-    }
+    if (error) throw error;
   }
 };

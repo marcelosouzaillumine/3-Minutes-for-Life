@@ -174,6 +174,17 @@ export const authService = {
         } catch (e) {
           console.warn('Could not sync oauth profile to supabase:', e)
         }
+
+        if (illumineAuth.isAuthenticated()) {
+          const name = supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name
+          const avatar = supabaseUser.user_metadata?.avatar_url
+          if (name || avatar) {
+            illumineFetch('/users/me', {
+              method: 'PATCH',
+              body: JSON.stringify({ ...(name && { name }), ...(avatar && { avatar }) }),
+            }).catch(() => {})
+          }
+        }
       }
 
       if (supabaseUser) {
