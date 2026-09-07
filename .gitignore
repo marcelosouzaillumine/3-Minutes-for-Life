@@ -39,3 +39,4 @@ test-*.js
 test-*.ts
 diagnostic_*.js
 scripts/create-partner-key.js
+key.properties
