@@ -69,32 +69,41 @@ async function resolveProfilesAndDevotionals(
 
 export const AdminRelationshipService = {
   async checkRelationshipAccess(): Promise<boolean> {
+    // Illumine-first
     try {
       const res = await illumineFetch('/users/me');
       if (res.ok) {
         const user = await res.json();
-        const role = user?.role ?? user?.app_role;
-        return ['super_admin', 'admin'].includes(role);
+        const role = user?.role ?? user?.app_role ?? user?.admin_role;
+        if (role) return ['super_admin', 'admin'].includes(role);
       }
     } catch {
       // fallthrough
     }
 
+    // Supabase: user_roles table
+    const session = await authService.getSession().catch(() => null);
+    const userId = session?.user?.id;
+    if (!userId) return false;
+
     try {
-      const session = await authService.getSession().catch(() => null);
-      const userId = session?.user?.id;
-      if (!userId) return false;
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', userId)
         .is('revoked_at', null)
         .maybeSingle();
-      if (error || !data) return false;
-      return ['super_admin', 'admin'].includes((data as any).role);
+      if (!error && data?.role) return ['super_admin', 'admin'].includes((data as any).role);
     } catch {
-      return false;
+      // fallthrough
     }
+
+    // Supabase: JWT app_metadata fallback (set via Supabase dashboard or auth hook)
+    const appRole = (session?.user as any)?.app_metadata?.role
+      ?? (session?.user as any)?.app_metadata?.app_role;
+    if (appRole) return ['super_admin', 'admin'].includes(appRole);
+
+    return false;
   },
 
   async getOverview(): Promise<RelationshipOverviewMetrics> {
