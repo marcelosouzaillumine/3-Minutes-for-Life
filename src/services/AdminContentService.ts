@@ -446,6 +446,23 @@ export const AdminContentService = {
   },
 
   async listLibraryImages(): Promise<Array<{ name: string; url: string }>> {
+    if (illumineAuth.isAuthenticated()) {
+      try {
+        const res = await illumineFetch('/media?folder=library');
+        if (res.ok) {
+          const result = await res.json();
+          const files: any[] = result.files ?? result;
+          if (Array.isArray(files)) {
+            return files.map((f: any) => ({
+              name: f.name ?? (f.key as string)?.split('/').pop() ?? '',
+              url: f.publicUrl ?? f.url ?? '',
+            }));
+          }
+        }
+      } catch (e) {
+        console.warn('[Media] Illumine listLibraryImages failed, falling back:', e);
+      }
+    }
     const { data, error } = await supabase.storage
       .from('share-assets')
       .list('library', { limit: 200, sortBy: { column: 'created_at', order: 'desc' } });
@@ -485,13 +502,22 @@ export const AdminContentService = {
   },
 
   async deleteShareAssetFile(url: string): Promise<void> {
-    // Extract relative path: everything after /share-assets/
+    if (illumineAuth.isAuthenticated()) {
+      try {
+        const res = await illumineFetch('/media', {
+          method: 'DELETE',
+          body: JSON.stringify({ url }),
+        });
+        if (res.ok) return;
+      } catch (e) {
+        console.warn('[Media] Illumine deleteShareAssetFile failed, falling back:', e);
+      }
+    }
+    // Supabase fallback: extract relative path from share-assets bucket URL
     const marker = '/share-assets/';
     const idx = url.indexOf(marker);
     if (idx === -1) throw new Error('URL inválida para o bucket share-assets.');
-
-    const path = url.slice(idx + marker.length).split('?')[0]; // strip query string if present
-
+    const path = url.slice(idx + marker.length).split('?')[0];
     const { error } = await supabase.storage.from('share-assets').remove([path]);
     if (error) throw error;
   },

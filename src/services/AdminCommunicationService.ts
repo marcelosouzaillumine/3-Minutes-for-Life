@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { authService } from './authService';
+import { illumineFetch, illumineAuth } from '../lib/illumine';
 
 import type {
     CommunicationAudience,
@@ -1467,8 +1468,28 @@ class AdminCommunicationService {
 
 
         // -----------------------------------------------------
-        // Dispatch
+        // Dispatch — Illumine-first, Supabase edge fn fallback
         // -----------------------------------------------------
+
+        if (illumineAuth.isAuthenticated()) {
+            try {
+                const illumineRes = await illumineFetch('/communications/dispatch', {
+                    method: 'POST',
+                    body: JSON.stringify({ campaignId }),
+                });
+                if (illumineRes.ok) {
+                    const result = await illumineRes.json();
+                    return {
+                        campaign_id: campaignId,
+                        total_recipients: result.users ?? result.totalRecipients ?? 0,
+                        total_deliveries: result.deliveries ?? result.totalDeliveries ?? 0,
+                        status: 'sending',
+                    };
+                }
+            } catch (e) {
+                console.warn('[Communication] Illumine dispatch failed, falling back to edge function:', e);
+            }
+        }
 
         const {
             data,
