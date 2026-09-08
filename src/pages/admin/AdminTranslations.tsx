@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../../lib/supabase';
+import { illumineFetch, illumineAuth } from '../../lib/illumine';
 import { AdminContentService } from '../../services/AdminContentService';
 import { ManualTranslationEditor } from '../../components/admin/ManualTranslationEditor';
 import '../../styles/admin.css';
@@ -49,6 +50,33 @@ export function AdminTranslations() {
 
     setTranslatingIds(prev => new Set(prev).add(devotional.id));
     try {
+      // Illumine-first: queue + process via gateway
+      if (illumineAuth.isAuthenticated()) {
+        try {
+          const queueRes = await illumineFetch(`/devotionals/${devotional.id}/translations/queue`, {
+            method: 'POST',
+            body: JSON.stringify({
+              languages: missingLangs.map(l => ({ targetLanguage: l.iso_code, sourceLanguage: 'pt-BR' })),
+            }),
+          });
+          if (queueRes.ok) {
+            const processRes = await illumineFetch('/devotionals/translations/process', { method: 'POST' });
+            const processResult = await processRes.json().catch(() => ({}));
+            if (!processRes.ok) {
+              alert('Erro ao executar tradução:\n' + (processResult?.error || `HTTP ${processRes.status}`));
+              return;
+            }
+            const failed = (processResult?.results || []).find((r: any) => r.status !== 'completed');
+            if (failed) { alert('Tradução falhou: ' + (failed.error || 'erro desconhecido')); return; }
+            await loadData();
+            return;
+          }
+        } catch (e) {
+          console.warn('[Translations] Illumine path failed, falling back to Supabase:', e);
+        }
+      }
+
+      // Supabase fallback
       for (const lang of missingLangs) {
         await supabase.from('translation_jobs').upsert(
           [{ devotional_id: devotional.id, source_language: 'pt-BR', target_language: lang.iso_code, status: 'queued', attempts: 0, error_message: null }],

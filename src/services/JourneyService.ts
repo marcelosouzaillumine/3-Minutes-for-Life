@@ -64,14 +64,20 @@ export const JourneyService = {
   },
 
   async toggleFavorite(devotionalId: string, legacyId?: number) {
-    if (legacyId && illumineAuth.isAuthenticated()) {
+    if (illumineAuth.isAuthenticated()) {
       try {
         const favRes = await illumineFetch('/devotionals/favorites');
         if (favRes.ok) {
           const favs = await favRes.json() as any[];
-          const isFav = favs.some(f => (f.devotional?.supabaseId ?? f.devotional?.id) === devotionalId);
+          const isFav = favs.some(f =>
+            (f.devotional?.supabaseId ?? f.devotional?.id) === devotionalId ||
+            f.devotionalId === devotionalId
+          );
           const method = isFav ? 'DELETE' : 'POST';
-          await illumineFetch(`/devotionals/legacy/${legacyId}/favorite`, { method });
+          const path = legacyId
+            ? `/devotionals/legacy/${legacyId}/favorite`
+            : `/devotionals/${devotionalId}/favorite`;
+          await illumineFetch(path, { method });
           return !isFav;
         }
       } catch (e) {

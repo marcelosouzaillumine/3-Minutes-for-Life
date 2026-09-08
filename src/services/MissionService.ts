@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { illumineFetch, illumineAuth } from '../lib/illumine';
 
 export interface Supporter {
   id: string;
@@ -38,7 +39,6 @@ export const MissionService = {
       .select('*')
       .eq('user_id', userId)
       .maybeSingle();
-      
     if (error) {
       console.error('Error fetching supporter status:', error);
       return null;
@@ -47,15 +47,24 @@ export const MissionService = {
   },
 
   async getDailyImpact(): Promise<number> {
+    // Illumine-first: get total user count
     try {
-      // Chama a função RPC que ignora o RLS para obter a contagem total
+      const res = await illumineFetch('/users?perPage=1');
+      if (res.ok) {
+        const body = await res.json();
+        if (typeof body.total === 'number' && body.total > 0) return body.total;
+      }
+    } catch {
+      // fallthrough
+    }
+
+    // Supabase fallback
+    try {
       const { data: count, error } = await supabase.rpc('get_total_profiles_count');
-      
       if (error) {
         console.error('Erro ao buscar total de usuários:', error);
-        return 1247; // fallback temporário
+        return 1247;
       }
-      
       return count || 0;
     } catch (err) {
       console.error('Error fetching real user count:', err);
@@ -68,7 +77,6 @@ export const MissionService = {
       .from('contributions')
       .select('*')
       .order('created_at', { ascending: false });
-      
     if (error) {
       console.error('Error fetching contributions:', error);
       return [];
@@ -81,7 +89,6 @@ export const MissionService = {
       .from('campaigns')
       .select('*')
       .eq('status', 'active');
-
     if (error) {
       console.error('Error fetching campaigns:', error);
       return [];
@@ -95,38 +102,37 @@ export const MissionService = {
     frequency: 'one_time' | 'monthly' | 'yearly' = 'one_time',
     paymentMethod: 'pix' | 'credit_card' | 'undefined' = 'undefined'
   ): Promise<{ checkoutUrl: string; contributionId: string; providerReference?: string }> {
-    const { illumineFetch } = await import('../lib/illumine');
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user?.email) throw new Error('Autenticação necessária.');
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('full_name')
-      .eq('id', user.id)
-      .maybeSingle();
-    const customerName = profile?.full_name || user.user_metadata?.full_name || user.email.split('@')[0];
-
     const isRecurring = frequency === 'monthly' || frequency === 'yearly';
     const billingType =
       paymentMethod === 'pix' ? 'PIX'
       : paymentMethod === 'credit_card' ? 'CREDIT_CARD'
       : 'UNDEFINED';
 
-    // Always use the Edge Function path for checkout.
-    // The Illumine gateway path is available for users who log in fresh
-    // (Illumine token is set via dual-auth). The Edge Function handles both:
-    //   - asaas_payment_id provided → record-only (Illumine already created the payment)
-    //   - cpf_cnpj provided → create payment via Asaas directly (legacy fallback)
-    const illumineToken = (await import('../lib/illumine')).illumineAuth.getAccessToken();
+    // Prefer Illumine user; fall back to Supabase auth
+    const illumineUser = illumineAuth.getUser();
+    let userEmail: string | null = illumineUser?.email ?? null;
+    let customerName: string = illumineUser?.name ?? illumineUser?.email?.split('@')[0] ?? '';
 
-    if (illumineToken) {
+    if (!userEmail) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.email) throw new Error('Autenticação necessária.');
+      userEmail = user.email;
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .maybeSingle();
+      customerName = profile?.full_name || user.user_metadata?.full_name || user.email.split('@')[0];
+    }
+
+    if (illumineAuth.isAuthenticated()) {
       try {
         const illumineRes = await illumineFetch('/asaas/checkout', {
           method: 'POST',
           body: JSON.stringify({
             billingType,
             amountCents,
-            customer: { name: customerName, email: user.email, cpfCnpj: cpfCnpj.replace(/\D/g, '') },
+            customer: { name: customerName, email: userEmail, cpfCnpj: cpfCnpj.replace(/\D/g, '') },
             isRecurring,
             cycle: frequency === 'yearly' ? 'YEARLY' : 'MONTHLY',
             description: 'Apoio à Missão 3 Minutes for Life',
@@ -144,7 +150,7 @@ export const MissionService = {
           }
         }
       } catch (e) {
-        console.warn('[Mission] Illumine checkout failed, falling back to legacy:', e)
+        console.warn('[Mission] Illumine checkout failed, falling back to legacy:', e);
       }
     }
 
@@ -164,5 +170,5 @@ export const MissionService = {
 
   async createOneTimePixCheckout(amountCents: number, cpfCnpj: string): Promise<{ checkoutUrl: string; contributionId: string }> {
     return this.createCheckout(amountCents, cpfCnpj, 'one_time');
-  }
+  },
 };

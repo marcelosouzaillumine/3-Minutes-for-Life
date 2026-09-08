@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
+import { illumineFetch, illumineAuth } from '../lib/illumine';
 
 type Channel = 'email' | 'whatsapp';
 type Purpose = 'devotional_updates' | 'project_support' | 'relationship_reply';
@@ -12,16 +13,18 @@ interface ConsentRow {
   occurred_at: string;
 }
 
-/**
- * Preferências de comunicação.
- *
- * A pessoa controla por finalidade, não em bloco: pode querer resposta
- * ao pedido de oração e não querer campanha. Consentimento genérico
- * não serve — precisa ser granular para ser válido.
- *
- * Cada alteração grava um evento novo (a tabela é append-only), então
- * o histórico de quando cada escolha foi feita fica preservado.
- */
+// Mapeamento entre nomenclatura 3minutes ↔ Illumine OS consent-core
+const PURPOSE_TO_ILLUMINE: Record<Purpose, string> = {
+  devotional_updates: 'devotional',
+  project_support: 'campaign',
+  relationship_reply: 'pastoral',
+};
+const PURPOSE_FROM_ILLUMINE: Record<string, Purpose> = {
+  devotional: 'devotional_updates',
+  campaign: 'project_support',
+  pastoral: 'relationship_reply',
+};
+
 export function CommunicationPreferences() {
   const { t } = useTranslation(['profile']);
 
@@ -31,6 +34,37 @@ export function CommunicationPreferences() {
   const [error, setError] = useState('');
 
   const load = async () => {
+    // Illumine-first
+    if (illumineAuth.isAuthenticated()) {
+      try {
+        const res = await illumineFetch('/consent');
+        if (res.ok) {
+          const body = await res.json();
+          const matrix = body.consents || {};
+          const rows: ConsentRow[] = [];
+          for (const [ch, purposes] of Object.entries(matrix)) {
+            if (!['email', 'whatsapp'].includes(ch)) continue;
+            for (const [pu, val] of Object.entries(purposes as any)) {
+              const mappedPurpose = PURPOSE_FROM_ILLUMINE[pu];
+              if (!mappedPurpose) continue;
+              rows.push({
+                channel: ch as Channel,
+                purpose: mappedPurpose,
+                granted: (val as any).granted ?? false,
+                occurred_at: (val as any).updatedAt ?? new Date().toISOString(),
+              });
+            }
+          }
+          setConsents(rows);
+          setLoading(false);
+          return;
+        }
+      } catch {
+        // fallthrough to Supabase
+      }
+    }
+
+    // Supabase fallback
     try {
       const { data, error: rpcError } = await supabase.rpc('get_my_communication_consents');
       if (rpcError) throw rpcError;
@@ -49,7 +83,6 @@ export function CommunicationPreferences() {
 
   const isGranted = (purpose: Purpose, channel: Channel): boolean => {
     const row = consents.find(c => c.purpose === purpose && c.channel === channel);
-    // Ausência de registro é tratada como não concedido — nunca o contrário.
     return row?.granted ?? false;
   };
 
@@ -58,13 +91,27 @@ export function CommunicationPreferences() {
     setSaving(key);
     setError('');
 
-    // Atualização otimista, revertida se a gravação falhar.
     const previous = consents;
     setConsents(prev => {
       const rest = prev.filter(c => !(c.purpose === purpose && c.channel === channel));
       return [...rest, { purpose, channel, granted: next, occurred_at: new Date().toISOString() }];
     });
 
+    // Illumine-first
+    if (illumineAuth.isAuthenticated()) {
+      try {
+        const illuminePurpose = PURPOSE_TO_ILLUMINE[purpose];
+        const res = await illumineFetch('/consent', {
+          method: 'PUT',
+          body: JSON.stringify({ consents: [{ channel, purpose: illuminePurpose, granted: next }] }),
+        });
+        if (res.ok) { setSaving(null); return; }
+      } catch {
+        // fallthrough
+      }
+    }
+
+    // Supabase fallback
     try {
       const { error: rpcError } = await supabase.rpc('set_communication_consent', {
         p_channel: channel,
@@ -90,7 +137,7 @@ export function CommunicationPreferences() {
     );
   }
 
-  const groups: Array<{ purpose: Purpose; title: string; desc: string; locked?: boolean }> = [
+  const groups: Array<{ purpose: Purpose; title: string; desc: string }> = [
     {
       purpose: 'relationship_reply',
       title: t('profile:consent.replyTitle', 'Resposta às minhas mensagens'),
