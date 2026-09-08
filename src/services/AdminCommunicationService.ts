@@ -8,7 +8,6 @@ import type {
     CommunicationCampaignChannel,
     CommunicationCampaignStats,
     CommunicationDeliveryChannel,
-    CommunicationLanguage,
     CommunicationSendResult,
 } from '../types/Communication';
 
@@ -19,74 +18,40 @@ import type {
 
 export interface CreateCampaignInput {
     name: string;
-
     type: CommunicationCampaign['type'];
-
     language: CommunicationCampaign['language'];
-
     subject?: string | null;
-
     title?: string | null;
-
     body: string;
-
     cta_label?: string | null;
-
     cta_url?: string | null;
-
     scheduled_at?: string | null;
-
     channels?: CommunicationDeliveryChannel[];
-
     audience_ids?: string[];
 }
 
-
-export interface UpdateCampaignInput
-    extends Partial<CreateCampaignInput> {
-
+export interface UpdateCampaignInput extends Partial<CreateCampaignInput> {
     status?: CommunicationCampaign['status'];
 }
 
-
-// =============================================================
-// TRANSLATIONS
-// =============================================================
-
 export interface CommunicationCampaignTranslation {
-
     id: string;
-
     campaign_id: string;
-
-    language: CommunicationLanguage;
-
+    language: string;
     subject: string | null;
-
     title: string | null;
-
     body: string;
-
     cta_label: string | null;
-
     created_at: string;
-
     updated_at: string;
 }
 
-
 export interface UpsertCampaignTranslationInput {
-
     campaign_id: string;
-
-    language: CommunicationLanguage;
-
+    language: string;
     subject?: string | null;
-
     title?: string | null;
-
     body: string;
-
     cta_label?: string | null;
 }
 
@@ -97,781 +62,285 @@ export interface UpsertCampaignTranslationInput {
 
 class AdminCommunicationService {
 
-
     // =========================================================
     // CAMPAIGNS
     // =========================================================
 
     async listCampaigns(): Promise<CommunicationCampaign[]> {
-
-        const {
-            data,
-            error,
-        } = await supabase
-            .from('communication_campaigns')
-            .select('*')
-            .order('created_at', {
-                ascending: false,
-            });
-
-
-        if (error) {
-            throw error;
+        if (illumineAuth.isAuthenticated()) {
+            try {
+                const res = await illumineFetch('/communications/campaigns?pageSize=200');
+                if (res.ok) {
+                    const result = await res.json();
+                    return result.data ?? [];
+                }
+            } catch (e) {
+                console.warn('[Comm] Illumine listCampaigns failed, falling back:', e);
+            }
         }
 
-
-        return (
-            data ?? []
-        ) as CommunicationCampaign[];
+        const { data, error } = await supabase
+            .from('communication_campaigns')
+            .select('*')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+        return (data ?? []) as CommunicationCampaign[];
     }
 
+    async getCampaign(id: string): Promise<CommunicationCampaign | null> {
+        if (illumineAuth.isAuthenticated()) {
+            try {
+                const res = await illumineFetch(`/communications/campaigns/${id}`);
+                if (res.ok) return await res.json();
+                if (res.status === 404) return null;
+            } catch (e) {
+                console.warn('[Comm] Illumine getCampaign failed, falling back:', e);
+            }
+        }
 
-    async getCampaign(
-        id: string
-    ): Promise<CommunicationCampaign | null> {
-
-        const {
-            data,
-            error,
-        } = await supabase
+        const { data, error } = await supabase
             .from('communication_campaigns')
             .select('*')
             .eq('id', id)
             .maybeSingle();
-
-
-        if (error) {
-            throw error;
-        }
-
-
+        if (error) throw error;
         return data as CommunicationCampaign | null;
     }
 
-
-    async createCampaign(
-        input: CreateCampaignInput
-    ): Promise<CommunicationCampaign> {
-
-        // -----------------------------------------------------
-        // Auth
-        // -----------------------------------------------------
+    async createCampaign(input: CreateCampaignInput): Promise<CommunicationCampaign> {
+        if (illumineAuth.isAuthenticated()) {
+            try {
+                const res = await illumineFetch('/communications/campaigns', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        name: input.name,
+                        type: input.type,
+                        language: input.language,
+                        subject: input.subject ?? null,
+                        title: input.title ?? null,
+                        body: input.body,
+                        cta_label: input.cta_label ?? null,
+                        cta_url: input.cta_url ?? null,
+                        scheduled_at: input.scheduled_at ?? null,
+                        channels: input.channels ?? [],
+                        audience_ids: input.audience_ids ?? [],
+                    }),
+                });
+                if (res.ok) return await res.json();
+            } catch (e) {
+                console.warn('[Comm] Illumine createCampaign failed, falling back:', e);
+            }
+        }
 
         const session = await authService.getSession();
         const userId = session?.user?.id;
+        if (!userId) throw new Error('Usuário não autenticado.');
 
-        if (!userId) {
-            throw new Error(
-                'Usuário não autenticado.'
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // Campaign
-        // -----------------------------------------------------
-
-        const {
-            data,
-            error,
-        } = await supabase
+        const { data, error } = await supabase
             .from('communication_campaigns')
             .insert({
-
-                name:
-                    input.name,
-
-                type:
-                    input.type,
-
-                language:
-                    input.language,
-
-                subject:
-                    input.subject ?? null,
-
-                title:
-                    input.title ?? null,
-
-                body:
-                    input.body,
-
-                cta_label:
-                    input.cta_label ?? null,
-
-                cta_url:
-                    input.cta_url ?? null,
-
-                scheduled_at:
-                    input.scheduled_at ?? null,
-
-                created_by:
-                    userId,
-
-                status:
-                    'draft',
+                name: input.name,
+                type: input.type,
+                language: input.language,
+                subject: input.subject ?? null,
+                title: input.title ?? null,
+                body: input.body,
+                cta_label: input.cta_label ?? null,
+                cta_url: input.cta_url ?? null,
+                scheduled_at: input.scheduled_at ?? null,
+                created_by: userId,
+                status: 'draft',
             })
             .select()
             .single();
+        if (error) throw error;
 
-
-        if (error) {
-            throw error;
-        }
-
-
-        const campaign =
-            data as CommunicationCampaign;
-
-
-        // -----------------------------------------------------
-        // Channels
-        // -----------------------------------------------------
-
-        if (
-            input.channels !== undefined
-        ) {
-
-            await this.setCampaignChannels(
-                campaign.id,
-                input.channels
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // Audiences
-        // -----------------------------------------------------
-
-        if (
-            input.audience_ids !== undefined
-        ) {
-
-            await this.setCampaignAudiences(
-                campaign.id,
-                input.audience_ids
-            );
-        }
-
-
+        const campaign = data as CommunicationCampaign;
+        if (input.channels !== undefined) await this.setCampaignChannels(campaign.id, input.channels);
+        if (input.audience_ids !== undefined) await this.setCampaignAudiences(campaign.id, input.audience_ids);
         return campaign;
     }
 
+    async updateCampaign(id: string, input: UpdateCampaignInput): Promise<CommunicationCampaign> {
+        if (illumineAuth.isAuthenticated()) {
+            try {
+                const payload: Record<string, unknown> = {};
+                if (input.name !== undefined) payload.name = input.name;
+                if (input.type !== undefined) payload.type = input.type;
+                if (input.language !== undefined) payload.language = input.language;
+                if (input.subject !== undefined) payload.subject = input.subject;
+                if (input.title !== undefined) payload.title = input.title;
+                if (input.body !== undefined) payload.body = input.body;
+                if (input.cta_label !== undefined) payload.cta_label = input.cta_label;
+                if (input.cta_url !== undefined) payload.cta_url = input.cta_url;
+                if (input.scheduled_at !== undefined) payload.scheduled_at = input.scheduled_at;
+                if (input.status !== undefined) payload.status = input.status;
+                if (input.channels !== undefined) payload.channels = input.channels;
+                if (input.audience_ids !== undefined) payload.audience_ids = input.audience_ids;
 
-    async updateCampaign(
-        id: string,
-        input: UpdateCampaignInput
-    ): Promise<CommunicationCampaign> {
-
-        const updatePayload: Record<
-            string,
-            unknown
-        > = {};
-
-
-        // -----------------------------------------------------
-        // Basic fields
-        // -----------------------------------------------------
-
-        if (
-            input.name !== undefined
-        ) {
-
-            updatePayload.name =
-                input.name;
+                const res = await illumineFetch(`/communications/campaigns/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(payload),
+                });
+                if (res.ok) return await res.json();
+            } catch (e) {
+                console.warn('[Comm] Illumine updateCampaign failed, falling back:', e);
+            }
         }
 
-
-        if (
-            input.type !== undefined
-        ) {
-
-            updatePayload.type =
-                input.type;
-        }
-
-
-        if (
-            input.language !== undefined
-        ) {
-
-            updatePayload.language =
-                input.language;
-        }
-
-
-        if (
-            input.subject !== undefined
-        ) {
-
-            updatePayload.subject =
-                input.subject;
-        }
-
-
-        if (
-            input.title !== undefined
-        ) {
-
-            updatePayload.title =
-                input.title;
-        }
-
-
-        if (
-            input.body !== undefined
-        ) {
-
-            updatePayload.body =
-                input.body;
-        }
-
-
-        // -----------------------------------------------------
-        // CTA
-        // -----------------------------------------------------
-
-        if (
-            input.cta_label !== undefined
-        ) {
-
-            updatePayload.cta_label =
-                input.cta_label;
-        }
-
-
-        if (
-            input.cta_url !== undefined
-        ) {
-
-            updatePayload.cta_url =
-                input.cta_url;
-        }
-
-
-        // -----------------------------------------------------
-        // Scheduling
-        // -----------------------------------------------------
-
-        if (
-            input.scheduled_at !== undefined
-        ) {
-
-            updatePayload.scheduled_at =
-                input.scheduled_at;
-        }
-
-
-        // -----------------------------------------------------
-        // Status
-        // -----------------------------------------------------
-
-        if (
-            input.status !== undefined
-        ) {
-
-            updatePayload.status =
-                input.status;
-        }
-
-
-        // -----------------------------------------------------
-        // Update campaign
-        // -----------------------------------------------------
+        // Supabase fallback
+        const updatePayload: Record<string, unknown> = {};
+        if (input.name !== undefined) updatePayload.name = input.name;
+        if (input.type !== undefined) updatePayload.type = input.type;
+        if (input.language !== undefined) updatePayload.language = input.language;
+        if (input.subject !== undefined) updatePayload.subject = input.subject;
+        if (input.title !== undefined) updatePayload.title = input.title;
+        if (input.body !== undefined) updatePayload.body = input.body;
+        if (input.cta_label !== undefined) updatePayload.cta_label = input.cta_label;
+        if (input.cta_url !== undefined) updatePayload.cta_url = input.cta_url;
+        if (input.scheduled_at !== undefined) updatePayload.scheduled_at = input.scheduled_at;
+        if (input.status !== undefined) updatePayload.status = input.status;
 
         let campaign: CommunicationCampaign;
-
-
-        if (
-            Object.keys(updatePayload).length > 0
-        ) {
-
-            const {
-                data,
-                error,
-            } = await supabase
-                .from(
-                    'communication_campaigns'
-                )
-                .update(
-                    updatePayload
-                )
-                .eq(
-                    'id',
-                    id
-                )
+        if (Object.keys(updatePayload).length > 0) {
+            const { data, error } = await supabase
+                .from('communication_campaigns')
+                .update(updatePayload)
+                .eq('id', id)
                 .select()
                 .single();
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            campaign =
-                data as CommunicationCampaign;
-
+            if (error) throw error;
+            campaign = data as CommunicationCampaign;
         } else {
-
-            const existing =
-                await this.getCampaign(id);
-
-
-            if (!existing) {
-
-                throw new Error(
-                    'Campanha não encontrada.'
-                );
-            }
-
-
-            campaign =
-                existing;
+            const existing = await this.getCampaign(id);
+            if (!existing) throw new Error('Campanha não encontrada.');
+            campaign = existing;
         }
 
-
-        // -----------------------------------------------------
-        // Channels
-        // -----------------------------------------------------
-
-        if (
-            input.channels !== undefined
-        ) {
-
-            await this.setCampaignChannels(
-                id,
-                input.channels
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // Audiences
-        // -----------------------------------------------------
-
-        if (
-            input.audience_ids !== undefined
-        ) {
-
-            await this.setCampaignAudiences(
-                id,
-                input.audience_ids
-            );
-        }
-
-
+        if (input.channels !== undefined) await this.setCampaignChannels(id, input.channels);
+        if (input.audience_ids !== undefined) await this.setCampaignAudiences(id, input.audience_ids);
         return campaign;
     }
 
+    async deleteCampaign(id: string): Promise<void> {
+        if (illumineAuth.isAuthenticated()) {
+            try {
+                const res = await illumineFetch(`/communications/campaigns/${id}`, { method: 'DELETE' });
+                if (res.ok || res.status === 204) return;
+            } catch (e) {
+                console.warn('[Comm] Illumine deleteCampaign failed, falling back:', e);
+            }
+        }
 
-    async deleteCampaign(
-        id: string
-    ): Promise<void> {
-
-        const {
-            error,
-        } = await supabase
-            .from(
-                'communication_campaigns'
-            )
+        const { error } = await supabase
+            .from('communication_campaigns')
             .delete()
-            .eq(
-                'id',
-                id
-            );
-
-
-        if (error) {
-            throw error;
-        }
+            .eq('id', id);
+        if (error) throw error;
     }
 
 
     // =========================================================
-    // TRANSLATIONS
+    // TRANSLATIONS (Supabase only — sem equivalente no gateway)
     // =========================================================
 
-    /**
-     * Lista todas as traduções de uma campanha.
-     */
-    async listCampaignTranslations(
-        campaignId: string
-    ): Promise<CommunicationCampaignTranslation[]> {
-
-        const {
-            data,
-            error,
-        } = await supabase
-            .from(
-                'communication_campaign_translations'
-            )
+    async listCampaignTranslations(campaignId: string): Promise<CommunicationCampaignTranslation[]> {
+        const { data, error } = await supabase
+            .from('communication_campaign_translations')
             .select('*')
-            .eq(
-                'campaign_id',
-                campaignId
-            )
-            .order(
-                'language',
-                {
-                    ascending: true,
-                }
-            );
-
-
-        if (error) {
-            throw error;
-        }
-
-
-        return (
-            data ?? []
-        ) as CommunicationCampaignTranslation[];
+            .eq('campaign_id', campaignId)
+            .order('language', { ascending: true });
+        if (error) throw error;
+        return (data ?? []) as CommunicationCampaignTranslation[];
     }
 
-
-    /**
-     * Busca uma tradução específica.
-     */
-    async getCampaignTranslation(
-        campaignId: string,
-        language: CommunicationLanguage
-    ): Promise<CommunicationCampaignTranslation | null> {
-
-        const {
-            data,
-            error,
-        } = await supabase
-            .from(
-                'communication_campaign_translations'
-            )
+    async getCampaignTranslation(campaignId: string, language: string): Promise<CommunicationCampaignTranslation | null> {
+        const { data, error } = await supabase
+            .from('communication_campaign_translations')
             .select('*')
-            .eq(
-                'campaign_id',
-                campaignId
-            )
-            .eq(
-                'language',
-                language
-            )
+            .eq('campaign_id', campaignId)
+            .eq('language', language)
             .maybeSingle();
-
-
-        if (error) {
-            throw error;
-        }
-
-
-        return (
-            data as
-            CommunicationCampaignTranslation | null
-        );
+        if (error) throw error;
+        return data as CommunicationCampaignTranslation | null;
     }
 
+    async upsertCampaignTranslation(input: UpsertCampaignTranslationInput): Promise<CommunicationCampaignTranslation> {
+        if (!input.campaign_id) throw new Error('Campanha não informada.');
+        if (!input.language) throw new Error('Idioma da tradução não informado.');
+        if (!input.body?.trim()) throw new Error('O conteúdo da tradução é obrigatório.');
 
-    /**
-     * Cria ou atualiza uma tradução.
-     *
-     * A combinação campaign_id + language é única
-     * no banco de dados.
-     */
-    async upsertCampaignTranslation(
-        input: UpsertCampaignTranslationInput
-    ): Promise<CommunicationCampaignTranslation> {
+        const campaign = await this.getCampaign(input.campaign_id);
+        if (!campaign) throw new Error('Campanha não encontrada.');
 
-        // -----------------------------------------------------
-        // Validation
-        // -----------------------------------------------------
-
-        if (
-            !input.campaign_id
-        ) {
-
-            throw new Error(
-                'Campanha não informada.'
-            );
-        }
-
-
-        if (
-            !input.language
-        ) {
-
-            throw new Error(
-                'Idioma da tradução não informado.'
-            );
-        }
-
-
-        if (
-            !input.body ||
-            !input.body.trim()
-        ) {
-
-            throw new Error(
-                'O conteúdo da tradução é obrigatório.'
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // Verify campaign
-        // -----------------------------------------------------
-
-        const campaign =
-            await this.getCampaign(
-                input.campaign_id
-            );
-
-
-        if (!campaign) {
-
-            throw new Error(
-                'Campanha não encontrada.'
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // Upsert
-        // -----------------------------------------------------
-
-        const {
-            data,
-            error,
-        } = await supabase
-            .from(
-                'communication_campaign_translations'
-            )
+        const { data, error } = await supabase
+            .from('communication_campaign_translations')
             .upsert(
                 {
-                    campaign_id:
-                        input.campaign_id,
-
-                    language:
-                        input.language,
-
-                    subject:
-                        input.subject ?? null,
-
-                    title:
-                        input.title ?? null,
-
-                    body:
-                        input.body,
-
-                    cta_label:
-                        input.cta_label ?? null,
+                    campaign_id: input.campaign_id,
+                    language: input.language,
+                    subject: input.subject ?? null,
+                    title: input.title ?? null,
+                    body: input.body,
+                    cta_label: input.cta_label ?? null,
                 },
-                {
-                    onConflict:
-                        'campaign_id,language',
-                }
+                { onConflict: 'campaign_id,language' },
             )
             .select()
             .single();
-
-
-        if (error) {
-            throw error;
-        }
-
-
-        return (
-            data
-        ) as CommunicationCampaignTranslation;
+        if (error) throw error;
+        return data as CommunicationCampaignTranslation;
     }
 
-
-    /**
-     * Atualiza uma tradução existente.
-     */
     async updateCampaignTranslation(
         id: string,
-        input: Partial<
-            Omit<
-                UpsertCampaignTranslationInput,
-                'campaign_id'
-            >
-        >
+        input: Partial<Omit<UpsertCampaignTranslationInput, 'campaign_id'>>,
     ): Promise<CommunicationCampaignTranslation> {
-
-        const updatePayload: Record<
-            string,
-            unknown
-        > = {};
-
-
-        if (
-            input.language !== undefined
-        ) {
-
-            updatePayload.language =
-                input.language;
+        const payload: Record<string, unknown> = {};
+        if (input.language !== undefined) payload.language = input.language;
+        if (input.subject !== undefined) payload.subject = input.subject;
+        if (input.title !== undefined) payload.title = input.title;
+        if (input.body !== undefined) {
+            if (!input.body.trim()) throw new Error('O conteúdo da tradução não pode ficar vazio.');
+            payload.body = input.body;
         }
+        if (input.cta_label !== undefined) payload.cta_label = input.cta_label;
 
-
-        if (
-            input.subject !== undefined
-        ) {
-
-            updatePayload.subject =
-                input.subject;
-        }
-
-
-        if (
-            input.title !== undefined
-        ) {
-
-            updatePayload.title =
-                input.title;
-        }
-
-
-        if (
-            input.body !== undefined
-        ) {
-
-            if (
-                !input.body.trim()
-            ) {
-
-                throw new Error(
-                    'O conteúdo da tradução não pode ficar vazio.'
-                );
-            }
-
-
-            updatePayload.body =
-                input.body;
-        }
-
-
-        if (
-            input.cta_label !== undefined
-        ) {
-
-            updatePayload.cta_label =
-                input.cta_label;
-        }
-
-
-        if (
-            Object.keys(updatePayload).length === 0
-        ) {
-
-            const {
-                data,
-                error,
-            } = await supabase
-                .from(
-                    'communication_campaign_translations'
-                )
+        if (Object.keys(payload).length === 0) {
+            const { data, error } = await supabase
+                .from('communication_campaign_translations')
                 .select('*')
-                .eq(
-                    'id',
-                    id
-                )
+                .eq('id', id)
                 .single();
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            return (
-                data
-            ) as CommunicationCampaignTranslation;
+            if (error) throw error;
+            return data as CommunicationCampaignTranslation;
         }
 
-
-        const {
-            data,
-            error,
-        } = await supabase
-            .from(
-                'communication_campaign_translations'
-            )
-            .update(
-                updatePayload
-            )
-            .eq(
-                'id',
-                id
-            )
+        const { data, error } = await supabase
+            .from('communication_campaign_translations')
+            .update(payload)
+            .eq('id', id)
             .select()
             .single();
-
-
-        if (error) {
-            throw error;
-        }
-
-
-        return (
-            data
-        ) as CommunicationCampaignTranslation;
+        if (error) throw error;
+        return data as CommunicationCampaignTranslation;
     }
 
-
-    /**
-     * Remove uma tradução.
-     */
-    async deleteCampaignTranslation(
-        id: string
-    ): Promise<void> {
-
-        const {
-            error,
-        } = await supabase
-            .from(
-                'communication_campaign_translations'
-            )
+    async deleteCampaignTranslation(id: string): Promise<void> {
+        const { error } = await supabase
+            .from('communication_campaign_translations')
             .delete()
-            .eq(
-                'id',
-                id
-            );
-
-
-        if (error) {
-            throw error;
-        }
+            .eq('id', id);
+        if (error) throw error;
     }
 
-
-    /**
-     * Remove uma tradução pelo idioma.
-     *
-     * Útil para o editor.
-     */
-    async deleteCampaignTranslationByLanguage(
-        campaignId: string,
-        language: CommunicationLanguage
-    ): Promise<void> {
-
-        const {
-            error,
-        } = await supabase
-            .from(
-                'communication_campaign_translations'
-            )
+    async deleteCampaignTranslationByLanguage(campaignId: string, language: string): Promise<void> {
+        const { error } = await supabase
+            .from('communication_campaign_translations')
             .delete()
-            .eq(
-                'campaign_id',
-                campaignId
-            )
-            .eq(
-                'language',
-                language
-            );
-
-
-        if (error) {
-            throw error;
-        }
+            .eq('campaign_id', campaignId)
+            .eq('language', language);
+        if (error) throw error;
     }
 
 
@@ -879,109 +348,46 @@ class AdminCommunicationService {
     // CHANNELS
     // =========================================================
 
-    async getCampaignChannels(
-        campaignId: string
-    ): Promise<CommunicationCampaignChannel[]> {
+    async getCampaignChannels(campaignId: string): Promise<CommunicationCampaignChannel[]> {
+        if (illumineAuth.isAuthenticated()) {
+            try {
+                const res = await illumineFetch(`/communications/campaigns/${campaignId}/channels`);
+                if (res.ok) return await res.json();
+            } catch (e) {
+                console.warn('[Comm] Illumine getCampaignChannels failed, falling back:', e);
+            }
+        }
 
-        const {
-            data,
-            error,
-        } = await supabase
-            .from(
-                'communication_campaign_channels'
-            )
+        const { data, error } = await supabase
+            .from('communication_campaign_channels')
             .select('*')
-            .eq(
-                'campaign_id',
-                campaignId
-            )
-            .order(
-                'created_at',
-                {
-                    ascending: true,
-                }
-            );
-
-
-        if (error) {
-            throw error;
-        }
-
-
-        return (
-            data ?? []
-        ) as CommunicationCampaignChannel[];
+            .eq('campaign_id', campaignId)
+            .order('created_at', { ascending: true });
+        if (error) throw error;
+        return (data ?? []) as CommunicationCampaignChannel[];
     }
 
-
-    async setChannel(
-        campaignId: string,
-        channel: CommunicationDeliveryChannel,
-        enabled: boolean
-    ): Promise<void> {
-
-        const {
-            error,
-        } = await supabase
-            .from(
-                'communication_campaign_channels'
-            )
-            .upsert(
-                {
-                    campaign_id:
-                        campaignId,
-
-                    channel,
-
-                    enabled,
-                },
-                {
-                    onConflict:
-                        'campaign_id,channel',
-                }
-            );
-
-
-        if (error) {
-            throw error;
+    async setCampaignChannels(campaignId: string, channels: CommunicationDeliveryChannel[]): Promise<void> {
+        if (illumineAuth.isAuthenticated()) {
+            try {
+                const res = await illumineFetch(`/communications/campaigns/${campaignId}/channels`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ channels }),
+                });
+                if (res.ok) return;
+            } catch (e) {
+                console.warn('[Comm] Illumine setCampaignChannels failed, falling back:', e);
+            }
         }
-    }
 
-
-    async setCampaignChannels(
-        campaignId: string,
-        channels: CommunicationDeliveryChannel[]
-    ): Promise<void> {
-
-        const allChannels:
-            CommunicationDeliveryChannel[] = [
-                'in_app',
-                'email',
-                'whatsapp',
-            ];
-
-
-        const selectedChannels =
-            Array.from(
-                new Set(
-                    channels
-                )
-            );
-
-
+        const all: CommunicationDeliveryChannel[] = ['in_app', 'email', 'whatsapp'];
+        const selected = new Set(channels);
         await Promise.all(
-            allChannels.map(
-                (
-                    channel
-                ) =>
-                    this.setChannel(
-                        campaignId,
-                        channel,
-                        selectedChannels.includes(
-                            channel
-                        )
-                    )
-            )
+            all.map(ch =>
+                supabase
+                    .from('communication_campaign_channels')
+                    .upsert({ campaign_id: campaignId, channel: ch, enabled: selected.has(ch) }, { onConflict: 'campaign_id,channel' }),
+            ),
         );
     }
 
@@ -990,239 +396,94 @@ class AdminCommunicationService {
     // AUDIENCES
     // =========================================================
 
-    async listAudiences(): Promise<
-        CommunicationAudience[]
-    > {
-
-        const {
-            data,
-            error,
-        } = await supabase
-            .from(
-                'communication_audiences'
-            )
-            .select('*')
-            .order(
-                'name',
-                {
-                    ascending: true,
-                }
-            );
-
-
-        if (error) {
-            throw error;
+    async listAudiences(): Promise<CommunicationAudience[]> {
+        if (illumineAuth.isAuthenticated()) {
+            try {
+                const res = await illumineFetch('/communications/audiences');
+                if (res.ok) return await res.json();
+            } catch (e) {
+                console.warn('[Comm] Illumine listAudiences failed, falling back:', e);
+            }
         }
 
-
-        return (
-            data ?? []
-        ) as CommunicationAudience[];
+        const { data, error } = await supabase
+            .from('communication_audiences')
+            .select('*')
+            .order('name', { ascending: true });
+        if (error) throw error;
+        return (data ?? []) as CommunicationAudience[];
     }
 
-
-    async getAudience(
-        id: string
-    ): Promise<CommunicationAudience | null> {
-
-        const {
-            data,
-            error,
-        } = await supabase
-            .from(
-                'communication_audiences'
-            )
+    async getAudience(id: string): Promise<CommunicationAudience | null> {
+        const { data, error } = await supabase
+            .from('communication_audiences')
             .select('*')
-            .eq(
-                'id',
-                id
-            )
+            .eq('id', id)
             .maybeSingle();
-
-
-        if (error) {
-            throw error;
-        }
-
-
-        return (
-            data as CommunicationAudience | null
-        );
+        if (error) throw error;
+        return data as CommunicationAudience | null;
     }
 
-
-    async getCampaignAudienceIds(
-        campaignId: string
-    ): Promise<string[]> {
-
-        const {
-            data,
-            error,
-        } = await supabase
-            .from(
-                'communication_campaign_audiences'
-            )
-            .select(
-                'audience_id'
-            )
-            .eq(
-                'campaign_id',
-                campaignId
-            );
-
-
-        if (error) {
-            throw error;
-        }
-
-
-        return (
-            data ?? []
-        )
-            .map(
-                (
-                    row
-                ) =>
-                    row.audience_id as string
-            );
-    }
-
-
-    async getCampaignAudiences(
-        campaignId: string
-    ): Promise<CommunicationAudience[]> {
-
-        const audienceIds =
-            await this.getCampaignAudienceIds(
-                campaignId
-            );
-
-
-        if (
-            audienceIds.length === 0
-        ) {
-
-            return [];
-        }
-
-
-        const {
-            data,
-            error,
-        } = await supabase
-            .from(
-                'communication_audiences'
-            )
-            .select('*')
-            .in(
-                'id',
-                audienceIds
-            )
-            .order(
-                'name',
-                {
-                    ascending: true,
+    async getCampaignAudienceIds(campaignId: string): Promise<string[]> {
+        if (illumineAuth.isAuthenticated()) {
+            try {
+                const res = await illumineFetch(`/communications/campaigns/${campaignId}/audiences`);
+                if (res.ok) {
+                    const result = await res.json();
+                    return result.audience_ids ?? [];
                 }
-            );
-
-
-        if (error) {
-            throw error;
+            } catch (e) {
+                console.warn('[Comm] Illumine getCampaignAudienceIds failed, falling back:', e);
+            }
         }
 
-
-        return (
-            data ?? []
-        ) as CommunicationAudience[];
+        const { data, error } = await supabase
+            .from('communication_campaign_audiences')
+            .select('audience_id')
+            .eq('campaign_id', campaignId);
+        if (error) throw error;
+        return (data ?? []).map(row => row.audience_id as string);
     }
 
+    async getCampaignAudiences(campaignId: string): Promise<CommunicationAudience[]> {
+        const audienceIds = await this.getCampaignAudienceIds(campaignId);
+        if (audienceIds.length === 0) return [];
 
-    async setCampaignAudiences(
-        campaignId: string,
-        audienceIds: string[]
-    ): Promise<void> {
+        const { data, error } = await supabase
+            .from('communication_audiences')
+            .select('*')
+            .in('id', audienceIds)
+            .order('name', { ascending: true });
+        if (error) throw error;
+        return (data ?? []) as CommunicationAudience[];
+    }
 
-        // -----------------------------------------------------
-        // Remove duplicates and empty values
-        // -----------------------------------------------------
+    async setCampaignAudiences(campaignId: string, audienceIds: string[]): Promise<void> {
+        if (illumineAuth.isAuthenticated()) {
+            try {
+                const res = await illumineFetch(`/communications/campaigns/${campaignId}/audiences`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ audience_ids: [...new Set(audienceIds.filter(Boolean))] }),
+                });
+                if (res.ok) return;
+            } catch (e) {
+                console.warn('[Comm] Illumine setCampaignAudiences failed, falling back:', e);
+            }
+        }
 
-        const uniqueAudienceIds =
-            Array.from(
-                new Set(
-                    audienceIds.filter(
-                        Boolean
-                    )
-                )
-            );
-
-
-        // -----------------------------------------------------
-        // Remove current relations
-        // -----------------------------------------------------
-
-        const {
-            error: deleteError,
-        } = await supabase
-            .from(
-                'communication_campaign_audiences'
-            )
+        const unique = [...new Set(audienceIds.filter(Boolean))];
+        const { error: deleteError } = await supabase
+            .from('communication_campaign_audiences')
             .delete()
-            .eq(
-                'campaign_id',
-                campaignId
-            );
+            .eq('campaign_id', campaignId);
+        if (deleteError) throw deleteError;
 
+        if (unique.length === 0) return;
 
-        if (deleteError) {
-            throw deleteError;
-        }
-
-
-        // -----------------------------------------------------
-        // Nothing else to insert
-        // -----------------------------------------------------
-
-        if (
-            uniqueAudienceIds.length === 0
-        ) {
-
-            return;
-        }
-
-
-        // -----------------------------------------------------
-        // Insert new relations
-        // -----------------------------------------------------
-
-        const rows =
-            uniqueAudienceIds.map(
-                (
-                    audienceId
-                ) => ({
-
-                    campaign_id:
-                        campaignId,
-
-                    audience_id:
-                        audienceId,
-                })
-            );
-
-
-        const {
-            error: insertError,
-        } = await supabase
-            .from(
-                'communication_campaign_audiences'
-            )
-            .insert(
-                rows
-            );
-
-
-        if (insertError) {
-            throw insertError;
-        }
+        const { error: insertError } = await supabase
+            .from('communication_campaign_audiences')
+            .insert(unique.map(audienceId => ({ campaign_id: campaignId, audience_id: audienceId })));
+        if (insertError) throw insertError;
     }
 
 
@@ -1230,346 +491,87 @@ class AdminCommunicationService {
     // PREVIEW / SEND
     // =========================================================
 
-    /**
-     * Retorna a quantidade de destinatários quando a infraestrutura
-     * de contagem estiver disponível.
-     *
-     * A tabela `communication_campaign_recipient_counts` não faz
-     * parte do schema atual do banco remoto. Portanto, não podemos
-     * utilizá-la como requisito para iniciar uma campanha.
-     *
-     * O processamento efetivo dos destinatários fica a cargo da
-     * Edge Function `communication-dispatch`.
-     *
-     * Retorno:
-     *
-     *  > 0  = quantidade conhecida
-     *  = 0  = nenhum destinatário
-     *  < 0  = quantidade ainda não disponível
-     */
-    async getCampaignRecipientCount(
-        campaignId: string
-    ): Promise<number> {
+    async getCampaignRecipientCount(campaignId: string): Promise<number> {
+        if (!campaignId) return 0;
 
-        if (
-            !campaignId
-        ) {
-
-            return 0;
-        }
-
-
-        /*
-         * A contagem não deve bloquear o envio enquanto a tabela
-         * agregadora não existir no schema remoto.
-         *
-         * Tentamos consultar a tabela para manter compatibilidade
-         * com ambientes que eventualmente ainda a possuam.
-         */
-
-        const {
-            data,
-            error,
-        } = await supabase
-            .from(
-                'communication_campaign_recipient_counts'
-            )
-            .select(
-                'total_recipients'
-            )
-            .eq(
-                'campaign_id',
-                campaignId
-            )
+        const { data, error } = await supabase
+            .from('communication_campaign_recipient_counts')
+            .select('total_recipients')
+            .eq('campaign_id', campaignId)
             .maybeSingle();
 
-
-        /*
-         * PGRST205 = relação/tabela não encontrada no schema cache.
-         *
-         * Nesse caso não tratamos como erro de envio.
-         * A Edge Function fará a resolução efetiva dos destinatários.
-         */
-        if (
-            error
-        ) {
-
-            if (
-                error.code === 'PGRST205'
-            ) {
-
-                console.warn(
-                    '[Communication] A tabela communication_campaign_recipient_counts não existe no schema remoto. A validação seguirá sem contagem prévia.'
-                );
-
+        if (error) {
+            if (error.code === 'PGRST205') {
+                console.warn('[Communication] tabela recipient_counts não existe. Validação continua sem contagem.');
                 return -1;
             }
-
-
             throw error;
         }
-
-
-        return (
-            data?.total_recipients ?? 0
-        );
+        return data?.total_recipients ?? 0;
     }
 
+    async validateCampaignForSending(campaignId: string): Promise<void> {
+        const campaign = await this.getCampaign(campaignId);
+        if (!campaign) throw new Error('Campanha não encontrada.');
+        if (campaign.status === 'sending') throw new Error('Esta campanha já está sendo enviada.');
+        if (campaign.status === 'completed') throw new Error('Esta campanha já foi enviada.');
+        if (!campaign.body?.trim()) throw new Error('O conteúdo da campanha está vazio.');
 
-    async validateCampaignForSending(
-        campaignId: string
-    ): Promise<void> {
+        const channels = await this.getCampaignChannels(campaignId);
+        if (!channels.some(c => c.enabled)) throw new Error('Selecione pelo menos um canal de envio.');
 
-        // -----------------------------------------------------
-        // Campaign
-        // -----------------------------------------------------
+        const audiences = await this.getCampaignAudiences(campaignId);
+        if (audiences.length === 0) throw new Error('Selecione pelo menos um público.');
 
-        const campaign =
-            await this.getCampaign(
-                campaignId
-            );
-
-
-        if (!campaign) {
-
-            throw new Error(
-                'Campanha não encontrada.'
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // Status
-        // -----------------------------------------------------
-
-        if (
-            campaign.status === 'sending'
-        ) {
-
-            throw new Error(
-                'Esta campanha já está sendo enviada.'
-            );
-        }
-
-
-        if (
-            campaign.status === 'completed'
-        ) {
-
-            throw new Error(
-                'Esta campanha já foi enviada.'
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // Content
-        // -----------------------------------------------------
-
-        if (
-            !campaign.body ||
-            !campaign.body.trim()
-        ) {
-
-            throw new Error(
-                'O conteúdo da campanha está vazio.'
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // Channels
-        // -----------------------------------------------------
-
-        const channels =
-            await this.getCampaignChannels(
-                campaignId
-            );
-
-
-        const enabledChannels =
-            channels.filter(
-                channel =>
-                    channel.enabled
-            );
-
-
-        if (
-            enabledChannels.length === 0
-        ) {
-
-            throw new Error(
-                'Selecione pelo menos um canal de envio.'
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // Audiences
-        // -----------------------------------------------------
-
-        const audiences =
-            await this.getCampaignAudiences(
-                campaignId
-            );
-
-
-        if (
-            audiences.length === 0
-        ) {
-
-            throw new Error(
-                'Selecione pelo menos um público.'
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // Recipient count
-        // -----------------------------------------------------
-
-        const recipientCount =
-            await this.getCampaignRecipientCount(
-                campaignId
-            );
-
-
-        /*
-         * Quando a quantidade é conhecida e é zero, bloqueamos
-         * corretamente o envio.
-         *
-         * Quando retorna -1, significa que a tabela agregadora
-         * não existe. Nesse cenário a validação continua e a
-         * Edge Function será responsável por resolver os
-         * destinatários.
-         */
-        if (
-            recipientCount === 0
-        ) {
-
-            throw new Error(
-                'Nenhum destinatário elegível foi encontrado.'
-            );
-        }
+        const recipientCount = await this.getCampaignRecipientCount(campaignId);
+        if (recipientCount === 0) throw new Error('Nenhum destinatário elegível foi encontrado.');
     }
 
+    async sendCampaign(campaignId: string): Promise<CommunicationSendResult> {
+        await this.validateCampaignForSending(campaignId);
 
-    async sendCampaign(
-        campaignId: string
-    ): Promise<CommunicationSendResult> {
-
-        // -----------------------------------------------------
-        // Validation
-        // -----------------------------------------------------
-
-        await this.validateCampaignForSending(
-            campaignId
-        );
-
-
-        // -----------------------------------------------------
-        // Dispatch — Illumine-first, Supabase edge fn fallback
-        // -----------------------------------------------------
-
+        // Illumine-first dispatch
         if (illumineAuth.isAuthenticated()) {
             try {
-                const illumineRes = await illumineFetch('/communications/dispatch', {
+                const res = await illumineFetch('/communications/dispatch', {
                     method: 'POST',
                     body: JSON.stringify({ campaignId }),
                 });
-                if (illumineRes.ok) {
-                    const result = await illumineRes.json();
+                if (res.ok) {
+                    const result = await res.json();
                     return {
                         campaign_id: campaignId,
-                        total_recipients: result.users ?? result.totalRecipients ?? 0,
-                        total_deliveries: result.deliveries ?? result.totalDeliveries ?? 0,
+                        total_recipients: result.users ?? 0,
+                        total_deliveries: result.deliveries ?? 0,
                         status: 'sending',
                     };
                 }
             } catch (e) {
-                console.warn('[Communication] Illumine dispatch failed, falling back to edge function:', e);
+                console.warn('[Comm] Illumine dispatch failed, falling back to edge function:', e);
             }
         }
 
-        const {
-            data,
-            error,
-        } = await supabase.functions.invoke(
-            'communication-dispatch',
-            {
-                body: {
-                    campaign_id:
-                        campaignId,
-                },
-            }
-        );
-
-
-        if (error) {
-            throw error;
-        }
-
-
-        if (
-            !data?.success
-        ) {
-
-            throw new Error(
-                data?.error ??
-                'Não foi possível iniciar o envio.'
-            );
-        }
-
-
-        // -----------------------------------------------------
-        // Result
-        // -----------------------------------------------------
+        // Supabase edge function fallback
+        const { data, error } = await supabase.functions.invoke('communication-dispatch', {
+            body: { campaign_id: campaignId },
+        });
+        if (error) throw error;
+        if (!data?.success) throw new Error(data?.error ?? 'Não foi possível iniciar o envio.');
 
         return {
-
-            campaign_id:
-                campaignId,
-
-            total_recipients:
-                data.users ?? 0,
-
-            total_deliveries:
-                data.deliveries ?? 0,
-
-            status:
-                'sending',
+            campaign_id: campaignId,
+            total_recipients: data.users ?? 0,
+            total_deliveries: data.deliveries ?? 0,
+            status: 'sending',
         };
     }
 
-
-    async completeCampaign(
-        campaignId: string
-    ): Promise<void> {
-
-        const {
-            error,
-        } = await supabase
-            .from(
-                'communication_campaigns'
-            )
-            .update({
-
-                status:
-                    'completed',
-
-                completed_at:
-                    new Date().toISOString(),
-
-            })
-            .eq(
-                'id',
-                campaignId
-            );
-
-
-        if (error) {
-            throw error;
-        }
+    async completeCampaign(campaignId: string): Promise<void> {
+        const { error } = await supabase
+            .from('communication_campaigns')
+            .update({ status: 'completed', completed_at: new Date().toISOString() })
+            .eq('id', campaignId);
+        if (error) throw error;
     }
 
 
@@ -1577,31 +579,22 @@ class AdminCommunicationService {
     // STATS
     // =========================================================
 
-    async getCampaignStats(): Promise<
-        CommunicationCampaignStats[]
-    > {
-
-        const {
-            data,
-            error,
-        } = await supabase
-            .from(
-                'communication_campaign_stats'
-            )
-            .select('*')
-            .order(
-                'name'
-            );
-
-
-        if (error) {
-            throw error;
+    async getCampaignStats(): Promise<CommunicationCampaignStats[]> {
+        if (illumineAuth.isAuthenticated()) {
+            try {
+                const res = await illumineFetch('/communications/campaigns/stats');
+                if (res.ok) return await res.json();
+            } catch (e) {
+                console.warn('[Comm] Illumine getCampaignStats failed, falling back:', e);
+            }
         }
 
-
-        return (
-            data ?? []
-        ) as CommunicationCampaignStats[];
+        const { data, error } = await supabase
+            .from('communication_campaign_stats')
+            .select('*')
+            .order('name');
+        if (error) throw error;
+        return (data ?? []) as CommunicationCampaignStats[];
     }
 }
 
@@ -1610,5 +603,4 @@ class AdminCommunicationService {
 // SINGLETON
 // =============================================================
 
-export const adminCommunicationService =
-    new AdminCommunicationService();
+export const adminCommunicationService = new AdminCommunicationService();
