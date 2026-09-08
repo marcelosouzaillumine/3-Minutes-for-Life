@@ -1,112 +1,126 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { illumineFetch } from '../../lib/illumine';
 
-type TelemetryHealth = {
-  identity_state: string;
-  event_count: number;
-  percentage: number;
+type Overview = {
+  retention: {
+    dau: number;
+    wau: number;
+    mau: number;
+    totalUsers: number;
+    dauRate: number;
+    wauRate: number;
+    mauRate: number;
+  };
+  funnel: {
+    opened: number;
+    completed: number;
+    favorited: number;
+    completionRate: number;
+    favoriteRate: number;
+  };
+  streaks: {
+    distribution: { streak: number; users: number }[];
+  };
 };
 
 export function AdminIdentity() {
-  const [healthData, setHealthData] = useState<TelemetryHealth[]>([]);
+  const [data, setData] = useState<Overview | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchHealth = async () => {
-      try {
-        setIsLoading(true);
-        // Em produção, isso seria substituído por uma RPC dedicada (ex: get_telemetry_health)
-        // Por enquanto, tentamos ler diretamente se o admin tiver RLS, ou usamos mock de demonstração
-        const { data, error } = await supabase.rpc('get_telemetry_health');
-        
-        if (error) {
-          console.warn('RPC get_telemetry_health não encontrada. Mostrando placeholder visual.');
-          setHasError(error.message || 'Erro desconhecido');
-        } else {
-          setHealthData(data || []);
-        }
-      } catch (err) {
+    illumineFetch('/analytics/overview')
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(setData)
+      .catch(err => {
         console.error(err);
-        setHasError(err instanceof Error ? err.message : String(err));
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchHealth();
+        setHasError(err.message || 'Erro desconhecido');
+      })
+      .finally(() => setIsLoading(false));
   }, []);
+
+  const stat = (label: string, value: string | number, sub?: string) => (
+    <div style={{ background: 'var(--color-bg-subtle, #f9fafb)', borderRadius: 8, padding: '16px 20px', minWidth: 120 }}>
+      <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--color-text-dark)' }}>{value}</div>
+      <div style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', marginTop: 2 }}>{label}</div>
+      {sub && <div style={{ fontSize: '0.75rem', color: '#888', marginTop: 2 }}>{sub}</div>}
+    </div>
+  );
 
   return (
     <div>
       <div className="admin-header">
         <div>
-          <h1>Identity Telemetry</h1>
-          <p>Monitoramento contínuo da saúde e continuidade das identidades.</p>
+          <h1>Engajamento</h1>
+          <p>Retenção, leituras e favoritos dos últimos 30 dias.</p>
         </div>
       </div>
 
       {isLoading ? (
         <div className="admin-loading-state">
-          <div className="admin-spinner"></div>
-          <p>Carregando telemetria de identidade...</p>
+          <div className="admin-spinner" />
+          <p>Carregando métricas...</p>
         </div>
       ) : hasError ? (
-        <div className="admin-empty-state" style={{ textAlign: 'left' }}>
-          <h3 style={{ color: 'var(--color-text-dark)', marginBottom: '16px' }}>Status da Implementação</h3>
-          <p style={{ marginBottom: '16px' }}>
-            Ocorreu um erro ao chamar a função RPC <code>get_telemetry_health</code>.
-          </p>
-          <div style={{ background: '#f9fafb', padding: '16px', borderRadius: '8px', border: '1px solid var(--color-border)', fontFamily: 'monospace', fontSize: '0.9rem', color: '#dc2626' }}>
-            {hasError}
-          </div>
-          <p style={{ marginTop: '16px' }}>
-            Aguardando a execução da consulta SQL fornecida no relatório no Supabase SQL Editor.
+        <div className="admin-empty-state">
+          <p>Não foi possível carregar os dados: <code>{hasError}</code></p>
+          <p style={{ fontSize: '0.85rem', color: '#888', marginTop: 8 }}>
+            Verifique se <code>VITE_ILLUMINE_URL</code> está configurado e o gateway está no ar.
           </p>
         </div>
-      ) : (
-        <div className="admin-section">
-          <h3>Saúde do Tracking</h3>
-          <div className="admin-table-container">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Estado de Identidade</th>
-                  <th>Eventos Registrados</th>
-                  <th>Percentual</th>
-                </tr>
-              </thead>
-              <tbody>
-                {healthData.length > 0 ? healthData.map((row, idx) => (
-                  <tr key={idx}>
-                    <td>
-                      <span style={{
-                        display: 'inline-block',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        fontSize: '0.8rem',
-                        fontWeight: 600,
-                        background: row.identity_state === 'authenticated_without_anonymous' ? '#fee2e2' : '#d1fae5',
-                        color: row.identity_state === 'authenticated_without_anonymous' ? '#991b1b' : '#065f46'
-                      }}>
-                        {row.identity_state}
-                      </span>
-                    </td>
-                    <td>{row.event_count}</td>
-                    <td>{row.percentage}%</td>
-                  </tr>
-                )) : (
-                  <tr>
-                    <td colSpan={3} style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-light)' }}>
-                      Nenhum evento registrado ainda.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+      ) : data ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+
+          {/* Retenção */}
+          <div className="admin-section">
+            <h3>Retenção de usuários</h3>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
+              {stat('Total de usuários', data.retention.totalUsers)}
+              {stat('Ativos hoje (DAU)', data.retention.dau, `${data.retention.dauRate}% da base`)}
+              {stat('Ativos esta semana (WAU)', data.retention.wau, `${data.retention.wauRate}% da base`)}
+              {stat('Ativos este mês (MAU)', data.retention.mau, `${data.retention.mauRate}% da base`)}
+            </div>
           </div>
+
+          {/* Funil de leitura */}
+          <div className="admin-section">
+            <h3>Funil de leitura — últimos 30 dias</h3>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
+              {stat('Aberturas', data.funnel.opened)}
+              {stat('Concluídas', data.funnel.completed, `${data.funnel.completionRate}% de conclusão`)}
+              {stat('Favoritadas', data.funnel.favorited, `${data.funnel.favoriteRate}% de favorito`)}
+            </div>
+          </div>
+
+          {/* Distribuição de streaks */}
+          {data.streaks?.distribution?.length > 0 && (
+            <div className="admin-section">
+              <h3>Distribuição de streaks</h3>
+              <div className="admin-table-container" style={{ marginTop: 12 }}>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Streak</th>
+                      <th>Usuários</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.streaks.distribution.map((row, i) => (
+                      <tr key={i}>
+                        <td>{row.streak} {row.streak === 1 ? 'dia' : 'dias'}</td>
+                        <td>{row.users}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
