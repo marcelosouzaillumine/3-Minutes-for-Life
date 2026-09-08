@@ -102,10 +102,7 @@ export function ContributionModal({ isOpen, onClose, initialTier = 'apoio', init
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
               <a className="btn-primary" href="/login?redirectTo=/apoiar">
-                {t('oneTime.login', 'Entrar')}
-              </a>
-              <a className="btn-primary" href="/signup?redirectTo=/apoiar">
-                {t('oneTime.signup', 'Criar conta')}
+                {t('oneTime.login', 'Entrar ou criar conta')}
               </a>
             </div>
           </div>

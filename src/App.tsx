@@ -6,8 +6,7 @@ import { Favorites } from './pages/Favorites';
 import { Profile } from './pages/Profile';
 import { BottomNav } from './components/BottomNav';
 import { Landing } from './pages/Landing';
-import { Login } from './pages/Login';
-import { Signup } from './pages/Signup';
+import { Auth } from './pages/Auth';
 import { SharedDevotional } from './pages/SharedDevotional';
 import { Mission } from './pages/Mission';
 import { Contribute } from './pages/Contribute';
@@ -99,8 +98,8 @@ function AppRoutes() {
         <Route path="/termos" element={<Terms />} />
         <Route path="/r/:code" element={<SharedDevotional />} />
 
-        <Route path="/login" element={<RequireGuest><Login /></RequireGuest>} />
-        <Route path="/signup" element={<RequireGuest><Signup /></RequireGuest>} />
+        <Route path="/login" element={<RequireGuest><Auth /></RequireGuest>} />
+        <Route path="/signup" element={<Navigate to="/login" replace />} />
 
         <Route path="/app" element={<RequireAuth><AppShell /></RequireAuth>} />
 

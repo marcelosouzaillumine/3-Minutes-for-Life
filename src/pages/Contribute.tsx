@@ -381,11 +381,8 @@ export function Contribute() {
                     {t('contribution:oneTime.needsLogin', 'Entre ou crie sua conta para vincular seu apoio ao seu perfil.')}
                   </p>
                   <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
-                    <a className="editorial-btn" href="/login?redirectTo=/apoiar" style={{ flex: 1 }}>
-                      {t('contribution:oneTime.login', 'Entrar')}
-                    </a>
-                    <a className="editorial-btn primary" href="/signup?redirectTo=/apoiar" style={{ flex: 1 }}>
-                      {t('contribution:oneTime.signup', 'Criar conta')}
+                    <a className="editorial-btn primary" href="/login?redirectTo=/apoiar" style={{ flex: 1 }}>
+                      {t('contribution:oneTime.login', 'Entrar ou criar conta')}
                     </a>
                   </div>
                 </div>

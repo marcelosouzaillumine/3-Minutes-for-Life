@@ -200,7 +200,7 @@ export function SharedDevotional() {
    */
 
   const handleCtaClick = () => {
-    navigate('/signup');
+    navigate('/login');
   };
 
   /*

@@ -214,3 +214,38 @@
   line-height: 1.5;
   color: var(--text-muted);
 }
+
+.auth-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 1rem;
+  display: block;
+}
+
+.auth-email-badge {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 1.5rem;
+}
+
+.auth-link-btn {
+  background: none;
+  border: none;
+  color: var(--landing-text);
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  text-decoration: underline;
+  margin-top: 0.25rem;
+}
+
+.auth-link-btn:hover {
+  opacity: 0.75;
+}
+
+.auth-success-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}

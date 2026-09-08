@@ -204,6 +204,34 @@ export const authService = {
     return data
   },
 
+  async checkEmail(email: string): Promise<{ exists: boolean; name?: string; avatar?: string; hasPassword?: boolean }> {
+    try {
+      const res = await illumineFetch('/auth/lookup', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+      })
+      if (res.ok) return await res.json()
+    } catch {
+      // fallthrough: Illumine not configured
+    }
+    // Supabase fallback: tenta signIn com senha inválida para detectar se usuário existe
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password: '\x00' })
+      if (error?.message?.includes('Invalid login credentials')) return { exists: true }
+      if (error?.message?.includes('Email not confirmed')) return { exists: true }
+    } catch {
+      // noop
+    }
+    return { exists: false }
+  },
+
+  async resetPassword(email: string): Promise<void> {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/app`,
+    })
+    if (error) throw error
+  },
+
   async signOut() {
     try {
       await supabase.auth.signOut()
