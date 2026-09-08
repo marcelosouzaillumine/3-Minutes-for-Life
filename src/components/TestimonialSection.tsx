@@ -42,7 +42,7 @@ export function TestimonialSection({ devotionalId, onSuccess }: TestimonialSecti
     <>
       <div className="relationship-card">
         <h3 className="relationship-card-title">
-          {t('testimonials.title', 'Como essa reflexão tocou você?')}
+          {t('testimonials.title', 'O que Deus despertou em seu coração por meio desta reflexão?')}
         </h3>
         <p className="relationship-card-description">
           {t('testimonials.subtitle', 'Seu relato pode ajudar nossa equipe a compreender o que Deus está fazendo na vida de quem caminha com o 3 Minutes for Life.')}
