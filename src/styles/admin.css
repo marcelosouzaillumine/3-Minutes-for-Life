@@ -73,6 +73,77 @@
   }
 }
 
+/* ============================================================
+   Rich Text Editor (Tiptap / ProseMirror)
+   ============================================================ */
+
+/* Área editável — continua a borda da toolbar */
+.rich-text-editor-container .ProseMirror {
+  min-height: 180px;
+  padding: 12px 14px;
+  border: 1px solid #d5d5d5;
+  border-top: none;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  background: #fff;
+  color: var(--color-text, #1a1a1a);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  outline: none;
+  box-sizing: border-box;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.rich-text-editor-container .ProseMirror:focus {
+  border-color: #b5b5b5;
+  box-shadow: 0 0 0 3px rgba(196, 109, 83, 0.07);
+}
+
+/* Placeholder quando vazio */
+.rich-text-editor-container .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: #aaa;
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+/* Tipografia dentro do editor */
+.rich-text-editor-container .ProseMirror p {
+  margin: 0 0 0.75em;
+}
+.rich-text-editor-container .ProseMirror p:last-child {
+  margin-bottom: 0;
+}
+.rich-text-editor-container .ProseMirror h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 1em 0 0.4em;
+}
+.rich-text-editor-container .ProseMirror h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0.85em 0 0.35em;
+}
+.rich-text-editor-container .ProseMirror blockquote {
+  border-left: 3px solid #c46d53;
+  margin: 0.75em 0;
+  padding: 0.4em 1em;
+  color: #555;
+  font-style: italic;
+  background: #fdf5f3;
+  border-radius: 0 6px 6px 0;
+}
+.rich-text-editor-container .ProseMirror ul,
+.rich-text-editor-container .ProseMirror ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0 0.75em;
+}
+.rich-text-editor-container .ProseMirror li {
+  margin-bottom: 0.25em;
+}
+
 .admin-loading-state,
 .admin-empty-state,
 .admin-error-state {
