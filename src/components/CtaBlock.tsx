@@ -14,9 +14,20 @@ interface CtaBlockProps {
 export function CtaBlock({ attrs }: CtaBlockProps) {
   const isPending = !attrs.title && !attrs.description && !attrs.label;
 
+  const NAVIGATION_ACTIONS: Record<string, string> = {
+    login: '/login',
+    signup: '/signup',
+    register: '/signup',
+  };
+
   const handleClick = () => {
     if (attrs.action) {
-      // Internal action dispatch
+      const navTarget = NAVIGATION_ACTIONS[attrs.action];
+      if (navTarget) {
+        window.location.href = navTarget;
+        return;
+      }
+      // Other actions — dispatch event for section-level handlers
       const event = new CustomEvent('cta:action', { detail: { action: attrs.action } });
       document.dispatchEvent(event);
       return;

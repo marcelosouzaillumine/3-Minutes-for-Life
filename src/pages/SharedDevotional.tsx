@@ -200,7 +200,7 @@ export function SharedDevotional() {
    */
 
   const handleCtaClick = () => {
-    navigate('/login');
+    navigate('/signup');
   };
 
   /*
@@ -307,22 +307,22 @@ export function SharedDevotional() {
 
                     text: t(
                       'shared.ctaText',
-                      'Que estes três minutos não terminem aqui.'
+                      'Três minutos que mudam um dia.'
                     ),
 
                     subtext: t(
                       'shared.ctaSubtext',
-                      'Amanhã, uma nova reflexão espera por você.'
+                      'Amanhã tem mais. Faça parte da jornada — é gratuito e você pode começar agora.'
                     ),
 
                     label: t(
                       'shared.ctaButton',
-                      'Quero continuar'
+                      'Quero a minha conta'
                     ),
 
                     note: t(
                       'shared.ctaNote',
-                      'Gratuito, sempre.'
+                      'Sem cartão de crédito.'
                     ),
 
                     onClick:
