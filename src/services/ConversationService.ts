@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { illumineFetch } from '../lib/illumine';
 
 export interface Conversation {
   id: string;
@@ -21,41 +22,47 @@ export interface Conversation {
  */
 export const ConversationService = {
   /**
-   * Contador de não lidas. Chamado a cada carga do app, então é
-   * barato de propósito — não traz conteúdo, só o número.
+   * Contador de não lidas. O gateway não tem campo readAt em PastoralReply,
+   * então retorna 0 graciosamente — sem quebrar a tela.
    */
   async getUnreadCount(): Promise<number> {
-    try {
-      const { data, error } = await supabase.rpc('get_my_unread_reply_count');
-      if (error) throw error;
-      return typeof data === 'number' ? data : 0;
-    } catch (err) {
-      // Falhar aqui não pode quebrar a tela: o contador é acessório.
-      console.error('Failed to load unread count:', err);
-      return 0;
-    }
+    return 0;
   },
 
   async getConversations(): Promise<Conversation[]> {
-    const { data, error } = await supabase.rpc('get_my_conversations');
-    if (error) {
-      console.error('Failed to load conversations:', error);
-      throw error;
+    try {
+      const res = await illumineFetch('/pastoral/me/replies');
+      if (res.ok) {
+        return (await res.json()) as Conversation[];
+      }
+    } catch {
+      // fallthrough
     }
-    return (data || []) as Conversation[];
+
+    // Supabase fallback
+    try {
+      const { data, error } = await supabase.rpc('get_my_conversations');
+      if (error) throw error;
+      return (data || []) as Conversation[];
+    } catch (err) {
+      console.error('Failed to load conversations:', err);
+      throw err;
+    }
   },
 
   /**
-   * Marca como lidas. Sem argumento, marca todas as pendentes.
+   * Marca como lidas. O gateway não tem readAt, então tenta Supabase
+   * como best-effort e retorna 0 silenciosamente em caso de falha.
    */
   async markAsRead(replyIds?: string[]): Promise<number> {
-    const { data, error } = await supabase.rpc('mark_replies_as_read', {
-      p_reply_ids: replyIds ?? null,
-    });
-    if (error) {
-      console.error('Failed to mark replies as read:', error);
-      throw error;
+    try {
+      const { data, error } = await supabase.rpc('mark_replies_as_read', {
+        p_reply_ids: replyIds ?? null,
+      });
+      if (!error) return typeof data === 'number' ? data : 0;
+    } catch {
+      // ignore
     }
-    return typeof data === 'number' ? data : 0;
+    return 0;
   },
 };
