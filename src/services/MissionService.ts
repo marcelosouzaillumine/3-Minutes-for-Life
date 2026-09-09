@@ -32,12 +32,25 @@ export interface Contribution {
 }
 
 export const MissionService = {
-  async getSupporterStatus(userId: string): Promise<Supporter | null> {
-    if (!userId) return null;
+  async getSupporterStatus(_userId: string): Promise<Supporter | null> {
+    // Illumine-first — usa o userId do token do gateway
+    try {
+      const res = await illumineFetch('/supporters/me');
+      if (res.ok) {
+        const d = await res.json();
+        return { id: d.id, user_id: d.userId ?? _userId, status: d.status, created_at: d.firstDonationAt ?? new Date().toISOString() };
+      }
+      if (res.status === 404) return null;
+    } catch {
+      // fallthrough
+    }
+
+    // Supabase fallback
+    if (!_userId) return null;
     const { data, error } = await supabase
       .from('supporters')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', _userId)
       .maybeSingle();
     if (error) {
       console.error('Error fetching supporter status:', error);
@@ -73,6 +86,30 @@ export const MissionService = {
   },
 
   async getContributions(): Promise<Contribution[]> {
+    // Illumine-first — donations do perfil do usuário
+    try {
+      const res = await illumineFetch('/supporters/me');
+      if (res.ok) {
+        const d = await res.json();
+        return (d.donations ?? []).map((don: any) => ({
+          id: don.id,
+          supporter_id: d.id,
+          campaign_id: don.campaignId ?? null,
+          amount: (don.amountCents ?? 0) / 100,
+          currency: 'BRL',
+          frequency: don.modality === 'recurring' ? 'recurring' : 'one_time',
+          status: don.status,
+          provider: don.metadata?.provider ?? 'asaas',
+          provider_reference: don.metadata?.asaasId ?? don.id,
+          started_at: don.createdAt,
+          ended_at: don.metadata?.endedAt ?? null,
+        })) as Contribution[];
+      }
+    } catch {
+      // fallthrough
+    }
+
+    // Supabase fallback
     const { data, error } = await supabase
       .from('contributions')
       .select('*')
@@ -85,6 +122,7 @@ export const MissionService = {
   },
 
   async getActiveCampaigns(): Promise<Campaign[]> {
+    // Sem endpoint Illumine para campanhas de arrecadação ainda — Supabase
     const { data, error } = await supabase
       .from('campaigns')
       .select('*')
@@ -143,10 +181,7 @@ export const MissionService = {
           const checkoutUrl: string = payload.checkoutUrl;
           const providerRef: string = payload.asaasPaymentId || payload.asaasSubscriptionId;
           if (checkoutUrl) {
-            const { data } = await supabase.functions.invoke('asaas-create-checkout', {
-              body: { asaas_payment_id: providerRef, amount_cents: amountCents, frequency },
-            });
-            return { checkoutUrl, contributionId: data?.contributionId || '', providerReference: providerRef };
+            return { checkoutUrl, contributionId: payload.donationId ?? providerRef ?? '', providerReference: providerRef };
           }
         }
       } catch (e) {

@@ -21,11 +21,16 @@ export interface Conversation {
  * ficam fora daqui, porque a pessoa já as recebeu no canal dela.
  */
 export const ConversationService = {
-  /**
-   * Contador de não lidas. O gateway não tem campo readAt em PastoralReply,
-   * então retorna 0 graciosamente — sem quebrar a tela.
-   */
   async getUnreadCount(): Promise<number> {
+    try {
+      const res = await illumineFetch('/pastoral/me/replies');
+      if (res.ok) {
+        const convs: Conversation[] = await res.json();
+        return convs.filter(c => !c.read_at).length;
+      }
+    } catch {
+      // ignore
+    }
     return 0;
   },
 
@@ -50,11 +55,22 @@ export const ConversationService = {
     }
   },
 
-  /**
-   * Marca como lidas. O gateway não tem readAt, então tenta Supabase
-   * como best-effort e retorna 0 silenciosamente em caso de falha.
-   */
   async markAsRead(replyIds?: string[]): Promise<number> {
+    // Illumine-first
+    try {
+      const res = await illumineFetch('/pastoral/me/replies/read', {
+        method: 'POST',
+        body: JSON.stringify({ replyIds: replyIds ?? null }),
+      });
+      if (res.ok) {
+        const body = await res.json();
+        return typeof body.marked === 'number' ? body.marked : 0;
+      }
+    } catch {
+      // fallthrough
+    }
+
+    // Supabase fallback
     try {
       const { data, error } = await supabase.rpc('mark_replies_as_read', {
         p_reply_ids: replyIds ?? null,
