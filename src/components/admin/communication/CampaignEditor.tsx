@@ -459,11 +459,11 @@ export default function CampaignEditor({
                         ) => {
 
                             initialContent[
-                                translation.language
+                                translation.language as CommunicationLanguage
                             ] = {
 
                                 language:
-                                    translation.language,
+                                    translation.language as CommunicationLanguage,
 
                                 subject:
                                     translation.subject ??
