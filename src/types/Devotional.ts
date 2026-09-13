@@ -56,6 +56,7 @@ export interface Devotional {
   scripture_reference?: string | null;
   scripture_text?: string | null;
   audio_url?: string;
+  status?: 'draft' | 'published' | 'scheduled' | 'archived';
   theme_id?: string;
   category_id?: string;
   categories?: { name: string } | null;
