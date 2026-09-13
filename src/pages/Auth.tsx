@@ -71,7 +71,13 @@ export const Auth: React.FC = () => {
       const result = await authService.checkEmail(email.trim().toLowerCase());
       if (result.exists) {
         setUserInfo({ name: result.name, avatar: result.avatar });
-        setStep('password');
+        if (result.hasPassword === false) {
+          // Conta migrada ou criada via OAuth — sem senha cadastrada
+          setError('Sua conta foi encontrada, mas ainda não tem senha definida. Redefina sua senha para continuar.');
+          setStep('reset');
+        } else {
+          setStep('password');
+        }
       } else {
         setStep('register');
       }

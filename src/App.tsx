@@ -12,6 +12,7 @@ import { Mission } from './pages/Mission';
 import { Contribute } from './pages/Contribute';
 import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
+import { ResetPassword } from './pages/ResetPassword';
 import { useAuth } from './context/AuthContext';
 import { useState, useEffect } from 'react';
 import { AnalyticsService } from './services/AnalyticsService';
@@ -100,6 +101,7 @@ function AppRoutes() {
 
         <Route path="/login" element={<RequireGuest><Auth /></RequireGuest>} />
         <Route path="/signup" element={<Navigate to="/login" replace />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         <Route path="/app" element={<RequireAuth><AppShell /></RequireAuth>} />
 

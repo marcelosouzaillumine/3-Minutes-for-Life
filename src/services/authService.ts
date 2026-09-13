@@ -207,13 +207,10 @@ export const authService = {
   // ─── RECUPERAÇÃO DE SENHA ────────────────────────────────────────────────────
 
   async resetPassword(email: string): Promise<void> {
-    const res = await illumineDirect('/auth/reset-password', { email, tenantSlug: TENANT_SLUG })
+    const redirectUrl = `${window.location.origin}/reset-password`
+    const res = await illumineDirect('/auth/reset-password', { email, tenantSlug: TENANT_SLUG, redirectUrl })
     if (res.ok) return
-    // Fallback para Supabase caso L1 não tenha o endpoint configurado
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/app`,
-    })
-    if (error) throw error
+    throw new Error('RESET_FAILED')
   },
 
   // ─── LOGOUT ──────────────────────────────────────────────────────────────────
