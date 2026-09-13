@@ -431,7 +431,7 @@ export const AdminContentService = {
   async listLibraryImages(): Promise<Array<{ name: string; url: string }>> {
     if (illumineAuth.isAuthenticated()) {
       try {
-        const res = await illumineFetch('/media?folder=library')
+        const res = await illumineFetch('/storage?folder=library')
         if (res.ok) {
           const result = await res.json()
           const files: any[] = result.files ?? result
@@ -487,7 +487,7 @@ export const AdminContentService = {
   async deleteShareAssetFile(url: string): Promise<void> {
     if (illumineAuth.isAuthenticated()) {
       try {
-        const res = await illumineFetch('/media', {
+        const res = await illumineFetch('/storage', {
           method: 'DELETE',
           body: JSON.stringify({ url }),
         })
