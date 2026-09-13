@@ -47,14 +47,9 @@ export const JourneyService = {
     return { started_at: d.readAt ?? null, completed_at: d.completedAt ?? null };
   },
 
-  async isFavorite(devotionalId: string, legacyId?: number): Promise<boolean> {
+  async isFavorite(devotionalId: string, _legacyId?: number): Promise<boolean> {
     const favIds = await this.listFavorites();
-    if (favIds.includes(devotionalId)) return true;
-    if (legacyId) {
-      const legacyIds = await this.listFavorites();
-      return legacyIds.includes(devotionalId);
-    }
-    return false;
+    return favIds.includes(devotionalId);
   },
 
   async listFavorites(): Promise<string[]> {

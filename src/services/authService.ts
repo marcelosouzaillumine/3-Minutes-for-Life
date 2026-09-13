@@ -2,22 +2,70 @@ import { illumineFetch, illumineAuth } from '../lib/illumine'
 import { supabase } from '../lib/supabase'
 import { AnalyticsService } from './AnalyticsService'
 
+const ILLUMINE_URL = import.meta.env.VITE_ILLUMINE_URL as string
 const TENANT_SLUG = import.meta.env.VITE_TENANT_SLUG || '3minutes'
 
-async function exchangeSupabaseJwt(supabaseToken: string): Promise<boolean> {
-  try {
-    const res = await illumineFetch('/auth/exchange/supabase', {
-      method: 'POST',
-      body: JSON.stringify({ supabaseToken, tenantSlug: TENANT_SLUG }),
-    })
-    if (!res.ok) return false
-    const data = await res.json()
-    await illumineAuth.saveTokens(data.accessToken, data.refreshToken, data.user)
-    return true
-  } catch (e) {
-    console.warn('[Auth] Supabase JWT exchange warning:', e)
-    return false
+// Chama diretamente (sem Bearer) para não depender de token existente
+async function illumineDirect(path: string, body: Record<string, unknown>): Promise<Response> {
+  return fetch(`${ILLUMINE_URL}${path}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-tenant-slug': TENANT_SLUG,
+    },
+    body: JSON.stringify(body),
+  })
+}
+
+// Obtém/renova sessão Illumine OS usando email+senha.
+// Se o usuário não existe no Illumine ainda (usuário legado do Supabase), cria a conta.
+async function ensureIllumineSession(
+  email: string,
+  password: string,
+  metadata?: { name?: string; phone?: string; country?: string; state?: string; city?: string }
+): Promise<boolean> {
+  // 1. Tenta login direto no Illumine OS
+  const loginRes = await illumineDirect('/auth/login', { email, password })
+
+  if (loginRes.ok) {
+    const d = await loginRes.json()
+    if (d.accessToken) {
+      await illumineAuth.saveTokens(d.accessToken, d.refreshToken, d.user)
+      return true
+    }
   }
+
+  // 2. 401 → usuário pode não ter conta no Illumine (conta criada antes da migração)
+  //    Tenta criar automaticamente com as mesmas credenciais
+  if (loginRes.status === 401) {
+    const name = metadata?.name || email.split('@')[0]
+    const regRes = await illumineDirect('/auth/register', {
+      email,
+      password,
+      name,
+      phone: metadata?.phone,
+      country: metadata?.country,
+      state: metadata?.state,
+      city: metadata?.city,
+      tenantSlug: TENANT_SLUG,
+    })
+
+    if (regRes.ok) {
+      const d = await regRes.json()
+      if (d.accessToken) {
+        await illumineAuth.saveTokens(d.accessToken, d.refreshToken, d.user)
+        return true
+      }
+    }
+
+    // 409 Conflict = já existe no Illumine com senha diferente (mudança de senha não sincronizada)
+    // Não há o que fazer sem o exchange endpoint no L1
+    if (regRes.status === 409) {
+      console.warn('[Auth] Usuário existe no Illumine com senha diferente — sessão L1 não obtida')
+    }
+  }
+
+  return false
 }
 
 export const authService = {
@@ -31,66 +79,54 @@ export const authService = {
     city?: string,
     acceptsUpdates = false
   ) {
-    // 1. Cadastra na identidade Supabase Auth
+    // 1. Cadastra no Illumine OS (L1 é a fonte de verdade)
+    const regRes = await illumineDirect('/auth/register', {
+      email,
+      password,
+      name: fullName,
+      phone: phone || null,
+      country: country || null,
+      state: state || null,
+      city: city || null,
+      acceptsUpdates,
+      tenantSlug: TENANT_SLUG,
+    })
+
+    if (regRes.ok) {
+      const d = await regRes.json()
+      if (d.accessToken) {
+        await illumineAuth.saveTokens(d.accessToken, d.refreshToken, d.user)
+      }
+    } else if (regRes.status !== 409) {
+      // 409 = já existe, segue adiante; outros erros são fatais
+      const body = await regRes.json().catch(() => ({}))
+      throw new Error(body?.error || body?.message || 'Não foi possível criar a conta.')
+    }
+
+    // 2. Também registra no Supabase Auth (para OAuth e recuperação de senha por e-mail)
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: {
-          full_name: fullName,
-          phone: phone || null,
-          country: country || null,
-          state: state || null,
-          city: city || null,
-          accepts_updates: acceptsUpdates,
-        },
+        data: { full_name: fullName, phone: phone || null, country, state, city, accepts_updates: acceptsUpdates },
       },
     })
+    if (error && !error.message?.includes('already registered')) throw error
 
-    if (error) throw error
-
-    const activeUser = data.user
-
-    // 2. Registra e obtém token Illumine OS (L1 gerencia o perfil)
-    try {
-      const res = await illumineFetch('/auth/register', {
-        method: 'POST',
-        body: JSON.stringify({
-          email,
-          password,
-          name: fullName,
-          phone,
-          country,
-          state,
-          city,
-          acceptsUpdates,
-          tenantSlug: TENANT_SLUG,
-        }),
-      })
-      if (res.ok) {
-        const illData = await res.json()
-        if (illData.accessToken) {
-          await illumineAuth.saveTokens(illData.accessToken, illData.refreshToken, illData.user)
-        }
-      }
-    } catch (e) {
-      console.warn('[Auth] Illumine register warning:', e)
-    }
-
+    const activeUser = data?.user || illumineAuth.getUser()
     return { ...data, user: activeUser }
   },
 
   async signIn(email: string, password: string) {
-    // 1. Autentica no Supabase Auth (provedor de identidade)
+    // 1. Valida credenciais no Supabase Auth (fonte de verdade para senhas)
+    //    — faz isso ANTES de criar qualquer conta no Illumine
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-
     if (error) throw error
-    if (!data?.user) throw new Error('INVALID_CREDENTIALS')
 
-    // 2. Troca JWT Supabase por token Illumine OS (L1)
-    if (data.session?.access_token) {
-      await exchangeSupabaseJwt(data.session.access_token)
-    }
+    // 2. Com credenciais validadas, obtém token Illumine OS
+    //    Auto-provisiona a conta Illumine caso ainda não exista (usuário legado do Supabase)
+    const name = data.user?.user_metadata?.full_name || data.user?.user_metadata?.name
+    await ensureIllumineSession(email, password, { name })
 
     return { session: data.session, user: data.user }
   },
@@ -102,20 +138,41 @@ export const authService = {
         provider: 'google',
         token: idTokenOrRedirect,
       })
-
       if (error) throw error
       if (!data?.user) throw new Error('OAUTH_FAILED')
 
-      // 2. Troca JWT Supabase por token Illumine OS (L1)
-      if (data.session?.access_token) {
-        await exchangeSupabaseJwt(data.session.access_token)
-      }
+      // 2. Para OAuth não temos a senha — tenta criar conta Illumine com token Google como identificador
+      // Se já existe, o login subsequente vai precisar de recuperação de senha ou exchange
+      if (!illumineAuth.isAuthenticated()) {
+        const name = data.user.user_metadata?.full_name || data.user.user_metadata?.name || ''
+        const avatar = data.user.user_metadata?.avatar_url || ''
 
-      // 3. Sincroniza metadados do OAuth no Illumine OS
-      if (illumineAuth.isAuthenticated()) {
-        const name = data.user.user_metadata?.full_name || data.user.user_metadata?.name
-        const avatar = data.user.user_metadata?.avatar_url
-        if (name || avatar) {
+        // Tenta registrar no Illumine OS com token Google como "password" provisória
+        const regRes = await illumineDirect('/auth/register', {
+          email: data.user.email!,
+          // Usa o sub do Google como senha provisória — usuário nunca precisará dela
+          password: `google:${data.user.id}`,
+          name,
+          tenantSlug: TENANT_SLUG,
+          provider: 'google',
+        })
+        if (regRes.ok) {
+          const d = await regRes.json()
+          if (d.accessToken) await illumineAuth.saveTokens(d.accessToken, d.refreshToken, d.user)
+        } else if (regRes.status === 409) {
+          // Conta já existe — tenta login com a mesma senha provisória
+          const loginRes = await illumineDirect('/auth/login', {
+            email: data.user.email!,
+            password: `google:${data.user.id}`,
+          })
+          if (loginRes.ok) {
+            const d = await loginRes.json()
+            if (d.accessToken) await illumineAuth.saveTokens(d.accessToken, d.refreshToken, d.user)
+          }
+        }
+
+        // Sincroniza metadados do OAuth no Illumine OS
+        if (illumineAuth.isAuthenticated() && (name || avatar)) {
           illumineFetch('/users/me', {
             method: 'PATCH',
             body: JSON.stringify({ ...(name && { name }), ...(avatar && { avatar }) }),
@@ -136,10 +193,7 @@ export const authService = {
   },
 
   async checkEmail(email: string): Promise<{ exists: boolean; name?: string; avatar?: string; hasPassword?: boolean }> {
-    const res = await illumineFetch('/auth/lookup', {
-      method: 'POST',
-      body: JSON.stringify({ email }),
-    })
+    const res = await illumineDirect('/auth/lookup', { email })
     if (res.ok) return await res.json()
     return { exists: false }
   },
@@ -147,10 +201,7 @@ export const authService = {
   async resetPassword(email: string): Promise<void> {
     // Tenta via Illumine OS primeiro
     try {
-      const res = await illumineFetch('/auth/reset-password', {
-        method: 'POST',
-        body: JSON.stringify({ email, tenantSlug: TENANT_SLUG }),
-      })
+      const res = await illumineDirect('/auth/reset-password', { email, tenantSlug: TENANT_SLUG })
       if (res.ok) return
     } catch {}
 
@@ -170,35 +221,20 @@ export const authService = {
     // 2. Limpa tokens locais
     await illumineAuth.clearTokens()
 
-    // 3. Encerra sessão Supabase Auth (provedor de identidade)
+    // 3. Encerra sessão Supabase Auth
     try {
       await supabase.auth.signOut()
     } catch {}
   },
 
   async getSession() {
-    // 1. Tenta sessão Illumine OS ativa (init() é aguardado dentro de illumineFetch)
+    // 1. Sessão Illumine ativa (init() é aguardado dentro de illumineFetch)
     try {
       const res = await illumineFetch('/users/me')
       if (res.ok) {
         const user = await res.json()
         await illumineAuth.saveUser(user)
         return { user, accessToken: illumineAuth.getAccessToken() }
-      }
-    } catch {}
-
-    // 2. Sem token Illumine válido — tenta exchange com sessão Supabase existente
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session?.access_token) {
-        const exchanged = await exchangeSupabaseJwt(session.access_token)
-        if (exchanged) {
-          const res = await illumineFetch('/users/me')
-          if (res.ok) {
-            const user = await res.json()
-            return { user, accessToken: illumineAuth.getAccessToken() }
-          }
-        }
       }
     } catch {}
 
@@ -215,21 +251,17 @@ export const authService = {
         AnalyticsService.trackEvent('authentication_succeeded', { method: 'session_established', event })
       }
 
-      // Re-exchange sempre que o Supabase renovar o JWT para manter o token Illumine sincronizado
-      if (event === 'TOKEN_REFRESHED' && session?.access_token) {
-        await exchangeSupabaseJwt(session.access_token)
-      }
-
       if (session?.user) {
+        const illSession = await this.getSession().catch(() => null)
         const formattedSession = {
           session,
           user: {
             ...session.user,
             id: session.user.id,
             email: session.user.email || '',
-            name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
-            avatar: session.user.user_metadata?.avatar_url || '',
-            role: session.user.role,
+            name: illSession?.user?.name || session.user.user_metadata?.full_name || '',
+            avatar: illSession?.user?.avatar || session.user.user_metadata?.avatar_url || '',
+            role: illSession?.user?.role || session.user.role,
           },
           accessToken: illumineAuth.getAccessToken(),
         }
