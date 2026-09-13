@@ -1,378 +1,369 @@
-import { supabase } from '../lib/supabase';
 import { sanitizeHtml } from '../lib/sanitizer';
 import { illumineFetch, illumineAuth } from '../lib/illumine';
+import { supabase } from '../lib/supabase';
+
+// ─── Languages (hardcoded from tenant config — pt-BR is source) ───────────────
+
+const LANGUAGES = [
+  { iso_code: 'pt-BR', name: 'Português (Brasil)', flag_emoji: '🇧🇷', is_source: true,  is_active: true, display_order: 1 },
+  { iso_code: 'en',    name: 'English',             flag_emoji: '🇺🇸', is_source: false, is_active: true, display_order: 2 },
+  { iso_code: 'es',    name: 'Spanish',             flag_emoji: '🇪🇸', is_source: false, is_active: true, display_order: 3 },
+]
+
+// ─── Field-name converters ────────────────────────────────────────────────────
+
+function l1TransToSnake(t: any): any {
+  if (!t) return t
+  return {
+    id: t.id,
+    devotional_id: t.devotionalId,
+    tenant_id: t.tenantId,
+    language: t.language,
+    translation_source: t.translationSource,
+    title: t.title,
+    principle_statement: t.principleStatement ?? null,
+    scripture_reference: t.scriptureReference ?? null,
+    scripture_text: t.scriptureText ?? null,
+    reflection: t.reflection,
+    practical_application: t.practicalApplication ?? null,
+    prayer: t.prayer ?? null,
+    content_tip: t.contentTip ?? null,
+    content_tip_image_url: t.contentTipImageUrl ?? null,
+    content_tip_url: t.contentTipUrl ?? null,
+    support_message: t.supportMessage ?? null,
+    support_banner_url: t.supportBannerUrl ?? null,
+    support_link_url: t.supportLinkUrl ?? null,
+    status: t.status,
+    created_at: t.createdAt,
+    updated_at: t.updatedAt,
+  }
+}
+
+function l1DevToSnake(d: any): any {
+  if (!d) return d
+  return {
+    id: d.id,
+    title: d.title,
+    publication_date: d.publicationDate
+      ? (typeof d.publicationDate === 'string'
+          ? d.publicationDate.slice(0, 10)
+          : new Date(d.publicationDate).toISOString().slice(0, 10))
+      : null,
+    status: d.status,
+    principle_statement: d.principleStatement ?? null,
+    scripture_reference: d.scriptureReference ?? null,
+    scripture_text: d.scriptureText ?? null,
+    reflection: d.reflection,
+    practical_application: d.practicalApplication ?? null,
+    prayer: d.prayer ?? null,
+    content_tip: d.contentTip ?? null,
+    content_tip_image_url: d.contentTipImageUrl ?? null,
+    content_tip_url: d.contentTipUrl ?? null,
+    support_message: d.supportMessage ?? null,
+    support_banner_url: d.supportBannerUrl ?? null,
+    support_link_url: d.supportLinkUrl ?? null,
+    audio_url: d.audioUrl ?? null,
+    category_id: d.categoryId ?? null,
+    theme_id: d.themeId ?? null,
+    legacy_id: d.legacyId ?? null,
+    content_hash: d.contentHash ?? null,
+    supabase_id: d.supabaseId ?? null,
+    categories: d.category ?? null,
+    devotional_translations: (d.translations ?? []).map(l1TransToSnake),
+    created_at: d.createdAt,
+    updated_at: d.updatedAt,
+  }
+}
+
+function snakeDevToL1Camel(devotional: Partial<any>): Record<string, any> {
+  const {
+    translations, devotional_translations, categories,
+    publication_date, principle_statement, scripture_reference, scripture_text,
+    practical_application, content_tip, content_tip_image_url, content_tip_url,
+    support_message, support_banner_url, support_link_url, audio_url,
+    category_id, theme_id, legacy_id, content_hash,
+    created_at, updated_at, ...rest
+  } = devotional
+  return {
+    ...rest,
+    ...(publication_date !== undefined   && { publicationDate: publication_date }),
+    ...(principle_statement !== undefined && { principleStatement: principle_statement }),
+    ...(scripture_reference !== undefined && { scriptureReference: scripture_reference }),
+    ...(scripture_text !== undefined      && { scriptureText: scripture_text }),
+    ...(practical_application !== undefined && { practicalApplication: practical_application }),
+    ...(content_tip !== undefined          && { contentTip: content_tip }),
+    ...(content_tip_image_url !== undefined && { contentTipImageUrl: content_tip_image_url }),
+    ...(content_tip_url !== undefined      && { contentTipUrl: content_tip_url }),
+    ...(support_message !== undefined      && { supportMessage: support_message }),
+    ...(support_banner_url !== undefined   && { supportBannerUrl: support_banner_url }),
+    ...(support_link_url !== undefined     && { supportLinkUrl: support_link_url }),
+    ...(audio_url !== undefined            && { audioUrl: audio_url }),
+    ...(category_id !== undefined          && { categoryId: category_id }),
+    ...(theme_id !== undefined             && { themeId: theme_id }),
+    ...(legacy_id !== undefined            && { legacyId: legacy_id }),
+    ...(content_hash !== undefined         && { contentHash: content_hash }),
+  }
+}
+
+async function l1Get(path: string): Promise<any> {
+  const res = await illumineFetch(path)
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}))
+    throw new Error(`L1 GET ${path} ${res.status}: ${JSON.stringify(body)}`)
+  }
+  return res.json()
+}
+
+async function l1Post(path: string, body: any): Promise<any> {
+  const res = await illumineFetch(path, { method: 'POST', body: JSON.stringify(body) })
+  if (!res.ok) {
+    const b = await res.json().catch(() => ({}))
+    throw new Error(`L1 POST ${path} ${res.status}: ${JSON.stringify(b)}`)
+  }
+  return res.json()
+}
+
+async function l1Patch(path: string, body: any): Promise<any> {
+  const res = await illumineFetch(path, { method: 'PATCH', body: JSON.stringify(body) })
+  if (!res.ok) {
+    const b = await res.json().catch(() => ({}))
+    throw new Error(`L1 PATCH ${path} ${res.status}: ${JSON.stringify(b)}`)
+  }
+  return res.json()
+}
+
+async function l1Put(path: string, body: any): Promise<any> {
+  const res = await illumineFetch(path, { method: 'PUT', body: JSON.stringify(body) })
+  if (!res.ok) {
+    const b = await res.json().catch(() => ({}))
+    throw new Error(`L1 PUT ${path} ${res.status}: ${JSON.stringify(b)}`)
+  }
+  return res.json()
+}
+
+async function l1Delete(path: string): Promise<void> {
+  const res = await illumineFetch(path, { method: 'DELETE' })
+  if (!res.ok && res.status !== 204) {
+    const b = await res.json().catch(() => ({}))
+    throw new Error(`L1 DELETE ${path} ${res.status}: ${JSON.stringify(b)}`)
+  }
+}
+
+// ─── Service ──────────────────────────────────────────────────────────────────
 
 export const AdminContentService = {
   async getLanguages(): Promise<any[]> {
-    const { data, error } = await supabase
-      .from('languages')
-      .select('*')
-      .order('display_order', { ascending: true });
-    if (error) throw error;
-    return data || [];
+    return LANGUAGES
   },
 
   async getTranslationJobsByDevotional(devotionalId: string): Promise<any[]> {
-    const { data, error } = await supabase
-      .from('translation_jobs')
-      .select('*')
-      .eq('devotional_id', devotionalId)
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    return data || [];
+    const data = await l1Get(`/devotionals/translations/jobs?devotionalId=${encodeURIComponent(devotionalId)}`)
+    return (Array.isArray(data) ? data : data?.jobs ?? []).map((j: any) => ({
+      id: j.id,
+      devotional_id: j.devotionalId,
+      tenant_id: j.tenantId,
+      source_language: j.sourceLanguage,
+      target_language: j.targetLanguage,
+      status: j.status,
+      attempts: j.attempts,
+      error_message: j.errorMessage ?? null,
+      created_at: j.createdAt,
+      updated_at: j.updatedAt,
+    }))
   },
-  async getDevotionals(): Promise<any[]> {
-    const { data, error } = await supabase
-      .from('devotionals')
-      .select(`
-        id,
-        title,
-        principle_statement,
-        reflection,
-        practical_application,
-        prayer,
-        content_tip,
-        content_tip_image_url,
-        content_tip_url,
-        support_message,
-        support_banner_url,
-        support_link_url,
-        scripture_reference,
-        scripture_text,
-        audio_url,
-        publication_date,
-        status,
-        category_id,
-        categories (id, name),
-        devotional_translations (*)
-      `)
-      .order('publication_date', { ascending: false });
 
-    if (error) throw error;
-    return data || [];
+  async getDevotionals(): Promise<any[]> {
+    const data = await l1Get('/devotionals?perPage=200')
+    return (data?.devotionals ?? []).map(l1DevToSnake)
   },
 
   async getDevotional(id: string): Promise<any> {
-    const { data, error } = await supabase
-      .from('devotionals')
-      .select('*, devotional_translations(*)')
-      .eq('id', id)
-      .single();
-
-    if (error) throw error;
-    return data;
+    const d = await l1Get(`/devotionals/${encodeURIComponent(id)}`)
+    return l1DevToSnake(d)
   },
 
   async createDevotional(devotional: Partial<any>): Promise<any> {
-    // BUGFIX: 'categories' vem embutido pelo select relacional
-    // (categories(id,name)) usado em getDevotional()/getDevotionals(), mas
-    // não é uma coluna real de `devotionals` — enviá-la no payload de
-    // insert/update faz o PostgREST rejeitar com "Could not find the
-    // 'categories' column of 'devotionals' in the schema cache".
-    const { translations, devotional_translations, categories, ...payload } = devotional;
-    
-    if (payload.reflection) payload.reflection = sanitizeHtml(payload.reflection);
-    if (payload.practical_application) payload.practical_application = sanitizeHtml(payload.practical_application);
-    if (payload.prayer) payload.prayer = sanitizeHtml(payload.prayer);
-
-    const { data: newDevotional, error } = await supabase
-      .from('devotionals')
-      .insert([payload])
-      .select()
-      .single();
-
-    if (error) throw error;
-
-
-    return newDevotional;
+    const { translations, devotional_translations, categories, ...payload } = devotional
+    if (payload.reflection) payload.reflection = sanitizeHtml(payload.reflection)
+    if (payload.practical_application) payload.practical_application = sanitizeHtml(payload.practical_application)
+    if (payload.prayer) payload.prayer = sanitizeHtml(payload.prayer)
+    const l1Payload = snakeDevToL1Camel(payload)
+    const d = await l1Post('/devotionals', l1Payload)
+    return l1DevToSnake(d)
   },
 
   async updateDevotional(id: string, updates: Partial<any>): Promise<any> {
-    // BUGFIX: ver nota equivalente em createDevotional().
-    const { translations, devotional_translations, categories, ...payload } = updates;
-    
-    if (payload.reflection) payload.reflection = sanitizeHtml(payload.reflection);
-    if (payload.practical_application) payload.practical_application = sanitizeHtml(payload.practical_application);
-    if (payload.prayer) payload.prayer = sanitizeHtml(payload.prayer);
-
-    const { data: updatedDevotional, error } = await supabase
-      .from('devotionals')
-      .update(payload)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
-
-
-
-    return updatedDevotional;
-  },
-
-  async getCategories(): Promise<any[]> {
-    const { data, error } = await supabase
-      .from('categories')
-      .select('*')
-      .order('name', { ascending: true });
-
-    if (error) throw error;
-    return data || [];
-  },
-
-  async createCategory(name: string): Promise<any> {
-    const { data, error } = await supabase
-      .from('categories')
-      .insert([{ name }])
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async updateCategory(id: string, name: string): Promise<any> {
-    const { data, error } = await supabase
-      .from('categories')
-      .update({ name })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteCategory(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('categories')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
+    const { translations, devotional_translations, categories, ...payload } = updates
+    if (payload.reflection) payload.reflection = sanitizeHtml(payload.reflection)
+    if (payload.practical_application) payload.practical_application = sanitizeHtml(payload.practical_application)
+    if (payload.prayer) payload.prayer = sanitizeHtml(payload.prayer)
+    const l1Payload = snakeDevToL1Camel(payload)
+    const d = await l1Patch(`/devotionals/${encodeURIComponent(id)}`, l1Payload)
+    return l1DevToSnake(d)
   },
 
   async deleteDevotional(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('devotionals')
-      .delete()
-      .eq('id', id);
+    await l1Delete(`/devotionals/${encodeURIComponent(id)}`)
+  },
 
-    if (error) throw error;
+  async getCategories(): Promise<any[]> {
+    const cats = await l1Get('/devotionals/categories')
+    return (Array.isArray(cats) ? cats : []).map((c: any) => ({ id: c.id, name: c.name, slug: c.slug }))
+  },
+
+  async createCategory(name: string): Promise<any> {
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    return l1Post('/devotionals/categories', { name, slug })
+  },
+
+  async updateCategory(id: string, name: string): Promise<any> {
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    return l1Patch(`/devotionals/categories/${encodeURIComponent(id)}`, { name, slug })
+  },
+
+  async deleteCategory(id: string): Promise<void> {
+    await l1Delete(`/devotionals/categories/${encodeURIComponent(id)}`)
   },
 
   async getDevotionalsWithAllTranslations(): Promise<any[]> {
-    const { data, error } = await supabase
-      .from('devotionals')
-      .select(`
-        id, legacy_id, title, publication_date, status, content_hash,
-        principle_statement, reflection, practical_application, prayer,
-        scripture_reference, scripture_text, content_tip, content_tip_image_url,
-        content_tip_url, support_message, support_banner_url, support_link_url,
-        category_id, categories(id, name),
-        devotional_translations (*)
-      `)
-      .eq('status', 'published')
-      .order('publication_date', { ascending: false });
+    const data = await l1Get('/devotionals?status=published&perPage=500')
+    const devotionals = (data?.devotionals ?? []).map(l1DevToSnake)
 
-    if (error) throw error;
-
-    return (data || []).map(devotional => {
-      const langMap: Record<string, { manual: any; ai: any; state: string }> = {};
+    return devotionals.map((devotional: any) => {
+      const langMap: Record<string, { manual: any; ai: any; state: string }> = {}
 
       for (const t of devotional.devotional_translations || []) {
-        const lang = t.language;
-        if (!langMap[lang]) langMap[lang] = { manual: null, ai: null, state: 'none' };
-        if (t.translation_source === 'manual') langMap[lang].manual = t;
-        else langMap[lang].ai = t;
+        const lang = t.language
+        if (!langMap[lang]) langMap[lang] = { manual: null, ai: null, state: 'none' }
+        if (t.translation_source === 'manual') langMap[lang].manual = t
+        else langMap[lang].ai = t
       }
 
       for (const lang of Object.keys(langMap)) {
-        const { manual, ai } = langMap[lang];
-        if (manual?.status === 'published') langMap[lang].state = 'manual_published';
-        else if (manual?.status === 'draft') langMap[lang].state = 'draft';
-        else if (ai?.status === 'published') langMap[lang].state = 'ai_published';
-        else langMap[lang].state = 'draft';
+        const { manual, ai } = langMap[lang]
+        if (manual?.status === 'published') langMap[lang].state = 'manual_published'
+        else if (manual?.status === 'draft') langMap[lang].state = 'draft'
+        else if (ai?.status === 'published') langMap[lang].state = 'ai_published'
+        else langMap[lang].state = 'draft'
       }
 
-      return { ...devotional, langMap };
-    });
+      return { ...devotional, langMap }
+    })
   },
 
   async getDevotionalsForManualTranslation(targetLanguage: string): Promise<any[]> {
-    const { data, error } = await supabase
-      .from('devotionals')
-      .select(`
-        id,
-        legacy_id,
-        title,
-        principle_statement,
-        reflection,
-        practical_application,
-        prayer,
-        content_tip,
-        content_tip_image_url,
-        content_tip_url,
-        support_message,
-        support_banner_url,
-        support_link_url,
-        scripture_reference,
-        scripture_text,
-        publication_date,
-        status,
-        content_hash,
-        category_id,
-        categories (id, name),
-        devotional_translations (*)
-      `)
-      .eq('status', 'published')
-      .order('publication_date', { ascending: false });
+    const data = await l1Get('/devotionals?status=published&perPage=500')
+    const devotionals = (data?.devotionals ?? []).map(l1DevToSnake)
 
-    if (error) throw error;
-
-    return (data || []).map(devotional => {
-      const translations = devotional.devotional_translations || [];
+    return devotionals.map((devotional: any) => {
+      const translations = devotional.devotional_translations || []
       const manualTrans = translations.find(
         (t: any) => t.language === targetLanguage && t.translation_source === 'manual'
-      );
+      )
       const aiTrans = translations.find(
         (t: any) => t.language === targetLanguage && (t.translation_source === 'ai' || !t.translation_source)
-      );
+      )
 
-      // Determine active status and origin for this devotional in the target language
-      let translationState: 'none' | 'draft' | 'ai_published' | 'manual_published' = 'none';
-      if (manualTrans?.status === 'published') {
-        translationState = 'manual_published';
-      } else if (manualTrans?.status === 'draft') {
-        translationState = 'draft';
-      } else if (aiTrans?.status === 'published') {
-        translationState = 'ai_published';
-      }
+      let translationState: 'none' | 'draft' | 'ai_published' | 'manual_published' = 'none'
+      if (manualTrans?.status === 'published') translationState = 'manual_published'
+      else if (manualTrans?.status === 'draft') translationState = 'draft'
+      else if (aiTrans?.status === 'published') translationState = 'ai_published'
 
-      return {
-        ...devotional,
-        manualTranslation: manualTrans || null,
-        aiTranslation: aiTrans || null,
-        translationState
-      };
-    });
+      return { ...devotional, manualTranslation: manualTrans || null, aiTranslation: aiTrans || null, translationState }
+    })
   },
 
   async saveManualTranslation(params: {
-    devotional_id: string;
-    language: string;
-    title: string;
-    principle_statement?: string | null;
-    scripture_reference?: string | null;
-    scripture_text?: string | null;
-    reflection: string;
-    practical_application?: string | null;
-    prayer?: string | null;
-    content_tip?: string | null;
-    content_tip_image_url?: string | null;
-    content_tip_url?: string | null;
-    support_message?: string | null;
-    support_banner_url?: string | null;
-    support_link_url?: string | null;
-    status: 'draft' | 'published';
+    devotional_id: string
+    language: string
+    title: string
+    principle_statement?: string | null
+    scripture_reference?: string | null
+    scripture_text?: string | null
+    reflection: string
+    practical_application?: string | null
+    prayer?: string | null
+    content_tip?: string | null
+    content_tip_image_url?: string | null
+    content_tip_url?: string | null
+    support_message?: string | null
+    support_banner_url?: string | null
+    support_link_url?: string | null
+    status: 'draft' | 'published'
   }): Promise<any> {
-    const {
-      devotional_id,
-      language,
-      title,
-      principle_statement,
-      scripture_reference,
-      scripture_text,
-      reflection,
-      practical_application,
-      prayer,
-      content_tip,
-      content_tip_image_url,
-      content_tip_url,
-      support_message,
-      support_banner_url,
-      support_link_url,
-      status
-    } = params;
-
-    // Validation for publishing
-    if (status === 'published') {
-      if (!title || !title.trim()) throw new Error('O título é obrigatório para publicar a tradução.');
-      if (!reflection || !reflection.trim()) throw new Error('A reflexão é obrigatória para publicar a tradução.');
-      if (!principle_statement || !principle_statement.trim()) {
-        throw new Error('O destaque (principle statement) é obrigatório para publicar a tradução.');
-      }
+    if (params.status === 'published') {
+      if (!params.title?.trim()) throw new Error('O título é obrigatório para publicar a tradução.')
+      if (!params.reflection?.trim()) throw new Error('A reflexão é obrigatória para publicar a tradução.')
+      if (!params.principle_statement?.trim()) throw new Error('O destaque (principle statement) é obrigatório para publicar a tradução.')
     }
 
-    const payload = {
-      devotional_id,
-      language,
-      translation_source: 'manual',
-      title: title?.trim() || '',
-      principle_statement: principle_statement?.trim() || null,
-      scripture_reference: scripture_reference?.trim() || null,
-      scripture_text: scripture_text?.trim() || null,
-      reflection: reflection ? sanitizeHtml(reflection) : '',
-      practical_application: practical_application ? sanitizeHtml(practical_application) : null,
-      prayer: prayer ? sanitizeHtml(prayer) : null,
-      content_tip: content_tip ? sanitizeHtml(content_tip) : null,
-      content_tip_image_url: content_tip_image_url || null,
-    content_tip_url: content_tip_url || null,
-      support_message: support_message ? sanitizeHtml(support_message) : null,
-      support_banner_url: support_banner_url || null,
-    support_link_url: support_link_url || null,
-      status,
-      updated_at: new Date().toISOString()
-    };
+    const l1Body = {
+      language: params.language,
+      translationSource: 'manual',
+      title: params.title?.trim() || '',
+      principleStatement: params.principle_statement?.trim() || undefined,
+      scriptureReference: params.scripture_reference?.trim() || undefined,
+      scriptureText: params.scripture_text?.trim() || undefined,
+      reflection: params.reflection ? sanitizeHtml(params.reflection) : '',
+      practicalApplication: params.practical_application ? sanitizeHtml(params.practical_application) : undefined,
+      prayer: params.prayer ? sanitizeHtml(params.prayer) : undefined,
+      contentTip: params.content_tip ? sanitizeHtml(params.content_tip) : undefined,
+      contentTipImageUrl: params.content_tip_image_url || undefined,
+      contentTipUrl: params.content_tip_url || undefined,
+      supportMessage: params.support_message ? sanitizeHtml(params.support_message) : undefined,
+      supportBannerUrl: params.support_banner_url || undefined,
+      supportLinkUrl: params.support_link_url || undefined,
+      status: params.status,
+    }
 
-    const { data, error } = await supabase
-      .from('devotional_translations')
-      .upsert(payload, { onConflict: 'devotional_id,language,translation_source' })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+    const t = await l1Put(`/devotionals/${encodeURIComponent(params.devotional_id)}/translations`, l1Body)
+    return l1TransToSnake({ ...t, devotionalId: params.devotional_id })
   },
 
   // ─── Share Assets ──────────────────────────────────────────────────────────
 
   async getShareAssets(devotionalId: string): Promise<any[]> {
-    const { data, error } = await supabase
-      .from('devotional_share_assets')
-      .select('*')
-      .eq('devotional_id', devotionalId)
-      .order('language_code', { ascending: true });
-
-    if (error) throw error;
-    return data || [];
+    const data = await l1Get(`/devotionals/${encodeURIComponent(devotionalId)}/share-assets`)
+    return (Array.isArray(data) ? data : []).map((a: any) => ({
+      id: a.id,
+      devotional_id: a.devotionalId,
+      language_code: a.languageCode,
+      whatsapp_text: a.whatsappText ?? null,
+      whatsapp_image_url: a.whatsappImageUrl ?? null,
+      feed_image_url: a.feedImageUrl ?? null,
+      story_image_url: a.storyImageUrl ?? null,
+      created_at: a.createdAt,
+      updated_at: a.updatedAt,
+    }))
   },
 
   async saveShareAsset(asset: {
-    devotional_id: string;
-    language_code: string;
-    whatsapp_text?: string | null;
-    whatsapp_image_url?: string | null;
-    feed_image_url?: string | null;
-    story_image_url?: string | null;
+    devotional_id: string
+    language_code: string
+    whatsapp_text?: string | null
+    whatsapp_image_url?: string | null
+    feed_image_url?: string | null
+    story_image_url?: string | null
   }): Promise<any> {
-    const payload = {
-      devotional_id: asset.devotional_id,
-      language_code: asset.language_code,
-      whatsapp_text: asset.whatsapp_text ?? null,
-      whatsapp_image_url: asset.whatsapp_image_url ?? null,
-      feed_image_url: asset.feed_image_url ?? null,
-      story_image_url: asset.story_image_url ?? null,
-      updated_at: new Date().toISOString(),
-    };
-
-    const { data, error } = await supabase
-      .from('devotional_share_assets')
-      .upsert(payload, { onConflict: 'devotional_id,language_code' })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+    const l1Body = {
+      languageCode: asset.language_code,
+      whatsappText: asset.whatsapp_text ?? undefined,
+      whatsappImageUrl: asset.whatsapp_image_url ?? undefined,
+      feedImageUrl: asset.feed_image_url ?? undefined,
+      storyImageUrl: asset.story_image_url ?? undefined,
+    }
+    const a = await l1Put(`/devotionals/${encodeURIComponent(asset.devotional_id)}/share-assets`, l1Body)
+    return {
+      id: a.id,
+      devotional_id: a.devotionalId ?? asset.devotional_id,
+      language_code: a.languageCode ?? asset.language_code,
+      whatsapp_text: a.whatsappText ?? null,
+      whatsapp_image_url: a.whatsappImageUrl ?? null,
+      feed_image_url: a.feedImageUrl ?? null,
+      story_image_url: a.storyImageUrl ?? null,
+      created_at: a.createdAt,
+      updated_at: a.updatedAt,
+    }
   },
 
   async uploadShareAsset(
@@ -386,34 +377,26 @@ export const AdminContentService = {
         const urlRes = await illumineFetch('/media/upload-url', {
           method: 'POST',
           body: JSON.stringify({ filename: file.name, mimeType: file.type, folder: `share-assets/${devotionalId}/${languageCode}` }),
-        });
+        })
         if (urlRes.ok) {
-          const { uploadUrl, publicUrl } = await urlRes.json();
-          await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
-          return publicUrl;
+          const { uploadUrl, publicUrl } = await urlRes.json()
+          await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
+          return publicUrl
         }
       } catch (e) {
-        console.warn('[Upload] Illumine uploadShareAsset failed, falling back:', e);
+        console.warn('[Upload] Illumine uploadShareAsset failed, falling back:', e)
       }
     }
 
-    const ext = file.name.split('.').pop() || 'jpg';
-    const path = `${devotionalId}/${languageCode}/${type}-${Date.now()}.${ext}`;
+    const ext = file.name.split('.').pop() || 'jpg'
+    const path = `${devotionalId}/${languageCode}/${type}-${Date.now()}.${ext}`
     const { error: uploadError } = await supabase.storage
       .from('share-assets')
-      .upload(path, file, { upsert: true, contentType: file.type });
-    if (uploadError) throw uploadError;
-    return supabase.storage.from('share-assets').getPublicUrl(path).data.publicUrl;
+      .upload(path, file, { upsert: true, contentType: file.type })
+    if (uploadError) throw uploadError
+    return supabase.storage.from('share-assets').getPublicUrl(path).data.publicUrl
   },
 
-  /**
-   * Upload de imagens editoriais opcionais do próprio devocional
-   * (imagem da "Dica de conteúdo" e banner do "Apoio ao projeto").
-   * Reaproveita o mesmo bucket de storage usado pelos assets de compartilhamento,
-   * mas NÃO grava na tabela devotional_share_assets — a URL resultante deve ser
-   * salva pelo chamador no campo correspondente do devocional/tradução
-   * (content_tip_image_url / support_banner_url) via handleSave normal.
-   */
   async uploadContentImage(
     devotionalId: string,
     languageCode: string,
@@ -425,54 +408,54 @@ export const AdminContentService = {
         const urlRes = await illumineFetch('/media/upload-url', {
           method: 'POST',
           body: JSON.stringify({ filename: file.name, mimeType: file.type, folder: `devotionals/${devotionalId}/${languageCode}` }),
-        });
+        })
         if (urlRes.ok) {
-          const { uploadUrl, publicUrl } = await urlRes.json();
-          await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
-          return publicUrl;
+          const { uploadUrl, publicUrl } = await urlRes.json()
+          await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
+          return publicUrl
         }
       } catch (e) {
-        console.warn('[Upload] Illumine uploadContentImage failed, falling back:', e);
+        console.warn('[Upload] Illumine uploadContentImage failed, falling back:', e)
       }
     }
 
-    const ext = file.name.split('.').pop() || 'jpg';
-    const path = `${devotionalId}/${languageCode}/${field}-${Date.now()}.${ext}`;
+    const ext = file.name.split('.').pop() || 'jpg'
+    const path = `${devotionalId}/${languageCode}/${field}-${Date.now()}.${ext}`
     const { error: uploadError } = await supabase.storage
       .from('share-assets')
-      .upload(path, file, { upsert: true, contentType: file.type });
-    if (uploadError) throw uploadError;
-    return supabase.storage.from('share-assets').getPublicUrl(path).data.publicUrl;
+      .upload(path, file, { upsert: true, contentType: file.type })
+    if (uploadError) throw uploadError
+    return supabase.storage.from('share-assets').getPublicUrl(path).data.publicUrl
   },
 
   async listLibraryImages(): Promise<Array<{ name: string; url: string }>> {
     if (illumineAuth.isAuthenticated()) {
       try {
-        const res = await illumineFetch('/media?folder=library');
+        const res = await illumineFetch('/media?folder=library')
         if (res.ok) {
-          const result = await res.json();
-          const files: any[] = result.files ?? result;
+          const result = await res.json()
+          const files: any[] = result.files ?? result
           if (Array.isArray(files)) {
             return files.map((f: any) => ({
               name: f.name ?? (f.key as string)?.split('/').pop() ?? '',
               url: f.publicUrl ?? f.url ?? '',
-            }));
+            }))
           }
         }
       } catch (e) {
-        console.warn('[Media] Illumine listLibraryImages failed, falling back:', e);
+        console.warn('[Media] Illumine listLibraryImages failed, falling back:', e)
       }
     }
     const { data, error } = await supabase.storage
       .from('share-assets')
-      .list('library', { limit: 200, sortBy: { column: 'created_at', order: 'desc' } });
-    if (error) throw error;
+      .list('library', { limit: 200, sortBy: { column: 'created_at', order: 'desc' } })
+    if (error) throw error
     return (data || [])
       .filter(f => f.id !== null)
       .map(f => ({
         name: f.name,
         url: supabase.storage.from('share-assets').getPublicUrl(`library/${f.name}`).data.publicUrl,
-      }));
+      }))
   },
 
   async uploadLibraryImage(file: File): Promise<string> {
@@ -481,24 +464,24 @@ export const AdminContentService = {
         const urlRes = await illumineFetch('/media/upload-url', {
           method: 'POST',
           body: JSON.stringify({ filename: file.name, mimeType: file.type, folder: 'library' }),
-        });
+        })
         if (urlRes.ok) {
-          const { uploadUrl, publicUrl } = await urlRes.json();
-          await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
-          return publicUrl;
+          const { uploadUrl, publicUrl } = await urlRes.json()
+          await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
+          return publicUrl
         }
       } catch (e) {
-        console.warn('[Upload] Illumine uploadLibraryImage failed, falling back:', e);
+        console.warn('[Upload] Illumine uploadLibraryImage failed, falling back:', e)
       }
     }
 
-    const ext = file.name.split('.').pop() || 'jpg';
-    const path = `library/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const ext = file.name.split('.').pop() || 'jpg'
+    const path = `library/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
     const { error } = await supabase.storage
       .from('share-assets')
-      .upload(path, file, { upsert: false, contentType: file.type });
-    if (error) throw error;
-    return supabase.storage.from('share-assets').getPublicUrl(path).data.publicUrl;
+      .upload(path, file, { upsert: false, contentType: file.type })
+    if (error) throw error
+    return supabase.storage.from('share-assets').getPublicUrl(path).data.publicUrl
   },
 
   async deleteShareAssetFile(url: string): Promise<void> {
@@ -507,18 +490,17 @@ export const AdminContentService = {
         const res = await illumineFetch('/media', {
           method: 'DELETE',
           body: JSON.stringify({ url }),
-        });
-        if (res.ok) return;
+        })
+        if (res.ok) return
       } catch (e) {
-        console.warn('[Media] Illumine deleteShareAssetFile failed, falling back:', e);
+        console.warn('[Media] Illumine deleteShareAssetFile failed, falling back:', e)
       }
     }
-    // Supabase fallback: extract relative path from share-assets bucket URL
-    const marker = '/share-assets/';
-    const idx = url.indexOf(marker);
-    if (idx === -1) throw new Error('URL inválida para o bucket share-assets.');
-    const path = url.slice(idx + marker.length).split('?')[0];
-    const { error } = await supabase.storage.from('share-assets').remove([path]);
-    if (error) throw error;
+    const marker = '/share-assets/'
+    const idx = url.indexOf(marker)
+    if (idx === -1) throw new Error('URL inválida para o bucket share-assets.')
+    const path = url.slice(idx + marker.length).split('?')[0]
+    const { error } = await supabase.storage.from('share-assets').remove([path])
+    if (error) throw error
   },
-};
+}
