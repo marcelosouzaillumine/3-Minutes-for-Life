@@ -1,9 +1,53 @@
 import { illumineFetch } from '../lib/illumine';
 import type { Devotional, DevotionalTranslation, DevotionalShareAsset, ResolvedShareAsset } from '../types/Devotional';
-import { principles } from '../data/principles';
+import { principles, allPrinciples } from '../data/principles';
 import { getTodayInSaoPaulo } from '../utils/date';
 import { ContentCacheService } from './ContentCacheService';
 import i18n from '../i18n/config';
+
+// --- LOCAL FALLBACK: mapeia data → princípio quando L1 está indisponível --- //
+const REF_MONDAY = new Date('2024-01-08T00:00:00Z'); // semana de referência
+
+function principleForDate(dateStr: string) {
+  const target = new Date(dateStr + 'T12:00:00Z');
+  const daysDiff = Math.floor((target.getTime() - REF_MONDAY.getTime()) / 86400000);
+  const weekIdx = Math.floor(daysDiff / 7);
+  const pool = allPrinciples;
+  return pool[((weekIdx % pool.length) + pool.length) % pool.length];
+}
+
+function principleToDevotional(p: ReturnType<typeof principleForDate>, dateStr: string): Devotional {
+  const emptyAssets: ResolvedShareAsset = { whatsapp_text: null, whatsapp_image_url: null, feed_image_url: null, story_image_url: null };
+  return {
+    id: String(p.id),
+    legacy_id: p.id,
+    publication_date: dateStr,
+    title: p.title,
+    principle_statement: p.principle ?? null,
+    reflection: p.reflection,
+    practical_application: p.application ?? null,
+    prayer: p.prayer ?? null,
+    content_tip: null,
+    content_tip_image_url: null,
+    content_tip_url: null,
+    support_message: null,
+    support_banner_url: null,
+    support_link_url: null,
+    scripture_reference: p.reference?.citation ?? null,
+    scripture_text: p.reference?.text ?? null,
+    audio_url: p.audio?.url,
+    category_id: undefined,
+    theme_id: undefined,
+    status: 'published',
+    content_hash: undefined,
+    categories: { name: p.category },
+    devotional_translations: [],
+    share_assets: emptyAssets,
+    share_quote: p.principle,
+    source: 'legacy' as const,
+    isCached: false,
+  };
+}
 
 // --- ILLUMINE → SUPABASE FORMAT MAPPER --- //
 // Uses supabaseId as the canonical id so user state (favorites, status) stays consistent.
@@ -191,20 +235,26 @@ export const DevotionalService = {
   },
 
   async _fetchDailyFromNetwork(dateStr: string, contentLanguage: string): Promise<Devotional> {
-    const res = await illumineFetch(`/devotionals/date/${dateStr}`);
-    if (!res.ok) throw new Error(`[DevotionalService] L1 /devotionals/date/${dateStr} falhou com status ${res.status}`);
+    try {
+      const res = await illumineFetch(`/devotionals/date/${dateStr}`);
+      if (!res.ok) throw new Error(`L1 status ${res.status}`);
 
-    const raw = await res.json();
-    const data = mapIllumineToDevotional(raw);
-    const resolved = resolveTranslation(data, contentLanguage, 'supabase', false);
-    resolved.share_assets = resolveShareAssets(contentLanguage, data.devotional_share_assets || []);
-    delete (resolved as any).devotional_share_assets;
-    const p = principles.find(p => p.title === data.title);
-    resolved.share_quote = contentLanguage === 'pt-BR'
-      ? (p?.principle || resolved.principle_statement || resolved.title)
-      : (resolved.principle_statement || resolved.title);
-    await ContentCacheService.setDaily(dateStr, resolved, contentLanguage);
-    return resolved;
+      const raw = await res.json();
+      const data = mapIllumineToDevotional(raw);
+      const resolved = resolveTranslation(data, contentLanguage, 'supabase', false);
+      resolved.share_assets = resolveShareAssets(contentLanguage, data.devotional_share_assets || []);
+      delete (resolved as any).devotional_share_assets;
+      const p = principles.find(p => p.title === data.title);
+      resolved.share_quote = contentLanguage === 'pt-BR'
+        ? (p?.principle || resolved.principle_statement || resolved.title)
+        : (resolved.principle_statement || resolved.title);
+      await ContentCacheService.setDaily(dateStr, resolved, contentLanguage);
+      return resolved;
+    } catch (err) {
+      console.warn('[DevotionalService] L1 indisponível, usando dados locais:', err);
+      const local = principleToDevotional(principleForDate(dateStr), dateStr);
+      return local;
+    }
   },
 
   async getDevotional(id: string, requestedLanguage?: string): Promise<Devotional> {
@@ -253,7 +303,7 @@ export const DevotionalService = {
   async _fetchLibraryFromNetwork(contentLanguage: string, today: string): Promise<Devotional[]> {
     try {
       const res = await illumineFetch(`/devotionals?status=published&perPage=200`);
-      if (!res.ok) throw new Error(`L1 /devotionals falhou com status ${res.status}`);
+      if (!res.ok) throw new Error(`L1 status ${res.status}`);
       const json = await res.json();
       const items: any[] = json.devotionals ?? json;
       const resolved = items
@@ -276,7 +326,9 @@ export const DevotionalService = {
       console.warn('[DevotionalService] _fetchLibraryFromNetwork failed, attempting cache:', err);
       const cached = await ContentCacheService.getLibrary(contentLanguage);
       if (cached) return cached.map(d => ({ ...d, isCached: true, source: 'indexeddb' as const }));
-      throw err;
+      // Fallback: usa dados locais
+      console.warn('[DevotionalService] Usando biblioteca local como fallback');
+      return allPrinciples.map(p => principleToDevotional(p, today));
     }
   },
 

@@ -316,3 +316,4 @@ const allPrinciples: Principle[] = [
 ];
 
 export const principles = allPrinciples.filter(p => p.status === 'published' || (!p.status && p.id <= 4));
+export { allPrinciples };

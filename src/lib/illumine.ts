@@ -1,6 +1,7 @@
 import { storage } from './storage';
 
 const BASE_URL = import.meta.env.VITE_ILLUMINE_URL || 'http://localhost:3000'
+const TENANT_SLUG = import.meta.env.VITE_TENANT_SLUG || '3minutes'
 
 let accessToken: string | null = null
 let refreshToken: string | null = null
@@ -95,6 +96,7 @@ export async function illumineFetch(path: string, options: RequestInit = {}): Pr
       ...options,
       headers: {
         'Content-Type': 'application/json',
+        'x-tenant-slug': TENANT_SLUG,
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(options.headers || {}),
       },

@@ -228,12 +228,21 @@ export const authService = {
   // ─── SESSÃO ──────────────────────────────────────────────────────────────────
 
   async getSession() {
+    await illumineAuth.init()
+    const token = illumineAuth.getAccessToken()
+    if (!token) return null
+
+    // Usa dados em cache primeiro (evita logout em refresh quando L1 tem NO_TENANT)
+    const cached = illumineAuth.getUser()
+    if (cached) return { user: cached, accessToken: token }
+
+    // Sem cache: tenta L1 para obter perfil
     try {
       const res = await illumineFetch('/users/me')
       if (res.ok) {
         const user = await res.json()
         await illumineAuth.saveUser(user)
-        return { user, accessToken: illumineAuth.getAccessToken() }
+        return { user, accessToken: token }
       }
     } catch {}
     return null
