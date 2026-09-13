@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { authService } from '../services/authService';
-import { supabase } from '../lib/supabase';
 import i18n from '../i18n/config';
 
 interface IllumineUser {
@@ -8,6 +7,7 @@ interface IllumineUser {
   email: string;
   name?: string;
   avatar?: string;
+  preferred_language?: string;
 }
 
 interface IllumineSession {
@@ -32,28 +32,16 @@ const AuthContext = createContext<AuthContextType>({
 const SUPPORTED_LANGUAGES = ['pt-BR', 'en', 'es'] as const;
 type SupportedLang = typeof SUPPORTED_LANGUAGES[number];
 
-async function syncProfileLanguage(userId: string): Promise<void> {
-  try {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('preferred_language')
-      .eq('id', userId)
-      .maybeSingle();
+function applyUserLanguage(user: IllumineUser): void {
+  const profileLang = user.preferred_language;
+  if (!profileLang) return;
 
-    if (error || !data) return;
+  const normalized: SupportedLang = SUPPORTED_LANGUAGES.includes(profileLang as SupportedLang)
+    ? (profileLang as SupportedLang)
+    : (profileLang.startsWith('en') ? 'en' : profileLang.startsWith('es') ? 'es' : 'pt-BR');
 
-    const profileLang = data.preferred_language as string | null;
-    if (!profileLang) return;
-
-    const normalized: SupportedLang = SUPPORTED_LANGUAGES.includes(profileLang as SupportedLang)
-      ? (profileLang as SupportedLang)
-      : (profileLang.startsWith('en') ? 'en' : profileLang.startsWith('es') ? 'es' : 'pt-BR');
-
-    if (i18n.language !== normalized) {
-      await i18n.changeLanguage(normalized);
-    }
-  } catch {
-    // Non-critical language sync error
+  if (i18n.language !== normalized) {
+    i18n.changeLanguage(normalized);
   }
 }
 
@@ -65,11 +53,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     authService
       .getSession()
-      .then(async (currentSession) => {
+      .then((currentSession) => {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
-        if (currentSession?.user?.id) {
-          await syncProfileLanguage(currentSession.user.id);
+        if (currentSession?.user) {
+          applyUserLanguage(currentSession.user);
         }
         setLoading(false);
       })
@@ -80,18 +68,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(false);
       });
 
-    const subscription = authService.onAuthStateChange(
-      async (_event, currentSession) => {
-        const current = currentSession as IllumineSession | null;
-
-        setSession(current);
-        setUser(current?.user ?? null);
-        if (current?.user?.id) {
-          await syncProfileLanguage(current.user.id);
-        }
-        setLoading(false);
+    const subscription = authService.onAuthStateChange((_event, currentSession) => {
+      const current = currentSession as IllumineSession | null;
+      setSession(current);
+      setUser(current?.user ?? null);
+      if (current?.user) {
+        applyUserLanguage(current.user);
       }
-    );
+      setLoading(false);
+    });
 
     return () => {
       subscription.unsubscribe();
@@ -100,20 +85,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     await authService.signOut();
-
     setSession(null);
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        session,
-        user,
-        loading,
-        signOut,
-      }}
-    >
+    <AuthContext.Provider value={{ session, user, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );

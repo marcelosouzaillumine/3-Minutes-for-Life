@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
 import { illumineFetch, illumineAuth } from '../lib/illumine';
 
 type Channel = 'email' | 'whatsapp';
@@ -64,17 +63,9 @@ export function CommunicationPreferences() {
       }
     }
 
-    // Supabase fallback
-    try {
-      const { data, error: rpcError } = await supabase.rpc('get_my_communication_consents');
-      if (rpcError) throw rpcError;
-      setConsents((data || []) as ConsentRow[]);
-    } catch (err) {
-      console.error('Failed to load consents:', err);
-      setError(t('profile:consent.loadError', 'Não foi possível carregar suas preferências.'));
-    } finally {
-      setLoading(false);
-    }
+    console.error('[CommunicationPreferences] L1 /consent endpoint falhou');
+    setError(t('profile:consent.loadError', 'Não foi possível carregar suas preferências.'));
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -111,22 +102,10 @@ export function CommunicationPreferences() {
       }
     }
 
-    // Supabase fallback
-    try {
-      const { error: rpcError } = await supabase.rpc('set_communication_consent', {
-        p_channel: channel,
-        p_purpose: purpose,
-        p_granted: next,
-        p_source: 'profile',
-      });
-      if (rpcError) throw rpcError;
-    } catch (err) {
-      console.error('Failed to save consent:', err);
-      setConsents(previous);
-      setError(t('profile:consent.saveError', 'Não foi possível salvar. Tente novamente.'));
-    } finally {
-      setSaving(null);
-    }
+    console.error('[CommunicationPreferences] L1 /consent PUT endpoint falhou');
+    setConsents(previous);
+    setError(t('profile:consent.saveError', 'Não foi possível salvar. Tente novamente.'));
+    setSaving(null);
   };
 
   if (loading) {

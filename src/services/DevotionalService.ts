@@ -1,5 +1,4 @@
-import { supabase } from '../lib/supabase';
-import { illumineFetch, illumineAuth } from '../lib/illumine';
+import { illumineFetch } from '../lib/illumine';
 import type { Devotional, DevotionalTranslation, DevotionalShareAsset, ResolvedShareAsset } from '../types/Devotional';
 import { principles } from '../data/principles';
 import { getTodayInSaoPaulo } from '../utils/date';
@@ -64,13 +63,6 @@ function mapIllumineToDevotional(d: any): any {
   };
 }
 
-// --- AUTHORIZATION ERROR CHECKER --- //
-function isAuthError(err: any): boolean {
-  if (!err) return false;
-  const code = String(err.code || err.status || '');
-  return code === '42501' || code === '401' || code === '403' || code.startsWith('PGRST3');
-}
-
 // --- LANGUAGE RESOLUTION HELPER --- //
 export function normalizeLanguage(lang?: string): string {
   if (!lang) return 'pt-BR';
@@ -98,7 +90,7 @@ export function resolveShareAssets(
 }
 
 export function resolveTranslation(
-  devotional: any, 
+  devotional: any,
   requestedLanguage: string,
   source: 'supabase' | 'indexeddb' | 'legacy' = 'supabase',
   isCached: boolean = false
@@ -113,15 +105,15 @@ export function resolveTranslation(
   // 3. Fallback to Portuguese original
   if (targetLang !== 'pt-BR') {
     const manualTranslation = translations.find(
-      t => t.language === targetLang && 
-           t.status === 'published' && 
+      t => t.language === targetLang &&
+           t.status === 'published' &&
            t.translation_source === 'manual' &&
            (!t.source_content_hash || t.source_content_hash === devotional.content_hash)
     );
 
     const aiTranslation = !manualTranslation ? translations.find(
-      t => t.language === targetLang && 
-           t.status === 'published' && 
+      t => t.language === targetLang &&
+           t.status === 'published' &&
            (t.translation_source === 'ai' || !t.translation_source) &&
            (!t.source_content_hash || t.source_content_hash === devotional.content_hash)
     ) : undefined;
@@ -159,8 +151,7 @@ export function resolveTranslation(
     }
   }
 
-  // Fallback (or if requested pt-BR directly): use the base devotional fields, 
-  // because the base table is the single source of truth for the Portuguese editorial content.
+  // Fallback (or if requested pt-BR directly): use the base devotional fields
   return {
     ...devotional,
     requestedLanguage,
@@ -172,77 +163,6 @@ export function resolveTranslation(
     devotional_translations: undefined
   };
 }
-
-// Lightweight select for browse/explore — no heavy HTML content, no share_assets
-const selectQueryBrowse = `
-  id,
-  title,
-  principle_statement,
-  publication_date,
-  categories (
-    name
-  ),
-  devotional_translations (
-    id,
-    language,
-    title,
-    principle_statement,
-    status,
-    translation_source
-  )
-`;
-
-const selectQuery = `
-  id,
-  title,
-  principle_statement,
-  reflection,
-  practical_application,
-  prayer,
-  content_tip,
-  content_tip_image_url,
-  content_tip_url,
-  support_message,
-  support_banner_url,
-  support_link_url,
-  scripture_reference,
-  scripture_text,
-  audio_url,
-  theme_id,
-  category_id,
-  content_hash,
-  categories (
-    name
-  ),
-  devotional_share_assets (
-    id,
-    language_code,
-    whatsapp_text,
-    whatsapp_image_url,
-    feed_image_url,
-    story_image_url
-  ),
-  devotional_translations (
-    id,
-    language,
-    title,
-    principle_statement,
-    reflection,
-    practical_application,
-    prayer,
-    content_tip,
-    content_tip_image_url,
-    content_tip_url,
-    support_message,
-    support_banner_url,
-    support_link_url,
-    scripture_reference,
-    scripture_text,
-    status,
-    source_content_hash,
-    translation_source
-  )
-`;
 
 export const DevotionalService = {
 
@@ -271,93 +191,44 @@ export const DevotionalService = {
   },
 
   async _fetchDailyFromNetwork(dateStr: string, contentLanguage: string): Promise<Devotional> {
-    // Try Illumine OS (Railway) first
-    if (illumineAuth.isAuthenticated()) {
-      try {
-        const res = await illumineFetch(`/devotionals/date/${dateStr}`);
-        if (res.ok) {
-          const raw = await res.json();
-          const data = mapIllumineToDevotional(raw);
-          const resolved = resolveTranslation(data, contentLanguage, 'supabase', false);
-          resolved.share_assets = resolveShareAssets(contentLanguage, data.devotional_share_assets || []);
-          delete (resolved as any).devotional_share_assets;
-          const p = principles.find(p => p.title === data.title);
-          resolved.share_quote = contentLanguage === 'pt-BR'
-            ? (p?.principle || resolved.principle_statement || resolved.title)
-            : (resolved.principle_statement || resolved.title);
-          await ContentCacheService.setDaily(dateStr, resolved, contentLanguage);
-          return resolved;
-        }
-      } catch (e) {
-        console.warn('[Devotional] Illumine fetch failed, falling back to Supabase:', e);
-      }
-    }
+    const res = await illumineFetch(`/devotionals/date/${dateStr}`);
+    if (!res.ok) throw new Error(`[DevotionalService] L1 /devotionals/date/${dateStr} falhou com status ${res.status}`);
 
-    // Fall back to Supabase
-    const { data, error } = await supabase
-      .from('devotionals')
-      .select(selectQuery)
-      .eq('status', 'published')
-      .eq('publication_date', dateStr)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle() as any;
-
-    if (error) throw error;
-    if (!data) throw new Error(`Content not found for publication_date ${dateStr}`);
-
-    const resolvedDevotional = resolveTranslation(data, contentLanguage, 'supabase', false);
-    resolvedDevotional.share_assets = resolveShareAssets(contentLanguage, data.devotional_share_assets || []);
-    delete (resolvedDevotional as any).devotional_share_assets;
-
+    const raw = await res.json();
+    const data = mapIllumineToDevotional(raw);
+    const resolved = resolveTranslation(data, contentLanguage, 'supabase', false);
+    resolved.share_assets = resolveShareAssets(contentLanguage, data.devotional_share_assets || []);
+    delete (resolved as any).devotional_share_assets;
     const p = principles.find(p => p.title === data.title);
-    resolvedDevotional.share_quote = contentLanguage === 'pt-BR'
-      ? (p?.principle || resolvedDevotional.principle_statement || resolvedDevotional.title)
-      : (resolvedDevotional.principle_statement || resolvedDevotional.title);
-
-    await ContentCacheService.setDaily(dateStr, resolvedDevotional, contentLanguage);
-    return resolvedDevotional;
+    resolved.share_quote = contentLanguage === 'pt-BR'
+      ? (p?.principle || resolved.principle_statement || resolved.title)
+      : (resolved.principle_statement || resolved.title);
+    await ContentCacheService.setDaily(dateStr, resolved, contentLanguage);
+    return resolved;
   },
 
   async getDevotional(id: string, requestedLanguage?: string): Promise<Devotional> {
     const rawLanguage = requestedLanguage || i18n.language || 'pt-BR';
     const contentLanguage = normalizeLanguage(rawLanguage);
+
     try {
-      const today = getTodayInSaoPaulo();
-    
-      const { data, error } = await supabase
-        .from('devotionals')
-        .select(selectQuery)
-        .eq('id', id)
-        .eq('status', 'published')
-        .lte('publication_date', today)
-        .single() as any;
-
-      if (error) throw error;
-      if (!data) throw new Error("Devotional not found or not published yet");
-
-      const resolvedDevotional = resolveTranslation(data, contentLanguage, 'supabase', false);
-      resolvedDevotional.share_assets = resolveShareAssets(contentLanguage, data.devotional_share_assets || []);
-      delete (resolvedDevotional as any).devotional_share_assets;
-
+      const res = await illumineFetch(`/devotionals/${id}`);
+      if (!res.ok) throw new Error(`L1 /devotionals/${id} falhou com status ${res.status}`);
+      const raw = await res.json();
+      const data = mapIllumineToDevotional(raw);
+      const resolved = resolveTranslation(data, contentLanguage, 'supabase', false);
+      resolved.share_assets = resolveShareAssets(contentLanguage, data.devotional_share_assets || []);
+      delete (resolved as any).devotional_share_assets;
       const p = principles.find(p => p.title === data.title);
-      resolvedDevotional.share_quote = contentLanguage === 'pt-BR'
-        ? (p?.principle || resolvedDevotional.principle_statement || resolvedDevotional.title)
-        : (resolvedDevotional.principle_statement || resolvedDevotional.title);
-      
-      await ContentCacheService.setDevotional(resolvedDevotional, contentLanguage);
-      
-      return resolvedDevotional;
+      resolved.share_quote = contentLanguage === 'pt-BR'
+        ? (p?.principle || resolved.principle_statement || resolved.title)
+        : (resolved.principle_statement || resolved.title);
+      await ContentCacheService.setDevotional(resolved, contentLanguage);
+      return resolved;
     } catch (err: any) {
-      if (isAuthError(err)) {
-        console.error("Authorization error fetching devotional by ID. Not falling back to cache.", err);
-        throw err;
-      }
-      console.warn("Canonical fetch failed (network/server), attempting cache:", err);
+      console.warn('[DevotionalService] getDevotional network failed, attempting cache:', err);
       const cached = await ContentCacheService.getDevotional(id, contentLanguage);
-      if (cached) {
-        return { ...cached, isCached: true, source: 'indexeddb' };
-      }
+      if (cached) return { ...cached, isCached: true, source: 'indexeddb' };
       throw err;
     }
   },
@@ -380,69 +251,31 @@ export const DevotionalService = {
   },
 
   async _fetchLibraryFromNetwork(contentLanguage: string, today: string): Promise<Devotional[]> {
-    // Try Illumine OS (Railway) first
-    if (illumineAuth.isAuthenticated()) {
-      try {
-        const res = await illumineFetch(`/devotionals?status=published&perPage=200`);
-        if (res.ok) {
-          const json = await res.json();
-          const items: any[] = json.devotionals ?? json;
-          const resolved = items
-            .filter(d => d.publicationDate?.substring(0, 10) <= today)
-            .sort((a, b) => (a.publicationDate ?? '').localeCompare(b.publicationDate ?? ''))
-            .map(d => {
-              const mapped = mapIllumineToDevotional(d);
-              const r = resolveTranslation(mapped, contentLanguage, 'supabase', false);
-              r.share_assets = resolveShareAssets(contentLanguage, mapped.devotional_share_assets || []);
-              delete (r as any).devotional_share_assets;
-              const p = principles.find(p => p.title === mapped.title);
-              r.share_quote = contentLanguage === 'pt-BR'
-                ? (p?.principle || r.principle_statement || r.title)
-                : (r.principle_statement || r.title);
-              return r;
-            });
-          await ContentCacheService.setLibrary(resolved, contentLanguage);
-          return resolved;
-        }
-      } catch (e) {
-        console.warn('[Devotional] Illumine list failed, falling back to Supabase:', e);
-      }
-    }
-
-    // Fall back to Supabase
     try {
-      const { data, error } = await supabase
-        .from('devotionals')
-        .select(selectQuery)
-        .eq('status', 'published')
-        .lte('publication_date', today)
-        .order('publication_date', { ascending: true }) as any;
-
-      if (error) throw error;
-
-      const resolvedList = (data as any[]).map(d => {
-        const resolvedDevotional = resolveTranslation(d, contentLanguage, 'supabase', false);
-        resolvedDevotional.share_assets = resolveShareAssets(contentLanguage, d.devotional_share_assets || []);
-        delete (resolvedDevotional as any).devotional_share_assets;
-        const p = principles.find(p => p.title === d.title);
-        const quote = contentLanguage === 'pt-BR'
-          ? (p?.principle || resolvedDevotional.principle_statement || resolvedDevotional.title)
-          : (resolvedDevotional.principle_statement || resolvedDevotional.title);
-        return { ...resolvedDevotional, share_quote: quote };
-      });
-
-      await ContentCacheService.setLibrary(resolvedList, contentLanguage);
-      return resolvedList;
+      const res = await illumineFetch(`/devotionals?status=published&perPage=200`);
+      if (!res.ok) throw new Error(`L1 /devotionals falhou com status ${res.status}`);
+      const json = await res.json();
+      const items: any[] = json.devotionals ?? json;
+      const resolved = items
+        .filter(d => d.publicationDate?.substring(0, 10) <= today)
+        .sort((a, b) => (a.publicationDate ?? '').localeCompare(b.publicationDate ?? ''))
+        .map(d => {
+          const mapped = mapIllumineToDevotional(d);
+          const r = resolveTranslation(mapped, contentLanguage, 'supabase', false);
+          r.share_assets = resolveShareAssets(contentLanguage, mapped.devotional_share_assets || []);
+          delete (r as any).devotional_share_assets;
+          const p = principles.find(p => p.title === mapped.title);
+          r.share_quote = contentLanguage === 'pt-BR'
+            ? (p?.principle || r.principle_statement || r.title)
+            : (r.principle_statement || r.title);
+          return r;
+        });
+      await ContentCacheService.setLibrary(resolved, contentLanguage);
+      return resolved;
     } catch (err: any) {
-      if (isAuthError(err)) {
-        console.error("Authorization error fetching devotional library. Not falling back to cache.", err);
-        throw err;
-      }
-      console.warn("Canonical fetch failed (network/server), attempting cache:", err);
+      console.warn('[DevotionalService] _fetchLibraryFromNetwork failed, attempting cache:', err);
       const cached = await ContentCacheService.getLibrary(contentLanguage);
-      if (cached) {
-        return cached.map(d => ({ ...d, isCached: true, source: 'indexeddb' }));
-      }
+      if (cached) return cached.map(d => ({ ...d, isCached: true, source: 'indexeddb' as const }));
       throw err;
     }
   },
@@ -453,46 +286,46 @@ export const DevotionalService = {
     const contentLanguage = normalizeLanguage(rawLanguage);
     const today = getTodayInSaoPaulo();
 
-    const { data, error } = await supabase
-      .from('devotionals')
-      .select(selectQueryBrowse)
-      .eq('status', 'published')
-      .lte('publication_date', today)
-      .order('publication_date', { ascending: true }) as any;
+    const res = await illumineFetch(`/devotionals?status=published&perPage=200`);
+    if (!res.ok) throw new Error(`[DevotionalService] L1 /devotionals falhou com status ${res.status}`);
 
-    if (error) throw error;
-
-    return (data as any[]).map(d => {
-      const resolved = resolveTranslation(d, contentLanguage, 'supabase', false);
-      return {
-        id: resolved.id,
-        title: resolved.title,
-        principle_statement: resolved.principle_statement,
-        publication_date: d.publication_date,
-        categories: d.categories,
-      };
-    });
+    const json = await res.json();
+    const items: any[] = json.devotionals ?? json;
+    return items
+      .filter(d => d.publicationDate?.substring(0, 10) <= today)
+      .map(d => {
+        const mapped = mapIllumineToDevotional(d);
+        const resolved = resolveTranslation(mapped, contentLanguage, 'supabase', false);
+        return {
+          id: resolved.id,
+          title: resolved.title,
+          principle_statement: resolved.principle_statement,
+          publication_date: mapped.publication_date,
+          categories: mapped.categories,
+        };
+      });
   },
 
-  // Fetch only specific devotionals by ID — used by Favorites to avoid loading the full library
+  // Fetch only specific devotionals by ID — used by Favorites
   async getDevotionalsByIds(ids: string[], requestedLanguage?: string): Promise<Devotional[]> {
     if (!ids.length) return [];
     const rawLanguage = requestedLanguage || i18n.language || 'pt-BR';
     const contentLanguage = normalizeLanguage(rawLanguage);
 
-    const { data, error } = await supabase
-      .from('devotionals')
-      .select(selectQuery)
-      .in('id', ids)
-      .eq('status', 'published') as any;
+    const results = await Promise.allSettled(
+      ids.map(id => illumineFetch(`/devotionals/${id}`).then(async res => {
+        if (!res.ok) throw new Error(`L1 /devotionals/${id} falhou com status ${res.status}`);
+        return mapIllumineToDevotional(await res.json());
+      }))
+    );
 
-    if (error) throw error;
-
-    return (data as any[]).map(d => {
-      const resolved = resolveTranslation(d, contentLanguage, 'supabase', false);
-      resolved.share_assets = resolveShareAssets(contentLanguage, d.devotional_share_assets || []);
-      delete (resolved as any).devotional_share_assets;
-      return resolved;
-    });
+    return results
+      .filter((r): r is PromiseFulfilledResult<any> => r.status === 'fulfilled')
+      .map(r => {
+        const resolved = resolveTranslation(r.value, contentLanguage, 'supabase', false);
+        resolved.share_assets = resolveShareAssets(contentLanguage, r.value.devotional_share_assets || []);
+        delete (resolved as any).devotional_share_assets;
+        return resolved;
+      });
   },
 };

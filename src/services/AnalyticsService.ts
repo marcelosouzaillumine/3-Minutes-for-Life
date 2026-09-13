@@ -1,4 +1,3 @@
-import { supabase } from '../lib/supabase';
 import { illumineFetch, illumineAuth } from '../lib/illumine';
 
 const CONTEXT_KEY = '3m_referral_context';
@@ -32,37 +31,18 @@ export const AnalyticsService = {
         metadata.content_id ||
         null;
 
-      // Illumine-first for authenticated users
-      if (illumineAuth.isAuthenticated()) {
-        try {
-          await illumineFetch('/analytics/events', {
-            method: 'POST',
-            body: JSON.stringify({
-              eventType: eventName,
-              resource: resolvedContentId ? 'devotional' : undefined,
-              resourceId: resolvedContentId || undefined,
-              properties: metadata,
-            }),
-          });
-          return;
-        } catch (e) {
-          console.warn('[Analytics] Illumine event failed, falling back:', e);
-        }
-      }
-
-      // Supabase fallback
-      await supabase.functions.invoke('track-event', {
-        body: {
-          event_type: eventName,
-          event_name: eventName,
-          content_id: resolvedContentId,
-          anonymous_id: getAnonymousId(),
-          idempotency_key: crypto.randomUUID(),
-          metadata,
-        },
+      await illumineFetch('/analytics/events', {
+        method: 'POST',
+        body: JSON.stringify({
+          eventType: eventName,
+          resource: resolvedContentId ? 'devotional' : undefined,
+          resourceId: resolvedContentId || undefined,
+          anonymousId: illumineAuth.isAuthenticated() ? undefined : getAnonymousId(),
+          properties: metadata,
+        }),
       });
     } catch (err) {
-      console.error('Failed to track event:', err);
+      console.error('[Analytics] Failed to track event:', err);
     }
   },
 
@@ -78,7 +58,6 @@ export const AnalyticsService = {
   getReferralContext(): ReferralContext | null {
     const stored = localStorage.getItem(CONTEXT_KEY);
     if (!stored) return null;
-
     try {
       const context: ReferralContext = JSON.parse(stored);
       if (Date.now() - context.captured_at > EXPIRATION_MS) {

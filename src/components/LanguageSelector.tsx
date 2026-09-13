@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
+import { illumineFetch } from '../lib/illumine';
 import { useAuth } from '../context/AuthContext';
 import { useState, useRef, useEffect } from 'react';
 
@@ -20,10 +20,10 @@ export function LanguageSelector({ dropUp = false }: LanguageSelectorProps) {
     
     // 2. Persiste preferência
     if (session?.user) {
-      await supabase
-        .from('profiles')
-        .update({ preferred_language: lng })
-        .eq('id', session.user.id);
+      await illumineFetch('/users/me', {
+        method: 'PATCH',
+        body: JSON.stringify({ preferredLanguage: lng }),
+      }).catch(() => {});
     }
   };
 

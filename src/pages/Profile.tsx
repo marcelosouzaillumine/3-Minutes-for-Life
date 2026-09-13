@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../lib/supabase';
 import { illumineAuth } from '../lib/illumine';
 import { About } from './About';
 import { TestimonialList } from '../components/TestimonialList';
@@ -29,11 +28,7 @@ export function Profile() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function copyAdminToken() {
-    let token = illumineAuth.getAccessToken();
-    if (!token) {
-      const { data } = await supabase.auth.refreshSession();
-      token = data.session?.access_token ?? null;
-    }
+    const token = illumineAuth.getAccessToken();
     if (!token) return;
     await navigator.clipboard.writeText(token);
     setTokenCopied(true);

@@ -31,7 +31,7 @@ export const authService = {
     city?: string,
     acceptsUpdates = false
   ) {
-    // 1. Cadastra no Supabase Auth
+    // 1. Cadastra na identidade Supabase Auth
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -47,13 +47,11 @@ export const authService = {
       },
     })
 
-    if (error) {
-      throw error
-    }
+    if (error) throw error
 
     const activeUser = data.user
 
-    // 2. Sincronização Transparente com Illumine OS
+    // 2. Registra e obtém token Illumine OS (L1 gerencia o perfil)
     try {
       const res = await illumineFetch('/auth/register', {
         method: 'POST',
@@ -76,156 +74,87 @@ export const authService = {
         }
       }
     } catch (e) {
-      console.warn('Illumine OS registration sync warning:', e)
-    }
-
-    // 3. Garante perfil na tabela profiles do Supabase
-    if (activeUser?.id) {
-      try {
-        await supabase.from('profiles').upsert({
-          id: activeUser.id,
-          email,
-          full_name: fullName,
-          phone: phone || null,
-          country: country || null,
-          state: state || null,
-          city: city || null,
-          accepts_updates: acceptsUpdates,
-        }, { onConflict: 'id' })
-      } catch (e) {
-        console.warn('Could not sync profile to supabase table:', e)
-      }
+      console.warn('[Auth] Illumine register warning:', e)
     }
 
     return { ...data, user: activeUser }
   },
 
   async signIn(email: string, password: string) {
-    let supabaseResult: any = null
-    let supabaseError: any = null
+    // 1. Autentica no Supabase Auth (provedor de identidade)
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
-    // 1. Autentica no Supabase Auth primeiro (onde estão todas as contas existentes e admin master)
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-      if (!error && data?.user) {
-        supabaseResult = data
-      } else {
-        supabaseError = error
-      }
-    } catch (err) {
-      supabaseError = err
-      console.warn('Supabase sign-in warning:', err)
+    if (error) throw error
+    if (!data?.user) throw new Error('INVALID_CREDENTIALS')
+
+    // 2. Troca JWT Supabase por token Illumine OS (L1)
+    if (data.session?.access_token) {
+      await exchangeSupabaseJwt(data.session.access_token)
     }
 
-    // 2. Trocar JWT Supabase por token Illumine OS (sem enviar senha)
-    if (supabaseResult?.session?.access_token) {
-      await exchangeSupabaseJwt(supabaseResult.session.access_token)
-    }
-
-    // Se o login no Supabase teve sucesso
-    if (supabaseResult?.user) {
-      return { session: supabaseResult.session, user: supabaseResult.user }
-    }
-
-    // Se o usuário foi criado exclusivamente no Illumine OS
-    if (illumineAuth.isAuthenticated()) {
-      const user = illumineAuth.getUser()
-      return { session: { accessToken: illumineAuth.getAccessToken(), user }, user }
-    }
-
-    // Se falhou em ambos
-    throw supabaseError || new Error('INVALID_CREDENTIALS')
+    return { session: data.session, user: data.user }
   },
 
   async signInWithOAuth(provider: 'google' | 'apple', idTokenOrRedirect?: string) {
     if (idTokenOrRedirect && provider === 'google') {
-      let supabaseUser: any = null
-      let supabaseSession: any = null
+      // 1. Autentica com Google via Supabase Auth
+      const { data, error } = await supabase.auth.signInWithIdToken({
+        provider: 'google',
+        token: idTokenOrRedirect,
+      })
 
-      // 1. Supabase OAuth com Google ID Token
-      try {
-        const { data, error } = await supabase.auth.signInWithIdToken({
-          provider: 'google',
-          token: idTokenOrRedirect,
-        })
-        if (!error && data?.user) {
-          supabaseUser = data.user
-          supabaseSession = data.session
-        }
-      } catch (e) {
-        console.warn('Supabase signInWithIdToken warning:', e)
+      if (error) throw error
+      if (!data?.user) throw new Error('OAUTH_FAILED')
+
+      // 2. Troca JWT Supabase por token Illumine OS (L1)
+      if (data.session?.access_token) {
+        await exchangeSupabaseJwt(data.session.access_token)
       }
 
-      // 2. Trocar JWT Supabase por token Illumine OS
-      if (supabaseSession?.access_token) {
-        await exchangeSupabaseJwt(supabaseSession.access_token)
-      }
-
-      if (supabaseUser?.id) {
-        try {
-          await supabase.from('profiles').upsert({
-            id: supabaseUser.id,
-            email: supabaseUser.email,
-            full_name: supabaseUser.user_metadata?.full_name || (supabaseUser as any).name || null,
-          }, { onConflict: 'id' })
-        } catch (e) {
-          console.warn('Could not sync oauth profile to supabase:', e)
-        }
-
-        if (illumineAuth.isAuthenticated()) {
-          const name = supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.name
-          const avatar = supabaseUser.user_metadata?.avatar_url
-          if (name || avatar) {
-            illumineFetch('/users/me', {
-              method: 'PATCH',
-              body: JSON.stringify({ ...(name && { name }), ...(avatar && { avatar }) }),
-            }).catch(() => {})
-          }
+      // 3. Sincroniza metadados do OAuth no Illumine OS
+      if (illumineAuth.isAuthenticated()) {
+        const name = data.user.user_metadata?.full_name || data.user.user_metadata?.name
+        const avatar = data.user.user_metadata?.avatar_url
+        if (name || avatar) {
+          illumineFetch('/users/me', {
+            method: 'PATCH',
+            body: JSON.stringify({ ...(name && { name }), ...(avatar && { avatar }) }),
+          }).catch(() => {})
         }
       }
 
-      if (supabaseUser) {
-        return { session: supabaseSession, user: supabaseUser }
-      }
-      throw new Error('OAUTH_FAILED')
+      return { session: data.session, user: data.user }
     }
 
-    // Redirect flow fallback
+    // Redirect flow
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
-      options: {
-        redirectTo: window.location.origin + (idTokenOrRedirect || '/app'),
-      },
+      options: { redirectTo: window.location.origin + (idTokenOrRedirect || '/app') },
     })
     if (error) throw error
     return data
   },
 
   async checkEmail(email: string): Promise<{ exists: boolean; name?: string; avatar?: string; hasPassword?: boolean }> {
-    try {
-      const res = await illumineFetch('/auth/lookup', {
-        method: 'POST',
-        body: JSON.stringify({ email }),
-      })
-      if (res.ok) return await res.json()
-    } catch {
-      // fallthrough: Illumine not configured
-    }
-    // Supabase fallback: tenta signIn com senha inválida para detectar se usuário existe
-    try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password: '\x00' })
-      if (error?.message?.includes('Invalid login credentials')) return { exists: true }
-      if (error?.message?.includes('Email not confirmed')) return { exists: true }
-    } catch {
-      // noop
-    }
+    const res = await illumineFetch('/auth/lookup', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    })
+    if (res.ok) return await res.json()
     return { exists: false }
   },
 
   async resetPassword(email: string): Promise<void> {
+    // Tenta via Illumine OS primeiro
+    try {
+      const res = await illumineFetch('/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({ email, tenantSlug: TENANT_SLUG }),
+      })
+      if (res.ok) return
+    } catch {}
+
+    // Fallback: Supabase Auth como provedor de identidade
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/app`,
     })
@@ -233,62 +162,46 @@ export const authService = {
   },
 
   async signOut() {
-    try {
-      await supabase.auth.signOut()
-    } catch (e) {
-      console.warn('[Auth] Supabase signOut warning:', e)
-    }
+    // 1. Encerra sessão no Illumine OS (L1)
     try {
       await illumineFetch('/auth/logout', { method: 'POST' })
-    } catch (e) {
-      console.warn('[Auth] Illumine logout warning:', e)
-    }
+    } catch {}
+
+    // 2. Limpa tokens locais
     await illumineAuth.clearTokens()
+
+    // 3. Encerra sessão Supabase Auth (provedor de identidade)
+    try {
+      await supabase.auth.signOut()
+    } catch {}
   },
 
   async getSession() {
-    // 1. Supabase Auth Session
+    // 1. Tenta sessão Illumine OS ativa (init() é aguardado dentro de illumineFetch)
     try {
-      const { data: { session }, error } = await supabase.auth.getSession()
-      if (!error && session?.user) {
-        // Se ainda não temos token Illumine, troca agora (lazy exchange)
-        if (!illumineAuth.isAuthenticated() && session.access_token) {
-          await exchangeSupabaseJwt(session.access_token)
-        }
-        return {
-          session,
-          user: {
-            ...session.user,
-            id: session.user.id,
-            email: session.user.email || '',
-            name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
-            avatar: session.user.user_metadata?.avatar_url || '',
-            role: session.user.role,
-          },
-          accessToken: session.access_token,
-        }
+      const res = await illumineFetch('/users/me')
+      if (res.ok) {
+        const user = await res.json()
+        await illumineAuth.saveUser(user)
+        return { user, accessToken: illumineAuth.getAccessToken() }
       }
-    } catch (e) {
-      console.warn('Supabase getSession warning:', e)
-    }
+    } catch {}
 
-    // 2. Illumine Fallback
-    if (illumineAuth.isAuthenticated()) {
-      const cachedUser = illumineAuth.getUser()
-      try {
-        const res = await illumineFetch('/users/me')
-        if (res.ok) {
-          const user = await res.json()
-          await illumineAuth.saveUser(user)
-          return { user, accessToken: illumineAuth.getAccessToken() }
+    // 2. Sem token Illumine válido — tenta exchange com sessão Supabase existente
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.access_token) {
+        const exchanged = await exchangeSupabaseJwt(session.access_token)
+        if (exchanged) {
+          const res = await illumineFetch('/users/me')
+          if (res.ok) {
+            const user = await res.json()
+            return { user, accessToken: illumineAuth.getAccessToken() }
+          }
         }
-      } catch (e) {
-        console.warn('Could not fetch user /me:', e)
       }
-      if (cachedUser) {
-        return { user: cachedUser, accessToken: illumineAuth.getAccessToken() }
-      }
-    }
+    } catch {}
+
     return null
   },
 
@@ -301,6 +214,12 @@ export const authService = {
       if (event === 'SIGNED_IN') {
         AnalyticsService.trackEvent('authentication_succeeded', { method: 'session_established', event })
       }
+
+      // Re-exchange sempre que o Supabase renovar o JWT para manter o token Illumine sincronizado
+      if (event === 'TOKEN_REFRESHED' && session?.access_token) {
+        await exchangeSupabaseJwt(session.access_token)
+      }
+
       if (session?.user) {
         const formattedSession = {
           session,
@@ -312,11 +231,10 @@ export const authService = {
             avatar: session.user.user_metadata?.avatar_url || '',
             role: session.user.role,
           },
-          accessToken: session.access_token,
+          accessToken: illumineAuth.getAccessToken(),
         }
         callback(event, formattedSession)
       } else {
-        // Fallback Illumine session
         const illSession = await this.getSession().catch(() => null)
         callback(illSession ? 'SIGNED_IN' : 'SIGNED_OUT', illSession)
       }

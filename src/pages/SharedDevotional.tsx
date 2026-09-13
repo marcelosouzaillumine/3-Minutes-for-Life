@@ -4,7 +4,7 @@ import { DevotionalService } from '../services/DevotionalService';
 import { AnalyticsService } from '../services/AnalyticsService';
 import type { Devotional } from '../types/Devotional';
 import { PrincipleView } from '../components/PrincipleView';
-import { supabase } from '../lib/supabase';
+import { illumineFetch } from '../lib/illumine';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { DevotionalHeader } from '../components/DevotionalHeader';
@@ -134,24 +134,20 @@ export function SharedDevotional() {
            */
 
           if (code) {
-            const {
-              data: referrerName,
-              error: referrerError,
-            } = await supabase.rpc(
-              'get_referrer_name',
-              {
-                p_referral_code: code,
+            let referrerName: string | null = null;
+            try {
+              const res = await illumineFetch(`/referrals/name?code=${encodeURIComponent(code)}`);
+              if (res.ok) {
+                const body = await res.json();
+                referrerName = body.name ?? body.referrerName ?? null;
               }
-            );
+            } catch { /* silently ignore */ }
 
             if (!mounted) {
               return;
             }
 
-            if (
-              !referrerError &&
-              referrerName
-            ) {
+            if (referrerName) {
               const firstName =
                 String(referrerName)
                   .trim()

@@ -78,13 +78,12 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
   const getReferralCode = async (): Promise<string> => {
     if (session?.user?.id) {
       try {
-        const { supabase } = await import('../lib/supabase');
-        const { data } = await supabase
-          .from('profiles')
-          .select('referral_code')
-          .eq('id', session.user.id)
-          .single();
-        if (data?.referral_code) return data.referral_code;
+        const { illumineFetch } = await import('../lib/illumine');
+        const res = await illumineFetch('/users/me');
+        if (res.ok) {
+          const u = await res.json();
+          if (u?.referralCode || u?.referral_code) return u.referralCode ?? u.referral_code;
+        }
       } catch { /* silently use fallback */ }
     }
     return '3MIN';

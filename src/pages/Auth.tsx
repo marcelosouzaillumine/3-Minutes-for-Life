@@ -5,7 +5,7 @@ import { authService } from '../services/authService';
 import { AnalyticsService } from '../services/AnalyticsService';
 import { LocationService } from '../services/LocationService';
 import type { State, City } from '../services/LocationService';
-import { supabase } from '../lib/supabase';
+import { illumineFetch } from '../lib/illumine';
 import { useTranslation } from 'react-i18next';
 import { BrandLogo } from '../components/BrandLogo';
 import './Auth.css';
@@ -111,9 +111,9 @@ export const Auth: React.FC = () => {
         const referralContext = AnalyticsService.getReferralContext();
         if (referralContext) {
           try {
-            await supabase.rpc('attribute_referral', {
-              p_user_id: user.id,
-              p_referral_code: referralContext.code,
+            await illumineFetch('/referrals/attribute', {
+              method: 'POST',
+              body: JSON.stringify({ userId: user.id, referralCode: referralContext.code }),
             });
             await AnalyticsService.trackEvent('referral_signup', {
               code: referralContext.code,

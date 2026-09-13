@@ -5,20 +5,21 @@ const BASE_URL = import.meta.env.VITE_ILLUMINE_URL || 'http://localhost:3000'
 let accessToken: string | null = null
 let refreshToken: string | null = null
 let storedUser: any = null
-let _initialized = false
+let _initPromise: Promise<void> | null = null
 
-// Call once at app startup (before any illumineFetch). Safe to call multiple times.
 async function init(): Promise<void> {
-  if (_initialized) return
-  _initialized = true
-  try {
-    accessToken = await storage.get('illumine_access_token')
-    refreshToken = await storage.get('illumine_refresh_token')
-    const userJson = await storage.get('illumine_user')
-    if (userJson) storedUser = JSON.parse(userJson)
-  } catch (e) {
-    console.warn('[Illumine] Could not read tokens from storage:', e)
-  }
+  if (_initPromise) return _initPromise
+  _initPromise = (async () => {
+    try {
+      accessToken = await storage.get('illumine_access_token')
+      refreshToken = await storage.get('illumine_refresh_token')
+      const userJson = await storage.get('illumine_user')
+      if (userJson) storedUser = JSON.parse(userJson)
+    } catch (e) {
+      console.warn('[Illumine] Could not read tokens from storage:', e)
+    }
+  })()
+  return _initPromise
 }
 
 async function saveTokens(at: string, rt: string, user?: any): Promise<void> {
@@ -70,11 +71,18 @@ async function tryRefresh(): Promise<boolean> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken }),
     })
-    if (!res.ok) { await clearTokens(); return false }
+    // Só destrói os tokens se o servidor rejeitou explicitamente (credenciais inválidas)
+    if (res.status === 401 || res.status === 403) {
+      await clearTokens()
+      return false
+    }
+    // Erros de rede ou servidor temporários não destroem a sessão
+    if (!res.ok) return false
     const data = await res.json()
     await saveTokens(data.accessToken, data.refreshToken, data.user)
     return true
   } catch {
+    // Falha de rede — mantém tokens para tentar novamente
     return false
   }
 }
@@ -94,7 +102,6 @@ export async function illumineFetch(path: string, options: RequestInit = {}): Pr
 
   let res = await makeRequest(accessToken)
 
-  // Token expirado — tenta renovar e repetir
   if (res.status === 401 && refreshToken) {
     const refreshed = await tryRefresh()
     if (refreshed) res = await makeRequest(accessToken)

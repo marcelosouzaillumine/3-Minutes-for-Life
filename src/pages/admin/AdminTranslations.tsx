@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import { supabase } from '../../lib/supabase';
 import { illumineFetch, illumineAuth } from '../../lib/illumine';
 import { AdminContentService } from '../../services/AdminContentService';
 import { ManualTranslationEditor } from '../../components/admin/ManualTranslationEditor';
@@ -72,35 +71,13 @@ export function AdminTranslations() {
             return;
           }
         } catch (e) {
-          console.warn('[Translations] Illumine path failed, falling back to Supabase:', e);
+          console.warn('[Translations] Illumine path failed:', e);
         }
       }
 
-      // Supabase fallback
-      for (const lang of missingLangs) {
-        await supabase.from('translation_jobs').upsert(
-          [{ devotional_id: devotional.id, source_language: 'pt-BR', target_language: lang.iso_code, status: 'queued', attempts: 0, error_message: null }],
-          { onConflict: 'devotional_id,source_language,target_language' }
-        );
-      }
-      const { data: { session } } = await supabase.auth.getSession();
-      const fnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translate-devotional`;
-      const fnResp = await fetch(fnUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session?.access_token || ''}`,
-          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json',
-        },
-      });
-      const fnResult = await fnResp.json().catch(() => ({}));
-      if (!fnResp.ok) {
-        alert('Erro ao executar tradução:\n' + (fnResult?.error || fnResult?.message || `HTTP ${fnResp.status}`));
-        return;
-      }
-      const failed = (fnResult?.results || []).find((r: any) => r.status !== 'completed');
-      if (failed) { alert('Tradução falhou: ' + (failed.error || 'erro desconhecido')); return; }
-      await loadData();
+      // TODO (L1): endpoint de tradução L1 não disponível — tradução requer autenticação Illumine
+      alert('Tradução automática requer conexão com o Illumine OS (L1). Verifique sua sessão e tente novamente.');
+      return;
     } catch (err: any) {
       alert('Erro: ' + err.message);
     } finally {
