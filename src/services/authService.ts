@@ -50,11 +50,15 @@ async function ensureIllumineSession(
       tenantSlug: TENANT_SLUG,
     })
 
+    // L1 /auth/register retorna 201 mas sem accessToken — busca o token via login
     if (regRes.ok) {
-      const d = await regRes.json()
-      if (d.accessToken) {
-        await illumineAuth.saveTokens(d.accessToken, d.refreshToken, d.user)
-        return true
+      const loginAfterReg = await illumineDirect('/auth/login', { email, password })
+      if (loginAfterReg.ok) {
+        const d = await loginAfterReg.json()
+        if (d.accessToken) {
+          await illumineAuth.saveTokens(d.accessToken, d.refreshToken, d.user)
+          return true
+        }
       }
     }
 
@@ -93,9 +97,11 @@ export const authService = {
     })
 
     if (regRes.ok) {
-      const d = await regRes.json()
-      if (d.accessToken) {
-        await illumineAuth.saveTokens(d.accessToken, d.refreshToken, d.user)
+      // L1 /auth/register não retorna accessToken — busca via login imediatamente
+      const loginAfterReg = await illumineDirect('/auth/login', { email, password })
+      if (loginAfterReg.ok) {
+        const d = await loginAfterReg.json()
+        if (d.accessToken) await illumineAuth.saveTokens(d.accessToken, d.refreshToken, d.user)
       }
     } else if (regRes.status !== 409) {
       // 409 = já existe, segue adiante; outros erros são fatais
@@ -156,14 +162,12 @@ export const authService = {
           tenantSlug: TENANT_SLUG,
           provider: 'google',
         })
-        if (regRes.ok) {
-          const d = await regRes.json()
-          if (d.accessToken) await illumineAuth.saveTokens(d.accessToken, d.refreshToken, d.user)
-        } else if (regRes.status === 409) {
-          // Conta já existe — tenta login com a mesma senha provisória
+        // L1 /auth/register não retorna accessToken — busca via login após registro
+        const provisionalPass = `google:${data.user.id}`
+        if (regRes.ok || regRes.status === 409) {
           const loginRes = await illumineDirect('/auth/login', {
             email: data.user.email!,
-            password: `google:${data.user.id}`,
+            password: provisionalPass,
           })
           if (loginRes.ok) {
             const d = await loginRes.json()
