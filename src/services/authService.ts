@@ -252,6 +252,15 @@ export const authService = {
       }
 
       if (session?.user) {
+        // Sem token Illumine armazenado = usuário logou antes do L1 existir.
+        // Força re-login para que ensureIllumineSession() provisione a conta.
+        if (!illumineAuth.isAuthenticated()) {
+          console.warn('[Auth] Sessão Supabase sem token Illumine OS — forçando re-login')
+          try { await supabase.auth.signOut() } catch {}
+          callback('SIGNED_OUT', null)
+          return
+        }
+
         const illSession = await this.getSession().catch(() => null)
         const formattedSession = {
           session,
