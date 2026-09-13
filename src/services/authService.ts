@@ -5,6 +5,12 @@ import { AnalyticsService } from './AnalyticsService'
 const ILLUMINE_URL = import.meta.env.VITE_ILLUMINE_URL as string
 const TENANT_SLUG = import.meta.env.VITE_TENANT_SLUG || '3minutes'
 
+// Previne forced-logout enquanto o signIn está obtendo o token Illumine.
+// Supabase dispara onAuthStateChange imediatamente ao criar a sessão,
+// antes de ensureIllumineSession() salvar o token — sem esta flag, o check
+// !illumineAuth.isAuthenticated() faria logout durante o próprio login.
+let _signingIn = false
+
 // Chama diretamente (sem Bearer) para não depender de token existente
 async function illumineDirect(path: string, body: Record<string, unknown>): Promise<Response> {
   return fetch(`${ILLUMINE_URL}${path}`, {
@@ -124,17 +130,21 @@ export const authService = {
   },
 
   async signIn(email: string, password: string) {
-    // 1. Valida credenciais no Supabase Auth (fonte de verdade para senhas)
-    //    — faz isso ANTES de criar qualquer conta no Illumine
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) throw error
+    _signingIn = true
+    try {
+      // 1. Valida credenciais no Supabase Auth (fonte de verdade para senhas)
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) throw error
 
-    // 2. Com credenciais validadas, obtém token Illumine OS
-    //    Auto-provisiona a conta Illumine caso ainda não exista (usuário legado do Supabase)
-    const name = data.user?.user_metadata?.full_name || data.user?.user_metadata?.name
-    await ensureIllumineSession(email, password, { name })
+      // 2. Com credenciais validadas, obtém token Illumine OS
+      //    Auto-provisiona a conta Illumine caso ainda não exista (usuário legado do Supabase)
+      const name = data.user?.user_metadata?.full_name || data.user?.user_metadata?.name
+      await ensureIllumineSession(email, password, { name })
 
-    return { session: data.session, user: data.user }
+      return { session: data.session, user: data.user }
+    } finally {
+      _signingIn = false
+    }
   },
 
   async signInWithOAuth(provider: 'google' | 'apple', idTokenOrRedirect?: string) {
@@ -258,7 +268,9 @@ export const authService = {
       if (session?.user) {
         // Sem token Illumine armazenado = usuário logou antes do L1 existir.
         // Força re-login para que ensureIllumineSession() provisione a conta.
-        if (!illumineAuth.isAuthenticated()) {
+        // _signingIn suprime este check durante o signIn (race condition: Supabase
+        // dispara onAuthStateChange antes de ensureIllumineSession salvar o token).
+        if (!illumineAuth.isAuthenticated() && !_signingIn) {
           console.warn('[Auth] Sessão Supabase sem token Illumine OS — forçando re-login')
           try { await supabase.auth.signOut() } catch {}
           callback('SIGNED_OUT', null)
