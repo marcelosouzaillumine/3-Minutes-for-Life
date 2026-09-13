@@ -4,11 +4,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') || '';
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') || '';
+const GOOGLE_AI_API_KEY = Deno.env.get('GOOGLE_AI_API_KEY') || '';
 
 const TRANSLATION_BATCH_SIZE = parseInt(Deno.env.get('TRANSLATION_BATCH_SIZE') || '5', 10);
 const TRANSLATION_MAX_RETRIES = parseInt(Deno.env.get('TRANSLATION_MAX_RETRIES') || '3', 10);
-const TRANSLATION_MODEL = Deno.env.get('TRANSLATION_MODEL') || 'claude-haiku-4-5-20251001';
+const TRANSLATION_MODEL = Deno.env.get('TRANSLATION_MODEL') || 'gemini-2.5-flash';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 const workerId = `worker-${crypto.randomUUID()}`;
@@ -30,7 +30,9 @@ async function getGlossary(sourceLang: string, targetLang: string) {
     data.map((g: any) => `- "${g.source_term}" -> "${g.target_term}"`).join('\n');
 }
 
-async function callClaude(devotional: any, targetLang: string, glossaryContext: string) {
+async function callGemini(devotional: any, targetLang: string, glossaryContext: string) {
+  const systemInstruction = 'Você é um tradutor teológico profissional especializado em devocionais cristãos. Retorne apenas JSON válido. Não inclua markdown ou texto fora do JSON.';
+
   const prompt = `Traduza este conteúdo devocional do Português (Brasil) para o idioma de código ISO "${targetLang}".
 
 REGRAS EDITORIAIS:
@@ -64,28 +66,28 @@ ${devotional.practical_application || ''}
 Prayer:
 ${devotional.prayer || ''}`;
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${TRANSLATION_MODEL}:generateContent?key=${GOOGLE_AI_API_KEY}`;
+
+  const response = await fetch(url, {
     method: 'POST',
-    headers: {
-      'x-api-key': ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json',
-    },
+    headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
-      model: TRANSLATION_MODEL,
-      max_tokens: 4096,
-      system: "Você é um tradutor teológico profissional especializado em devocionais cristãos. Retorne apenas JSON válido contendo as chaves: title, principle_statement, scripture_reference, scripture_text, reflection, practical_application, prayer. Não inclua markdown, blocos de código ou texto fora do JSON.",
-      messages: [{ role: "user", content: prompt }],
+      system_instruction: { parts: [{ text: systemInstruction }] },
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        maxOutputTokens: 4096,
+        responseMimeType: 'application/json',
+      },
     }),
   });
 
   if (!response.ok) {
     const errBody = await response.text();
-    throw new Error(`Anthropic API error ${response.status}: ${errBody}`);
+    throw new Error(`Gemini API error ${response.status}: ${errBody}`);
   }
 
   const result = await response.json();
-  let jsonStr = result.content[0].text.trim();
+  let jsonStr = result.candidates[0].content.parts[0].text.trim();
   if (jsonStr.startsWith('```json')) jsonStr = jsonStr.replace(/^```json\n?/, '').replace(/\n?```$/, '');
   if (jsonStr.startsWith('```')) jsonStr = jsonStr.replace(/^```\n?/, '').replace(/\n?```$/, '');
 
@@ -176,7 +178,7 @@ serve(async (req: Request) => {
         if (!devotional) throw new Error("Original devotional not found.");
 
         const glossaryContext = await getGlossary(job.source_language, job.target_language);
-        const translatedData = await callClaude(devotional, job.target_language, glossaryContext);
+        const translatedData = await callGemini(devotional, job.target_language, glossaryContext);
         const validation = validateTranslation(devotional, translatedData);
 
         const { error: upsertError } = await supabase
@@ -230,7 +232,7 @@ serve(async (req: Request) => {
         attempt_number: job.attempts,
         status: attemptStatus,
         error_details: errorDetails,
-        provider: 'claude',
+        provider: 'gemini',
         model: TRANSLATION_MODEL,
       });
     }
