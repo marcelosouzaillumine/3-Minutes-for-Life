@@ -1,6 +1,30 @@
 import { sanitizeHtml } from '../lib/sanitizer';
 import { illumineFetch } from '../lib/illumine';
 
+async function uploadToStorage(file: File, folder: string): Promise<string> {
+  const arrayBuffer = await file.arrayBuffer()
+  const bytes = new Uint8Array(arrayBuffer)
+  let binary = ''
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+  const data = btoa(binary)
+
+  const res = await illumineFetch('/media/upload', {
+    method: 'POST',
+    body: JSON.stringify({ filename: file.name, mimeType: file.type, folder, data }),
+  })
+
+  if (res.ok) {
+    const { publicUrl } = await res.json()
+    return publicUrl
+  }
+
+  const body = await res.json().catch(() => ({}))
+  if (body.error === 'STORAGE_NOT_CONFIGURED') {
+    throw new Error('Armazenamento não configurado no servidor. Configure as variáveis S3 no Railway.')
+  }
+  throw new Error(`Upload falhou (${res.status}): ${body.error ?? ''}`)
+}
+
 // ─── Languages (hardcoded from tenant config — pt-BR is source) ───────────────
 
 const LANGUAGES = [
@@ -371,20 +395,7 @@ export const AdminContentService = {
     _type: 'feed' | 'story' | 'whatsapp',
     file: File
   ): Promise<string> {
-    const urlRes = await illumineFetch('/media/upload-url', {
-      method: 'POST',
-      body: JSON.stringify({ filename: file.name, mimeType: file.type, folder: `share-assets/${devotionalId}/${languageCode}` }),
-    })
-    if (urlRes.ok) {
-      const { uploadUrl, publicUrl } = await urlRes.json()
-      await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
-      return publicUrl
-    }
-    const body = await urlRes.json().catch(() => ({}))
-    if (body.error === 'STORAGE_NOT_CONFIGURED') {
-      throw new Error('Armazenamento de arquivos não configurado no servidor. Configure as variáveis de ambiente S3.')
-    }
-    throw new Error(`Upload falhou (${urlRes.status})`)
+    return uploadToStorage(file, `share-assets/${devotionalId}/${languageCode}`)
   },
 
   async uploadContentImage(
@@ -393,20 +404,7 @@ export const AdminContentService = {
     _field: 'content_tip_image' | 'support_banner',
     file: File
   ): Promise<string> {
-    const urlRes = await illumineFetch('/media/upload-url', {
-      method: 'POST',
-      body: JSON.stringify({ filename: file.name, mimeType: file.type, folder: `devotionals/${devotionalId}/${languageCode}` }),
-    })
-    if (urlRes.ok) {
-      const { uploadUrl, publicUrl } = await urlRes.json()
-      await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
-      return publicUrl
-    }
-    const body = await urlRes.json().catch(() => ({}))
-    if (body.error === 'STORAGE_NOT_CONFIGURED') {
-      throw new Error('Armazenamento de arquivos não configurado no servidor. Configure as variáveis de ambiente S3.')
-    }
-    throw new Error(`Upload falhou (${urlRes.status})`)
+    return uploadToStorage(file, `devotionals/${devotionalId}/${languageCode}`)
   },
 
   async listLibraryImages(): Promise<Array<{ name: string; url: string }>> {
@@ -429,20 +427,7 @@ export const AdminContentService = {
   },
 
   async uploadLibraryImage(file: File): Promise<string> {
-    const urlRes = await illumineFetch('/media/upload-url', {
-      method: 'POST',
-      body: JSON.stringify({ filename: file.name, mimeType: file.type, folder: 'library' }),
-    })
-    if (urlRes.ok) {
-      const { uploadUrl, publicUrl } = await urlRes.json()
-      await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
-      return publicUrl
-    }
-    const body = await urlRes.json().catch(() => ({}))
-    if (body.error === 'STORAGE_NOT_CONFIGURED') {
-      throw new Error('Armazenamento de arquivos não configurado no servidor. Configure as variáveis de ambiente S3 no Railway.')
-    }
-    throw new Error(`Upload falhou (${urlRes.status})`)
+    return uploadToStorage(file, 'library')
   },
 
   async deleteShareAssetFile(url: string): Promise<void> {
