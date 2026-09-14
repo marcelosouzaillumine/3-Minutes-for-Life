@@ -446,16 +446,21 @@ export const AdminContentService = {
         console.warn('[Media] Illumine listLibraryImages failed, falling back:', e)
       }
     }
-    const { data, error } = await supabase.storage
-      .from('share-assets')
-      .list('library', { limit: 200, sortBy: { column: 'created_at', order: 'desc' } })
-    if (error) throw error
-    return (data || [])
-      .filter(f => f.id !== null)
-      .map(f => ({
-        name: f.name,
-        url: supabase.storage.from('share-assets').getPublicUrl(`library/${f.name}`).data.publicUrl,
-      }))
+    try {
+      const { data, error } = await supabase.storage
+        .from('share-assets')
+        .list('library', { limit: 200, sortBy: { column: 'created_at', order: 'desc' } })
+      if (error) throw error
+      return (data || [])
+        .filter(f => f.id !== null)
+        .map(f => ({
+          name: f.name,
+          url: supabase.storage.from('share-assets').getPublicUrl(`library/${f.name}`).data.publicUrl,
+        }))
+    } catch (e) {
+      console.warn('[Media] Supabase storage fallback failed:', e)
+      return []
+    }
   },
 
   async uploadLibraryImage(file: File): Promise<string> {
