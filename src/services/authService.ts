@@ -1,5 +1,4 @@
 import { illumineFetch, illumineAuth } from '../lib/illumine'
-import { supabase } from '../lib/supabase'
 import { AnalyticsService } from './AnalyticsService'
 
 const ILLUMINE_URL = import.meta.env.VITE_ILLUMINE_URL as string
@@ -132,68 +131,30 @@ export const authService = {
     return { user: d.user, session }
   },
 
-  // ─── OAUTH (Google / Apple) — ainda usa Supabase como bridge ─────────────────
+  // ─── OAUTH (Google) — direto no L1, sem Supabase ────────────────────────────
 
-  async signInWithOAuth(provider: 'google' | 'apple', idTokenOrRedirect?: string) {
-    if (idTokenOrRedirect && provider === 'google') {
-      // Autentica com Google via Supabase para obter email/id do usuário
-      const { data, error } = await supabase.auth.signInWithIdToken({
-        provider: 'google',
-        token: idTokenOrRedirect,
-      })
-      if (error) throw error
-      if (!data?.user) throw new Error('OAUTH_FAILED')
+  async signInWithOAuth(provider: 'google' | 'apple', idToken?: string) {
+    if (!idToken) throw new Error('OAUTH_FAILED')
 
-      if (!illumineAuth.isAuthenticated()) {
-        const name = data.user.user_metadata?.full_name || data.user.user_metadata?.name || ''
-        const avatar = data.user.user_metadata?.avatar_url || ''
-        const provisionalPass = `google:${data.user.id}`
+    const res = await illumineDirect('/auth/oauth', {
+      provider,
+      idToken,
+      tenantSlug: TENANT_SLUG,
+    })
 
-        // Tenta registrar no Illumine com "senha" provisória baseada no id Google
-        const regRes = await illumineDirect('/auth/register', {
-          email: data.user.email!,
-          password: provisionalPass,
-          name,
-          tenantSlug: TENANT_SLUG,
-          provider: 'google',
-        })
-
-        if (regRes.ok || regRes.status === 409) {
-          // register OK (201) ou conta já existe (409) → faz login
-          const loginRes = await illumineDirect('/auth/login', {
-            email: data.user.email!,
-            password: provisionalPass,
-          })
-          if (loginRes.ok) {
-            const d = await loginRes.json()
-            if (d.accessToken) {
-              await illumineAuth.saveTokens(d.accessToken, d.refreshToken, d.user)
-            }
-          }
-        }
-
-        if (illumineAuth.isAuthenticated() && (name || avatar)) {
-          illumineFetch('/users/me', {
-            method: 'PATCH',
-            body: JSON.stringify({ ...(name && { name }), ...(avatar && { avatar }) }),
-          }).catch(() => {})
-        }
-      }
-
-      const illUser = illumineAuth.getUser() ?? data.user
-      const session = { user: illUser, accessToken: illumineAuth.getAccessToken() }
-      _authCallback?.('SIGNED_IN', session)
-      AnalyticsService.trackEvent('authentication_succeeded', { method: 'google_oauth' })
-      return { session, user: illUser }
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      const code = body.error || 'OAUTH_FAILED'
+      if (code === 'OAUTH_NOT_CONFIGURED') throw new Error('Login OAuth não configurado no servidor.')
+      throw new Error(code)
     }
 
-    // Redirect flow (OAuth sem idToken)
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: window.location.origin + (idTokenOrRedirect || '/app') },
-    })
-    if (error) throw error
-    return data
+    const d = await res.json()
+    await illumineAuth.saveTokens(d.accessToken, d.refreshToken, d.user)
+    const session = { user: d.user, accessToken: d.accessToken }
+    _authCallback?.('SIGNED_IN', session)
+    AnalyticsService.trackEvent('authentication_succeeded', { method: `${provider}_oauth` })
+    return { session, user: d.user }
   },
 
   // ─── VERIFICAÇÃO DE E-MAIL ───────────────────────────────────────────────────
@@ -218,7 +179,6 @@ export const authService = {
   async signOut() {
     try { await illumineFetch('/auth/logout', { method: 'POST' }) } catch {}
     await illumineAuth.clearTokens()
-    try { await supabase.auth.signOut() } catch {}
     _authCallback?.('SIGNED_OUT', null)
   },
 
@@ -250,52 +210,18 @@ export const authService = {
   },
 
   // ─── LISTENER DE AUTH ────────────────────────────────────────────────────────
-  // Iluminado-first: verifica token armazenado no mount; Supabase só para OAuth redirect.
 
   onAuthStateChange(callback: (event: string, session: any) => void) {
     _authCallback = callback
 
-    // Verifica sessão Illumine ao montar (token em storage)
+    // Verifica sessão L1 ao montar (token em storage)
     this.getSession()
       .then(session => {
         callback(session ? 'SIGNED_IN' : 'SIGNED_OUT', session)
       })
       .catch(() => callback('SIGNED_OUT', null))
 
-    // Mantém listener Supabase APENAS para OAuth redirect (Google/Apple)
-    const { data } = supabase.auth.onAuthStateChange(async (event, supaSession) => {
-      if (event === 'SIGNED_IN' && supaSession?.user && !illumineAuth.isAuthenticated()) {
-        // Chegou de um redirect OAuth — ponte para Illumine
-        const email = supaSession.user.email
-        const id = supaSession.user.id
-        const name = supaSession.user.user_metadata?.full_name || ''
-        const provisionalPass = `oauth:${id}`
-
-        const regRes = await illumineDirect('/auth/register', {
-          email: email!,
-          password: provisionalPass,
-          name,
-          tenantSlug: TENANT_SLUG,
-          provider: supaSession.user.app_metadata?.provider || 'oauth',
-        })
-        if (regRes.ok || regRes.status === 409) {
-          const loginRes = await illumineDirect('/auth/login', {
-            email: email!,
-            password: provisionalPass,
-          })
-          if (loginRes.ok) {
-            const d = await loginRes.json()
-            if (d.accessToken) {
-              await illumineAuth.saveTokens(d.accessToken, d.refreshToken, d.user)
-              const session = { user: d.user, accessToken: d.accessToken }
-              callback('SIGNED_IN', session)
-              AnalyticsService.trackEvent('authentication_succeeded', { method: 'oauth_redirect' })
-            }
-          }
-        }
-      }
-    })
-
-    return data.subscription
+    // Retorna objeto compatível com a interface do Supabase (subscription.unsubscribe)
+    return { unsubscribe: () => { _authCallback = null } }
   },
 }
