@@ -75,10 +75,21 @@ export class AdminService {
       perfRes.json(),
     ]);
 
+    // day-N retention is returned as an array: [{ day, users, retained, rate }, ...]
+    const retArr: any[] = Array.isArray(ret) ? ret : [];
+    const findDay = (n: number) => retArr.find((r: any) => r.day === n);
+
+    // overview: { retention: { dau, wau, mau, totalUsers }, funnel: { opened, completed }, streaks }
+    const ovRetention = ov.retention ?? {};
+    const ovFunnel = ov.funnel ?? {};
+
+    // performance: { topRead: [{ devotionalId, title, count }], ... }
+    const topContent: any[] = perf.topRead ?? (Array.isArray(perf) ? perf : perf.data ?? []);
+
     return {
       intelligence: {
-        active_users: { current: ov.activeUsers?.current ?? ov.dau ?? 0, previous: ov.activeUsers?.previous ?? 0 },
-        reads: { current: ov.reads?.current ?? ov.totalReads ?? 0, previous: ov.reads?.previous ?? 0 },
+        active_users: { current: ov.activeUsers?.current ?? ovRetention.dau ?? ov.dau ?? 0, previous: ov.activeUsers?.previous ?? 0 },
+        reads: { current: ov.reads?.current ?? ovFunnel.opened ?? ov.totalReads ?? 0, previous: ov.reads?.previous ?? 0 },
         shares: { current: ov.shares?.current ?? 0, previous: ov.shares?.previous ?? 0 },
         testimonials: { current: ov.testimonials?.current ?? 0, previous: ov.testimonials?.previous ?? 0 },
       },
@@ -91,16 +102,16 @@ export class AdminService {
         returned: funnel.returned ?? 0,
       },
       retention: {
-        cohort_size: ret.cohortSize ?? ret.d1_count ?? 0,
-        d1: ret.d1 ?? 0,
+        cohort_size: ret.cohortSize ?? ret.d1_count ?? findDay(1)?.users ?? 0,
+        d1: ret.d1 ?? findDay(1)?.rate ?? 0,
         d3: ret.d3 ?? 0,
-        d7: ret.d7 ?? 0,
-        d30: ret.d30 ?? 0,
+        d7: ret.d7 ?? findDay(7)?.rate ?? 0,
+        d30: ret.d30 ?? findDay(30)?.rate ?? 0,
       },
-      top_content: (Array.isArray(perf) ? perf : perf.data ?? []).slice(0, 10).map((c: any) => ({
+      top_content: topContent.slice(0, 10).map((c: any) => ({
         content_id: c.contentId ?? c.devotionalId ?? c.id,
         devotional_title: c.title ?? c.devotionalTitle ?? null,
-        opens: c.opens ?? c.reads ?? 0,
+        opens: c.opens ?? c.count ?? c.reads ?? 0,
       })),
       community: {
         pending_testimonials: ov.pendingTestimonials ?? 0,
