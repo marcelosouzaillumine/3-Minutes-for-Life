@@ -91,11 +91,12 @@ async function tryRefresh(): Promise<boolean> {
 export async function illumineFetch(path: string, options: RequestInit = {}): Promise<Response> {
   await init()
 
+  const hasBody = options.body !== undefined && options.body !== null
   const makeRequest = (token: string | null) =>
     fetch(`${BASE_URL}${path}`, {
       ...options,
       headers: {
-        'Content-Type': 'application/json',
+        ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
         'x-tenant-slug': TENANT_SLUG,
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(options.headers || {}),
