@@ -373,28 +373,34 @@ export const AdminContentService = {
     file: File
   ): Promise<string> {
     if (illumineAuth.isAuthenticated()) {
-      try {
-        const urlRes = await illumineFetch('/media/upload-url', {
-          method: 'POST',
-          body: JSON.stringify({ filename: file.name, mimeType: file.type, folder: `share-assets/${devotionalId}/${languageCode}` }),
-        })
-        if (urlRes.ok) {
-          const { uploadUrl, publicUrl } = await urlRes.json()
-          await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
-          return publicUrl
-        }
-      } catch (e) {
-        console.warn('[Upload] Illumine uploadShareAsset failed, falling back:', e)
+      const urlRes = await illumineFetch('/media/upload-url', {
+        method: 'POST',
+        body: JSON.stringify({ filename: file.name, mimeType: file.type, folder: `share-assets/${devotionalId}/${languageCode}` }),
+      })
+      if (urlRes.ok) {
+        const { uploadUrl, publicUrl } = await urlRes.json()
+        await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
+        return publicUrl
       }
+      const body = await urlRes.json().catch(() => ({}))
+      if (body.error === 'STORAGE_NOT_CONFIGURED') {
+        throw new Error('Armazenamento de arquivos não configurado no servidor. Configure as variáveis de ambiente S3.')
+      }
+      throw new Error(`Upload falhou (${urlRes.status})`)
     }
 
-    const ext = file.name.split('.').pop() || 'jpg'
-    const path = `${devotionalId}/${languageCode}/${type}-${Date.now()}.${ext}`
-    const { error: uploadError } = await supabase.storage
-      .from('share-assets')
-      .upload(path, file, { upsert: true, contentType: file.type })
-    if (uploadError) throw uploadError
-    return supabase.storage.from('share-assets').getPublicUrl(path).data.publicUrl
+    try {
+      const ext = file.name.split('.').pop() || 'jpg'
+      const path = `${devotionalId}/${languageCode}/${type}-${Date.now()}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('share-assets')
+        .upload(path, file, { upsert: true, contentType: file.type })
+      if (uploadError) throw uploadError
+      return supabase.storage.from('share-assets').getPublicUrl(path).data.publicUrl
+    } catch (e) {
+      console.warn('[Upload] Supabase uploadShareAsset failed:', e)
+      throw new Error('Erro ao fazer upload da imagem. Serviço de armazenamento indisponível.')
+    }
   },
 
   async uploadContentImage(
@@ -404,28 +410,34 @@ export const AdminContentService = {
     file: File
   ): Promise<string> {
     if (illumineAuth.isAuthenticated()) {
-      try {
-        const urlRes = await illumineFetch('/media/upload-url', {
-          method: 'POST',
-          body: JSON.stringify({ filename: file.name, mimeType: file.type, folder: `devotionals/${devotionalId}/${languageCode}` }),
-        })
-        if (urlRes.ok) {
-          const { uploadUrl, publicUrl } = await urlRes.json()
-          await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
-          return publicUrl
-        }
-      } catch (e) {
-        console.warn('[Upload] Illumine uploadContentImage failed, falling back:', e)
+      const urlRes = await illumineFetch('/media/upload-url', {
+        method: 'POST',
+        body: JSON.stringify({ filename: file.name, mimeType: file.type, folder: `devotionals/${devotionalId}/${languageCode}` }),
+      })
+      if (urlRes.ok) {
+        const { uploadUrl, publicUrl } = await urlRes.json()
+        await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
+        return publicUrl
       }
+      const body = await urlRes.json().catch(() => ({}))
+      if (body.error === 'STORAGE_NOT_CONFIGURED') {
+        throw new Error('Armazenamento de arquivos não configurado no servidor. Configure as variáveis de ambiente S3.')
+      }
+      throw new Error(`Upload falhou (${urlRes.status})`)
     }
 
-    const ext = file.name.split('.').pop() || 'jpg'
-    const path = `${devotionalId}/${languageCode}/${field}-${Date.now()}.${ext}`
-    const { error: uploadError } = await supabase.storage
-      .from('share-assets')
-      .upload(path, file, { upsert: true, contentType: file.type })
-    if (uploadError) throw uploadError
-    return supabase.storage.from('share-assets').getPublicUrl(path).data.publicUrl
+    try {
+      const ext = file.name.split('.').pop() || 'jpg'
+      const path = `${devotionalId}/${languageCode}/${field}-${Date.now()}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('share-assets')
+        .upload(path, file, { upsert: true, contentType: file.type })
+      if (uploadError) throw uploadError
+      return supabase.storage.from('share-assets').getPublicUrl(path).data.publicUrl
+    } catch (e) {
+      console.warn('[Upload] Supabase uploadContentImage failed:', e)
+      throw new Error('Erro ao fazer upload da imagem. Serviço de armazenamento indisponível.')
+    }
   },
 
   async listLibraryImages(): Promise<Array<{ name: string; url: string }>> {
@@ -465,28 +477,34 @@ export const AdminContentService = {
 
   async uploadLibraryImage(file: File): Promise<string> {
     if (illumineAuth.isAuthenticated()) {
-      try {
-        const urlRes = await illumineFetch('/media/upload-url', {
-          method: 'POST',
-          body: JSON.stringify({ filename: file.name, mimeType: file.type, folder: 'library' }),
-        })
-        if (urlRes.ok) {
-          const { uploadUrl, publicUrl } = await urlRes.json()
-          await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
-          return publicUrl
-        }
-      } catch (e) {
-        console.warn('[Upload] Illumine uploadLibraryImage failed, falling back:', e)
+      const urlRes = await illumineFetch('/media/upload-url', {
+        method: 'POST',
+        body: JSON.stringify({ filename: file.name, mimeType: file.type, folder: 'library' }),
+      })
+      if (urlRes.ok) {
+        const { uploadUrl, publicUrl } = await urlRes.json()
+        await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
+        return publicUrl
       }
+      const body = await urlRes.json().catch(() => ({}))
+      if (body.error === 'STORAGE_NOT_CONFIGURED') {
+        throw new Error('Armazenamento de arquivos não configurado no servidor. Configure as variáveis de ambiente S3 no Railway.')
+      }
+      throw new Error(`Upload falhou (${urlRes.status})`)
     }
 
-    const ext = file.name.split('.').pop() || 'jpg'
-    const path = `library/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-    const { error } = await supabase.storage
-      .from('share-assets')
-      .upload(path, file, { upsert: false, contentType: file.type })
-    if (error) throw error
-    return supabase.storage.from('share-assets').getPublicUrl(path).data.publicUrl
+    try {
+      const ext = file.name.split('.').pop() || 'jpg'
+      const path = `library/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+      const { error } = await supabase.storage
+        .from('share-assets')
+        .upload(path, file, { upsert: false, contentType: file.type })
+      if (error) throw error
+      return supabase.storage.from('share-assets').getPublicUrl(path).data.publicUrl
+    } catch (e) {
+      console.warn('[Upload] Supabase uploadLibraryImage failed:', e)
+      throw new Error('Erro ao fazer upload da imagem. Serviço de armazenamento indisponível.')
+    }
   },
 
   async deleteShareAssetFile(url: string): Promise<void> {
