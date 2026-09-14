@@ -862,6 +862,30 @@ h4 {
   margin-top: 1.5rem;
 }
 
+.home-unavailable {
+  width: 100%;
+  padding: var(--spacing-xl) var(--spacing-lg);
+  text-align: center;
+  color: var(--color-text-light);
+}
+
+.home-unavailable__title {
+  font-size: 2.5rem;
+  margin-bottom: var(--spacing-md);
+}
+
+.home-unavailable__message {
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 320px;
+  margin: 0 auto var(--spacing-xl);
+  color: var(--color-text-light);
+}
+
+.home-unavailable .btn-primary {
+  margin-top: 0;
+}
+
 /* =========================================================
    SHARED DEVOTIONAL
    NÃO ALTERAR E NÃO COMPARTILHAR A GRADE COM PRINCIPLE VIEW

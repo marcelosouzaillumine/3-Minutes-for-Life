@@ -237,6 +237,14 @@ export const DevotionalService = {
   async _fetchDailyFromNetwork(dateStr: string, contentLanguage: string): Promise<Devotional> {
     try {
       const res = await illumineFetch(`/devotionals/date/${dateStr}`);
+
+      // 404 = nenhum devocional publicado para esta data — não faz fallback
+      if (res.status === 404) {
+        const e = new Error('DEVOTIONAL_NOT_AVAILABLE') as Error & { code: string };
+        e.code = 'DEVOTIONAL_NOT_AVAILABLE';
+        throw e;
+      }
+
       if (!res.ok) throw new Error(`L1 status ${res.status}`);
 
       const raw = await res.json();
@@ -250,7 +258,10 @@ export const DevotionalService = {
         : (resolved.principle_statement || resolved.title);
       await ContentCacheService.setDaily(dateStr, resolved, contentLanguage);
       return resolved;
-    } catch (err) {
+    } catch (err: any) {
+      // Re-lança erros esperados (sem devocional hoje) sem fallback
+      if (err?.code === 'DEVOTIONAL_NOT_AVAILABLE') throw err;
+
       console.warn('[DevotionalService] L1 indisponível, usando dados locais:', err);
       const local = principleToDevotional(principleForDate(dateStr), dateStr);
       return local;

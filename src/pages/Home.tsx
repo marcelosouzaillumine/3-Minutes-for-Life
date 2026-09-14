@@ -17,6 +17,7 @@ export function Home({ onExplore }: HomeProps) {
   const [devotional, setDevotional] = useState<Devotional | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [notAvailable, setNotAvailable] = useState(false);
 
   /*
    * ============================================================
@@ -59,15 +60,19 @@ export function Home({ onExplore }: HomeProps) {
             language: i18n.language,
           }
         );
-      } catch (err) {
+      } catch (err: any) {
         console.error('Failed to load daily devotional:', err);
 
         if (mounted) {
-          setError(
-            err instanceof Error
-              ? err
-              : new Error('Failed to load devotional')
-          );
+          if (err?.code === 'DEVOTIONAL_NOT_AVAILABLE') {
+            setNotAvailable(true);
+          } else {
+            setError(
+              err instanceof Error
+                ? err
+                : new Error('Failed to load devotional')
+            );
+          }
         }
       } finally {
         if (mounted) {
@@ -105,6 +110,26 @@ export function Home({ onExplore }: HomeProps) {
    * ERROR
    * ============================================================
    */
+
+  if (notAvailable) {
+    return (
+      <div className="page-home home-state">
+        <DevotionalHeader showLogo={true} />
+        <div className="home-unavailable">
+          <p className="home-unavailable__title">📖</p>
+          <p className="home-unavailable__message">
+            O devocional de hoje ainda não está disponível, mas você pode explorar os devocionais disponíveis na nossa biblioteca.
+          </p>
+          <button
+            className="btn-primary"
+            onClick={onExplore}
+          >
+            Ver biblioteca
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (error || !devotional) {
     return (
