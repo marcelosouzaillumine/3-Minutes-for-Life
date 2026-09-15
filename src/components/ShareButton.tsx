@@ -62,7 +62,6 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
   const { session } = useAuth();
   const navigate = useNavigate();
   const [isSharing, setIsSharing] = useState(false);
-  const [showGuestCta, setShowGuestCta] = useState(false);
 
   if (
     !devotional.id ||
@@ -99,6 +98,11 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
    */
 
   const handleShare = async () => {
+    if (!session?.user?.id) {
+      navigate(`/login?redirectTo=${encodeURIComponent(window.location.href)}`);
+      return;
+    }
+
     if (isSharing) return;
     setIsSharing(true);
 
@@ -121,7 +125,6 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
       if (Capacitor.isNativePlatform()) {
         try {
           await Share.share({ text });
-          if (!session?.user?.id) setShowGuestCta(true);
           return;
         } catch (error) {
           if (error instanceof Error && error.name === 'AbortError') return;
@@ -135,7 +138,6 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
       if (isMobile && navigator.share) {
         try {
           await navigator.share({ text });
-          if (!session?.user?.id) setShowGuestCta(true);
           return;
         } catch (error) {
           if (error instanceof Error && error.name === 'AbortError') return;
@@ -143,66 +145,12 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
       }
 
       window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-      if (!session?.user?.id) setShowGuestCta(true);
     } catch (error) {
       console.error('WhatsApp share error:', error);
     } finally {
       setIsSharing(false);
     }
   };
-
-  /*
-   * ==========================================================
-   * GUEST CTA MODAL
-   * ==========================================================
-   */
-
-  const guestCtaModal = showGuestCta && (
-    <div
-      className="share-guest-cta-overlay"
-      role="dialog"
-      aria-modal="true"
-      aria-label={t('shareActions.guestCta.title', 'Salve seus devocionais')}
-      onClick={() => setShowGuestCta(false)}
-    >
-      <div
-        className="share-guest-cta-card"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          type="button"
-          className="share-guest-cta-close"
-          aria-label={t('close', 'Fechar')}
-          onClick={() => setShowGuestCta(false)}
-        >
-          ×
-        </button>
-
-        <p className="share-guest-cta-text">
-          {t('shareActions.guestCta.text', 'Três minutos que mudam um dia.')}
-        </p>
-
-        <p className="share-guest-cta-subtext">
-          {t(
-            'shareActions.guestCta.subtext',
-            'Amanhã tem mais. Faça parte da jornada — é gratuito e você pode começar agora.'
-          )}
-        </p>
-
-        <button
-          type="button"
-          className="share-guest-cta-button"
-          onClick={() => navigate('/login')}
-        >
-          {t('shareActions.guestCta.label', 'Quero a minha conta')}
-        </button>
-
-        <p className="share-guest-cta-note">
-          {t('shareActions.guestCta.note', 'Sem cartão de crédito.')}
-        </p>
-      </div>
-    </div>
-  );
 
   /*
    * ==========================================================
@@ -238,21 +186,18 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
 
   if (asIcon) {
     return (
-      <>
-        {guestCtaModal}
-        <button
-          type="button"
-          onClick={handleShare}
-          disabled={isSharing}
-          className="action-btn"
-          aria-label={t('shareActions.actionLabel', 'Compartilhar')}
-        >
-          {shareIcon}
-          <span className="action-label">
-            {t('shareActions.actionLabel', 'Compartilhar')}
-          </span>
-        </button>
-      </>
+      <button
+        type="button"
+        onClick={handleShare}
+        disabled={isSharing}
+        className="action-btn"
+        aria-label={t('shareActions.actionLabel', 'Compartilhar')}
+      >
+        {shareIcon}
+        <span className="action-label">
+          {t('shareActions.actionLabel', 'Compartilhar')}
+        </span>
+      </button>
     );
   }
 
@@ -263,26 +208,23 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
    */
 
   return (
-    <>
-      {guestCtaModal}
-      <button
-        type="button"
-        onClick={handleShare}
-        disabled={isSharing}
-        className="btn-secondary"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          justifyContent: 'center',
-          width: '100%',
-        }}
-      >
-        {shareIcon}
-        {isSharing
-          ? t('shareActions.buttonLoading', 'Compartilhando...')
-          : t('shareActions.button', 'Compartilhar')}
-      </button>
-    </>
+    <button
+      type="button"
+      onClick={handleShare}
+      disabled={isSharing}
+      className="btn-secondary"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        justifyContent: 'center',
+        width: '100%',
+      }}
+    >
+      {shareIcon}
+      {isSharing
+        ? t('shareActions.buttonLoading', 'Compartilhando...')
+        : t('shareActions.button', 'Compartilhar')}
+    </button>
   );
 };

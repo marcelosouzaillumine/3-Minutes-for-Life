@@ -38,6 +38,7 @@ export function PrincipleView({
   const navigate = useNavigate();
 
   const [saved, setSaved] = useState(false);
+  const [showLoginToSave, setShowLoginToSave] = useState(false);
   const [reflectionContent, setReflectionContent] = useState('');
   const [savingReflection, setSavingReflection] = useState(false);
   const [savedReflectionSuccess, setSavedReflectionSuccess] =
@@ -86,6 +87,11 @@ export function PrincipleView({
    */
 
   const toggleSave = async () => {
+    if (!user) {
+      setShowLoginToSave(true);
+      return;
+    }
+
     try {
       const isSaved = await JourneyService.toggleFavorite(
         devotional.id,
@@ -180,8 +186,45 @@ export function PrincipleView({
    * ============================================================
    */
 
+  const loginToSaveModal = showLoginToSave && (
+    <div
+      className="share-guest-cta-overlay"
+      role="dialog"
+      aria-modal="true"
+      onClick={() => setShowLoginToSave(false)}
+    >
+      <div
+        className="share-guest-cta-card"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          className="share-guest-cta-close"
+          aria-label={t('close', 'Fechar')}
+          onClick={() => setShowLoginToSave(false)}
+        >
+          ×
+        </button>
+
+        <p className="share-guest-cta-text">
+          {t('home.loginToSave', 'Faça login para salvar seus devocionais favoritos.')}
+        </p>
+
+        <button
+          type="button"
+          className="share-guest-cta-button"
+          onClick={() => navigate(`/login?redirectTo=${encodeURIComponent(window.location.href)}`)}
+        >
+          {t('home.loginButton', 'Entrar')}
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <article className="devotional">
+
+      {loginToSaveModal}
 
       <DevotionalHeader
         showLogo={showLogo}
@@ -643,7 +686,7 @@ export function PrincipleView({
               </span>
             </button>
 
-          ) : !customAction ? (
+          ) : (
 
             <>
 
@@ -671,32 +714,34 @@ export function PrincipleView({
                 </span>
               </button>
 
-              {/* COMPLETE */}
+              {/* COMPLETE — apenas para usuários autenticados */}
 
-              <button
-                type="button"
-                className="action-btn"
-                onClick={markComplete}
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  aria-hidden="true"
+              {user && (
+                <button
+                  type="button"
+                  className="action-btn"
+                  onClick={markComplete}
                 >
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
 
-                  <polyline points="22 4 12 14.01 9 11.01" />
-                </svg>
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
 
-                <span className="action-label">
-                  {t('complete')}
-                </span>
-              </button>
+                  <span className="action-label">
+                    {t('complete')}
+                  </span>
+                </button>
+              )}
 
             </>
 
-          ) : null}
+          )}
 
           <ShareButton
             devotional={devotional}
