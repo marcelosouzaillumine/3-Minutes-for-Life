@@ -62,6 +62,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
   const { session } = useAuth();
   const navigate = useNavigate();
   const [isSharing, setIsSharing] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   if (
     !devotional.id ||
@@ -99,7 +100,7 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
 
   const handleShare = async () => {
     if (!session?.user?.id) {
-      navigate(`/login?redirectTo=${encodeURIComponent(window.location.href)}`);
+      setShowLoginPrompt(true);
       return;
     }
 
@@ -154,6 +155,47 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
 
   /*
    * ==========================================================
+   * LOGIN PROMPT MODAL
+   * ==========================================================
+   */
+
+  const loginPromptModal = showLoginPrompt && (
+    <div
+      className="share-guest-cta-overlay"
+      role="dialog"
+      aria-modal="true"
+      onClick={() => setShowLoginPrompt(false)}
+    >
+      <div
+        className="share-guest-cta-card"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          className="share-guest-cta-close"
+          aria-label={t('close', 'Fechar')}
+          onClick={() => setShowLoginPrompt(false)}
+        >
+          ×
+        </button>
+
+        <p className="share-guest-cta-text">
+          {t('shareActions.loginToShare', 'Faça login para compartilhar esse devocional.')}
+        </p>
+
+        <button
+          type="button"
+          className="share-guest-cta-button"
+          onClick={() => navigate(`/login?redirectTo=${encodeURIComponent(window.location.href)}`)}
+        >
+          {t('home.loginButton', 'Entrar')}
+        </button>
+      </div>
+    </div>
+  );
+
+  /*
+   * ==========================================================
    * ICON
    * ==========================================================
    */
@@ -186,18 +228,21 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
 
   if (asIcon) {
     return (
-      <button
-        type="button"
-        onClick={handleShare}
-        disabled={isSharing}
-        className="action-btn"
-        aria-label={t('shareActions.actionLabel', 'Compartilhar')}
-      >
-        {shareIcon}
-        <span className="action-label">
-          {t('shareActions.actionLabel', 'Compartilhar')}
-        </span>
-      </button>
+      <>
+        {loginPromptModal}
+        <button
+          type="button"
+          onClick={handleShare}
+          disabled={isSharing}
+          className="action-btn"
+          aria-label={t('shareActions.actionLabel', 'Compartilhar')}
+        >
+          {shareIcon}
+          <span className="action-label">
+            {t('shareActions.actionLabel', 'Compartilhar')}
+          </span>
+        </button>
+      </>
     );
   }
 
@@ -208,23 +253,26 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
    */
 
   return (
-    <button
-      type="button"
-      onClick={handleShare}
-      disabled={isSharing}
-      className="btn-secondary"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        justifyContent: 'center',
-        width: '100%',
-      }}
-    >
-      {shareIcon}
-      {isSharing
-        ? t('shareActions.buttonLoading', 'Compartilhando...')
-        : t('shareActions.button', 'Compartilhar')}
-    </button>
+    <>
+      {loginPromptModal}
+      <button
+        type="button"
+        onClick={handleShare}
+        disabled={isSharing}
+        className="btn-secondary"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          justifyContent: 'center',
+          width: '100%',
+        }}
+      >
+        {shareIcon}
+        {isSharing
+          ? t('shareActions.buttonLoading', 'Compartilhando...')
+          : t('shareActions.button', 'Compartilhar')}
+      </button>
+    </>
   );
 };
