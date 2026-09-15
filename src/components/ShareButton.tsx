@@ -82,10 +82,10 @@ export const ShareButton: React.FC<ShareButtonProps> = ({
     if (session?.user?.id) {
       try {
         const { illumineFetch } = await import('../lib/illumine');
-        const res = await illumineFetch('/users/me');
+        const res = await illumineFetch('/referrals/me');
         if (res.ok) {
           const u = await res.json();
-          if (u?.referralCode || u?.referral_code) return u.referralCode ?? u.referral_code;
+          if (u?.referralCode) return u.referralCode;
         }
       } catch { /* silently use fallback */ }
     }

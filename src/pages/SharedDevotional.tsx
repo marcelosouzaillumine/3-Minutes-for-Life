@@ -136,7 +136,7 @@ export function SharedDevotional() {
           if (code) {
             let referrerName: string | null = null;
             try {
-              const res = await illumineFetch(`/referrals/name?code=${encodeURIComponent(code)}`);
+              const res = await illumineFetch(`/referrals/${encodeURIComponent(code)}`);
               if (res.ok) {
                 const body = await res.json();
                 referrerName = body.name ?? body.referrerName ?? null;
