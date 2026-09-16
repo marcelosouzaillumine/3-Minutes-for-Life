@@ -29,6 +29,7 @@ const canWebShare = typeof navigator !== 'undefined' && !!navigator.share
 function toDataUrl(src: string, maxWidth = 600): Promise<string> {
   return new Promise(resolve => {
     const img = new Image()
+    img.crossOrigin = 'anonymous'  // prevent canvas taint on CDN-hosted assets
     img.onload = () => {
       try {
         const ratio  = img.naturalHeight / img.naturalWidth
@@ -99,19 +100,16 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
     if (!logoSrc.startsWith('data:')) {
       const resolved = await toDataUrl(`${origin}/branding/logo-on-dark.png`)
       setLogoSrc(resolved)
-      await new Promise(r => requestAnimationFrame(r))
-      await new Promise(r => requestAnimationFrame(r))
+      await new Promise(r => setTimeout(r, 300))
     }
     if (!logoVerticalSrc.startsWith('data:')) {
       const resolved = await toDataUrl(`${origin}/branding/logo-on-dark-vertical.png`)
       setLogoVerticalSrc(resolved)
-      await new Promise(r => requestAnimationFrame(r))
-      await new Promise(r => requestAnimationFrame(r))
+      await new Promise(r => setTimeout(r, 300))
     }
 
-    // Wait for React to commit the new format to the card
-    await new Promise(r => requestAnimationFrame(r))
-    await new Promise(r => requestAnimationFrame(r))
+    // Wait for React to commit the new format + logo state to the card
+    await new Promise(r => setTimeout(r, 200))
 
     try {
       if (!cardRef.current) throw new Error('Card não encontrado')
@@ -135,6 +133,7 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
         width:      w,
         height:     h,
         pixelRatio: 1,
+        skipFonts:  true,   // avoids cross-origin Google Fonts fetch that throws
         cacheBust:  true,
         style: { position: 'static', left: '0', top: '0' },
       })
