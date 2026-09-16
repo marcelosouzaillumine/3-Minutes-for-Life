@@ -23,11 +23,10 @@ interface CardProps {
 const GOLD    = '#c8994f'
 const NAVY    = '#1b2539'
 const CREAM   = '#f0e8dc'
-const CREAM2  = '#e8dece'
 const DIMGREY = '#4a5568'
 const FONT    = "'Playfair Display', Georgia, serif"
 
-const DEFAULT_LOGO = '/branding/icon-on-dark.png'
+const DEFAULT_LOGO = '/branding/logo-on-dark.png'
 
 function px(n: number) { return `${n}px` }
 
@@ -62,14 +61,10 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, c
       <div ref={cardRef} style={{ ...base, display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '60px 80px' }}>
         <div style={accentBar} />
 
-        {/* Left: logo + brand */}
+        {/* Left: full logo */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: px(300), flexShrink: 0 }}>
-          <img src={logo} alt="3 Minutes for Life" width={96} height={96}
-            style={{ objectFit: 'contain' }} />
-          <span style={{ fontSize: px(26), color: CREAM2, fontWeight: 700, letterSpacing: '5px', marginTop: px(18) }}>3 MINUTES</span>
-          <span style={{ fontSize: px(17), color: GOLD,   letterSpacing: '12px', marginTop: px(5) }}>FOR LIFE</span>
-          <div style={{ width: px(48), height: px(2), background: GOLD, marginTop: px(18), borderRadius: px(1) }} />
-          <span style={{ fontSize: px(12), color: '#5a5040', letterSpacing: '4px', marginTop: px(14) }}>PARE • REFLITA • PRATIQUE</span>
+          <img src={logo} alt="3 Minutes for Life"
+            style={{ width: px(260), height: 'auto', objectFit: 'contain' }} />
         </div>
 
         {/* Separator */}
@@ -95,15 +90,8 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, c
       <div ref={cardRef} style={{ ...base, display: 'flex', flexDirection: 'column', padding: '90px' }}>
         <div style={accentBar} />
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: px(24), marginBottom: px(80) }}>
-          <img src={logo} alt="3 Minutes for Life" width={72} height={72}
-            style={{ objectFit: 'contain', flexShrink: 0 }} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: px(5) }}>
-            <span style={{ fontSize: px(26), color: CREAM2, fontWeight: 700, letterSpacing: '6px' }}>3 MINUTES</span>
-            <span style={{ fontSize: px(16), color: GOLD,   letterSpacing: '14px' }}>FOR LIFE</span>
-            <span style={{ fontSize: px(11), color: '#7a7060', letterSpacing: '5px', marginTop: px(2) }}>PARE • REFLITA • PRATIQUE</span>
-          </div>
-        </div>
+        <img src={logo} alt="3 Minutes for Life"
+          style={{ width: px(320), height: 'auto', objectFit: 'contain', marginBottom: px(80) }} />
 
         <span style={{ fontSize: px(20), color: GOLD, letterSpacing: '8px', fontWeight: 700, marginBottom: px(36) }}>
           DEVOCIONAL DO DIA
@@ -126,15 +114,8 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, c
       <div ref={cardRef} style={{ ...base, display: 'flex', flexDirection: 'column', padding: '100px 90px 100px' }}>
         <div style={accentBar} />
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: px(24), marginBottom: px(90) }}>
-          <img src={logo} alt="3 Minutes for Life" width={72} height={72}
-            style={{ objectFit: 'contain', flexShrink: 0 }} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: px(5) }}>
-            <span style={{ fontSize: px(26), color: CREAM2, fontWeight: 700, letterSpacing: '6px' }}>3 MINUTES</span>
-            <span style={{ fontSize: px(16), color: GOLD,   letterSpacing: '14px' }}>FOR LIFE</span>
-            <span style={{ fontSize: px(11), color: '#7a7060', letterSpacing: '5px', marginTop: px(2) }}>PARE • REFLITA • PRATIQUE</span>
-          </div>
-        </div>
+        <img src={logo} alt="3 Minutes for Life"
+          style={{ width: px(320), height: 'auto', objectFit: 'contain', marginBottom: px(90) }} />
 
         <span style={{ fontSize: px(20), color: GOLD, letterSpacing: '8px', fontWeight: 700, marginBottom: px(40) }}>
           DEVOCIONAL DO DIA
@@ -161,16 +142,8 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, c
     <div ref={cardRef} style={{ ...base, display: 'flex', flexDirection: 'column', padding: '130px 110px 340px' }}>
       <div style={accentBar} />
 
-      {/* Logo row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: px(28), marginBottom: px(130) }}>
-        <img src={logo} alt="3 Minutes for Life" width={90} height={90}
-          style={{ objectFit: 'contain', flexShrink: 0 }} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: px(6) }}>
-          <span style={{ fontSize: px(32), color: CREAM2, fontWeight: 700, letterSpacing: '6px' }}>3 MINUTES</span>
-          <span style={{ fontSize: px(20), color: GOLD,   letterSpacing: '14px' }}>FOR LIFE</span>
-          <span style={{ fontSize: px(13), color: '#7a7060', letterSpacing: '5px', marginTop: px(2) }}>PARE • REFLITA • PRATIQUE</span>
-        </div>
-      </div>
+      <img src={logo} alt="3 Minutes for Life"
+        style={{ width: px(380), height: 'auto', objectFit: 'contain', marginBottom: px(130) }} />
 
       <span style={{ fontSize: px(22), color: GOLD, letterSpacing: '8px', fontWeight: 700, marginBottom: px(40) }}>
         DEVOCIONAL DO DIA

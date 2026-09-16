@@ -23,22 +23,25 @@ const FONT_CSS = `@import url('https://fonts.googleapis.com/css2?family=Playfair
 const canWebShare = typeof navigator !== 'undefined' && !!navigator.share
 
 /**
- * Load an image URL and return a compact data URL via an offscreen canvas.
- * Draws at `size×size` so the result is small (~20 KB) regardless of the
- * source file size — essential for html-to-image, which can't handle 2 MB+
- * inline images without corrupting or dropping them.
+ * Load an image URL and return a compact data URL via an offscreen canvas,
+ * preserving the image's natural aspect ratio at `maxWidth` pixels wide.
+ * This keeps the full logo readable while producing a small data URL
+ * (~30-60 KB) that html-to-image can embed without corruption.
  */
-function toDataUrl(src: string, size = 128): Promise<string> {
+function toDataUrl(src: string, maxWidth = 600): Promise<string> {
   return new Promise(resolve => {
     const img = new Image()
     img.onload = () => {
       try {
+        const ratio  = img.naturalHeight / img.naturalWidth
+        const w      = maxWidth
+        const h      = Math.round(w * ratio)
         const canvas = document.createElement('canvas')
-        canvas.width  = size
-        canvas.height = size
+        canvas.width  = w
+        canvas.height = h
         const ctx = canvas.getContext('2d')
         if (!ctx) { resolve(src); return }
-        ctx.drawImage(img, 0, 0, size, size)
+        ctx.drawImage(img, 0, 0, w, h)
         resolve(canvas.toDataURL('image/png'))
       } catch {
         resolve(src)
@@ -61,7 +64,7 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
   // Pre-fetch logo on mount so it's ready before user clicks any format
   useEffect(() => {
     const origin = typeof window !== 'undefined' ? window.location.origin : ''
-    toDataUrl(`${origin}/branding/icon-on-dark.png`).then(setLogoSrc).catch(() => {})
+    toDataUrl(`${origin}/branding/logo-on-dark.png`).then(setLogoSrc).catch(() => {})
   }, [])
 
   const share = async (format: ShareFormat) => {
@@ -75,7 +78,7 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
     // non-data-URL images reliably cross-origin or from relative paths)
     if (!logoSrc.startsWith('data:')) {
       const origin = typeof window !== 'undefined' ? window.location.origin : ''
-      const resolved = await toDataUrl(`${origin}/branding/icon-on-dark.png`)
+      const resolved = await toDataUrl(`${origin}/branding/logo-on-dark.png`)
       setLogoSrc(resolved)
       await new Promise(r => requestAnimationFrame(r))
       await new Promise(r => requestAnimationFrame(r))
