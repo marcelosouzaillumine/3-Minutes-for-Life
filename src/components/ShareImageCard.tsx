@@ -63,27 +63,27 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, c
         <div style={accentBar} />
 
         {/* Left: logo + brand */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: px(280), flexShrink: 0 }}>
-          <img src={logo} alt="3 Minutes for Life" width={80} height={80} crossOrigin="anonymous"
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: px(300), flexShrink: 0 }}>
+          <img src={logo} alt="3 Minutes for Life" width={96} height={96} crossOrigin="anonymous"
             style={{ objectFit: 'contain' }} />
-          <span style={{ fontSize: px(24), color: CREAM2, fontWeight: 700, letterSpacing: '5px', marginTop: px(16) }}>3 MINUTES</span>
-          <span style={{ fontSize: px(16), color: GOLD,   letterSpacing: '12px', marginTop: px(4) }}>FOR LIFE</span>
-          <div style={{ width: px(48), height: px(2), background: GOLD, marginTop: px(16), borderRadius: px(1) }} />
-          <span style={{ fontSize: px(11), color: '#5a5040', letterSpacing: '4px', marginTop: px(12) }}>PARE • REFLITA • PRATIQUE</span>
+          <span style={{ fontSize: px(26), color: CREAM2, fontWeight: 700, letterSpacing: '5px', marginTop: px(18) }}>3 MINUTES</span>
+          <span style={{ fontSize: px(17), color: GOLD,   letterSpacing: '12px', marginTop: px(5) }}>FOR LIFE</span>
+          <div style={{ width: px(48), height: px(2), background: GOLD, marginTop: px(18), borderRadius: px(1) }} />
+          <span style={{ fontSize: px(12), color: '#5a5040', letterSpacing: '4px', marginTop: px(14) }}>PARE • REFLITA • PRATIQUE</span>
         </div>
 
         {/* Separator */}
-        <div style={{ width: px(1), height: px(420), background: 'rgba(200,153,79,0.18)', margin: '0 64px', flexShrink: 0 }} />
+        <div style={{ width: px(2), height: px(440), background: 'rgba(200,153,79,0.25)', margin: '0 56px', flexShrink: 0 }} />
 
         {/* Right: content */}
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
-          <span style={{ fontSize: px(13), color: GOLD, letterSpacing: '6px', fontWeight: 700, marginBottom: px(18) }}>
+          <span style={{ fontSize: px(14), color: GOLD, letterSpacing: '6px', fontWeight: 700, marginBottom: px(20) }}>
             DEVOCIONAL DO DIA
           </span>
-          <span style={{ fontSize: px(56), color: CREAM, fontWeight: 800, lineHeight: 1.05, marginBottom: px(24) }}>{title}</span>
+          <span style={{ fontSize: px(68), color: CREAM, fontWeight: 800, lineHeight: 1.05, marginBottom: px(24) }}>{title}</span>
           <div style={{ width: px(48), height: px(2), background: GOLD, borderRadius: px(1), marginBottom: px(24) }} />
-          <span style={{ fontSize: px(26), color: CREAM2, fontStyle: 'italic', fontWeight: 700, lineHeight: 1.45, flex: 1 }}>{principle}</span>
-          {scripture ? <span style={{ fontSize: px(15), color: GOLD, letterSpacing: '4px', opacity: 0.7, marginTop: px(24) }}>{scripture}</span> : null}
+          <span style={{ fontSize: px(36), color: CREAM, fontStyle: 'italic', fontWeight: 700, lineHeight: 1.4, flex: 1 }}>{principle}</span>
+          {scripture ? <span style={{ fontSize: px(19), color: GOLD, letterSpacing: '4px', opacity: 0.75, marginTop: px(24) }}>{scripture}</span> : null}
         </div>
       </div>
     )

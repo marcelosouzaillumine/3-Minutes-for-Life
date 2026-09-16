@@ -59,6 +59,17 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
     setActiveFormat(format)
     setError(null)
 
+    // Guarantee logo is a data URL before capture — re-fetch if mount effect
+    // hasn't resolved yet or returned a plain URL (html-to-image can't embed
+    // non-data-URL images reliably cross-origin or from relative paths)
+    if (!logoSrc.startsWith('data:')) {
+      const origin = typeof window !== 'undefined' ? window.location.origin : ''
+      const resolved = await toDataUrl(`${origin}/branding/icon-on-dark.png`)
+      setLogoSrc(resolved)
+      await new Promise(r => requestAnimationFrame(r))
+      await new Promise(r => requestAnimationFrame(r))
+    }
+
     // Wait for React to commit the new format to the card
     await new Promise(r => requestAnimationFrame(r))
     await new Promise(r => requestAnimationFrame(r))

@@ -752,9 +752,9 @@ h4 {
 .devotional-logo {
   display: block;
   width: auto;
-  height: calc(var(--devotional-header-height) * 0.6);
+  height: calc(var(--devotional-header-height) * 0.72);
   max-width: var(--devotional-logo-max-width);
-  max-height: calc(var(--devotional-header-height) * 0.6);
+  max-height: calc(var(--devotional-header-height) * 0.72);
   object-fit: contain;
 }
 
@@ -1061,6 +1061,8 @@ h4 {
 .principle-statement {
   width: 100%;
   margin: 0 0 2.25rem;
+  padding-left: 1.1rem;
+  border-left: 3px solid var(--accent-strong);
   font-size: 1.25rem;
   font-weight: 500;
   line-height: 1.45;
