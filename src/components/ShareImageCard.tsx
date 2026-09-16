@@ -21,11 +21,10 @@ interface CardProps {
   cardRef: React.RefObject<HTMLDivElement | null>
 }
 
-const GOLD    = '#c8994f'
-const NAVY    = '#1b2539'
-const CREAM   = '#f0e8dc'
-const DIMGREY = '#4a5568'
-const FONT    = "'Playfair Display', Georgia, serif"
+const GOLD  = '#c8994f'
+const NAVY  = '#1b2539'
+const CREAM = '#f0e8dc'
+const FONT  = "'Playfair Display', Georgia, serif"
 
 const DEFAULT_LOGO          = '/branding/logo-on-dark.png'
 const DEFAULT_LOGO_VERTICAL = '/branding/logo-on-dark-vertical.png'
@@ -58,22 +57,22 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, l
     boxSizing:  'border-box',
   }
 
-  // ── OG / WhatsApp (1200 × 630) ─────────────────────────────────────────────
+  // ── OG / WhatsApp (1200 × 630) — logo-on-dark-vertical exclusivo ───────────
   if (format === 'og') {
     return (
       <div ref={cardRef} style={{ ...base, display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '60px 80px' }}>
         <div style={accentBar} />
 
-        {/* Left: vertical logo (exclusive to WhatsApp/OG) */}
+        {/* Coluna esquerda: logo vertical (exclusiva para WhatsApp/OG) */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: px(260), flexShrink: 0 }}>
           <img src={logoVertical} alt="3 Minutes for Life"
             style={{ width: px(220), height: 'auto', objectFit: 'contain' }} />
         </div>
 
-        {/* Separator */}
+        {/* Separador */}
         <div style={{ width: px(2), height: px(440), background: 'rgba(200,153,79,0.25)', margin: '0 56px', flexShrink: 0 }} />
 
-        {/* Right: content */}
+        {/* Coluna direita: conteúdo */}
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
           <span style={{ fontSize: px(14), color: GOLD, letterSpacing: '6px', fontWeight: 700, marginBottom: px(20) }}>
             DEVOCIONAL DO DIA
@@ -87,38 +86,42 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, l
     )
   }
 
-  // ── Facebook (1080 × 1080) — square ────────────────────────────────────────
+  // ── Facebook (1080 × 1080) — quadrado ──────────────────────────────────────
   if (format === 'facebook') {
     return (
       <div ref={cardRef} style={{ ...base, display: 'flex', flexDirection: 'column', padding: '90px' }}>
         <div style={accentBar} />
 
         <img src={logo} alt="3 Minutes for Life"
-          style={{ width: px(320), height: 'auto', objectFit: 'contain', marginBottom: px(80) }} />
+          style={{ width: px(384), height: 'auto', objectFit: 'contain', marginBottom: px(72) }} />
 
-        <span style={{ fontSize: px(20), color: GOLD, letterSpacing: '8px', fontWeight: 700, marginBottom: px(36) }}>
+        <span style={{ fontSize: px(20), color: GOLD, letterSpacing: '8px', fontWeight: 700, marginBottom: px(32) }}>
           DEVOCIONAL DO DIA
         </span>
 
-        <span style={{ fontSize: px(86), color: CREAM, fontWeight: 800, lineHeight: 1.06, marginBottom: px(52) }}>{title}</span>
+        <span style={{ fontSize: px(84), color: CREAM, fontWeight: 800, lineHeight: 1.06, marginBottom: px(44) }}>{title}</span>
 
-        <div style={{ width: px(80), height: px(3), background: GOLD, borderRadius: px(2), marginBottom: px(52) }} />
+        <div style={{ width: px(80), height: px(3), background: GOLD, borderRadius: px(2), marginBottom: px(44) }} />
 
-        <span style={{ fontSize: px(46), color: GOLD, fontStyle: 'italic', fontWeight: 700, lineHeight: 1.45, flex: 1, marginBottom: px(48) }}>{principle}</span>
+        <span style={{ fontSize: px(44), color: GOLD, fontStyle: 'italic', fontWeight: 700, lineHeight: 1.45, flex: 1, marginBottom: px(36) }}>{principle}</span>
 
-        <span style={{ fontSize: px(22), color: DIMGREY, letterSpacing: '8px' }}>{scripture}</span>
+        <span style={{ fontSize: px(26), color: GOLD, letterSpacing: '8px', opacity: 0.8, marginBottom: px(24) }}>{scripture}</span>
+
+        <span style={{ fontSize: px(22), color: GOLD, letterSpacing: '3px', opacity: 0.6 }}>
+          3minutesforlife.com
+        </span>
       </div>
     )
   }
 
-  // ── Feed Instagram (1080 × 1350) — portrait 4:5 ────────────────────────────
+  // ── Feed Instagram (1080 × 1350) — retrato 4:5 ─────────────────────────────
   if (format === 'feed') {
     return (
       <div ref={cardRef} style={{ ...base, display: 'flex', flexDirection: 'column', padding: '100px 90px 100px' }}>
         <div style={accentBar} />
 
         <img src={logo} alt="3 Minutes for Life"
-          style={{ width: px(320), height: 'auto', objectFit: 'contain', marginBottom: px(90) }} />
+          style={{ width: px(384), height: 'auto', objectFit: 'contain', marginBottom: px(90) }} />
 
         <span style={{ fontSize: px(20), color: GOLD, letterSpacing: '8px', fontWeight: 700, marginBottom: px(40) }}>
           DEVOCIONAL DO DIA
@@ -128,11 +131,11 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, l
 
         <div style={{ width: px(80), height: px(3), background: GOLD, borderRadius: px(2), marginBottom: px(56) }} />
 
-        <span style={{ fontSize: px(46), color: GOLD, fontStyle: 'italic', fontWeight: 700, lineHeight: 1.45, flex: 1, marginBottom: px(56) }}>{principle}</span>
+        <span style={{ fontSize: px(46), color: GOLD, fontStyle: 'italic', fontWeight: 700, lineHeight: 1.45, flex: 1, marginBottom: px(48) }}>{principle}</span>
 
-        <span style={{ fontSize: px(22), color: DIMGREY, letterSpacing: '8px', marginBottom: px(24) }}>{scripture}</span>
+        <span style={{ fontSize: px(26), color: GOLD, letterSpacing: '8px', opacity: 0.8, marginBottom: px(28) }}>{scripture}</span>
 
-        <span style={{ fontSize: px(18), color: GOLD, letterSpacing: '3px', opacity: 0.6 }}>
+        <span style={{ fontSize: px(22), color: GOLD, letterSpacing: '3px', opacity: 0.6 }}>
           3minutesforlife.com
         </span>
       </div>
@@ -140,13 +143,13 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, l
   }
 
   // ── Story (1080 × 1920) ────────────────────────────────────────────────────
-  // padBot = 340 to clear Instagram's "Adicione uma legenda" bar (~300px)
+  // padBot = 340 para cobrir a barra "Adicione uma legenda" do Instagram (~300px)
   return (
     <div ref={cardRef} style={{ ...base, display: 'flex', flexDirection: 'column', padding: '130px 110px 340px' }}>
       <div style={accentBar} />
 
       <img src={logo} alt="3 Minutes for Life"
-        style={{ width: px(380), height: 'auto', objectFit: 'contain', marginBottom: px(130) }} />
+        style={{ width: px(456), height: 'auto', objectFit: 'contain', marginBottom: px(120) }} />
 
       <span style={{ fontSize: px(22), color: GOLD, letterSpacing: '8px', fontWeight: 700, marginBottom: px(40) }}>
         DEVOCIONAL DO DIA
@@ -156,13 +159,13 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, l
 
       <div style={{ width: px(80), height: px(3), background: GOLD, borderRadius: px(2), marginBottom: px(56) }} />
 
-      <span style={{ fontSize: px(56), color: GOLD, fontStyle: 'italic', fontWeight: 700, lineHeight: 1.45, flex: 1, marginBottom: px(60) }}>{principle}</span>
+      <span style={{ fontSize: px(56), color: GOLD, fontStyle: 'italic', fontWeight: 700, lineHeight: 1.45, flex: 1, marginBottom: px(52) }}>{principle}</span>
 
       {scripture ? (
-        <span style={{ fontSize: px(24), color: DIMGREY, letterSpacing: '6px', marginBottom: px(28) }}>{scripture}</span>
+        <span style={{ fontSize: px(28), color: GOLD, letterSpacing: '6px', opacity: 0.8, marginBottom: px(32) }}>{scripture}</span>
       ) : null}
 
-      <span style={{ fontSize: px(22), color: GOLD, letterSpacing: '4px', opacity: 0.7 }}>
+      <span style={{ fontSize: px(26), color: GOLD, letterSpacing: '4px', opacity: 0.7 }}>
         3minutesforlife.com
       </span>
     </div>
