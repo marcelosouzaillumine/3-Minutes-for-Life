@@ -37,10 +37,23 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
 
     // Wait one frame for the card to render with the new format
     await new Promise(r => requestAnimationFrame(r))
-    await new Promise(r => setTimeout(r, 50))
 
     try {
       if (!cardRef.current) throw new Error('Card não encontrado')
+
+      // Wait for all <img> tags inside the card to finish loading
+      await Promise.all(
+        Array.from(cardRef.current.querySelectorAll('img')).map(img =>
+          img.complete
+            ? Promise.resolve()
+            : new Promise<void>(resolve => {
+                img.addEventListener('load',  () => resolve(), { once: true })
+                img.addEventListener('error', () => resolve(), { once: true })
+              })
+        )
+      )
+      // Extra frame to let the browser paint after images settle
+      await new Promise(r => setTimeout(r, 80))
 
       const { w, h } = SHARE_DIMS[format]
 
@@ -49,9 +62,8 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
         height:       h,
         pixelRatio:   1,
         fontEmbedCSS: FONT_CSS,
-        cacheBust:    false,
+        cacheBust:    true,
         style: {
-          // ensure the card is positioned correctly for capture
           position: 'static',
           left:     '0',
           top:      '0',

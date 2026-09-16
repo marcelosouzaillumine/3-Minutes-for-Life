@@ -25,7 +25,9 @@ const CREAM2  = '#e8dece'
 const DIMGREY = '#4a5568'
 const FONT    = "'Playfair Display', Georgia, serif"
 
-const LOGO_SRC = '/branding/icon-on-dark.png'
+const LOGO_SRC = typeof window !== 'undefined'
+  ? `${window.location.origin}/branding/icon-on-dark.png`
+  : '/branding/icon-on-dark.png'
 // Story: Instagram caption bar covers ~300px from bottom → leave clearance
 const STORY_PAD_BOTTOM = 340
 
