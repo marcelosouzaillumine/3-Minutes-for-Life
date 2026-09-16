@@ -10,7 +10,6 @@ interface DrawData {
   principle: string
   scripture?: string
   logoDataUrl: string
-  logoVerticalDataUrl: string
 }
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -81,56 +80,55 @@ function alpha(ctx: CanvasRenderingContext2D, a: number, fn: () => void) {
 // ─── format renderers ─────────────────────────────────────────────────────────
 
 async function drawOg(ctx: CanvasRenderingContext2D, w: number, h: number, d: DrawData) {
-  const PAD_X = 80, PAD_Y = 60
-  const LOGO_COL_W = 260
-  const SEP_X  = PAD_X + LOGO_COL_W + 56
-  const SEP_H  = 440
-  const RIGHT_X = SEP_X + 2 + 56
-  const RIGHT_W = w - RIGHT_X - PAD_X
+  const PAD_X = 80
+  const PAD_Y = 48
+  const IW    = w - PAD_X * 2  // 1040px content width
 
-  // Logo vertical (left column)
-  const logo = await loadImg(d.logoVerticalDataUrl)
-  const LOGO_W = 220
-  const LOGO_H = Math.round(LOGO_W * logo.naturalHeight / logo.naturalWidth)
-  const logoX  = PAD_X + (LOGO_COL_W - LOGO_W) / 2
-  const logoY  = h / 2 - LOGO_H / 2
-  ctx.drawImage(logo, logoX, logoY, LOGO_W, LOGO_H)
+  // Logo (horizontal) — centered at top
+  const logo  = await loadImg(d.logoDataUrl)
+  const LW    = 280
+  const LH    = Math.round(LW * logo.naturalHeight / logo.naturalWidth)
+  ctx.drawImage(logo, (w - LW) / 2, PAD_Y, LW, LH)
 
-  // Separator
-  alpha(ctx, 0.25, () => {
+  let y = PAD_Y + LH + 20
+
+  // Thin horizontal divider under logo
+  alpha(ctx, 0.2, () => {
     ctx.fillStyle = GOLD
-    ctx.fillRect(SEP_X, (h - SEP_H) / 2, 2, SEP_H)
+    ctx.fillRect(PAD_X, y, IW, 1)
   })
+  y += 1 + 20
 
-  // Right: DEVOCIONAL label
-  let y = PAD_Y + 20
-  ctx.font = `700 14px ${SERIF}`
+  // DEVOCIONAL DO DIA label
+  ctx.font = `700 13px ${SERIF}`
   ctx.fillStyle = GOLD
-  spacedText(ctx, 'DEVOCIONAL DO DIA', RIGHT_X, y, 6)
-  y += 14 + 20
+  spacedText(ctx, 'DEVOCIONAL DO DIA', PAD_X, y, 6)
+  y += 13 + 16
 
   // Title
-  ctx.font = `800 68px ${SERIF}`
+  ctx.font = `800 58px ${SERIF}`
   ctx.fillStyle = CREAM
-  y = wrapText(ctx, d.title, RIGHT_X, y, RIGHT_W, Math.round(68 * 1.05))
-  y += 24
+  y = wrapText(ctx, d.title, PAD_X, y, IW, Math.round(58 * 1.06))
+  y += 18
 
   // Gold divider
   ctx.fillStyle = GOLD
-  ctx.fillRect(RIGHT_X, y, 48, 2)
-  y += 2 + 24
+  ctx.fillRect(PAD_X, y, 48, 2)
+  y += 2 + 18
 
   // Principle
-  ctx.font = `italic 700 36px ${SERIF}`
-  ctx.fillStyle = CREAM
-  y = wrapText(ctx, d.principle, RIGHT_X, y, RIGHT_W, Math.round(36 * 1.4))
+  ctx.font = `italic 700 30px ${SERIF}`
+  ctx.fillStyle = GOLD
+  y = wrapText(ctx, d.principle, PAD_X, y, IW, Math.round(30 * 1.4))
 
   // Scripture
   if (d.scripture) {
-    y += 24
-    ctx.font = `400 19px ${SERIF}`
-    ctx.fillStyle = GOLD
-    alpha(ctx, 0.75, () => spacedText(ctx, d.scripture!, RIGHT_X, y, 4))
+    y += 16
+    ctx.font = `400 17px ${SERIF}`
+    alpha(ctx, 0.75, () => {
+      ctx.fillStyle = CREAM
+      spacedText(ctx, d.scripture!, PAD_X, y, 4)
+    })
   }
 }
 

@@ -83,13 +83,11 @@ export function ShareImageMenu({ title = '', principle = '', scripture = '', dev
   const [loading, setLoading] = useState<ShareFormat | null>(null)
   const [error, setError]     = useState<string | null>(null)
   const logoRef               = useRef<string>('')
-  const logoVertRef           = useRef<string>('')
 
-  // Pre-fetch logos on mount into refs (não precisa de state / re-render)
+  // Pre-fetch logo on mount into ref (não precisa de state / re-render)
   useEffect(() => {
     const origin = typeof window !== 'undefined' ? window.location.origin : ''
     toDataUrl(`${origin}/branding/logo-on-dark.png`).then(v => { logoRef.current = v })
-    toDataUrl(`${origin}/branding/logo-on-dark-vertical.png`).then(v => { logoVertRef.current = v })
   }, [])
 
   const share = async (format: ShareFormat) => {
@@ -100,19 +98,16 @@ export function ShareImageMenu({ title = '', principle = '', scripture = '', dev
     try {
       const origin = typeof window !== 'undefined' ? window.location.origin : ''
 
-      // Garantir que logos estão como data URL
+      // Garantir que logo está como data URL
       if (!logoRef.current.startsWith('data:'))
         logoRef.current = await toDataUrl(`${origin}/branding/logo-on-dark.png`)
-      if (!logoVertRef.current.startsWith('data:'))
-        logoVertRef.current = await toDataUrl(`${origin}/branding/logo-on-dark-vertical.png`)
 
       // Gerar imagem via Canvas 2D (funciona em iOS Safari)
       const blob = await createShareImage(format, {
         title,
         principle,
         scripture,
-        logoDataUrl:         logoRef.current,
-        logoVerticalDataUrl: logoVertRef.current,
+        logoDataUrl: logoRef.current,
       })
 
       const filename = `devocional-${format}.png`
