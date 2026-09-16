@@ -186,7 +186,6 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
           principle={principle}
           category={category}
           scripture={scripture}
-          url={url}
           logoSrc={logoSrc}
           logoVerticalSrc={logoVerticalSrc}
         />
