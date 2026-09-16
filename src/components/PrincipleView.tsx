@@ -280,6 +280,19 @@ export function PrincipleView({
             />
           </div>
 
+          <div className="devotional-signature" aria-label="Autor">
+            <div className="devotional-signature-info">
+              <span className="devotional-signature-eyebrow">escrito por</span>
+              <span className="devotional-signature-name">Marcelo Souza</span>
+              <span className="devotional-signature-title">Pastor na Igreja Missão Mobilização</span>
+            </div>
+            <svg className="devotional-signature-ornament" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+              <polygon points="18,2 34,10 34,26 18,34 2,26 2,10" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              <polygon points="18,7 29,13 29,23 18,29 7,23 7,13" stroke="currentColor" strokeWidth="1" fill="none"/>
+              <circle cx="18" cy="18" r="3" fill="currentColor"/>
+            </svg>
+          </div>
+
         </section>
 
         {/* ======================================================

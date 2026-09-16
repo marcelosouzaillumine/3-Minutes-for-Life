@@ -36,7 +36,7 @@ export function DevotionalHeader({ showLogo = true, onBack, backText }: Devotion
       )}
       {showLogo && (
         <BrandLogo
-          variant="light"
+          variant="dark"
           alt="3 Minutes for Life"
           className="devotional-logo"
         />
