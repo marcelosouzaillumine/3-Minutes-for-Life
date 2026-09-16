@@ -4,6 +4,7 @@ import type { Devotional } from '../types/Devotional';
 import { JourneyService } from '../services/JourneyService';
 import { useTranslation } from 'react-i18next';
 import { ShareButton } from './ShareButton';
+import { ShareImageMenu } from './ShareImageMenu';
 import { HtmlRenderer } from './HtmlRenderer';
 import { useAuth } from '../context/AuthContext';
 import { ReflectionService } from '../services/ReflectionService';
@@ -747,6 +748,13 @@ export function PrincipleView({
             devotional={devotional}
             asIcon={true}
           />
+
+          {user && devotional.id && (
+            <ShareImageMenu
+              devotionalId={devotional.id}
+              lang={devotional.language || 'pt-BR'}
+            />
+          )}
 
         </div>
 

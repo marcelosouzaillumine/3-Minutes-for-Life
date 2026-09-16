@@ -2,9 +2,7 @@
   "installCommand": "npm install --legacy-peer-deps",
   "buildCommand": "npm run build",
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/r/:code", "destination": "/api/share?code=:code" },
+    { "source": "/(.*)",    "destination": "/index.html" }
   ]
 }
