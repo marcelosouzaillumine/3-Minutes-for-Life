@@ -752,7 +752,7 @@ export function PrincipleView({
           {user && devotional.id && (
             <ShareImageMenu
               devotionalId={devotional.id}
-              lang={devotional.language || 'pt-BR'}
+              lang={i18n.language || 'pt-BR'}
             />
           )}
 
