@@ -40,7 +40,7 @@ const accentBar: CSSProperties = {
   background: `linear-gradient(90deg, transparent 0%, ${GOLD} 40%, rgba(200,153,79,0.4) 70%, transparent 100%)`,
 }
 
-export function ShareImageCard({ format, title, principle, scripture, url, logoSrc, cardRef }: CardProps) {
+export function ShareImageCard({ format, title, principle, scripture, logoSrc, cardRef }: CardProps) {
   const { w, h } = SHARE_DIMS[format]
   const logo = logoSrc || DEFAULT_LOGO
 
