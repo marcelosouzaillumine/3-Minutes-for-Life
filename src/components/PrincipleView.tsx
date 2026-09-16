@@ -751,8 +751,10 @@ export function PrincipleView({
 
           {user && devotional.id && (
             <ShareImageMenu
-              devotionalId={devotional.id}
-              lang={i18n.language || 'pt-BR'}
+              title={devotional.title ?? ''}
+              principle={devotional.principle_statement ?? ''}
+              category={devotional.categories?.name ?? ''}
+              scripture={devotional.scripture_reference ?? ''}
             />
           )}
 

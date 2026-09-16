@@ -61,7 +61,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   } catch { /* best-effort */ }
 
-  const ogImageUrl  = `${BASE_URL}/api/og/${devotionalId}?format=og&lang=${lang}`
+  const ogImageUrl  = `${BASE_URL}/og-preview.png`
   const canonicalUrl = `${BASE_URL}/r/${code}?d=${devotionalId}&lang=${lang}`
   const ogTitle     = senderName
     ? `${senderName} compartilhou: ${title}`
