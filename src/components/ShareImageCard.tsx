@@ -77,19 +77,13 @@ export function ShareImageCard({ format, title, principle, scripture, url, logoS
 
         {/* Right: content */}
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
-          <span style={{ fontSize: px(14), color: GOLD, letterSpacing: '6px', fontWeight: 700, marginBottom: px(14) }}>
+          <span style={{ fontSize: px(13), color: GOLD, letterSpacing: '6px', fontWeight: 700, marginBottom: px(18) }}>
             DEVOCIONAL DO DIA
           </span>
-          <span style={{ fontSize: px(54), color: CREAM, fontWeight: 800, lineHeight: 1.05, marginBottom: px(20) }}>{title}</span>
-          <span style={{ fontSize: px(24), color: GOLD, fontStyle: 'italic', fontWeight: 700, lineHeight: 1.4, marginBottom: px(20), flex: 1 }}>{principle}</span>
-          {scripture ? <span style={{ fontSize: px(14), color: '#8faacc', letterSpacing: '5px', marginBottom: px(22) }}>{scripture}</span> : null}
-          <div style={{ width: '100%', height: px(1), background: 'rgba(200,153,79,0.2)', marginBottom: px(16) }} />
-          <span style={{ fontSize: px(13), color: GOLD, fontStyle: 'italic', marginBottom: px(6), opacity: 0.8 }}>
-            Leia o devocional completo:
-          </span>
-          <span style={{ fontSize: px(14), color: '#8faacc', letterSpacing: '1px' }}>
-            {url ? url.replace(/^https?:\/\//, '') : '3minutesforlife.com'}
-          </span>
+          <span style={{ fontSize: px(56), color: CREAM, fontWeight: 800, lineHeight: 1.05, marginBottom: px(24) }}>{title}</span>
+          <div style={{ width: px(48), height: px(2), background: GOLD, borderRadius: px(1), marginBottom: px(24) }} />
+          <span style={{ fontSize: px(26), color: CREAM2, fontStyle: 'italic', fontWeight: 700, lineHeight: 1.45, flex: 1 }}>{principle}</span>
+          {scripture ? <span style={{ fontSize: px(15), color: GOLD, letterSpacing: '4px', opacity: 0.7, marginTop: px(24) }}>{scripture}</span> : null}
         </div>
       </div>
     )

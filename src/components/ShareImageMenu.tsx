@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toPng } from 'html-to-image'
 import { ShareImageCard, type ShareFormat, SHARE_DIMS } from './ShareImageCard'
@@ -47,20 +47,19 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
   const [logoSrc, setLogoSrc]   = useState<string>('')
   const cardRef                 = useRef<HTMLDivElement>(null)
 
+  // Pre-fetch logo on mount so it's ready before user clicks any format
+  useEffect(() => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : ''
+    toDataUrl(`${origin}/branding/icon-on-dark.png`).then(setLogoSrc).catch(() => {})
+  }, [])
+
   const share = async (format: ShareFormat) => {
     if (loading) return
     setLoading(format)
     setActiveFormat(format)
     setError(null)
 
-    // Pre-fetch the logo as a data URL so html-to-image can embed it reliably
-    if (!logoSrc) {
-      const origin = typeof window !== 'undefined' ? window.location.origin : ''
-      const dataUrl = await toDataUrl(`${origin}/branding/icon-on-dark.png`)
-      setLogoSrc(dataUrl)
-    }
-
-    // Wait one frame for the card to render with the new format + logo
+    // Wait for React to commit the new format to the card
     await new Promise(r => requestAnimationFrame(r))
     await new Promise(r => requestAnimationFrame(r))
 
@@ -96,9 +95,9 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
       const filename = `devocional-${format}.png`
       const file = new File([blob], filename, { type: 'image/png' })
 
-      // WhatsApp: share image + text + link
+      // WhatsApp: encouraging message + link (no title/principle — image already shows them)
       const shareText = format === 'og'
-        ? `${title}\n\n${principle}\n\nLeia o devocional completo: ${url || 'https://3minutesforlife.com'}`
+        ? `Você tem 3 minutos para uma reflexão que pode mudar o seu dia?\n\nLeia o devocional completo:\n${url || 'https://3minutesforlife.com/app'}`
         : t('shareActions.shareText', 'Compartilhe este devocional')
 
       if (canWebShare && navigator.canShare?.({ files: [file] })) {
