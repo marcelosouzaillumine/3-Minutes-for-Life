@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import type { Devotional } from '../types/Devotional';
 import { JourneyService } from '../services/JourneyService';
 import { useTranslation } from 'react-i18next';
-import { ShareButton } from './ShareButton';
 import { ShareImageMenu } from './ShareImageMenu';
 import { HtmlRenderer } from './HtmlRenderer';
 import { useAuth } from '../context/AuthContext';
@@ -744,20 +743,13 @@ export function PrincipleView({
 
           )}
 
-          <ShareButton
-            devotional={devotional}
-            asIcon={true}
+          <ShareImageMenu
+            title={devotional.title ?? ''}
+            principle={devotional.principle_statement ?? ''}
+            category={devotional.categories?.name ?? ''}
+            scripture={devotional.scripture_reference ?? ''}
+            url={typeof window !== 'undefined' ? window.location.href : ''}
           />
-
-          {user && devotional.id && (
-            <ShareImageMenu
-              title={devotional.title ?? ''}
-              principle={devotional.principle_statement ?? ''}
-              category={devotional.categories?.name ?? ''}
-              scripture={devotional.scripture_reference ?? ''}
-              url={typeof window !== 'undefined' ? window.location.href : ''}
-            />
-          )}
 
         </div>
 

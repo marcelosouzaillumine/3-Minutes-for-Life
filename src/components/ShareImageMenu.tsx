@@ -12,14 +12,31 @@ interface Props {
 }
 
 const FORMATS: { key: ShareFormat; label: string; dim: string; icon: string }[] = [
-  { key: 'story', label: 'Story / Reels',      dim: '1080×1920', icon: '📱' },
-  { key: 'feed',  label: 'Feed Instagram',      dim: '1080×1080', icon: '⬜' },
-  { key: 'og',    label: 'WhatsApp / Facebook', dim: '1200×630',  icon: '🔗' },
+  { key: 'story',    label: 'Story / Reels',    dim: '1080×1920', icon: '📱' },
+  { key: 'feed',     label: 'Feed Instagram',   dim: '1080×1350', icon: '📷' },
+  { key: 'facebook', label: 'Feed Facebook',    dim: '1080×1080', icon: '🔵' },
+  { key: 'og',       label: 'WhatsApp',         dim: '1200×630',  icon: '💬' },
 ]
 
 const FONT_CSS = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,800;1,700&display=block');`
 
 const canWebShare = typeof navigator !== 'undefined' && !!navigator.share
+
+/** Fetch an image URL and return it as a data URL so html-to-image can embed it without CORS issues */
+async function toDataUrl(src: string): Promise<string> {
+  try {
+    const resp = await fetch(src, { cache: 'force-cache' })
+    const blob = await resp.blob()
+    return await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload  = () => resolve(reader.result as string)
+      reader.onerror = reject
+      reader.readAsDataURL(blob)
+    })
+  } catch {
+    return src // fallback to original src
+  }
+}
 
 export function ShareImageMenu({ title = '', principle = '', category = '', scripture = '', url = '' }: Props) {
   const { t }                   = useTranslation('common')
@@ -27,6 +44,7 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
   const [loading, setLoading]   = useState<ShareFormat | null>(null)
   const [activeFormat, setActiveFormat] = useState<ShareFormat>('feed')
   const [error, setError]       = useState<string | null>(null)
+  const [logoSrc, setLogoSrc]   = useState<string>('')
   const cardRef                 = useRef<HTMLDivElement>(null)
 
   const share = async (format: ShareFormat) => {
@@ -35,13 +53,21 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
     setActiveFormat(format)
     setError(null)
 
-    // Wait one frame for the card to render with the new format
+    // Pre-fetch the logo as a data URL so html-to-image can embed it reliably
+    if (!logoSrc) {
+      const origin = typeof window !== 'undefined' ? window.location.origin : ''
+      const dataUrl = await toDataUrl(`${origin}/branding/icon-on-dark.png`)
+      setLogoSrc(dataUrl)
+    }
+
+    // Wait one frame for the card to render with the new format + logo
+    await new Promise(r => requestAnimationFrame(r))
     await new Promise(r => requestAnimationFrame(r))
 
     try {
       if (!cardRef.current) throw new Error('Card não encontrado')
 
-      // Wait for all <img> tags inside the card to finish loading
+      // Wait for any remaining img elements to finish loading
       await Promise.all(
         Array.from(cardRef.current.querySelectorAll('img')).map(img =>
           img.complete
@@ -52,7 +78,6 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
               })
         )
       )
-      // Extra frame to let the browser paint after images settle
       await new Promise(r => setTimeout(r, 80))
 
       const { w, h } = SHARE_DIMS[format]
@@ -63,23 +88,24 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
         pixelRatio:   1,
         fontEmbedCSS: FONT_CSS,
         cacheBust:    true,
-        style: {
-          position: 'static',
-          left:     '0',
-          top:      '0',
-        },
+        style: { position: 'static', left: '0', top: '0' },
       })
 
-      const res   = await fetch(dataUrl)
-      const blob  = await res.blob()
+      const res  = await fetch(dataUrl)
+      const blob = await res.blob()
       const filename = `devocional-${format}.png`
-      const file  = new File([blob], filename, { type: 'image/png' })
+      const file = new File([blob], filename, { type: 'image/png' })
+
+      // WhatsApp: share image + text + link
+      const shareText = format === 'og'
+        ? `${title}\n\n${principle}\n\nLeia o devocional completo: ${url || 'https://3minutesforlife.com'}`
+        : t('shareActions.shareText', 'Compartilhe este devocional')
 
       if (canWebShare && navigator.canShare?.({ files: [file] })) {
         await navigator.share({
           files: [file],
           title: '3 Minutes For Life',
-          text:  t('shareActions.shareText', 'Compartilhe este devocional'),
+          text:  shareText,
         })
       } else {
         const objUrl = URL.createObjectURL(blob)
@@ -103,7 +129,7 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
 
   return (
     <>
-      {/* Off-screen card for capture — always rendered while menu is open */}
+      {/* Off-screen card — rendered while menu is open so it's ready to capture */}
       {open && (
         <ShareImageCard
           cardRef={cardRef}
@@ -113,6 +139,7 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
           category={category}
           scripture={scripture}
           url={url}
+          logoSrc={logoSrc}
         />
       )}
 
@@ -120,17 +147,17 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
         <button
           type="button"
           className="action-btn"
-          aria-label={t('shareActions.downloadImage', 'Compartilhar imagem')}
+          aria-label={t('shareActions.share', 'Compartilhar')}
           onClick={() => { setOpen(v => !v); setError(null) }}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <rect x="3" y="3" width="18" height="18" rx="2"/>
-            <circle cx="8.5" cy="8.5" r="1.5"/>
-            <polyline points="21 15 16 10 5 21"/>
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
           </svg>
           <span className="action-label">
-            {t('shareActions.downloadImage', 'Imagem')}
+            {t('shareActions.share', 'Compartilhar')}
           </span>
         </button>
 
@@ -154,9 +181,7 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
               >×</button>
 
               <p className="share-guest-cta-text" style={{ marginBottom: '1.25rem' }}>
-                {canWebShare
-                  ? t('shareActions.chooseFormatShare', 'Escolha o formato para compartilhar')
-                  : t('shareActions.chooseFormat',      'Escolha o formato da imagem')}
+                {t('shareActions.chooseFormat', 'Escolha o formato para compartilhar')}
               </p>
 
               {error && (
@@ -197,21 +222,14 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
                     ) : (
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        {canWebShare
-                          ? <><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></>
-                          : <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></>
-                        }
+                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                        <polyline points="16 6 12 2 8 6"/>
+                        <line x1="12" y1="2" x2="12" y2="15"/>
                       </svg>
                     )}
                   </button>
                 ))}
               </div>
-
-              {!canWebShare && (
-                <p style={{ fontSize: '0.72rem', opacity: 0.4, textAlign: 'center', marginTop: '1rem' }}>
-                  No celular, abre o painel de compartilhamento nativo.
-                </p>
-              )}
             </div>
           </div>
         )}
