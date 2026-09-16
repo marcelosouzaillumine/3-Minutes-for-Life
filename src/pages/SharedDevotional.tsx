@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { DevotionalService } from '../services/DevotionalService';
 import { AnalyticsService } from '../services/AnalyticsService';
 import type { Devotional } from '../types/Devotional';
@@ -14,6 +14,7 @@ export function SharedDevotional() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const params = useParams<{ code: string }>();
 
   const [devotional, setDevotional] =
     useState<Devotional | null>(null);
@@ -47,14 +48,7 @@ export function SharedDevotional() {
     const urlLang =
       searchParams.get('lang');
 
-    const pathname =
-      location.pathname;
-
-    const code = pathname
-      .replace('/r/', '')
-      .split('?')[0]
-      .replace('/', '')
-      .trim();
+    const code = (params.code ?? '').trim();
 
     const loadSharedDevotional =
       async () => {
