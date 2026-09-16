@@ -8,6 +8,7 @@ interface Props {
   principle?: string
   category?: string
   scripture?: string
+  url?: string
 }
 
 const FORMATS: { key: ShareFormat; label: string; dim: string; icon: string }[] = [
@@ -20,7 +21,7 @@ const FONT_CSS = `@import url('https://fonts.googleapis.com/css2?family=Playfair
 
 const canWebShare = typeof navigator !== 'undefined' && !!navigator.share
 
-export function ShareImageMenu({ title = '', principle = '', category = '', scripture = '' }: Props) {
+export function ShareImageMenu({ title = '', principle = '', category = '', scripture = '', url = '' }: Props) {
   const { t }                   = useTranslation('common')
   const [open, setOpen]         = useState(false)
   const [loading, setLoading]   = useState<ShareFormat | null>(null)
@@ -99,6 +100,7 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
           principle={principle}
           category={category}
           scripture={scripture}
+          url={url}
         />
       )}
 
