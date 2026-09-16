@@ -16,7 +16,8 @@ interface CardProps {
   category?: string
   scripture?: string
   url?: string
-  logoSrc?: string          // data URL resolved at share time (avoids html-to-image fetch issues)
+  logoSrc?: string          // horizontal logo (story / feed / facebook)
+  logoVerticalSrc?: string  // vertical logo — used exclusively for OG/WhatsApp
   cardRef: React.RefObject<HTMLDivElement | null>
 }
 
@@ -26,7 +27,8 @@ const CREAM   = '#f0e8dc'
 const DIMGREY = '#4a5568'
 const FONT    = "'Playfair Display', Georgia, serif"
 
-const DEFAULT_LOGO = '/branding/logo-on-dark.png'
+const DEFAULT_LOGO          = '/branding/logo-on-dark.png'
+const DEFAULT_LOGO_VERTICAL = '/branding/logo-on-dark-vertical.png'
 
 function px(n: number) { return `${n}px` }
 
@@ -39,9 +41,10 @@ const accentBar: CSSProperties = {
   background: `linear-gradient(90deg, transparent 0%, ${GOLD} 40%, rgba(200,153,79,0.4) 70%, transparent 100%)`,
 }
 
-export function ShareImageCard({ format, title, principle, scripture, logoSrc, cardRef }: CardProps) {
+export function ShareImageCard({ format, title, principle, scripture, logoSrc, logoVerticalSrc, cardRef }: CardProps) {
   const { w, h } = SHARE_DIMS[format]
-  const logo = logoSrc || DEFAULT_LOGO
+  const logo         = logoSrc         || DEFAULT_LOGO
+  const logoVertical = logoVerticalSrc || DEFAULT_LOGO_VERTICAL
 
   const base: CSSProperties = {
     position:   'fixed',
@@ -61,10 +64,10 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, c
       <div ref={cardRef} style={{ ...base, display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '60px 80px' }}>
         <div style={accentBar} />
 
-        {/* Left: full logo */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: px(300), flexShrink: 0 }}>
-          <img src={logo} alt="3 Minutes for Life"
-            style={{ width: px(260), height: 'auto', objectFit: 'contain' }} />
+        {/* Left: vertical logo (exclusive to WhatsApp/OG) */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: px(260), flexShrink: 0 }}>
+          <img src={logoVertical} alt="3 Minutes for Life"
+            style={{ width: px(220), height: 'auto', objectFit: 'contain' }} />
         </div>
 
         {/* Separator */}

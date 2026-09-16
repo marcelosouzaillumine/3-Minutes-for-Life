@@ -58,13 +58,15 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
   const [loading, setLoading]   = useState<ShareFormat | null>(null)
   const [activeFormat, setActiveFormat] = useState<ShareFormat>('feed')
   const [error, setError]       = useState<string | null>(null)
-  const [logoSrc, setLogoSrc]   = useState<string>('')
-  const cardRef                 = useRef<HTMLDivElement>(null)
+  const [logoSrc, setLogoSrc]           = useState<string>('')
+  const [logoVerticalSrc, setLogoVerticalSrc] = useState<string>('')
+  const cardRef                         = useRef<HTMLDivElement>(null)
 
-  // Pre-fetch logo on mount so it's ready before user clicks any format
+  // Pre-fetch both logo variants on mount
   useEffect(() => {
     const origin = typeof window !== 'undefined' ? window.location.origin : ''
     toDataUrl(`${origin}/branding/logo-on-dark.png`).then(setLogoSrc).catch(() => {})
+    toDataUrl(`${origin}/branding/logo-on-dark-vertical.png`).then(setLogoVerticalSrc).catch(() => {})
   }, [])
 
   const share = async (format: ShareFormat) => {
@@ -73,13 +75,17 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
     setActiveFormat(format)
     setError(null)
 
-    // Guarantee logo is a data URL before capture — re-fetch if mount effect
-    // hasn't resolved yet or returned a plain URL (html-to-image can't embed
-    // non-data-URL images reliably cross-origin or from relative paths)
+    // Guarantee logos are data URLs before capture
+    const origin = typeof window !== 'undefined' ? window.location.origin : ''
     if (!logoSrc.startsWith('data:')) {
-      const origin = typeof window !== 'undefined' ? window.location.origin : ''
       const resolved = await toDataUrl(`${origin}/branding/logo-on-dark.png`)
       setLogoSrc(resolved)
+      await new Promise(r => requestAnimationFrame(r))
+      await new Promise(r => requestAnimationFrame(r))
+    }
+    if (!logoVerticalSrc.startsWith('data:')) {
+      const resolved = await toDataUrl(`${origin}/branding/logo-on-dark-vertical.png`)
+      setLogoVerticalSrc(resolved)
       await new Promise(r => requestAnimationFrame(r))
       await new Promise(r => requestAnimationFrame(r))
     }
@@ -164,6 +170,7 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
           scripture={scripture}
           url={url}
           logoSrc={logoSrc}
+          logoVerticalSrc={logoVerticalSrc}
         />
       )}
 
