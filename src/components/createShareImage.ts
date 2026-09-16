@@ -79,7 +79,7 @@ function alpha(ctx: CanvasRenderingContext2D, a: number, fn: () => void) {
 
 // ─── format renderers ─────────────────────────────────────────────────────────
 
-async function drawOg(ctx: CanvasRenderingContext2D, w: number, h: number, d: DrawData) {
+async function drawOg(ctx: CanvasRenderingContext2D, w: number, _h: number, d: DrawData) {
   const PAD_X = 80
   const PAD_Y = 48
   const IW    = w - PAD_X * 2  // 1040px content width
