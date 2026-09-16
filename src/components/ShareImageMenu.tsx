@@ -8,7 +8,7 @@ interface Props {
   principle?: string
   category?: string
   scripture?: string
-  url?: string
+  devotionalId?: string
 }
 
 const FORMATS: { key: ShareFormat; label: string; dim: string; icon: string }[] = [
@@ -17,8 +17,6 @@ const FORMATS: { key: ShareFormat; label: string; dim: string; icon: string }[] 
   { key: 'facebook', label: 'Feed Facebook',    dim: '1080×1080', icon: '🔵' },
   { key: 'og',       label: 'WhatsApp',         dim: '1200×630',  icon: '💬' },
 ]
-
-const FONT_CSS = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,800;1,700&display=block');`
 
 const canWebShare = typeof navigator !== 'undefined' && !!navigator.share
 
@@ -52,8 +50,29 @@ function toDataUrl(src: string, maxWidth = 600): Promise<string> {
   })
 }
 
-export function ShareImageMenu({ title = '', principle = '', category = '', scripture = '', url = '' }: Props) {
-  const { t }                   = useTranslation('common')
+async function buildOgUrl(devotionalId: string | undefined, lang: string): Promise<string> {
+  const fallback = devotionalId
+    ? `https://www.3minutesforlife.com/r/3MIN?d=${devotionalId}&lang=${lang}`
+    : 'https://3minutesforlife.com/app'
+  if (!devotionalId) return fallback
+  try {
+    const { illumineFetch } = await import('../lib/illumine')
+    const res = await illumineFetch('/referrals/me')
+    if (res.ok) {
+      const u = await res.json()
+      if (u?.referralCode) {
+        const base = window.location.hostname === 'localhost'
+          ? window.location.origin
+          : 'https://www.3minutesforlife.com'
+        return `${base}/r/${u.referralCode}?d=${devotionalId}&lang=${lang}`
+      }
+    }
+  } catch { /* use fallback */ }
+  return fallback
+}
+
+export function ShareImageMenu({ title = '', principle = '', category = '', scripture = '', devotionalId }: Props) {
+  const { t, i18n }             = useTranslation('common')
   const [open, setOpen]         = useState(false)
   const [loading, setLoading]   = useState<ShareFormat | null>(null)
   const [activeFormat, setActiveFormat] = useState<ShareFormat>('feed')
@@ -113,11 +132,10 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
       const { w, h } = SHARE_DIMS[format]
 
       const dataUrl = await toPng(cardRef.current, {
-        width:        w,
-        height:       h,
-        pixelRatio:   1,
-        fontEmbedCSS: FONT_CSS,
-        cacheBust:    true,
+        width:      w,
+        height:     h,
+        pixelRatio: 1,
+        cacheBust:  true,
         style: { position: 'static', left: '0', top: '0' },
       })
 
@@ -128,7 +146,7 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
 
       // WhatsApp: encouraging message + link (no title/principle — image already shows them)
       const shareText = format === 'og'
-        ? `Você tem 3 minutos para uma reflexão que pode mudar o seu dia?\n\nLeia o devocional completo:\n${url || 'https://3minutesforlife.com/app'}`
+        ? `Você tem 3 minutos para uma reflexão que pode mudar o seu dia?\n\nLeia o devocional completo:\n${await buildOgUrl(devotionalId, i18n.language)}`
         : t('shareActions.shareText', 'Compartilhe este devocional')
 
       if (canWebShare && navigator.canShare?.({ files: [file] })) {

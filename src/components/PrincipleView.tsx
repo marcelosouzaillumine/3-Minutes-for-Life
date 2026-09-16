@@ -761,7 +761,7 @@ export function PrincipleView({
             principle={devotional.principle_statement ?? ''}
             category={devotional.categories?.name ?? ''}
             scripture={devotional.scripture_reference ?? ''}
-            url={typeof window !== 'undefined' ? window.location.href : ''}
+            devotionalId={devotional.id}
           />
 
         </div>
