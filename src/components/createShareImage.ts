@@ -217,6 +217,9 @@ export async function createShareImage(
   // Accent bar
   accentBar(ctx, w)
 
+  // y = topo do texto em todos os draws (evita sobreposição com baseline default)
+  ctx.textBaseline = 'top'
+
   if (format === 'og') {
     await drawOg(ctx, w, h, data)
   } else if (format === 'story') {
