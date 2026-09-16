@@ -22,20 +22,31 @@ const FONT_CSS = `@import url('https://fonts.googleapis.com/css2?family=Playfair
 
 const canWebShare = typeof navigator !== 'undefined' && !!navigator.share
 
-/** Fetch an image URL and return it as a data URL so html-to-image can embed it without CORS issues */
-async function toDataUrl(src: string): Promise<string> {
-  try {
-    const resp = await fetch(src, { cache: 'force-cache' })
-    const blob = await resp.blob()
-    return await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload  = () => resolve(reader.result as string)
-      reader.onerror = reject
-      reader.readAsDataURL(blob)
-    })
-  } catch {
-    return src // fallback to original src
-  }
+/**
+ * Load an image URL and return a compact data URL via an offscreen canvas.
+ * Draws at `size×size` so the result is small (~20 KB) regardless of the
+ * source file size — essential for html-to-image, which can't handle 2 MB+
+ * inline images without corrupting or dropping them.
+ */
+function toDataUrl(src: string, size = 128): Promise<string> {
+  return new Promise(resolve => {
+    const img = new Image()
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas')
+        canvas.width  = size
+        canvas.height = size
+        const ctx = canvas.getContext('2d')
+        if (!ctx) { resolve(src); return }
+        ctx.drawImage(img, 0, 0, size, size)
+        resolve(canvas.toDataURL('image/png'))
+      } catch {
+        resolve(src)
+      }
+    }
+    img.onerror = () => resolve(src)
+    img.src = src
+  })
 }
 
 export function ShareImageMenu({ title = '', principle = '', category = '', scripture = '', url = '' }: Props) {

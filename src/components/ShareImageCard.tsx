@@ -64,7 +64,7 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, c
 
         {/* Left: logo + brand */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', width: px(300), flexShrink: 0 }}>
-          <img src={logo} alt="3 Minutes for Life" width={96} height={96} crossOrigin="anonymous"
+          <img src={logo} alt="3 Minutes for Life" width={96} height={96}
             style={{ objectFit: 'contain' }} />
           <span style={{ fontSize: px(26), color: CREAM2, fontWeight: 700, letterSpacing: '5px', marginTop: px(18) }}>3 MINUTES</span>
           <span style={{ fontSize: px(17), color: GOLD,   letterSpacing: '12px', marginTop: px(5) }}>FOR LIFE</span>
@@ -96,7 +96,7 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, c
         <div style={accentBar} />
 
         <div style={{ display: 'flex', alignItems: 'center', gap: px(24), marginBottom: px(80) }}>
-          <img src={logo} alt="3 Minutes for Life" width={72} height={72} crossOrigin="anonymous"
+          <img src={logo} alt="3 Minutes for Life" width={72} height={72}
             style={{ objectFit: 'contain', flexShrink: 0 }} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: px(5) }}>
             <span style={{ fontSize: px(26), color: CREAM2, fontWeight: 700, letterSpacing: '6px' }}>3 MINUTES</span>
@@ -127,7 +127,7 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, c
         <div style={accentBar} />
 
         <div style={{ display: 'flex', alignItems: 'center', gap: px(24), marginBottom: px(90) }}>
-          <img src={logo} alt="3 Minutes for Life" width={72} height={72} crossOrigin="anonymous"
+          <img src={logo} alt="3 Minutes for Life" width={72} height={72}
             style={{ objectFit: 'contain', flexShrink: 0 }} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: px(5) }}>
             <span style={{ fontSize: px(26), color: CREAM2, fontWeight: 700, letterSpacing: '6px' }}>3 MINUTES</span>
@@ -163,7 +163,7 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, c
 
       {/* Logo row */}
       <div style={{ display: 'flex', alignItems: 'center', gap: px(28), marginBottom: px(130) }}>
-        <img src={logo} alt="3 Minutes for Life" width={90} height={90} crossOrigin="anonymous"
+        <img src={logo} alt="3 Minutes for Life" width={90} height={90}
           style={{ objectFit: 'contain', flexShrink: 0 }} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: px(6) }}>
           <span style={{ fontSize: px(32), color: CREAM2, fontWeight: 700, letterSpacing: '6px' }}>3 MINUTES</span>
