@@ -105,9 +105,9 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, l
 
         <span style={{ fontSize: px(44), color: GOLD, fontStyle: 'italic', fontWeight: 700, lineHeight: 1.45, flex: 1, marginBottom: px(36) }}>{principle}</span>
 
-        <span style={{ fontSize: px(26), color: GOLD, letterSpacing: '8px', opacity: 0.8, marginBottom: px(24) }}>{scripture}</span>
+        <span style={{ fontSize: px(26), color: CREAM, letterSpacing: '8px', opacity: 0.75, marginBottom: px(24) }}>{scripture}</span>
 
-        <span style={{ fontSize: px(22), color: GOLD, letterSpacing: '3px', opacity: 0.6 }}>
+        <span style={{ fontSize: px(22), color: GOLD, letterSpacing: '3px', opacity: 0.45 }}>
           3minutesforlife.com
         </span>
       </div>
@@ -133,9 +133,9 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, l
 
         <span style={{ fontSize: px(46), color: GOLD, fontStyle: 'italic', fontWeight: 700, lineHeight: 1.45, flex: 1, marginBottom: px(48) }}>{principle}</span>
 
-        <span style={{ fontSize: px(26), color: GOLD, letterSpacing: '8px', opacity: 0.8, marginBottom: px(28) }}>{scripture}</span>
+        <span style={{ fontSize: px(26), color: CREAM, letterSpacing: '8px', opacity: 0.75, marginBottom: px(28) }}>{scripture}</span>
 
-        <span style={{ fontSize: px(22), color: GOLD, letterSpacing: '3px', opacity: 0.6 }}>
+        <span style={{ fontSize: px(22), color: GOLD, letterSpacing: '3px', opacity: 0.45 }}>
           3minutesforlife.com
         </span>
       </div>
@@ -162,10 +162,10 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, l
       <span style={{ fontSize: px(56), color: GOLD, fontStyle: 'italic', fontWeight: 700, lineHeight: 1.45, flex: 1, marginBottom: px(52) }}>{principle}</span>
 
       {scripture ? (
-        <span style={{ fontSize: px(28), color: GOLD, letterSpacing: '6px', opacity: 0.8, marginBottom: px(32) }}>{scripture}</span>
+        <span style={{ fontSize: px(28), color: CREAM, letterSpacing: '6px', opacity: 0.75, marginBottom: px(32) }}>{scripture}</span>
       ) : null}
 
-      <span style={{ fontSize: px(26), color: GOLD, letterSpacing: '4px', opacity: 0.7 }}>
+      <span style={{ fontSize: px(26), color: GOLD, letterSpacing: '4px', opacity: 0.45 }}>
         3minutesforlife.com
       </span>
     </div>

@@ -21,34 +21,39 @@ const FORMATS: { key: ShareFormat; label: string; dim: string; icon: string }[] 
 const canWebShare = typeof navigator !== 'undefined' && !!navigator.share
 
 /**
- * Load an image URL and return a compact data URL via an offscreen canvas,
- * preserving the image's natural aspect ratio at `maxWidth` pixels wide.
- * This keeps the full logo readable while producing a small data URL
- * (~30-60 KB) that html-to-image can embed without corruption.
+ * Converte uma URL de imagem em data URL via fetch + blob + canvas.
+ * O createObjectURL(blob) é tratado como same-origin pelo canvas, evitando
+ * o problema de "canvas tainted" sem depender de headers CORS do servidor.
  */
-function toDataUrl(src: string, maxWidth = 600): Promise<string> {
-  return new Promise(resolve => {
-    const img = new Image()
-    img.crossOrigin = 'anonymous'  // prevent canvas taint on CDN-hosted assets
-    img.onload = () => {
-      try {
-        const ratio  = img.naturalHeight / img.naturalWidth
-        const w      = maxWidth
-        const h      = Math.round(w * ratio)
-        const canvas = document.createElement('canvas')
-        canvas.width  = w
-        canvas.height = h
-        const ctx = canvas.getContext('2d')
-        if (!ctx) { resolve(src); return }
-        ctx.drawImage(img, 0, 0, w, h)
-        resolve(canvas.toDataURL('image/png'))
-      } catch {
-        resolve(src)
+async function toDataUrl(src: string, maxWidth = 600): Promise<string> {
+  try {
+    const res = await fetch(src)
+    if (!res.ok) return src
+    const blob = await res.blob()
+    const objUrl = URL.createObjectURL(blob)
+    return await new Promise<string>(resolve => {
+      const img = new Image()
+      img.onload = () => {
+        URL.revokeObjectURL(objUrl)
+        try {
+          const ratio = img.naturalHeight / img.naturalWidth
+          const w     = Math.min(maxWidth, img.naturalWidth)
+          const h     = Math.round(w * ratio)
+          const canvas = document.createElement('canvas')
+          canvas.width  = w
+          canvas.height = h
+          const ctx = canvas.getContext('2d')
+          if (!ctx) { resolve(src); return }
+          ctx.drawImage(img, 0, 0, w, h)
+          resolve(canvas.toDataURL('image/png'))
+        } catch { resolve(src) }
       }
-    }
-    img.onerror = () => resolve(src)
-    img.src = src
-  })
+      img.onerror = () => { URL.revokeObjectURL(objUrl); resolve(src) }
+      img.src = objUrl
+    })
+  } catch {
+    return src
+  }
 }
 
 async function buildOgUrl(devotionalId: string | undefined, lang: string): Promise<string> {
