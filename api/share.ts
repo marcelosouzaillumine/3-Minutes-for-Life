@@ -42,7 +42,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         headers: { 'x-tenant-slug': TENANT },
       })
       if (devRes.ok) {
-        const data = await devRes.json()
+        const data = await devRes.json() as any
         title       = data.title || title
         description = data.principle_statement || data.principleStatement || description
         scripture   = data.scripture_reference || data.scriptureReference || ''
@@ -54,7 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         headers: { 'x-tenant-slug': TENANT },
       })
       if (refRes.ok) {
-        const refData = await refRes.json()
+        const refData = await refRes.json() as any
         const first = (refData.name ?? '').trim().split(/\s+/)[0]
         if (first) senderName = first
       }
