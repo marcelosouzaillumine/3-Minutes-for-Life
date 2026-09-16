@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { toPng } from 'html-to-image'
-import { ShareImageCard, type ShareFormat, SHARE_DIMS } from './ShareImageCard'
+import { type ShareFormat } from './ShareImageCard'
+import { createShareImage } from './createShareImage'
 
 interface Props {
   title?: string
@@ -77,88 +77,53 @@ async function buildOgUrl(devotionalId: string | undefined, lang: string): Promi
   return fallback
 }
 
-export function ShareImageMenu({ title = '', principle = '', category = '', scripture = '', devotionalId }: Props) {
-  const { t, i18n }             = useTranslation('common')
-  const [open, setOpen]         = useState(false)
-  const [loading, setLoading]   = useState<ShareFormat | null>(null)
-  const [activeFormat, setActiveFormat] = useState<ShareFormat>('feed')
-  const [error, setError]       = useState<string | null>(null)
-  const [logoSrc, setLogoSrc]           = useState<string>('')
-  const [logoVerticalSrc, setLogoVerticalSrc] = useState<string>('')
-  const cardRef                         = useRef<HTMLDivElement>(null)
+export function ShareImageMenu({ title = '', principle = '', scripture = '', devotionalId }: Props) {
+  const { t, i18n }           = useTranslation('common')
+  const [open, setOpen]       = useState(false)
+  const [loading, setLoading] = useState<ShareFormat | null>(null)
+  const [error, setError]     = useState<string | null>(null)
+  const logoRef               = useRef<string>('')
+  const logoVertRef           = useRef<string>('')
 
-  // Pre-fetch both logo variants on mount
+  // Pre-fetch logos on mount into refs (não precisa de state / re-render)
   useEffect(() => {
     const origin = typeof window !== 'undefined' ? window.location.origin : ''
-    toDataUrl(`${origin}/branding/logo-on-dark.png`).then(setLogoSrc).catch(() => {})
-    toDataUrl(`${origin}/branding/logo-on-dark-vertical.png`).then(setLogoVerticalSrc).catch(() => {})
+    toDataUrl(`${origin}/branding/logo-on-dark.png`).then(v => { logoRef.current = v })
+    toDataUrl(`${origin}/branding/logo-on-dark-vertical.png`).then(v => { logoVertRef.current = v })
   }, [])
 
   const share = async (format: ShareFormat) => {
     if (loading) return
     setLoading(format)
-    setActiveFormat(format)
     setError(null)
 
-    // Guarantee logos are data URLs before capture
-    const origin = typeof window !== 'undefined' ? window.location.origin : ''
-    if (!logoSrc.startsWith('data:')) {
-      const resolved = await toDataUrl(`${origin}/branding/logo-on-dark.png`)
-      setLogoSrc(resolved)
-      await new Promise(r => setTimeout(r, 300))
-    }
-    if (!logoVerticalSrc.startsWith('data:')) {
-      const resolved = await toDataUrl(`${origin}/branding/logo-on-dark-vertical.png`)
-      setLogoVerticalSrc(resolved)
-      await new Promise(r => setTimeout(r, 300))
-    }
-
-    // Wait for React to commit the new format + logo state to the card
-    await new Promise(r => setTimeout(r, 200))
-
     try {
-      if (!cardRef.current) throw new Error('Card não encontrado')
+      const origin = typeof window !== 'undefined' ? window.location.origin : ''
 
-      // Wait for any remaining img elements to finish loading
-      await Promise.all(
-        Array.from(cardRef.current.querySelectorAll('img')).map(img =>
-          img.complete
-            ? Promise.resolve()
-            : new Promise<void>(resolve => {
-                img.addEventListener('load',  () => resolve(), { once: true })
-                img.addEventListener('error', () => resolve(), { once: true })
-              })
-        )
-      )
-      await new Promise(r => setTimeout(r, 80))
+      // Garantir que logos estão como data URL
+      if (!logoRef.current.startsWith('data:'))
+        logoRef.current = await toDataUrl(`${origin}/branding/logo-on-dark.png`)
+      if (!logoVertRef.current.startsWith('data:'))
+        logoVertRef.current = await toDataUrl(`${origin}/branding/logo-on-dark-vertical.png`)
 
-      const { w, h } = SHARE_DIMS[format]
-
-      const dataUrl = await toPng(cardRef.current, {
-        width:      w,
-        height:     h,
-        pixelRatio: 1,
-        skipFonts:  true,   // avoids cross-origin Google Fonts fetch that throws
-        cacheBust:  true,
-        style: { position: 'static', left: '0', top: '0' },
+      // Gerar imagem via Canvas 2D (funciona em iOS Safari)
+      const blob = await createShareImage(format, {
+        title,
+        principle,
+        scripture,
+        logoDataUrl:         logoRef.current,
+        logoVerticalDataUrl: logoVertRef.current,
       })
 
-      const res  = await fetch(dataUrl)
-      const blob = await res.blob()
       const filename = `devocional-${format}.png`
       const file = new File([blob], filename, { type: 'image/png' })
 
-      // WhatsApp: encouraging message + link (no title/principle — image already shows them)
       const shareText = format === 'og'
         ? `Você tem 3 minutos para uma reflexão que pode mudar o seu dia?\n\nLeia o devocional completo:\n${await buildOgUrl(devotionalId, i18n.language)}`
         : t('shareActions.shareText', 'Compartilhe este devocional')
 
       if (canWebShare && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: '3 Minutes For Life',
-          text:  shareText,
-        })
+        await navigator.share({ files: [file], title: '3 Minutes For Life', text: shareText })
       } else {
         const objUrl = URL.createObjectURL(blob)
         const link   = document.createElement('a')
@@ -181,20 +146,6 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
 
   return (
     <>
-      {/* Off-screen card — rendered while menu is open so it's ready to capture */}
-      {open && (
-        <ShareImageCard
-          cardRef={cardRef}
-          format={activeFormat}
-          title={title}
-          principle={principle}
-          category={category}
-          scripture={scripture}
-          logoSrc={logoSrc}
-          logoVerticalSrc={logoVerticalSrc}
-        />
-      )}
-
       <div style={{ position: 'relative', display: 'inline-block' }}>
         <button
           type="button"
