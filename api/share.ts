@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 const GATEWAY  = process.env.VITE_ILLUMINE_URL || 'https://splendid-nourishment-production-8e84.up.railway.app'
