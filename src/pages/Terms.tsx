@@ -12,9 +12,15 @@ import './Legal.css';
 export function Terms() {
   const branding = useTenantBranding();
   const contactEmail = branding?.contactEmail || 'atendimento@3minutesforlife.com';
+  // Sem addressCity configurado no tenant, não há como eleger um foro
+  // específico sem inventar uma cidade — melhor omitir a cláusula (a lei
+  // brasileira já se aplica de qualquer forma) do que expor um placeholder
+  // de rascunho para o usuário final. A revisão jurídica continua exigindo
+  // o preenchimento de addressCity/addressState no tenant antes de eleger
+  // um foro específico.
   const forumComarca = branding?.addressCity
     ? `${branding.addressCity}${branding.addressState ? `, ${branding.addressState}` : ''}`
-    : '[DEFINIR: comarca]';
+    : null;
 
   return (
     <div className="legal-page">
@@ -134,8 +140,8 @@ export function Terms() {
 
         <h2>Lei aplicável</h2>
         <p>
-          Estes termos são regidos pela lei brasileira. Fica eleito o foro de
-          {' '}{forumComarca} para dirimir questões deles decorrentes.
+          Estes termos são regidos pela lei brasileira.
+          {forumComarca && <> Fica eleito o foro de {forumComarca} para dirimir questões deles decorrentes.</>}
         </p>
 
         <p className="legal-contact">

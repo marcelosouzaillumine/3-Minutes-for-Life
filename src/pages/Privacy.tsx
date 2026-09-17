@@ -16,9 +16,13 @@ import './Legal.css';
 export function Privacy() {
   const branding = useTenantBranding();
   const contactEmail = branding?.contactEmail || 'atendimento@3minutesforlife.com';
+  // Sem razão social/CNPJ configurados no tenant, cai para o nome do
+  // produto (fato real, não inventado) em vez de expor um placeholder de
+  // rascunho para o usuário final. A revisão jurídica continua exigindo o
+  // preenchimento de razaoSocial/cnpj no tenant antes da publicação real.
   const responsibleParty = branding?.razaoSocial
     ? `${branding.razaoSocial}${branding.cnpj ? ` (CNPJ ${branding.cnpj})` : ''}`
-    : '[DEFINIR: razão social e CNPJ, ou nome do responsável]';
+    : (branding?.name || '3 Minutes for Life');
 
   return (
     <div className="legal-page">
