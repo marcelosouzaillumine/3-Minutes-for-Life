@@ -156,9 +156,9 @@ async function drawInstagram(
   w: number, h: number,
   d: DrawData,
   fontSize: { logo: number; title: number; principle: number; scripture: number; site: number },
-  pad: { x: number; top: number; bot: number; afterLogo: number; afterLabel?: number },
+  pad: { x: number; top: number; bot: number; afterLogo: number; afterLabel?: number; bottomReserve?: number },
 ) {
-  const { x: PX, afterLogo: AL, afterLabel: ALGAP = 40 } = pad
+  const { x: PX, afterLogo: AL, afterLabel: ALGAP = 40, bottomReserve: BR = 0 } = pad
   const IW         = w - PX * 2
   const LABEL_SIZE = Math.round(22 * 1.1)                  // +10% → 24px
   const TITLE_LINE = Math.round(fontSize.title * 1.06)
@@ -178,7 +178,7 @@ async function drawInstagram(
   const scripH = d.scripture ? SCRIP_SIZE + 32 : 0
   //          logo  gap  label                  title  gap  divider  gap   principle  gap  scripture  site
   const totalH = LH + AL + (LABEL_SIZE + ALGAP) + titleH + 56 + 3 + 56 + princH + 48 + scripH + SITE_SIZE
-  let y = Math.round((h - totalH) / 2)
+  let y = Math.round(((h - BR) - totalH) / 2)
 
   // Logo
   ctx.drawImage(logo, PX, y, LW, LH)
@@ -257,7 +257,7 @@ export async function createShareImage(
   } else if (format === 'story') {
     await drawInstagram(ctx, w, h, data,
       { logo: 570, title: 108, principle: 56, scripture: 28, site: 26 },
-      { x: 110, top: 130, bot: 180, afterLogo: 150, afterLabel: 60 },
+      { x: 110, top: 130, bot: 180, afterLogo: 150, afterLabel: 60, bottomReserve: 220 },
     )
   } else if (format === 'feed') {
     await drawInstagram(ctx, w, h, data,
