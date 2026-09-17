@@ -10,6 +10,7 @@ import './Mission.css';
 import { MissionProgress } from '../components/MissionProgress';
 import { MissionService } from '../services/MissionService';
 import { BrandLogo } from '../components/BrandLogo';
+import { useBrlToUsdRate, formatUsdFromBrl } from '../hooks/useBrlToUsdRate';
 
 function useIntersectionObserver() {
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -45,7 +46,9 @@ function useIntersectionObserver() {
 }
 
 export function Mission() {
-  const { t } = useTranslation('mission');
+  const { t, i18n } = useTranslation('mission');
+  const isPortuguese = i18n.language?.toLowerCase().startsWith('pt');
+  const usdRate = useBrlToUsdRate();
   const setRef = useIntersectionObserver();
 
   const [currentUsers, setCurrentUsers] = useState(0);
@@ -240,7 +243,7 @@ export function Mission() {
             <h3 className="editorial-tier-name">{t('editorial.monthlyTitle')}</h3>
             <div className="editorial-tier-price">
               <span className="editorial-price-main">
-                {t('editorial.monthlyPriceMain')}
+                {isPortuguese ? t('editorial.monthlyPriceMain') : (formatUsdFromBrl(9.90, usdRate) ?? '…')}
                 <small>{t('editorial.monthlyPriceUnit')}</small>
               </span>
               <span className="editorial-price-sub">{t('editorial.monthlyDesc')}</span>
@@ -255,7 +258,7 @@ export function Mission() {
             <h3 className="editorial-tier-name">{t('editorial.yearlyTitle')}</h3>
             <div className="editorial-tier-price">
               <span className="editorial-price-main">
-                {t('editorial.yearlyPriceMain')}
+                {isPortuguese ? t('editorial.yearlyPriceMain') : (formatUsdFromBrl(59.90, usdRate) ?? '…')}
                 <small>{t('editorial.yearlyPriceUnit')}</small>
               </span>
               <span className="editorial-price-sub">{t('editorial.yearlyDesc')}</span>

@@ -6,6 +6,7 @@ import './Mission.css';
 import { BrandLogo } from '../components/BrandLogo';
 import { useAuth } from '../context/AuthContext';
 import { MissionService } from '../services/MissionService';
+import { fetchBrlToUsdRate, FALLBACK_BRL_TO_USD_RATE, formatUsdFromBrl } from '../hooks/useBrlToUsdRate';
 
 type ContributionPlan = {
   key: string;
@@ -19,22 +20,6 @@ function onlyDigits(value: string): string {
   return (value || '').replace(/\D/g, '');
 }
 
-// Taxa de câmbio usada apenas se a API de câmbio falhar — aproximada, não é
-// referência financeira. O valor real vem de api.frankfurter.app em runtime.
-const FALLBACK_BRL_TO_USD_RATE = 0.18;
-
-async function fetchBrlToUsdRate(): Promise<number> {
-  try {
-    const res = await fetch('https://api.frankfurter.dev/v1/latest?from=BRL&to=USD');
-    if (!res.ok) throw new Error('rate fetch failed');
-    const data = await res.json();
-    const rate = data?.rates?.USD;
-    return typeof rate === 'number' && rate > 0 ? rate : FALLBACK_BRL_TO_USD_RATE;
-  } catch {
-    return FALLBACK_BRL_TO_USD_RATE;
-  }
-}
-
 // Plano padrão para cada combinação tier+periodicity (vinda do /missao via query string)
 const PLAN_MAP: Record<string, ContributionPlan> = {
   apoio_mensal: { key: 'apoio_mensal', title: 'Apoio Mensal', defaultAmount: '9.90', frequency: 'monthly', isFixedAmount: true },
@@ -44,8 +29,9 @@ const PLAN_MAP: Record<string, ContributionPlan> = {
 };
 
 export function Contribute() {
-  const { t } = useTranslation(['mission', 'contribution', 'common']);
+  const { t, i18n } = useTranslation(['mission', 'contribution', 'common']);
   const { user } = useAuth();
+  const isPortuguese = i18n.language?.toLowerCase().startsWith('pt');
 
   const [activePlan, setActivePlan] = useState<ContributionPlan | null>(null);
   const [amountReais, setAmountReais] = useState('20');
@@ -231,7 +217,9 @@ export function Contribute() {
 
             <div className="editorial-tier-price">
               <span className="editorial-price-main">
-                {t('mission:editorial.monthlyPriceMain', 'R$ 9,90')}
+                {isPortuguese
+                  ? t('mission:editorial.monthlyPriceMain', 'R$ 9,90')
+                  : (formatUsdFromBrl(9.90, usdRate) ?? '…')}
                 <small>{t('mission:editorial.monthlyPriceUnit', '/mês')}</small>
               </span>
               <span className="editorial-price-sub">
@@ -271,7 +259,9 @@ export function Contribute() {
 
             <div className="editorial-tier-price">
               <span className="editorial-price-main">
-                {t('mission:editorial.yearlyPriceMain', 'R$ 59,90')}
+                {isPortuguese
+                  ? t('mission:editorial.yearlyPriceMain', 'R$ 59,90')
+                  : (formatUsdFromBrl(59.90, usdRate) ?? '…')}
                 <small>{t('mission:editorial.yearlyPriceUnit', '/ano')}</small>
               </span>
               <span className="editorial-price-sub">
