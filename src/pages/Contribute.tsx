@@ -19,6 +19,22 @@ function onlyDigits(value: string): string {
   return (value || '').replace(/\D/g, '');
 }
 
+// Taxa de câmbio usada apenas se a API de câmbio falhar — aproximada, não é
+// referência financeira. O valor real vem de api.frankfurter.app em runtime.
+const FALLBACK_BRL_TO_USD_RATE = 0.18;
+
+async function fetchBrlToUsdRate(): Promise<number> {
+  try {
+    const res = await fetch('https://api.frankfurter.dev/v1/latest?from=BRL&to=USD');
+    if (!res.ok) throw new Error('rate fetch failed');
+    const data = await res.json();
+    const rate = data?.rates?.USD;
+    return typeof rate === 'number' && rate > 0 ? rate : FALLBACK_BRL_TO_USD_RATE;
+  } catch {
+    return FALLBACK_BRL_TO_USD_RATE;
+  }
+}
+
 // Plano padrão para cada combinação tier+periodicity (vinda do /missao via query string)
 const PLAN_MAP: Record<string, ContributionPlan> = {
   apoio_mensal: { key: 'apoio_mensal', title: 'Apoio Mensal', defaultAmount: '9.90', frequency: 'monthly', isFixedAmount: true },
@@ -37,6 +53,46 @@ export function Contribute() {
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'credit_card' | 'international'>('pix');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
+  const [usdRate, setUsdRate] = useState<number | null>(null);
+
+  // Busca a taxa de câmbio uma vez ao montar, só para "aquecer" o cache —
+  // se o doador trocar de método de pagamento antes disso terminar, o
+  // handler abaixo busca de novo (aguardando) em vez de usar um valor stale.
+  useEffect(() => {
+    fetchBrlToUsdRate().then(setUsdRate);
+  }, []);
+
+  // Troca de método de pagamento com conversão de moeda: os planos são
+  // definidos em R$, então ao entrar em "International" o valor precisa virar
+  // USD de verdade (não repetir o mesmo número), e ao sair precisa voltar a
+  // ser R$. Feito de forma imperativa (não como efeito reativo) para não ter
+  // condição de corrida com a busca assíncrona da taxa.
+  const handleSelectPaymentMethod = async (method: 'pix' | 'credit_card' | 'international') => {
+    if (!activePlan || method === paymentMethod) {
+      setPaymentMethod(method);
+      return;
+    }
+
+    const enteringInternational = method === 'international';
+    const leavingInternational = paymentMethod === 'international';
+
+    if (enteringInternational) {
+      const rate = usdRate ?? await fetchBrlToUsdRate();
+      if (usdRate === null) setUsdRate(rate);
+      const baseBrl = activePlan.isFixedAmount ? Number(activePlan.defaultAmount) : Number(amountReais.replace(',', '.'));
+      if (Number.isFinite(baseBrl)) setAmountReais((baseBrl * rate).toFixed(2));
+    } else if (leavingInternational) {
+      if (activePlan.isFixedAmount) {
+        setAmountReais(activePlan.defaultAmount);
+      } else {
+        const rate = usdRate ?? FALLBACK_BRL_TO_USD_RATE;
+        const baseUsd = Number(amountReais.replace(',', '.'));
+        if (Number.isFinite(baseUsd)) setAmountReais((baseUsd / rate).toFixed(2));
+      }
+    }
+
+    setPaymentMethod(method);
+  };
 
   // Abre automaticamente o modal quando vindo do /missao com ?tier=&periodicity=
   useEffect(() => {
@@ -342,7 +398,7 @@ export function Contribute() {
               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem' }}>
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod('pix')}
+                  onClick={() => handleSelectPaymentMethod('pix')}
                   style={{
                     flex: 1,
                     padding: '0.6rem 0.5rem',
@@ -363,7 +419,7 @@ export function Contribute() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod('credit_card')}
+                  onClick={() => handleSelectPaymentMethod('credit_card')}
                   style={{
                     flex: 1,
                     padding: '0.6rem 0.5rem',
@@ -384,7 +440,7 @@ export function Contribute() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod('international')}
+                  onClick={() => handleSelectPaymentMethod('international')}
                   style={{
                     flex: 1,
                     padding: '0.6rem 0.5rem',
