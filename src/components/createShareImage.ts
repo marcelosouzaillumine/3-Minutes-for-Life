@@ -109,7 +109,7 @@ async function drawOg(ctx: CanvasRenderingContext2D, w: number, h: number, d: Dr
   // Measure total content height for vertical centering
   ctx.font = `800 58px ${SERIF}`
   const titleH = countLines(ctx, d.title, IW) * TITLE_LINE
-  ctx.font = `italic 700 ${PRINC_SIZE}px ${SERIF}`
+  ctx.font = `700 ${PRINC_SIZE}px ${SERIF}`
   const princH = countLines(ctx, d.principle, IW) * PRINC_LINE
   const scripH = d.scripture ? SCRIP_GAP + SCRIP_SIZE : 0
   //           logo       gap   label                  title  gap  divider  gap   principle  scripture
@@ -137,8 +137,8 @@ async function drawOg(ctx: CanvasRenderingContext2D, w: number, h: number, d: Dr
   ctx.fillRect(PAD_X, y, 48, 2)
   y += 2 + 18
 
-  // Principle
-  ctx.font = `italic 700 ${PRINC_SIZE}px ${SERIF}`
+  // Principle (sem itálico)
+  ctx.font = `700 ${PRINC_SIZE}px ${SERIF}`
   ctx.fillStyle = GOLD
   y = wrapText(ctx, d.principle, PAD_X, y, IW, PRINC_LINE)
 
@@ -155,32 +155,47 @@ async function drawOg(ctx: CanvasRenderingContext2D, w: number, h: number, d: Dr
 
 async function drawInstagram(
   ctx: CanvasRenderingContext2D,
-  w: number, _h: number,
+  w: number, h: number,
   d: DrawData,
   fontSize: { logo: number; title: number; principle: number; scripture: number; site: number },
   pad: { x: number; top: number; bot: number; afterLogo: number; afterLabel?: number },
 ) {
-  const { x: PX, top: PT, afterLogo: AL, afterLabel: ALGAP = 40 } = pad
-  const IW = w - PX * 2
-  let y = PT
+  const { x: PX, afterLogo: AL, afterLabel: ALGAP = 40 } = pad
+  const IW         = w - PX * 2
+  const LABEL_SIZE = Math.round(22 * 1.1)                  // +10% → 24px
+  const TITLE_LINE = Math.round(fontSize.title * 1.06)
+  const PRINC_LINE = Math.round(fontSize.principle * 1.45)
+  const SCRIP_SIZE = Math.round(fontSize.scripture * 1.3)  // +30%
+  const SITE_SIZE  = Math.round(fontSize.site      * 1.15) // +15%
 
-  // Logo
   const logo = await loadImg(d.logoDataUrl)
   const LW = fontSize.logo
   const LH = Math.round(LW * logo.naturalHeight / logo.naturalWidth)
+
+  // Measure total content height for vertical centering
+  ctx.font = `800 ${fontSize.title}px ${SERIF}`
+  const titleH = countLines(ctx, d.title, IW) * TITLE_LINE
+  ctx.font = `700 ${fontSize.principle}px ${SERIF}`
+  const princH = countLines(ctx, d.principle, IW) * PRINC_LINE
+  const scripH = d.scripture ? SCRIP_SIZE + 32 : 0
+  //          logo  gap  label                  title  gap  divider  gap   principle  gap  scripture  site
+  const totalH = LH + AL + (LABEL_SIZE + ALGAP) + titleH + 56 + 3 + 56 + princH + 48 + scripH + SITE_SIZE
+  let y = Math.round((h - totalH) / 2)
+
+  // Logo
   ctx.drawImage(logo, PX, y, LW, LH)
   y += LH + AL
 
   // Label
-  ctx.font      = `700 22px ${SERIF}`
+  ctx.font      = `700 ${LABEL_SIZE}px ${SERIF}`
   ctx.fillStyle = GOLD
   spacedText(ctx, 'DEVOCIONAL DO DIA', PX, y, 8)
-  y += 22 + ALGAP
+  y += LABEL_SIZE + ALGAP
 
   // Title
   ctx.font      = `800 ${fontSize.title}px ${SERIF}`
   ctx.fillStyle = CREAM
-  y = wrapText(ctx, d.title, PX, y, IW, Math.round(fontSize.title * 1.06))
+  y = wrapText(ctx, d.title, PX, y, IW, TITLE_LINE)
   y += 56
 
   // Gold divider
@@ -188,24 +203,24 @@ async function drawInstagram(
   ctx.fillRect(PX, y, 80, 3)
   y += 3 + 56
 
-  // Principle
-  ctx.font      = `italic 700 ${fontSize.principle}px ${SERIF}`
+  // Principle (sem itálico)
+  ctx.font      = `700 ${fontSize.principle}px ${SERIF}`
   ctx.fillStyle = GOLD
-  y = wrapText(ctx, d.principle, PX, y, IW, Math.round(fontSize.principle * 1.45))
+  y = wrapText(ctx, d.principle, PX, y, IW, PRINC_LINE)
   y += 48
 
   // Scripture
   if (d.scripture) {
-    ctx.font = `400 ${fontSize.scripture}px ${SERIF}`
+    ctx.font = `400 ${SCRIP_SIZE}px ${SERIF}`
     alpha(ctx, 0.75, () => {
       ctx.fillStyle = CREAM
       spacedText(ctx, d.scripture!, PX, y, 6)
     })
-    y += fontSize.scripture + 32
+    y += SCRIP_SIZE + 32
   }
 
   // Website
-  ctx.font = `400 ${fontSize.site}px ${SERIF}`
+  ctx.font = `400 ${SITE_SIZE}px ${SERIF}`
   alpha(ctx, 0.45, () => {
     ctx.fillStyle = GOLD
     spacedText(ctx, '3minutesforlife.com', PX, y, 4)
