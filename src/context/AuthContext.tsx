@@ -7,7 +7,7 @@ interface IllumineUser {
   email: string;
   name?: string;
   avatar?: string;
-  preferred_language?: string;
+  preferredLanguage?: string;
 }
 
 interface IllumineSession {
@@ -33,7 +33,7 @@ const SUPPORTED_LANGUAGES = ['pt-BR', 'en', 'es'] as const;
 type SupportedLang = typeof SUPPORTED_LANGUAGES[number];
 
 function applyUserLanguage(user: IllumineUser): void {
-  const profileLang = user.preferred_language;
+  const profileLang = user.preferredLanguage;
   if (!profileLang) return;
 
   const normalized: SupportedLang = SUPPORTED_LANGUAGES.includes(profileLang as SupportedLang)

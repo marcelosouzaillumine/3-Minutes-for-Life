@@ -935,8 +935,10 @@ export function Landing() {
           </div>
 
           <p className="footer-copy">
+            &copy; {new Date().getFullYear()}{' '}
             {t(
-              'landing:footer.copy'
+              'landing:footer.copy',
+              { brandName: branding?.name || '3 Minutes for Life' }
             )}
           </p>
 

@@ -141,6 +141,6 @@
       "contact": "Contacto",
       "donate": "Donar"
     },
-    "copy": "© 2026 3 Minutes for Life"
+    "copy": "{{brandName}}"
   }
 }

@@ -321,7 +321,7 @@ export function Mission() {
           </div>
 
           <p className="footer-copy">
-            &copy; {new Date().getFullYear()} {t('footer.copyright')}
+            &copy; {new Date().getFullYear()} {t('footer.copyright', { brandName: branding?.name || '3 Minutes for Life' })}
           </p>
         </div>
 

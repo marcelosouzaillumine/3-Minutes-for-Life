@@ -3,7 +3,12 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 
 const GATEWAY  = process.env.VITE_ILLUMINE_URL || 'https://splendid-nourishment-production-8e84.up.railway.app'
 const TENANT   = process.env.VITE_TENANT_SLUG  || '3minutes'
-const BASE_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
+
+// Fallbacks só usados se a chamada ao tenant (abaixo) falhar — não há como
+// evitar 100% de hardcode aqui (é a última rede de segurança antes de uma
+// página em branco pro bot), mas o caminho normal busca do Illumine.
+const FALLBACK_SITE_NAME = '3 Minutes For Life'
+const FALLBACK_BASE_URL  = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
   : 'https://www.3minutesforlife.com'
 
@@ -17,10 +22,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const devotionalId = (req.query.d    as string) || ''
   const lang        = (req.query.lang  as string) || 'pt-BR'
 
+  // Nome/domínio do tenant, buscados do Illumine — só cai no fallback
+  // hardcoded se essa chamada falhar.
+  let siteName = FALLBACK_SITE_NAME
+  let baseUrl  = FALLBACK_BASE_URL
+  try {
+    const tenantRes = await fetch(`${GATEWAY}/tenants/by-slug/${TENANT}`)
+    if (tenantRes.ok) {
+      const tenantData = await tenantRes.json() as any
+      if (tenantData.name) siteName = tenantData.name
+      if (tenantData.website) baseUrl = tenantData.website.replace(/\/$/, '')
+    }
+  } catch { /* mantém fallback */ }
+
   // ── Para usuários normais: serve o SPA ──────────────────────────────────────
   if (!isBot) {
     try {
-      const indexRes = await fetch(`${BASE_URL}/index.html`)
+      const indexRes = await fetch(`${baseUrl}/index.html`)
       const html = await indexRes.text()
       res.setHeader('Content-Type', 'text/html; charset=utf-8')
       return res.status(200).send(html)
@@ -31,7 +49,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // ── Para bots: busca dados e retorna og:html ────────────────────────────────
-  let title       = '3 Minutes For Life'
+  let title       = siteName
   let description = 'Três minutos que mudam um dia.'
   let scripture   = ''
   let senderName  = ''
@@ -61,8 +79,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   } catch { /* best-effort */ }
 
-  const ogImageUrl  = `${BASE_URL}/og-preview.png`
-  const canonicalUrl = `${BASE_URL}/r/${code}?d=${devotionalId}&lang=${lang}`
+  const ogImageUrl  = `${baseUrl}/og-preview.png`
+  const canonicalUrl = `${baseUrl}/r/${code}?d=${devotionalId}&lang=${lang}`
   const ogTitle     = senderName
     ? `${senderName} compartilhou: ${title}`
     : title
@@ -83,7 +101,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   <meta property="og:image"       content="${escHtml(ogImageUrl)}" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height"content="630" />
-  <meta property="og:site_name"   content="3 Minutes For Life" />
+  <meta property="og:site_name"   content="${escHtml(siteName)}" />
   <meta property="og:locale"      content="${lang.replace('-', '_')}" />
 
   <!-- Twitter Card -->
