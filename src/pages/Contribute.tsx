@@ -16,6 +16,24 @@ type ContributionPlan = {
   isFixedAmount?: boolean;
 };
 
+// Fusos horários do Brasil (IANA) — usado só como sugestão inicial de
+// método de pagamento; o doador sempre pode trocar manualmente. Nenhuma
+// chamada de rede, só o fuso que o próprio navegador já expõe.
+const BRAZIL_TIMEZONES = new Set([
+  'America/Sao_Paulo', 'America/Bahia', 'America/Fortaleza', 'America/Recife',
+  'America/Araguaina', 'America/Maceio', 'America/Belem', 'America/Santarem',
+  'America/Manaus', 'America/Boa_Vista', 'America/Porto_Velho', 'America/Cuiaba',
+  'America/Campo_Grande', 'America/Rio_Branco', 'America/Eirunepe', 'America/Noronha',
+]);
+
+function detectLikelyBrazil(): boolean {
+  try {
+    return BRAZIL_TIMEZONES.has(Intl.DateTimeFormat().resolvedOptions().timeZone);
+  } catch {
+    return true; // sem suporte a Intl.DateTimeFormat: mantém o comportamento anterior (Pix por padrão)
+  }
+}
+
 function onlyDigits(value: string): string {
   return (value || '').replace(/\D/g, '');
 }
@@ -94,11 +112,24 @@ export function Contribute() {
     }
   }, []);
 
-  const openCheckout = (plan: ContributionPlan) => {
+  const openCheckout = async (plan: ContributionPlan) => {
     setFormError('');
-    setPaymentMethod('pix');
-    setAmountReais(plan.defaultAmount);
     setActivePlan(plan);
+
+    if (detectLikelyBrazil()) {
+      setPaymentMethod('pix');
+      setAmountReais(plan.defaultAmount);
+      return;
+    }
+
+    // Sugestão inicial "International" pra quem parece estar fora do Brasil
+    // — já entra com o valor convertido pra USD (mesma conversão usada na
+    // troca manual de método), não com o número em R$ como se fosse dólar.
+    setPaymentMethod('international');
+    const rate = usdRate ?? await fetchBrlToUsdRate();
+    if (usdRate === null) setUsdRate(rate);
+    const baseBrl = Number(plan.defaultAmount);
+    setAmountReais(Number.isFinite(baseBrl) ? (baseBrl * rate).toFixed(2) : plan.defaultAmount);
   };
 
   const handleCheckoutSubmit = async (e: React.FormEvent) => {
