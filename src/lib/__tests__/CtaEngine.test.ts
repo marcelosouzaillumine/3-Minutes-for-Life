@@ -95,8 +95,8 @@ describe('CtaEngine Unit Tests — CTA de Captação e Continuidade no Meio da R
       const ctaBlocks = blocks.filter(b => b.type === 'cta');
       expect(ctaBlocks).toHaveLength(1);
       if (ctaBlocks[0].type === 'cta') {
-        expect(ctaBlocks[0].attrs.title).toBe('Continue essa jornada com a gente.');
-        expect(ctaBlocks[0].attrs.label).toBe('Quero continuar');
+        expect(ctaBlocks[0].attrs.title).toBe('Essa não precisa ser a única reflexão.');
+        expect(ctaBlocks[0].attrs.label).toBe('Criar minha conta');
         expect(ctaBlocks[0].attrs.url).toBe('/signup');
       }
     });
@@ -126,9 +126,9 @@ describe('CtaEngine Unit Tests — CTA de Captação e Continuidade no Meio da R
   describe('4. Internacionalização — PT-BR', () => {
     it('CTA de captação em português para pt-BR', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'pt-BR' });
-      expect(output).toContain('Continue essa jornada com a gente.');
-      expect(output).toContain('Amanhã, uma nova reflexão espera por você. Entre ou crie sua conta para guardar suas anotações e acompanhar sua jornada.');
-      expect(output).toContain('Quero continuar');
+      expect(output).toContain('Essa não precisa ser a única reflexão.');
+      expect(output).toContain('A cada dia, uma nova perspectiva espera por você. Crie sua conta gratuita e continue essa jornada amanhã.');
+      expect(output).toContain('Criar minha conta');
     });
   });
 
@@ -137,22 +137,22 @@ describe('CtaEngine Unit Tests — CTA de Captação e Continuidade no Meio da R
   describe('5. Internacionalização — EN', () => {
     it('CTA de captação em inglês para language=en', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'en' });
-      expect(output).toContain('Continue this journey with us.');
-      expect(output).toContain('Tomorrow, a fresh reflection awaits you. Sign in or create your account to save personal notes and track your journey.');
-      expect(output).toContain('Keep going');
+      expect(output).toContain('This doesn\'t have to be your only reflection.');
+      expect(output).toContain('Every day, a new perspective is waiting for you. Create your free account and continue this journey tomorrow.');
+      expect(output).toContain('Create my account');
     });
 
     it('Nenhum texto português aparece no modo en', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'en' });
-      expect(output).not.toContain('Continue essa jornada com a gente.');
-      expect(output).not.toContain('Quero continuar');
+      expect(output).not.toContain('Essa não precisa ser a única reflexão.');
+      expect(output).not.toContain('Criar minha conta');
     });
 
     it('en-US é mapeado para inglês', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'en-US' });
-      expect(output).toContain('Continue this journey with us.');
-      expect(output).toContain('Keep going');
-      expect(output).not.toContain('Continue essa jornada com a gente.');
+      expect(output).toContain('This doesn\'t have to be your only reflection.');
+      expect(output).toContain('Create my account');
+      expect(output).not.toContain('Essa não precisa ser a única reflexão.');
     });
   });
 
@@ -161,22 +161,22 @@ describe('CtaEngine Unit Tests — CTA de Captação e Continuidade no Meio da R
   describe('6. Internacionalização — ES', () => {
     it('CTA de captação em espanhol para language=es', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'es' });
-      expect(output).toContain('Continúa este camino con nosotros.');
-      expect(output).toContain('Mañana, una nueva reflexión te espera. Inicia sesión o crea tu cuenta para guardar tus notas y seguir tu camino.');
-      expect(output).toContain('Quiero continuar');
+      expect(output).toContain('Esta no tiene por qué ser tu única reflexión.');
+      expect(output).toContain('Cada día, una nueva perspectiva te espera. Crea tu cuenta gratuita y continúa este camino mañana.');
+      expect(output).toContain('Crear mi cuenta');
     });
 
     it('Nenhum texto português aparece no modo es', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'es' });
-      expect(output).not.toContain('Continue essa jornada com a gente.');
-      expect(output).not.toContain('Quero continuar');
+      expect(output).not.toContain('Essa não precisa ser a única reflexão.');
+      expect(output).not.toContain('Criar minha conta');
     });
 
     it('es-ES é mapeado para espanhol', () => {
       const output = CtaEngine.composeReflection(sampleMedium, { user: null, language: 'es-ES' });
-      expect(output).toContain('Continúa este camino con nosotros.');
-      expect(output).toContain('Quiero continuar');
-      expect(output).not.toContain('Continue essa jornada com a gente.');
+      expect(output).toContain('Esta no tiene por qué ser tu única reflexión.');
+      expect(output).toContain('Crear mi cuenta');
+      expect(output).not.toContain('Essa não precisa ser a única reflexão.');
     });
   });
 
@@ -260,7 +260,7 @@ describe('CtaEngine Unit Tests — CTA de Captação e Continuidade no Meio da R
       const ctaBlocks = composed.filter(b => b.type === 'cta');
       expect(ctaBlocks).toHaveLength(1);
       if (ctaBlocks[0].type === 'cta') {
-        expect(ctaBlocks[0].attrs.title).toBe('Continue essa jornada com a gente.');
+        expect(ctaBlocks[0].attrs.title).toBe('Essa não precisa ser a única reflexão.');
       }
     });
 

@@ -36,8 +36,8 @@ describe('Separação Arquitetural: Captação no Meio da Reflexão & Relacionam
 
       expect(ctaBlocks).toHaveLength(1);
       if (ctaBlocks[0].type === 'cta') {
-        expect(ctaBlocks[0].attrs.title).toBe('Continue essa jornada com a gente.');
-        expect(ctaBlocks[0].attrs.label).toBe('Quero continuar');
+        expect(ctaBlocks[0].attrs.title).toBe('Essa não precisa ser a única reflexão.');
+        expect(ctaBlocks[0].attrs.label).toBe('Criar minha conta');
         expect(ctaBlocks[0].attrs.url).toBe('/signup');
       }
 
@@ -66,7 +66,7 @@ describe('Separação Arquitetural: Captação no Meio da Reflexão & Relacionam
       expect(pr.authGateDescription).toContain('Para que nossa equipe possa receber seu pedido e cuidar dele com responsabilidade');
 
       const tm = ptCommon.testimonials;
-      expect(tm.title).toBe('Como essa reflexão tocou você?');
+      expect(tm.title).toBe('O que Deus falou ao seu coração por meio desta reflexão?');
       expect(tm.writeBtn).toBe('Compartilhar meu testemunho');
       expect(tm.authGateTitle).toBe('Entre para compartilhar seu testemunho');
     });
@@ -163,7 +163,7 @@ describe('Separação Arquitetural: Captação no Meio da Reflexão & Relacionam
       const ctaBlocks = blocks.filter(b => b.type === 'cta');
       expect(ctaBlocks).toHaveLength(1);
       if (ctaBlocks[0].type === 'cta') {
-        expect(ctaBlocks[0].attrs.title).toBe('Continue essa jornada com a gente.');
+        expect(ctaBlocks[0].attrs.title).toBe('Essa não precisa ser a única reflexão.');
       }
     });
 
