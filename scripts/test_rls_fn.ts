@@ -1,6 +1,9 @@
 import { execSync } from 'child_process';
 import crypto from 'crypto';
 import fs from 'fs';
+import { guardAgainstProduction } from './_guard';
+
+guardAgainstProduction('scripts/test_rls_fn.ts');
 
 function runSql(sql: string) {
   try {

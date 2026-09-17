@@ -1,6 +1,9 @@
 import { supabase } from '../src/lib/supabase';
 import { execSync } from 'child_process';
 import crypto from 'crypto';
+import { guardAgainstProduction } from './_guard';
+
+guardAgainstProduction('scripts/formal_rls_audit.ts');
 
 const matrix: any[] = [];
 function record(test: string, actor: string, operation: string, target: string, expected: string, actual: string, result: 'PASS' | 'FAIL') {

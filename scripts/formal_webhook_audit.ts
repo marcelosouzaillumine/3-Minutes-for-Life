@@ -1,7 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import * as dotenv from 'dotenv';
+import { guardAgainstProduction } from './_guard';
 
 dotenv.config({ path: '.env.local' });
+guardAgainstProduction('scripts/formal_webhook_audit.ts');
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;

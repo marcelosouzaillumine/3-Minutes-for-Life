@@ -1,3 +1,12 @@
+-- ============================================================================
+-- AVISO: este script insere e apaga linhas de teste em supporters/contributions
+-- via `npx supabase db query --file scripts/test_rls.sql`. Não existe projeto
+-- Supabase de staging separado — o `supabase` CLI aponta para o projeto
+-- linkado (`supabase link`), que é o banco real usado em produção
+-- (wacdwnlrwsbmuhwztwrz). Confirme com `supabase projects list` /
+-- `cat supabase/.temp/project-ref` qual projeto está linkado antes de rodar.
+-- ============================================================================
+
 CREATE OR REPLACE FUNCTION pg_temp.test_mission_rls()
 RETURNS jsonb AS $$
 DECLARE

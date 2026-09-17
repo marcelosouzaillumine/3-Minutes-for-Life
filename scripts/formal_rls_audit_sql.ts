@@ -1,5 +1,8 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
+import { guardAgainstProduction } from './_guard';
+
+guardAgainstProduction('scripts/formal_rls_audit_sql.ts');
 
 console.log("Running PL/pgSQL validation script on remote db...");
 const out = execSync(`npx supabase db query --file scripts/test_rls.sql`).toString();
