@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import * as Sentry from '@sentry/react';
 import i18n from 'i18next';
 import { AnalyticsService } from '../services/AnalyticsService';
 
@@ -23,6 +24,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('[ErrorBoundary] Uncaught error:', error, info.componentStack);
+    // O canal de analytics acima depende do próprio backend do 3ML estar de
+    // pé para chegar a algum lugar (e engole silenciosamente qualquer falha
+    // de rede — achado da auditoria 360°). Sentry.captureException não tem
+    // essa dependência circular; é um no-op seguro sem VITE_SENTRY_DSN.
+    Sentry.captureException(error, { extra: { componentStack: info.componentStack } });
     AnalyticsService.trackEvent('client_error', {
       message: error.message,
       stack: error.stack?.slice(0, 2000),
