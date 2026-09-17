@@ -65,5 +65,11 @@
     "loading": "Cargando...",
     "loadError": "No se pudieron cargar tus mensajes.",
     "empty": "Cuando envíes un pedido de oración o testimonio, las respuestas aparecerán aquí."
+  },
+  "avatar": {
+    "errorType": "Selecciona una imagen.",
+    "errorSize": "La imagen debe tener hasta 5MB.",
+    "errorGeneric": "No fue posible guardar la foto. Inténtalo de nuevo.",
+    "uploading": "Enviando foto..."
   }
 }

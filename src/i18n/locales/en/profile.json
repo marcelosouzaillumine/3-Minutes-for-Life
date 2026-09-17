@@ -65,5 +65,11 @@
     "loading": "Loading...",
     "loadError": "Could not load your messages.",
     "empty": "When you send a prayer request or testimony, replies will appear here."
+  },
+  "avatar": {
+    "errorType": "Please select an image.",
+    "errorSize": "The image must be under 5MB.",
+    "errorGeneric": "Could not save the photo. Please try again.",
+    "uploading": "Uploading photo..."
   }
 }

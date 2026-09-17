@@ -209,6 +209,21 @@ export const authService = {
     return illumineAuth.getUser()
   },
 
+  // Atualiza o perfil (ex: avatar) no servidor e propaga o resultado pro
+  // cache local + AuthContext, sem precisar de reload pra refletir na tela.
+  async updateProfile(patch: Record<string, unknown>) {
+    const res = await illumineFetch('/users/me', { method: 'PATCH', body: JSON.stringify(patch) })
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      throw new Error(body?.error || 'Erro ao atualizar perfil.')
+    }
+    const updatedUser = await res.json()
+    await illumineAuth.saveUser(updatedUser)
+    const session = { user: updatedUser, accessToken: illumineAuth.getAccessToken() }
+    _authCallback?.('USER_UPDATED', session)
+    return updatedUser
+  },
+
   // ─── LISTENER DE AUTH ────────────────────────────────────────────────────────
 
   onAuthStateChange(callback: (event: string, session: any) => void) {

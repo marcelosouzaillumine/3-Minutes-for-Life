@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { illumineAuth } from '../lib/illumine';
+import { uploadToStorage } from '../lib/storageUpload';
+import { authService } from '../services/authService';
 import { About } from './About';
 import { TestimonialList } from '../components/TestimonialList';
 import { LanguageSelector } from '../components/LanguageSelector';
@@ -27,9 +29,18 @@ export function Profile() {
   const [showSubscriptions, setShowSubscriptions] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState('');
   const [tokenCopied, setTokenCopied] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Reflete a foto salva no perfil (persistida no servidor) — sem isso, ela
+  // só aparecia até o usuário sair/voltar, porque nada inicializava o estado
+  // a partir de user.avatar.
+  useEffect(() => {
+    setAvatarUrl(user?.avatar || null);
+  }, [user?.avatar]);
 
   async function copyAdminToken() {
     const token = illumineAuth.getAccessToken();
@@ -55,11 +66,36 @@ export function Profile() {
     return () => { active = false; };
   }, [user, showMessages]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setAvatarUrl(imageUrl);
+    e.target.value = ''; // permite selecionar o mesmo arquivo de novo depois de um erro
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setAvatarError(t('profile:avatar.errorType', 'Selecione uma imagem.'));
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setAvatarError(t('profile:avatar.errorSize', 'A imagem deve ter até 5MB.'));
+      return;
+    }
+
+    const previousAvatarUrl = avatarUrl;
+    const localPreviewUrl = URL.createObjectURL(file);
+    setAvatarUrl(localPreviewUrl); // feedback imediato enquanto envia
+    setAvatarUploading(true);
+    setAvatarError('');
+
+    try {
+      const publicUrl = await uploadToStorage(file, 'avatars');
+      await authService.updateProfile({ avatar: publicUrl });
+      setAvatarUrl(publicUrl);
+    } catch (err: any) {
+      setAvatarUrl(previousAvatarUrl);
+      setAvatarError(err?.message || t('profile:avatar.errorGeneric', 'Não foi possível salvar a foto. Tente novamente.'));
+    } finally {
+      URL.revokeObjectURL(localPreviewUrl);
+      setAvatarUploading(false);
     }
   };
 
@@ -161,7 +197,11 @@ export function Profile() {
       <h2 className="page-header">{t('title')}</h2>
       
       <div className="profile-hero">
-        <div className="avatar-wrapper" onClick={() => fileInputRef.current?.click()}>
+        <div
+          className="avatar-wrapper"
+          onClick={() => !avatarUploading && fileInputRef.current?.click()}
+          style={{ opacity: avatarUploading ? 0.6 : 1, cursor: avatarUploading ? 'wait' : 'pointer' }}
+        >
           {avatarUrl ? (
             <img src={avatarUrl} alt="Avatar" className="profile-avatar-img" />
           ) : (
@@ -175,17 +215,28 @@ export function Profile() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </div>
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleFileChange} 
-            accept="image/*" 
-            style={{ display: 'none' }} 
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            disabled={avatarUploading}
+            style={{ display: 'none' }}
           />
         </div>
         <div className="profile-details">
           <p className="profile-name">{user?.name || (user as any)?.user_metadata?.full_name || (user as any)?.user_metadata?.name || t('profile:userFallback', 'Usuário')}</p>
           <p className="profile-email">{user?.email}</p>
+          {avatarUploading && (
+            <p style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', marginTop: '4px' }}>
+              {t('profile:avatar.uploading', 'Enviando foto...')}
+            </p>
+          )}
+          {avatarError && (
+            <p style={{ fontSize: '0.8rem', color: '#dc2626', marginTop: '4px' }}>
+              {avatarError}
+            </p>
+          )}
         </div>
       </div>
 
