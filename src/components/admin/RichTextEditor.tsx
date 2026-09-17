@@ -262,7 +262,7 @@ function CtaModal({
               Texto do Botão{' '}
               <span
                 style={{
-                  color: '#c46d53',
+                  color: 'var(--color-accent, #c46d53)',
                 }}
               >
                 *
@@ -499,9 +499,9 @@ function CtaModal({
                 minHeight: '40px',
                 borderRadius: '8px',
                 border:
-                  '1px solid #c46d53',
+                  '1px solid var(--color-accent, #c46d53)',
                 background:
-                  '#c46d53',
+                  'var(--color-accent, #c46d53)',
                 color: '#fff',
                 cursor: 'pointer',
                 fontSize: '0.9rem',
@@ -974,13 +974,13 @@ export function RichTextEditor({
     position: 'relative',
     zIndex: 2,
     background: isActive
-      ? '#c46d53'
+      ? 'var(--color-accent, #c46d53)'
       : '#ffffff',
     color: isActive
       ? '#ffffff'
       : '#333333',
     border: isActive
-      ? '1px solid #c46d53'
+      ? '1px solid var(--color-accent, #c46d53)'
       : '1px solid #d2d2d2',
     boxShadow:
       '0 1px 2px rgba(0,0,0,0.08)',
@@ -1004,9 +1004,9 @@ export function RichTextEditor({
       minWidth: 'auto',
       padding: '6px 12px',
       background: '#fff7f4',
-      color: '#c46d53',
+      color: 'var(--color-accent, #c46d53)',
       border:
-        '1px solid #c46d53',
+        '1px solid var(--color-accent, #c46d53)',
     };
 
   // ───────────────────────────────────────────────────────────────────────────

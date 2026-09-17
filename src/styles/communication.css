@@ -11,7 +11,7 @@
 
 .communication-center,
 .communication-editor {
-    --communication-accent: #c46d53;
+    --communication-accent: var(--color-accent, #c46d53);
     --communication-accent-soft: #fdf7f5;
     --communication-accent-soft-2: #faf8f6;
 

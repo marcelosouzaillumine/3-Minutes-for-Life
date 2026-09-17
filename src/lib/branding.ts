@@ -6,12 +6,15 @@ interface TenantBranding {
   logoUrl: string | null
   iconUrl: string | null
   primaryColor: string | null
+  secondaryColor: string | null
   website: string | null
   contactEmail: string | null
   razaoSocial: string | null
   cnpj: string | null
   addressCity: string | null
   addressState: string | null
+  authorName: string | null
+  authorRole: string | null
 }
 
 let _branding: TenantBranding | null = null
@@ -53,6 +56,12 @@ function applyBrandingToDOM(b: TenantBranding): void {
     // Darker shade for text links and strong accents
     root.style.setProperty('--accent-strong', shadeColor(b.primaryColor, -25))
     root.style.setProperty('--accent-hover', shadeColor(b.primaryColor, -35))
+  }
+  if (b.secondaryColor) {
+    // Cor de acento usada em telas de admin/formulários (var(--color-accent,
+    // #c46d53) — o hex é só o valor padrão do 3MFL, sobrescrito aqui quando
+    // o tenant configura uma cor própria).
+    root.style.setProperty('--color-accent', b.secondaryColor)
   }
   if (b.iconUrl) {
     // A aba do navegador só lê os <link rel="icon"> do próprio index.html —

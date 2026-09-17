@@ -109,7 +109,7 @@ function CtaNodeView({
       style={{
         border: `2px solid ${
           selected
-            ? '#c46d53'
+            ? 'var(--color-accent, #c46d53)'
             : '#e0cfc9'
         }`,
 
@@ -170,7 +170,7 @@ function CtaNodeView({
             'uppercase',
 
           color:
-            '#c46d53',
+            'var(--color-accent, #c46d53)',
 
           marginBottom:
             '0.5rem',
@@ -262,7 +262,7 @@ function CtaNodeView({
               '8px',
 
             background:
-              '#c46d53',
+              'var(--color-accent, #c46d53)',
 
             color:
               '#fff',
@@ -331,13 +331,13 @@ function CtaNodeView({
                 '6px',
 
               border:
-                '1px solid #c46d53',
+                '1px solid var(--color-accent, #c46d53)',
 
               background:
                 '#fff',
 
               color:
-                '#c46d53',
+                'var(--color-accent, #c46d53)',
 
               cursor:
                 'pointer',
@@ -565,7 +565,7 @@ export const CtaNode = Node.create({
               'padding:4px 9px',
               'border-radius:999px',
               'background:#f9ece8',
-              'color:#c46d53',
+              'color:var(--color-accent, #c46d53)',
               'font-size:11px',
               'font-weight:700',
               'letter-spacing:.08em',
@@ -645,7 +645,7 @@ export const CtaNode = Node.create({
                       'display:inline-block',
                       'padding:12px 20px',
                       'border-radius:8px',
-                      'background:#c46d53',
+                      'background:var(--color-accent, #c46d53)',
                       'color:#ffffff',
                       'font-size:14px',
                       'font-weight:700',

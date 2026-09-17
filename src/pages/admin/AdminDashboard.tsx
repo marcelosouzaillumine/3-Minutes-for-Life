@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 import { AdminService, type DashboardMetrics, type DailySeriesPoint, type ReadingTrends } from '../../services/AdminService';
 
-const ACCENT = '#c46d53';
+const ACCENT = 'var(--color-accent, #c46d53)';
 const ACCENT_SOFT = '#e8c3b6';
 const GOOD = '#059669';
 const BAD = '#dc2626';

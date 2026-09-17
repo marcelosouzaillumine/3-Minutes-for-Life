@@ -2497,7 +2497,7 @@ export default function CampaignEditor({
 
                                             border:
                                                 selected
-                                                    ? '2px solid #c46d53'
+                                                    ? '2px solid var(--color-accent, #c46d53)'
                                                     : '1px solid #ddd',
 
                                             background:
@@ -2539,7 +2539,7 @@ export default function CampaignEditor({
 
                                                     border:
                                                         selected
-                                                            ? '6px solid #c46d53'
+                                                            ? '6px solid var(--color-accent, #c46d53)'
                                                             : '1px solid #bbb',
 
                                                     boxSizing:
@@ -2723,7 +2723,7 @@ export default function CampaignEditor({
 
                                                 border:
                                                     selected
-                                                        ? '2px solid #c46d53'
+                                                        ? '2px solid var(--color-accent, #c46d53)'
                                                         : '1px solid #ddd',
 
                                                 background:
@@ -2765,7 +2765,7 @@ export default function CampaignEditor({
 
                                                         border:
                                                             selected
-                                                                ? '6px solid #c46d53'
+                                                                ? '6px solid var(--color-accent, #c46d53)'
                                                                 : '1px solid #bbb',
 
                                                         boxSizing:

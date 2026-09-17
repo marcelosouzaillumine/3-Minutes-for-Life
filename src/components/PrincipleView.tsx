@@ -10,6 +10,7 @@ import { ReflectionService } from '../services/ReflectionService';
 import { RelationshipSection } from './RelationshipSection';
 import { CtaEngine } from '../services/CtaEngine';
 import { DevotionalHeader } from './DevotionalHeader';
+import { useTenantBranding } from '../hooks/useTenantBranding';
 
 interface PrincipleViewProps {
   devotional: Devotional;
@@ -39,6 +40,9 @@ export function PrincipleView({
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const branding = useTenantBranding();
+  const authorName = branding?.authorName || 'Marcelo Souza';
+  const authorRole = branding?.authorRole || t('home.authorRole', 'Pastor na Igreja Missão Mobilização');
 
   const [saved, setSaved] = useState(false);
   const [showLoginToSave, setShowLoginToSave] = useState(false);
@@ -287,8 +291,8 @@ export function PrincipleView({
             <div className="devotional-signature-info">
               <span className="devotional-signature-eyebrow">{t('home.writtenBy', 'escrito por')}</span>
               {/* Nome próprio — não é traduzido, mantido no original em qualquer idioma. */}
-              <span className="devotional-signature-name">Marcelo Souza</span>
-              <span className="devotional-signature-title">{t('home.authorRole', 'Pastor na Igreja Missão Mobilização')}</span>
+              <span className="devotional-signature-name">{authorName}</span>
+              <span className="devotional-signature-title">{authorRole}</span>
             </div>
             <svg className="devotional-signature-ornament" viewBox="0 0 36 36" fill="none" aria-hidden="true">
               <polygon points="18,2 34,10 34,26 18,34 2,26 2,10" stroke="currentColor" strokeWidth="1.5" fill="none"/>

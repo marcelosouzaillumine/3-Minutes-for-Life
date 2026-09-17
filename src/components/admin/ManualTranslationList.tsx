@@ -230,12 +230,12 @@ export const ManualTranslationList: React.FC<ManualTranslationListProps> = ({
                 style={{
                   padding: '7px 14px',
                   borderRadius: '6px',
-                  border: filterTab === tab.id ? '1px solid #c46d53' : '1px solid #e2e8f0',
+                  border: filterTab === tab.id ? '1px solid var(--color-accent, #c46d53)' : '1px solid #e2e8f0',
                   cursor: 'pointer',
                   fontWeight: 600,
                   fontSize: '0.8rem',
                   whiteSpace: 'nowrap',
-                  background: filterTab === tab.id ? '#c46d53' : 'var(--color-surface)',
+                  background: filterTab === tab.id ? 'var(--color-accent, #c46d53)' : 'var(--color-surface)',
                   color: filterTab === tab.id ? '#fff' : 'var(--color-text-light)',
                   transition: 'all 0.15s',
                 }}
@@ -342,9 +342,9 @@ export const ManualTranslationList: React.FC<ManualTranslationListProps> = ({
                   style={{
                     padding: '6px 14px',
                     borderRadius: '6px',
-                    border: '1px solid #c46d53',
-                    background: devo.translationState === 'none' ? '#c46d53' : 'transparent',
-                    color: devo.translationState === 'none' ? '#ffffff' : '#c46d53',
+                    border: '1px solid var(--color-accent, #c46d53)',
+                    background: devo.translationState === 'none' ? 'var(--color-accent, #c46d53)' : 'transparent',
+                    color: devo.translationState === 'none' ? '#ffffff' : 'var(--color-accent, #c46d53)',
                     fontWeight: 700,
                     fontSize: '0.78rem',
                     cursor: 'pointer',

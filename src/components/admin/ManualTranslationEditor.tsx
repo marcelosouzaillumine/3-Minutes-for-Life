@@ -227,7 +227,7 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
           style={{
             background: 'none',
             border: 'none',
-            color: '#c46d53',
+            color: 'var(--color-accent, #c46d53)',
             fontWeight: 'bold',
             cursor: 'pointer',
             padding: 0,
@@ -278,9 +278,9 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
             onClick={handlePublish}
             disabled={saving || publishing}
             style={{
-              background: '#c46d53',
+              background: 'var(--color-accent, #c46d53)',
               color: '#ffffff',
-              border: '1px solid #c46d53',
+              border: '1px solid var(--color-accent, #c46d53)',
               borderRadius: '8px',
               padding: '8px 18px',
               fontWeight: 700,
@@ -624,7 +624,7 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
             alignItems: 'center',
             gap: '8px',
             paddingBottom: '12px',
-            borderBottom: '2px solid #c46d53'
+            borderBottom: '2px solid var(--color-accent, #c46d53)'
           }}>
             <span>{language.flag_emoji}</span>
             <strong style={{ fontSize: '0.95rem', color: '#1a1a1a' }}>
@@ -918,8 +918,8 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
                 flex: 1,
                 padding: '14px',
                 borderRadius: '8px',
-                border: '1px solid #c46d53',
-                background: '#c46d53',
+                border: '1px solid var(--color-accent, #c46d53)',
+                background: 'var(--color-accent, #c46d53)',
                 color: '#ffffff',
                 fontWeight: 700,
                 fontSize: '0.95rem',

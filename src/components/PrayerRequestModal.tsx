@@ -165,7 +165,7 @@ export function PrayerRequestModal({ isOpen: controlledIsOpen, onClose, devotion
               justifyContent: 'center',
               margin: '0 auto 1.5rem',
             }}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c46d53" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent, #c46d53)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
@@ -211,7 +211,7 @@ export function PrayerRequestModal({ isOpen: controlledIsOpen, onClose, devotion
               justifyContent: 'center',
               margin: '0 auto 1.5rem',
             }}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c46d53" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent, #c46d53)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
@@ -242,7 +242,7 @@ export function PrayerRequestModal({ isOpen: controlledIsOpen, onClose, devotion
               justifyContent: 'center',
               marginBottom: '1.25rem',
             }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c46d53" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent, #c46d53)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
                 <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
                 <line x1="6" y1="1" x2="6" y2="4" />

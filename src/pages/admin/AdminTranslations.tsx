@@ -209,8 +209,8 @@ export function AdminTranslations() {
               style={{
                 padding: '8px 14px', borderRadius: '7px', fontWeight: 600,
                 fontSize: '0.8rem', whiteSpace: 'nowrap', cursor: 'pointer',
-                border: filterMode === id ? '1px solid #c46d53' : '1px solid #e2e8f0',
-                background: filterMode === id ? '#c46d53' : 'var(--color-surface)',
+                border: filterMode === id ? '1px solid var(--color-accent, #c46d53)' : '1px solid #e2e8f0',
+                background: filterMode === id ? 'var(--color-accent, #c46d53)' : 'var(--color-surface)',
                 color: filterMode === id ? '#fff' : 'var(--color-text-light)',
               }}
             >
