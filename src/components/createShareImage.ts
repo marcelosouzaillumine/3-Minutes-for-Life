@@ -93,9 +93,14 @@ function alpha(ctx: CanvasRenderingContext2D, a: number, fn: () => void) {
 async function drawOg(ctx: CanvasRenderingContext2D, w: number, h: number, d: DrawData) {
   const PAD_X      = 80
   const IW         = w - PAD_X * 2
+  const AFTER_LOGO = Math.round(20  * 1.2)  // +20% → 24
+  const LABEL_SIZE = Math.round(13  * 1.15) // +15% → 15px
+  const LABEL_GAP  = 16
   const TITLE_LINE = Math.round(58 * 1.06)
-  const PRINC_LINE = Math.round(30 * 1.4)
-  const SCRIP_SIZE = Math.round(17 * 1.2)  // +20%
+  const PRINC_SIZE = Math.round(30  * 1.25) // +25% → 38px
+  const PRINC_LINE = Math.round(PRINC_SIZE * 1.4)
+  const SCRIP_SIZE = Math.round(17  * 1.2)
+  const SCRIP_GAP  = Math.round(16  * 1.1)  // +10% → 18
 
   const logo = await loadImg(d.logoDataUrl)
   const LW   = Math.round(280 * 1.15)  // +15% → ~322px
@@ -104,22 +109,22 @@ async function drawOg(ctx: CanvasRenderingContext2D, w: number, h: number, d: Dr
   // Measure total content height for vertical centering
   ctx.font = `800 58px ${SERIF}`
   const titleH = countLines(ctx, d.title, IW) * TITLE_LINE
-  ctx.font = `italic 700 30px ${SERIF}`
+  ctx.font = `italic 700 ${PRINC_SIZE}px ${SERIF}`
   const princH = countLines(ctx, d.principle, IW) * PRINC_LINE
-  const scripH = d.scripture ? 16 + SCRIP_SIZE : 0
-  //           logo   gap   label    gap   title  gap  divider  gap   principle  scripture
-  const totalH = LH + 20 + (13 + 16) + titleH + 18 + 2 + 18 + princH + scripH
+  const scripH = d.scripture ? SCRIP_GAP + SCRIP_SIZE : 0
+  //           logo       gap   label                  title  gap  divider  gap   principle  scripture
+  const totalH = LH + AFTER_LOGO + (LABEL_SIZE + LABEL_GAP) + titleH + 18 + 2 + 18 + princH + scripH
   let y = Math.round((h - totalH) / 2)
 
   // Logo — centered horizontally
   ctx.drawImage(logo, (w - LW) / 2, y, LW, LH)
-  y += LH + 20
+  y += LH + AFTER_LOGO
 
   // DEVOCIONAL DO DIA label
-  ctx.font = `700 13px ${SERIF}`
+  ctx.font = `700 ${LABEL_SIZE}px ${SERIF}`
   ctx.fillStyle = GOLD
   spacedText(ctx, 'DEVOCIONAL DO DIA', PAD_X, y, 6)
-  y += 13 + 16
+  y += LABEL_SIZE + LABEL_GAP
 
   // Title
   ctx.font = `800 58px ${SERIF}`
@@ -133,13 +138,13 @@ async function drawOg(ctx: CanvasRenderingContext2D, w: number, h: number, d: Dr
   y += 2 + 18
 
   // Principle
-  ctx.font = `italic 700 30px ${SERIF}`
+  ctx.font = `italic 700 ${PRINC_SIZE}px ${SERIF}`
   ctx.fillStyle = GOLD
   y = wrapText(ctx, d.principle, PAD_X, y, IW, PRINC_LINE)
 
   // Scripture
   if (d.scripture) {
-    y += 16
+    y += SCRIP_GAP
     ctx.font = `400 ${SCRIP_SIZE}px ${SERIF}`
     alpha(ctx, 0.75, () => {
       ctx.fillStyle = CREAM
