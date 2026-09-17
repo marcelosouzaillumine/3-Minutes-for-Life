@@ -103,7 +103,7 @@ async function drawOg(ctx: CanvasRenderingContext2D, w: number, h: number, d: Dr
   const SCRIP_GAP  = Math.round(16  * 1.1)  // +10% → 18
 
   const logo = await loadImg(d.logoDataUrl)
-  const LW   = Math.round(280 * 1.15)  // +15% → ~322px
+  const LW   = Math.round(280 * 1.15 * 1.25)  // 322 → 403px (+25%)
   const LH   = Math.round(LW * logo.naturalHeight / logo.naturalWidth)
 
   // Measure total content height for vertical centering
@@ -256,18 +256,18 @@ export async function createShareImage(
     await drawOg(ctx, w, h, data)
   } else if (format === 'story') {
     await drawInstagram(ctx, w, h, data,
-      { logo: 456, title: 108, principle: 56, scripture: 28, site: 26 },
+      { logo: 570, title: 108, principle: 56, scripture: 28, site: 26 },
       { x: 110, top: 130, bot: 180, afterLogo: 150, afterLabel: 60 },
     )
   } else if (format === 'feed') {
     await drawInstagram(ctx, w, h, data,
-      { logo: 384, title: 86, principle: 46, scripture: 26, site: 22 },
+      { logo: 480, title: 86, principle: 46, scripture: 26, site: 22 },
       { x: 90, top: 100, bot: 100, afterLogo: 90 },
     )
   } else {
     // facebook
     await drawInstagram(ctx, w, h, data,
-      { logo: 384, title: 84, principle: 44, scripture: 26, site: 22 },
+      { logo: 480, title: 84, principle: 44, scripture: 26, site: 22 },
       { x: 90, top: 90, bot: 90, afterLogo: 72 },
     )
   }
