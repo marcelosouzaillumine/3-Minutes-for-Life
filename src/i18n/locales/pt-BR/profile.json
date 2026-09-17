@@ -24,6 +24,21 @@
   "logout": "Sair da Conta",
   "language": "Idioma",
   "supportProject": "Apoiar o projeto",
+  "mySubscriptions": "Minha contribuição recorrente",
+  "subscriptions": {
+    "title": "Minha contribuição recorrente",
+    "loading": "Carregando...",
+    "loadError": "Não foi possível carregar sua contribuição recorrente.",
+    "empty": "Você não tem nenhuma contribuição recorrente ativa no momento.",
+    "monthly": "Mensal",
+    "yearly": "Anual",
+    "since": "Desde {{date}}",
+    "cancelBtn": "Cancelar contribuição",
+    "cancelling": "Cancelando...",
+    "cancelConfirm": "Tem certeza que deseja cancelar sua contribuição recorrente? Você pode voltar a apoiar o projeto quando quiser.",
+    "cancelSuccess": "Sua contribuição recorrente foi cancelada. Obrigado por tudo que você já ofereceu.",
+    "cancelError": "Não foi possível cancelar agora. Tente novamente em instantes."
+  },
   "consent": {
     "title": "Preferências de comunicação",
     "replyTitle": "Resposta às minhas mensagens",

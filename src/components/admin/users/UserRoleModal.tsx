@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AdminUserService } from '../../../services/AdminUserService';
-import type { AdminUserItem, AppRole } from '../../../types/AdminUser';
+import type { AdminUserItem, TenantRole } from '../../../types/AdminUser';
 
 interface UserRoleModalProps {
   user: AdminUserItem | null;
@@ -10,9 +10,9 @@ interface UserRoleModalProps {
   onChanged: () => void;
 }
 
-const ALL_ROLES: AppRole[] = ['super_admin', 'admin', 'editor', 'moderator', 'analyst'];
-
-const ROLE_STYLES: Record<AppRole, { bg: string; color: string; label: string }> = {
+// Cores por nome de papel conhecido; papéis não listados (o tenant pode ter
+// qualquer nome cadastrado em `roles`) caem no estilo neutro padrão.
+const ROLE_STYLES: Record<string, { bg: string; color: string; label: string }> = {
   super_admin: { bg: '#fee2e2', color: '#991b1b', label: 'Super Admin' },
   admin: { bg: '#dbeafe', color: '#1e40af', label: 'Admin' },
   editor: { bg: '#ede9fe', color: '#5b21b6', label: 'Editor' },
@@ -20,7 +20,7 @@ const ROLE_STYLES: Record<AppRole, { bg: string; color: string; label: string }>
   analyst: { bg: '#f3f4f6', color: '#4b5563', label: 'Analista' },
 };
 
-export function RoleBadge({ role }: { role: AppRole }) {
+export function RoleBadge({ role }: { role: string }) {
   const style = ROLE_STYLES[role] || { bg: '#f3f4f6', color: '#4b5563', label: role };
   return (
     <span
@@ -42,9 +42,15 @@ export function RoleBadge({ role }: { role: AppRole }) {
 
 export function UserRoleModal({ user, canManageRoles, onClose, onChanged }: UserRoleModalProps) {
   const { t } = useTranslation(['common']);
-  const [busyRole, setBusyRole] = useState<AppRole | null>(null);
-  const [addingRole, setAddingRole] = useState<AppRole | ''>('');
+  const [roles, setRoles] = useState<TenantRole[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [selectedRoleId, setSelectedRoleId] = useState('');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (!user || !canManageRoles) return;
+    AdminUserService.getRoles().then(setRoles).catch(() => setRoles([]));
+  }, [user, canManageRoles]);
 
   if (!user) return null;
 
@@ -59,35 +65,35 @@ export function UserRoleModal({ user, canManageRoles, onClose, onChanged }: User
     }
   };
 
-  const handleRevoke = async (role: AppRole) => {
-    setBusyRole(role);
+  const handleRevoke = async () => {
+    setBusy(true);
     setError('');
     try {
-      await AdminUserService.revokeRole(user.id, role);
+      await AdminUserService.revokeRole(user.id);
       onChanged();
     } catch (err: any) {
       setError('Erro ao remover papel: ' + err.message);
     } finally {
-      setBusyRole(null);
+      setBusy(false);
     }
   };
 
   const handleAssign = async () => {
-    if (!addingRole) return;
-    setBusyRole(addingRole);
+    if (!selectedRoleId) return;
+    setBusy(true);
     setError('');
     try {
-      await AdminUserService.assignRole(user.id, addingRole);
-      setAddingRole('');
+      await AdminUserService.assignRole(user.id, selectedRoleId);
+      setSelectedRoleId('');
       onChanged();
     } catch (err: any) {
-      setError('Erro ao adicionar papel: ' + err.message);
+      setError('Erro ao definir papel: ' + err.message);
     } finally {
-      setBusyRole(null);
+      setBusy(false);
     }
   };
 
-  const availableRoles = ALL_ROLES.filter(r => !user.roles.includes(r));
+  const availableRoles = roles.filter(r => r.id !== user.role?.id);
 
   return (
     <div
@@ -158,52 +164,55 @@ export function UserRoleModal({ user, canManageRoles, onClose, onChanged }: User
         )}
 
         <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '16px' }}>
-          <h3 style={{ fontSize: '0.9rem', fontWeight: 600, margin: '0 0 10px', color: 'var(--color-text)' }}>Papéis</h3>
+          <h3 style={{ fontSize: '0.9rem', fontWeight: 600, margin: '0 0 10px', color: 'var(--color-text)' }}>Papel</h3>
+          <p style={{ fontSize: '0.75rem', color: 'var(--color-text-light)', margin: '0 0 10px' }}>
+            Cada usuário tem no máximo um papel neste tenant.
+          </p>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: canManageRoles ? '16px' : 0 }}>
-            {user.roles.length === 0 && (
+            {!user.role && (
               <span style={{ fontSize: '0.85rem', color: 'var(--color-text-light)' }}>Nenhum papel atribuído.</span>
             )}
-            {user.roles.map(role => (
-              <span key={role} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                <RoleBadge role={role} />
+            {user.role && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <RoleBadge role={user.role.name} />
                 {canManageRoles && (
                   <button
                     type="button"
-                    disabled={busyRole === role}
-                    onClick={() => handleRevoke(role)}
-                    aria-label={`Remover papel ${role}`}
+                    disabled={busy}
+                    onClick={handleRevoke}
+                    aria-label={`Remover papel ${user.role.name}`}
                     style={{
                       border: 'none', background: 'none', color: 'var(--color-text-light)',
-                      cursor: busyRole === role ? 'not-allowed' : 'pointer', fontSize: '0.9rem', lineHeight: 1, padding: 0,
+                      cursor: busy ? 'not-allowed' : 'pointer', fontSize: '0.9rem', lineHeight: 1, padding: 0,
                     }}
                   >
                     &times;
                   </button>
                 )}
               </span>
-            ))}
+            )}
           </div>
 
           {canManageRoles && availableRoles.length > 0 && (
             <div style={{ display: 'flex', gap: '8px' }}>
               <select
-                value={addingRole}
-                onChange={e => setAddingRole(e.target.value as AppRole)}
+                value={selectedRoleId}
+                onChange={e => setSelectedRoleId(e.target.value)}
                 style={{
                   flex: 1, padding: '8px 10px', borderRadius: '8px',
                   border: '1px solid var(--color-border)', background: 'var(--color-bg)',
                   color: 'var(--color-text)', fontSize: '0.85rem',
                 }}
               >
-                <option value="">Adicionar papel…</option>
+                <option value="">{user.role ? 'Trocar papel para…' : 'Definir papel…'}</option>
                 {availableRoles.map(r => (
-                  <option key={r} value={r}>{ROLE_STYLES[r].label}</option>
+                  <option key={r.id} value={r.id}>{ROLE_STYLES[r.name]?.label ?? r.name}</option>
                 ))}
               </select>
               <button
                 type="button"
-                disabled={!addingRole || busyRole !== null}
+                disabled={!selectedRoleId || busy}
                 onClick={handleAssign}
                 style={{
                   width: 'auto',
@@ -215,11 +224,11 @@ export function UserRoleModal({ user, canManageRoles, onClose, onChanged }: User
                   borderRadius: '8px',
                   background: 'var(--color-accent)',
                   color: '#fff',
-                  cursor: !addingRole || busyRole !== null ? 'not-allowed' : 'pointer',
-                  opacity: !addingRole || busyRole !== null ? 0.6 : 1,
+                  cursor: !selectedRoleId || busy ? 'not-allowed' : 'pointer',
+                  opacity: !selectedRoleId || busy ? 0.6 : 1,
                 }}
               >
-                {busyRole === addingRole ? 'Salvando…' : 'Adicionar'}
+                {busy ? 'Salvando…' : 'Salvar'}
               </button>
             </div>
           )}

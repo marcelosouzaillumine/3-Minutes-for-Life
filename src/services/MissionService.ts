@@ -11,9 +11,20 @@ export interface Campaign {
   id: string;
   name: string;
   description: string;
-  status: 'active' | 'completed' | 'draft';
+  status: 'active' | 'completed' | 'draft' | 'paused' | 'cancelled';
+  goal?: number;
+  raised?: number;
   starts_at?: string;
   ends_at?: string;
+}
+
+export interface RecurringSubscription {
+  asaasSubscriptionId: string;
+  amountCents: number;
+  currency: string;
+  status: string;
+  cycle?: 'MONTHLY' | 'YEARLY';
+  createdAt: string;
 }
 
 export interface Contribution {
@@ -66,9 +77,28 @@ export const MissionService = {
   },
 
   async getActiveCampaigns(): Promise<Campaign[]> {
-    // TODO (L1): endpoint GET /campaigns?status=active não implementado ainda no Illumine OS
-    console.warn('[MissionService] getActiveCampaigns: endpoint GET /campaigns não disponível no L1');
-    return [];
+    // Campanhas de doação vivem no módulo `crm` do Illumine OS (GET /crm/campaigns),
+    // não em /campaigns. Requer o módulo `crm` ativado no tenant — se não estiver
+    // ativado, o gateway responde 403 e tratamos como "nenhuma campanha".
+    const res = await illumineFetch('/crm/campaigns?status=active');
+    if (!res.ok) {
+      if (res.status !== 403) {
+        console.warn(`[MissionService] getActiveCampaigns: GET /crm/campaigns falhou com status ${res.status}`);
+      }
+      return [];
+    }
+    const body = await res.json();
+    const campaigns: any[] = body.campaigns ?? body.data ?? [];
+    return campaigns.map((c): Campaign => ({
+      id: c.id,
+      name: c.name,
+      description: c.description ?? '',
+      status: c.status,
+      goal: c.goal ?? undefined,
+      raised: c.raised ?? undefined,
+      starts_at: c.startsAt ?? undefined,
+      ends_at: c.endsAt ?? undefined,
+    }));
   },
 
   async createCheckout(
@@ -117,5 +147,30 @@ export const MissionService = {
 
   async createOneTimePixCheckout(amountCents: number, cpfCnpj: string): Promise<{ checkoutUrl: string; contributionId: string }> {
     return this.createCheckout(amountCents, cpfCnpj, 'one_time');
+  },
+
+  async getMySubscriptions(): Promise<RecurringSubscription[]> {
+    const res = await illumineFetch('/asaas/subscriptions/mine');
+    if (!res.ok) return [];
+    const body = await res.json();
+    const subscriptions: any[] = body.subscriptions ?? [];
+    return subscriptions.map((s): RecurringSubscription => ({
+      asaasSubscriptionId: s.asaasSubscriptionId,
+      amountCents: s.amount,
+      currency: s.currency ?? 'BRL',
+      status: s.status,
+      cycle: s.cycle,
+      createdAt: s.createdAt,
+    }));
+  },
+
+  async cancelSubscription(asaasSubscriptionId: string): Promise<void> {
+    const res = await illumineFetch(`/asaas/subscriptions/${encodeURIComponent(asaasSubscriptionId)}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok && res.status !== 204) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body?.error || 'Erro ao cancelar a assinatura.');
+    }
   },
 };

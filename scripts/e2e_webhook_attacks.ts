@@ -6,8 +6,11 @@ dotenv.config({ path: '.env.local' });
 const supabaseUrl = process.env.VITE_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 // For testing edge function locally we can assume the remote or local one.
-const webhookUrl = `${supabaseUrl}/functions/v1/asaas-webhook`; 
-const asaasToken = 'b59c02f9-60d0-4619-894b-0f1dafe56d0f'; // Assuming this was meant as the webhook token
+const webhookUrl = `${supabaseUrl}/functions/v1/asaas-webhook`;
+const asaasToken = process.env.ASAAS_WEBHOOK_TOKEN;
+if (!asaasToken) {
+  throw new Error('ASAAS_WEBHOOK_TOKEN não definido em .env.local — necessário para rodar este script.');
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 

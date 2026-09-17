@@ -1,5 +1,5 @@
 import { illumineFetch } from '../lib/illumine';
-import type { AdminUserItem, AppRole, PaginatedUsersResult } from '../types/AdminUser';
+import type { AdminUserItem, AppRole, TenantRole, PaginatedUsersResult } from '../types/AdminUser';
 
 interface GetUsersParams {
   search?: string;
@@ -24,7 +24,8 @@ export const AdminUserService = {
         avatar_url: u.avatar ?? null,
         created_at: u.createdAt,
         last_sign_in_at: null,
-        roles: [],
+        // GET /users inclui { role: { id, name } | null } por usuário (papel único por tenant).
+        role: u.role ? { id: u.role.id, name: u.role.name } : null,
       })),
       total: body.total ?? users.length,
       page: body.page ?? safePage,
@@ -41,15 +42,36 @@ export const AdminUserService = {
     return role ? [role as AppRole] : [];
   },
 
-  async assignRole(_userId: string, _role: AppRole): Promise<void> {
-    // TODO (L1): endpoint POST /users/{userId}/roles não implementado ainda no Illumine OS
-    console.warn('[AdminUserService] assignRole: endpoint L1 não disponível');
-    throw new Error('Atribuição de papel não disponível — aguardando endpoint L1 /users/{id}/roles.');
+  // Papéis existentes no tenant atual (dinâmico — não é uma lista fixa).
+  async getRoles(): Promise<TenantRole[]> {
+    const res = await illumineFetch('/roles');
+    if (!res.ok) throw new Error(`[AdminUserService] GET /roles falhou com status ${res.status}`);
+    const body = await res.json();
+    return (body.roles ?? []) as TenantRole[];
   },
 
-  async revokeRole(_userId: string, _role: AppRole): Promise<void> {
-    // TODO (L1): endpoint DELETE /users/{userId}/roles/{role} não implementado ainda no Illumine OS
-    console.warn('[AdminUserService] revokeRole: endpoint L1 não disponível');
-    throw new Error('Revogação de papel não disponível — aguardando endpoint L1 /users/{id}/roles/{role}.');
+  // Um usuário tem no máximo um papel por tenant — atribuir substitui o atual.
+  async assignRole(userId: string, roleId: string): Promise<void> {
+    const res = await illumineFetch(`/users/${userId}/roles`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ roleId }),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error === 'FORBIDDEN'
+        ? 'Você não tem permissão para atribuir papéis.'
+        : `Falha ao atribuir papel (status ${res.status}).`);
+    }
+  },
+
+  async revokeRole(userId: string): Promise<void> {
+    const res = await illumineFetch(`/users/${userId}/roles`, { method: 'DELETE' });
+    if (!res.ok && res.status !== 204) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error === 'FORBIDDEN'
+        ? 'Você não tem permissão para remover papéis.'
+        : `Falha ao remover papel (status ${res.status}).`);
+    }
   },
 };

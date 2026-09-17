@@ -181,8 +181,8 @@ export function AdminUsers() {
                   </td>
                   <td style={{ padding: '12px 16px' }}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                      {user.roles.length > 0
-                        ? user.roles.map(role => <RoleBadge key={role} role={role} />)
+                      {user.role
+                        ? <RoleBadge role={user.role.name} />
                         : <span style={{ color: 'var(--color-text-light)', fontSize: '0.8rem' }}>—</span>}
                     </div>
                   </td>

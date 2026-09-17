@@ -13,6 +13,7 @@ export function Explore() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedDevotional, setSelectedDevotional] = useState<Devotional | null>(null);
   const [loadingDevotional, setLoadingDevotional] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     DevotionalService.getDevotionalsForBrowse(i18n.language)
@@ -103,20 +104,62 @@ export function Explore() {
     );
   }
 
+  const trimmedQuery = searchQuery.trim();
+  const searchResults = trimmedQuery
+    ? devotionals.filter(d => {
+        const haystack = `${d.title ?? ''} ${d.principle_statement ?? ''}`.toLowerCase();
+        return haystack.includes(trimmedQuery.toLowerCase());
+      })
+    : [];
+
   return (
     <div>
       <h2 style={{ marginBottom: '1.5rem', fontWeight: 500 }}>{t('title')}</h2>
-      <ul className="category-list">
-        {categories.map(category => {
-          const count = devotionals.filter(d => d.categories?.name === category).length;
-          return (
-            <li key={category} className="category-item" onClick={() => setSelectedCategory(category)}>
-              <span className="category-title">{category}</span>
-              <span className="category-count">{count === 1 ? t('count_one', { count }) : t('count_other', { count })}</span>
-            </li>
-          );
-        })}
-      </ul>
+
+      <input
+        type="search"
+        value={searchQuery}
+        onChange={e => setSearchQuery(e.target.value)}
+        placeholder={t('search_placeholder')}
+        aria-label={t('search_placeholder')}
+        style={{
+          width: '100%',
+          padding: '10px 14px',
+          marginBottom: '1.5rem',
+          borderRadius: '10px',
+          border: '1px solid var(--color-border)',
+          background: 'var(--color-bg)',
+          color: 'var(--color-text)',
+          fontSize: '0.95rem',
+        }}
+      />
+
+      {trimmedQuery ? (
+        searchResults.length > 0 ? (
+          <div className="category-list">
+            {searchResults.map(d => (
+              <div key={d.id} className="principle-list-item" onClick={() => handleSelectDevotional(d.id)}>
+                <h3 className="principle-list-title">{d.title}</h3>
+                <p className="principle-list-preview">{d.principle_statement || ''}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="label" style={{ opacity: 0.6 }}>{t('search_no_results', { query: trimmedQuery })}</p>
+        )
+      ) : (
+        <ul className="category-list">
+          {categories.map(category => {
+            const count = devotionals.filter(d => d.categories?.name === category).length;
+            return (
+              <li key={category} className="category-item" onClick={() => setSelectedCategory(category)}>
+                <span className="category-title">{category}</span>
+                <span className="category-count">{count === 1 ? t('count_one', { count }) : t('count_other', { count })}</span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }

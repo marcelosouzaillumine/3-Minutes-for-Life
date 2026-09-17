@@ -91,6 +91,11 @@
     "Devocional": "Devotional",
     "Uma reflexão para hoje": "A reflection for today"
   },
+  "errorBoundary": {
+    "title": "Something didn't go as expected.",
+    "description": "We ran into an unexpected error. You can try reloading the page — our team has already been notified.",
+    "reload": "Reload page"
+  },
   "visualCard": {
     "header": "3 Minutes for Life",
     "footer": "Stop. Reflect. Practice."

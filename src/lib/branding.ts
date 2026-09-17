@@ -9,22 +9,33 @@ interface TenantBranding {
 }
 
 let _branding: TenantBranding | null = null
+let _brandingPromise: Promise<void> | null = null
 
-export async function initBranding(): Promise<void> {
-  if (!ILLUMINE_URL || !TENANT_SLUG) return
-  try {
-    const res = await fetch(`${ILLUMINE_URL}/tenants/by-slug/${TENANT_SLUG}`)
-    if (!res.ok) return
-    const data: TenantBranding = await res.json()
-    _branding = data
-    applyBrandingToDOM(data)
-  } catch {
-    // silently fall back to hardcoded CSS values
-  }
+export function initBranding(): Promise<void> {
+  if (_brandingPromise) return _brandingPromise
+  _brandingPromise = (async () => {
+    if (!ILLUMINE_URL || !TENANT_SLUG) return
+    try {
+      const res = await fetch(`${ILLUMINE_URL}/tenants/by-slug/${TENANT_SLUG}`)
+      if (!res.ok) return
+      const data: TenantBranding = await res.json()
+      _branding = data
+      applyBrandingToDOM(data)
+    } catch {
+      // silently fall back to hardcoded CSS/assets
+    }
+  })()
+  return _brandingPromise
 }
 
 export function getBranding(): TenantBranding | null {
   return _branding
+}
+
+// Para componentes que precisam saber quando o branding do tenant já
+// carregou (ou falhou/não existe) antes de decidir o que renderizar.
+export function onBrandingReady(): Promise<void> {
+  return initBranding()
 }
 
 function applyBrandingToDOM(b: TenantBranding): void {

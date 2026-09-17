@@ -76,11 +76,42 @@ serve(async (req) => {
     let providerReference: string;
     let checkoutUrl: string;
 
+    // amountCents é recalculado abaixo a partir do valor confirmado na Asaas
+    // (modo NEW) ou validado localmente (modo LEGACY) — nunca fica só no que
+    // o cliente mandou, para não permitir gravar um valor arbitrário.
+    let confirmedAmountCents = amountCents;
+
     if (body.asaas_payment_id) {
       // ── NEW MODE: payment already created by Illumine gateway ───────────────
       providerReference = String(body.asaas_payment_id).trim();
       if (!providerReference) {
         return new Response(JSON.stringify({ error: 'asaas_payment_id inválido.' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Confirma na própria Asaas que esse pagamento existe e pega o valor
+      // real de lá — nunca confia no amount_cents que o cliente mandou.
+      const asaasApiKey = (Deno.env.get('ASAAS_API_KEY') || '').trim();
+      const asaasEnvironment = (Deno.env.get('ASAAS_ENVIRONMENT') || 'production').trim();
+      const asaasBaseUrl = asaasEnvironment === 'production'
+        ? 'https://api.asaas.com/v3'
+        : 'https://sandbox.asaas.com/api/v3';
+
+      const verifyRes = await fetch(`${asaasBaseUrl}/payments/${providerReference}`, {
+        headers: { 'access_token': asaasApiKey },
+      });
+      if (!verifyRes.ok) {
+        return new Response(JSON.stringify({ error: 'Referência de pagamento não encontrada na Asaas.' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      const asaasPayment = await verifyRes.json();
+      confirmedAmountCents = Math.round(Number(asaasPayment.value) * 100);
+      if (!Number.isFinite(confirmedAmountCents) || confirmedAmountCents < MIN_AMOUNT_CENTS) {
+        return new Response(JSON.stringify({ error: 'Valor do pagamento inválido.' }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -195,7 +226,7 @@ serve(async (req) => {
     await supabaseAdmin.from('contributions').insert({
       id: contributionId,
       supporter_id: supporterId,
-      amount: amountCents,
+      amount: confirmedAmountCents,
       currency: 'BRL',
       frequency: dbFrequency,
       status: 'pending',

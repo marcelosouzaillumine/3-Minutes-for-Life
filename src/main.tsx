@@ -7,6 +7,7 @@ import App from './App.tsx'
 import { AuthProvider } from './context/AuthContext'
 import { illumineAuth } from './lib/illumine'
 import { initBranding } from './lib/branding'
+import { ErrorBoundary } from './components/ErrorBoundary'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || ''
 
@@ -21,16 +22,18 @@ initBranding().catch(() => {})
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {GOOGLE_CLIENT_ID ? (
-      <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    <ErrorBoundary>
+      {GOOGLE_CLIENT_ID ? (
+        <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </GoogleOAuthProvider>
+      ) : (
         <AuthProvider>
           <App />
         </AuthProvider>
-      </GoogleOAuthProvider>
-    ) : (
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    )}
+      )}
+    </ErrorBoundary>
   </StrictMode>,
 )

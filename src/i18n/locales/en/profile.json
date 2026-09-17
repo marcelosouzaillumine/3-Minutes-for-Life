@@ -24,6 +24,21 @@
   "logout": "Sign Out",
   "language": "Language",
   "supportProject": "Support the project",
+  "mySubscriptions": "My recurring contribution",
+  "subscriptions": {
+    "title": "My recurring contribution",
+    "loading": "Loading...",
+    "loadError": "We couldn't load your recurring contribution.",
+    "empty": "You don't have any active recurring contribution right now.",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "since": "Since {{date}}",
+    "cancelBtn": "Cancel contribution",
+    "cancelling": "Cancelling...",
+    "cancelConfirm": "Are you sure you want to cancel your recurring contribution? You can support the project again whenever you like.",
+    "cancelSuccess": "Your recurring contribution has been cancelled. Thank you for everything you've already given.",
+    "cancelError": "We couldn't cancel it right now. Please try again shortly."
+  },
   "consent": {
     "title": "Communication preferences",
     "replyTitle": "Replies to my messages",

@@ -4,5 +4,7 @@
   "error": "Não foi possível carregar a biblioteca de devocionais.",
   "categories": "Categorias",
   "count_one": "{{count}} devocional",
-  "count_other": "{{count}} devocionais"
+  "count_other": "{{count}} devocionais",
+  "search_placeholder": "Buscar devocional...",
+  "search_no_results": "Nenhum devocional encontrado para \"{{query}}\"."
 }

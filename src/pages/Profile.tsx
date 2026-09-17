@@ -6,6 +6,7 @@ import { About } from './About';
 import { TestimonialList } from '../components/TestimonialList';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { ReflectionList } from '../components/ReflectionList';
+import { MySubscriptions } from '../components/MySubscriptions';
 import { useTranslation } from 'react-i18next';
 import './Profile.css';
 import { CommunicationPreferences } from '../components/CommunicationPreferences';
@@ -13,6 +14,7 @@ import { Conversations } from '../components/Conversations';
 import { CommunicationInbox } from '../components/CommunicationInbox';
 import { ConversationService } from '../services/ConversationService';
 import { CommunicationInboxService } from '../services/CommunicationInboxService';
+import { AdminService } from '../services/AdminService';
 
 export function Profile() {
   const { t } = useTranslation(['profile', 'common']);
@@ -22,9 +24,11 @@ export function Profile() {
   const [showReflections, setShowReflections] = useState(false);
   const [showTestimonials, setShowTestimonials] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
+  const [showSubscriptions, setShowSubscriptions] = useState(false);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [tokenCopied, setTokenCopied] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function copyAdminToken() {
@@ -34,6 +38,10 @@ export function Profile() {
     setTokenCopied(true);
     setTimeout(() => setTokenCopied(false), 2000);
   }
+
+  useEffect(() => {
+    AdminService.checkAdminRole().then(setIsAdmin);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -104,6 +112,25 @@ export function Profile() {
             {t('profile:testimonials', 'Testemunhos')}
           </h3>
           <TestimonialList />
+        </div>
+      </div>
+    );
+  }
+
+  if (showSubscriptions) {
+    return (
+      <div className="profile-container about-page-view">
+        <button className="back-btn" onClick={() => setShowSubscriptions(false)}>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          {t('common:back')}
+        </button>
+        <div className="about-content" style={{ marginTop: '2rem' }}>
+          <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--color-text)' }}>
+            {t('profile:subscriptions.title')}
+          </h3>
+          <MySubscriptions />
         </div>
       </div>
     );
@@ -283,6 +310,19 @@ export function Profile() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </div>
+          <div className="settings-item clickable" onClick={() => setShowSubscriptions(true)}>
+             <div className="settings-item-left">
+              <div className="settings-icon-bg">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a4 4 0 00-8 0v2M5 9h14l-1 11H6L5 9z" />
+                </svg>
+              </div>
+              <span>{t('profile:mySubscriptions', 'Minha contribuição recorrente')}</span>
+            </div>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20" className="chevron-icon">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
           <div className="settings-item clickable" onClick={() => setShowAbout(true)}>
              <div className="settings-item-left">
               <div className="settings-icon-bg">
@@ -300,12 +340,14 @@ export function Profile() {
       </div>
 
       <div className="profile-actions">
-        <button onClick={copyAdminToken} className="copy-token-btn">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-          </svg>
-          {tokenCopied ? 'Token copiado!' : 'Copiar token admin'}
-        </button>
+        {isAdmin && (
+          <button onClick={copyAdminToken} className="copy-token-btn">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            {tokenCopied ? 'Token copiado!' : 'Copiar token admin'}
+          </button>
+        )}
         <button onClick={signOut} className="logout-btn-premium">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

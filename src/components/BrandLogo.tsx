@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { getBranding, onBrandingReady } from '../lib/branding';
 
 interface BrandProps
   extends React.ImgHTMLAttributes<HTMLImageElement> {
@@ -80,12 +81,32 @@ export function BrandLogo({
    * ============================================================
    * SOURCE
    * ============================================================
+   *
+   * Tenants com whitelabel podem configurar um logoUrl próprio
+   * (GET /tenants/by-slug/:slug). A API não distingue light/dark
+   * para o logo custom — quando existe, usamos o mesmo para as duas
+   * variantes; sem ele, caímos nos assets padrão claro/escuro.
    */
 
+  const [tenantLogoUrl, setTenantLogoUrl] = useState<string | null>(
+    getBranding()?.logoUrl ?? null
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    onBrandingReady().then(() => {
+      if (!cancelled) setTenantLogoUrl(getBranding()?.logoUrl ?? null);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const src =
-    resolvedVariant === 'dark'
+    tenantLogoUrl ??
+    (resolvedVariant === 'dark'
       ? '/branding/logo-on-dark.png'
-      : '/branding/logo-on-light.png';
+      : '/branding/logo-on-light.png');
 
   /**
    * ============================================================

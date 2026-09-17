@@ -24,6 +24,21 @@
   "logout": "Cerrar Sesión",
   "language": "Idioma",
   "supportProject": "Apoyar el proyecto",
+  "mySubscriptions": "Mi contribución recurrente",
+  "subscriptions": {
+    "title": "Mi contribución recurrente",
+    "loading": "Cargando...",
+    "loadError": "No pudimos cargar tu contribución recurrente.",
+    "empty": "No tienes ninguna contribución recurrente activa en este momento.",
+    "monthly": "Mensual",
+    "yearly": "Anual",
+    "since": "Desde {{date}}",
+    "cancelBtn": "Cancelar contribución",
+    "cancelling": "Cancelando...",
+    "cancelConfirm": "¿Seguro que deseas cancelar tu contribución recurrente? Puedes volver a apoyar el proyecto cuando quieras.",
+    "cancelSuccess": "Tu contribución recurrente fue cancelada. Gracias por todo lo que ya ofreciste.",
+    "cancelError": "No pudimos cancelarla ahora. Inténtalo de nuevo en unos instantes."
+  },
   "consent": {
     "title": "Preferencias de comunicación",
     "replyTitle": "Respuestas a mis mensajes",

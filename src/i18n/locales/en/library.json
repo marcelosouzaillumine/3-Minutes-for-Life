@@ -4,5 +4,7 @@
   "error": "Could not load the devotional library.",
   "categories": "Categories",
   "count_one": "{{count}} devotional",
-  "count_other": "{{count}} devotionals"
+  "count_other": "{{count}} devotionals",
+  "search_placeholder": "Search devotionals...",
+  "search_no_results": "No devotionals found for \"{{query}}\"."
 }
