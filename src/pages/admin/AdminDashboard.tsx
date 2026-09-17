@@ -373,6 +373,13 @@ export function AdminDashboard() {
               <div className="admin-card-value">{readingTrends.global_total_opens}</div>
             </div>
             <div className="admin-card">
+              <div className="admin-card-title">Média Diária de Aberturas</div>
+              <div className="admin-card-value">{readingTrends.avg_opens_per_day}</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--color-text-light)', marginTop: '2px' }}>
+                {readingTrends.global_total_opens} aberturas ÷ {readingTrends.days_since_first_open} dias
+              </div>
+            </div>
+            <div className="admin-card">
               <div className="admin-card-title">Média de Leituras por Devocional</div>
               <div className="admin-card-value">{readingTrends.avg_reads_per_devotional}</div>
             </div>
