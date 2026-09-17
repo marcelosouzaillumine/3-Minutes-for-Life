@@ -47,6 +47,17 @@ function wrapText(
   return curY
 }
 
+function countLines(ctx: CanvasRenderingContext2D, text: string, maxW: number): number {
+  const words = text.split(' ')
+  let line = '', count = 1
+  for (const word of words) {
+    const test = line ? `${line} ${word}` : word
+    if (ctx.measureText(test).width > maxW && line) { count++; line = word }
+    else { line = test }
+  }
+  return count
+}
+
 // canvas has no letter-spacing — draw char by char for labelled strings
 function spacedText(
   ctx: CanvasRenderingContext2D,
@@ -79,25 +90,30 @@ function alpha(ctx: CanvasRenderingContext2D, a: number, fn: () => void) {
 
 // ─── format renderers ─────────────────────────────────────────────────────────
 
-async function drawOg(ctx: CanvasRenderingContext2D, w: number, _h: number, d: DrawData) {
-  const PAD_X = 80
-  const PAD_Y = 48
-  const IW    = w - PAD_X * 2  // 1040px content width
+async function drawOg(ctx: CanvasRenderingContext2D, w: number, h: number, d: DrawData) {
+  const PAD_X      = 80
+  const IW         = w - PAD_X * 2
+  const TITLE_LINE = Math.round(58 * 1.06)
+  const PRINC_LINE = Math.round(30 * 1.4)
+  const SCRIP_SIZE = Math.round(17 * 1.2)  // +20%
 
-  // Logo (horizontal) — centered at top
-  const logo  = await loadImg(d.logoDataUrl)
-  const LW    = 280
-  const LH    = Math.round(LW * logo.naturalHeight / logo.naturalWidth)
-  ctx.drawImage(logo, (w - LW) / 2, PAD_Y, LW, LH)
+  const logo = await loadImg(d.logoDataUrl)
+  const LW   = Math.round(280 * 1.15)  // +15% → ~322px
+  const LH   = Math.round(LW * logo.naturalHeight / logo.naturalWidth)
 
-  let y = PAD_Y + LH + 20
+  // Measure total content height for vertical centering
+  ctx.font = `800 58px ${SERIF}`
+  const titleH = countLines(ctx, d.title, IW) * TITLE_LINE
+  ctx.font = `italic 700 30px ${SERIF}`
+  const princH = countLines(ctx, d.principle, IW) * PRINC_LINE
+  const scripH = d.scripture ? 16 + SCRIP_SIZE : 0
+  //           logo   gap   label    gap   title  gap  divider  gap   principle  scripture
+  const totalH = LH + 20 + (13 + 16) + titleH + 18 + 2 + 18 + princH + scripH
+  let y = Math.round((h - totalH) / 2)
 
-  // Thin horizontal divider under logo
-  alpha(ctx, 0.2, () => {
-    ctx.fillStyle = GOLD
-    ctx.fillRect(PAD_X, y, IW, 1)
-  })
-  y += 1 + 20
+  // Logo — centered horizontally
+  ctx.drawImage(logo, (w - LW) / 2, y, LW, LH)
+  y += LH + 20
 
   // DEVOCIONAL DO DIA label
   ctx.font = `700 13px ${SERIF}`
@@ -108,7 +124,7 @@ async function drawOg(ctx: CanvasRenderingContext2D, w: number, _h: number, d: D
   // Title
   ctx.font = `800 58px ${SERIF}`
   ctx.fillStyle = CREAM
-  y = wrapText(ctx, d.title, PAD_X, y, IW, Math.round(58 * 1.06))
+  y = wrapText(ctx, d.title, PAD_X, y, IW, TITLE_LINE)
   y += 18
 
   // Gold divider
@@ -119,12 +135,12 @@ async function drawOg(ctx: CanvasRenderingContext2D, w: number, _h: number, d: D
   // Principle
   ctx.font = `italic 700 30px ${SERIF}`
   ctx.fillStyle = GOLD
-  y = wrapText(ctx, d.principle, PAD_X, y, IW, Math.round(30 * 1.4))
+  y = wrapText(ctx, d.principle, PAD_X, y, IW, PRINC_LINE)
 
   // Scripture
   if (d.scripture) {
     y += 16
-    ctx.font = `400 17px ${SERIF}`
+    ctx.font = `400 ${SCRIP_SIZE}px ${SERIF}`
     alpha(ctx, 0.75, () => {
       ctx.fillStyle = CREAM
       spacedText(ctx, d.scripture!, PAD_X, y, 4)
