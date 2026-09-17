@@ -146,10 +146,8 @@ async function drawOg(ctx: CanvasRenderingContext2D, w: number, h: number, d: Dr
   if (d.scripture) {
     y += SCRIP_GAP
     ctx.font = `400 ${SCRIP_SIZE}px ${SERIF}`
-    alpha(ctx, 0.75, () => {
-      ctx.fillStyle = CREAM
-      spacedText(ctx, d.scripture!, PAD_X, y, 4)
-    })
+    ctx.fillStyle = CREAM
+    spacedText(ctx, d.scripture!, PAD_X, y, 4)
   }
 }
 
@@ -212,16 +210,14 @@ async function drawInstagram(
   // Scripture
   if (d.scripture) {
     ctx.font = `400 ${SCRIP_SIZE}px ${SERIF}`
-    alpha(ctx, 0.75, () => {
-      ctx.fillStyle = CREAM
-      spacedText(ctx, d.scripture!, PX, y, 6)
-    })
+    ctx.fillStyle = CREAM
+    spacedText(ctx, d.scripture!, PX, y, 6)
     y += SCRIP_SIZE + 32
   }
 
   // Website
   ctx.font = `400 ${SITE_SIZE}px ${SERIF}`
-  alpha(ctx, 0.45, () => {
+  alpha(ctx, 0.65, () => {
     ctx.fillStyle = GOLD
     spacedText(ctx, '3minutesforlife.com', PX, y, 4)
   })
