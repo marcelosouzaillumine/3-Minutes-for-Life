@@ -5,6 +5,7 @@ import { authService } from '../services/authService';
 import { AnalyticsService } from '../services/AnalyticsService';
 import { LocationService } from '../services/LocationService';
 import type { State, City } from '../services/LocationService';
+import { detectLikelyBrazil } from '../lib/geo';
 import { illumineFetch } from '../lib/illumine';
 import { useTranslation } from 'react-i18next';
 import { BrandLogo } from '../components/BrandLogo';
@@ -30,8 +31,8 @@ export const Auth: React.FC = () => {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [acceptsUpdates, setAcceptsUpdates] = useState(false);
-  const [isForeign, setIsForeign] = useState(false);
-  const [country, setCountry] = useState('Brasil');
+  const [isForeign, setIsForeign] = useState(() => !detectLikelyBrazil());
+  const [country, setCountry] = useState(() => (detectLikelyBrazil() ? 'Brasil' : ''));
   const [stateVal, setStateVal] = useState('');
   const [city, setCity] = useState('');
   const [states, setStates] = useState<State[]>([]);
@@ -43,9 +44,11 @@ export const Auth: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const passwordRef = useRef<HTMLInputElement>(null);
 
-  // Pré-carregar estados BR ao chegar no step register
+  // Pré-carregar estados BR ao chegar no step register (pula se o fuso horário
+  // já indica um visitante fora do Brasil — evita uma chamada à API do IBGE
+  // que o formulário nem vai usar, já que ele abre com os campos de texto livre).
   useEffect(() => {
-    if (step !== 'register') return;
+    if (step !== 'register' || isForeign) return;
     setLoadingLocation(true);
     LocationService.getCountries().then(countries => {
       const brasil = countries.find((c: any) => c.name === 'Brasil' || c.code === 'BR');
@@ -55,7 +58,7 @@ export const Auth: React.FC = () => {
         }).catch(console.error);
       }
     }).catch(console.error).finally(() => setLoadingLocation(false));
-  }, [step]);
+  }, [step, isForeign]);
 
   useEffect(() => {
     if (step === 'password') passwordRef.current?.focus();
