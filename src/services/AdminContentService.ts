@@ -57,6 +57,7 @@ function l1TransToSnake(t: any): any {
     support_banner_url: t.supportBannerUrl ?? null,
     support_link_url: t.supportLinkUrl ?? null,
     status: t.status,
+    source_content_hash: t.sourceContentHash ?? null,
     created_at: t.createdAt,
     updated_at: t.updatedAt,
   }
@@ -253,21 +254,30 @@ export const AdminContentService = {
     const devotionals = (data?.devotionals ?? []).map(l1DevToSnake)
 
     return devotionals.map((devotional: any) => {
-      const langMap: Record<string, { manual: any; ai: any; state: string }> = {}
+      const langMap: Record<string, { manual: any; ai: any; state: string; isStale: boolean }> = {}
 
       for (const t of devotional.devotional_translations || []) {
         const lang = t.language
-        if (!langMap[lang]) langMap[lang] = { manual: null, ai: null, state: 'none' }
+        if (!langMap[lang]) langMap[lang] = { manual: null, ai: null, state: 'none', isStale: false }
         if (t.translation_source === 'manual') langMap[lang].manual = t
         else langMap[lang].ai = t
       }
 
       for (const lang of Object.keys(langMap)) {
         const { manual, ai } = langMap[lang]
-        if (manual?.status === 'published') langMap[lang].state = 'manual_published'
-        else if (manual?.status === 'draft') langMap[lang].state = 'draft'
-        else if (ai?.status === 'published') langMap[lang].state = 'ai_published'
-        else langMap[lang].state = 'draft'
+        let active: any = null
+        if (manual?.status === 'published') { langMap[lang].state = 'manual_published'; active = manual }
+        else if (manual?.status === 'draft') { langMap[lang].state = 'draft'; active = manual }
+        else if (ai?.status === 'published') { langMap[lang].state = 'ai_published'; active = ai }
+        else { langMap[lang].state = 'draft'; active = ai }
+
+        // Desatualizada: a tradução foi gerada a partir de um texto original
+        // que já mudou (hash gravado na tradução != hash atual do devocional).
+        langMap[lang].isStale = !!(
+          active?.source_content_hash &&
+          devotional.content_hash &&
+          active.source_content_hash !== devotional.content_hash
+        )
       }
 
       return { ...devotional, langMap }
@@ -313,6 +323,7 @@ export const AdminContentService = {
     support_banner_url?: string | null
     support_link_url?: string | null
     status: 'draft' | 'published'
+    source_content_hash?: string | null
   }): Promise<any> {
     if (params.status === 'published') {
       if (!params.title?.trim()) throw new Error('O título é obrigatório para publicar a tradução.')
@@ -337,6 +348,7 @@ export const AdminContentService = {
       supportBannerUrl: params.support_banner_url || undefined,
       supportLinkUrl: params.support_link_url || undefined,
       status: params.status,
+      sourceContentHash: params.source_content_hash || undefined,
     }
 
     const t = await l1Put(`/devotionals/${encodeURIComponent(params.devotional_id)}/translations`, l1Body)

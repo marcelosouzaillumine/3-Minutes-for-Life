@@ -9,6 +9,9 @@ interface DrawData {
   title: string
   principle: string
   scripture?: string
+  /** Rótulo de destaque acima do título — "DEVOCIONAL DO DIA" ou a categoria,
+   *  já traduzido e em caixa alta, calculado pelo chamador. */
+  label: string
   logoDataUrl: string
 }
 
@@ -120,10 +123,10 @@ async function drawOg(ctx: CanvasRenderingContext2D, w: number, h: number, d: Dr
   ctx.drawImage(logo, (w - LW) / 2, y, LW, LH)
   y += LH + AFTER_LOGO
 
-  // DEVOCIONAL DO DIA label
+  // Rótulo (DEVOCIONAL DO DIA ou categoria)
   ctx.font = `700 ${LABEL_SIZE}px ${SERIF}`
   ctx.fillStyle = GOLD
-  spacedText(ctx, 'DEVOCIONAL DO DIA', PAD_X, y, 6)
+  spacedText(ctx, d.label, PAD_X, y, 6)
   y += LABEL_SIZE + LABEL_GAP
 
   // Title
@@ -187,7 +190,7 @@ async function drawInstagram(
   // Label
   ctx.font      = `700 ${LABEL_SIZE}px ${SERIF}`
   ctx.fillStyle = GOLD
-  spacedText(ctx, 'DEVOCIONAL DO DIA', PX, y, 8)
+  spacedText(ctx, d.label, PX, y, 8)
   y += LABEL_SIZE + ALGAP
 
   // Title

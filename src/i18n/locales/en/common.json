@@ -15,6 +15,7 @@
   "savedNav": "Saved",
   "profile": "Profile",
   "shareActions": {
+    "dailyLabel": "Devotional of the Day",
     "invalidId": "Unable to share this content at the moment.",
     "message": "A 3-minute reflection to pause, breathe, and focus on what really matters today.\\n\\nRead for free in the app:\\n👉 {{url}}",
     "title": "3 Minutes for Life",
@@ -45,7 +46,9 @@
     "saveReflection": "Save",
     "savingReflection": "Saving...",
     "reflectionSaved": "Saved to your journey.",
-    "loginToSave": "Sign in to save your reflection"
+    "loginToSave": "Sign in to save your reflection",
+    "writtenBy": "written by",
+    "authorRole": "Pastor at Igreja Missão Mobilização"
   },
   "testimonials": {
     "title": "How did this reflection touch you?",

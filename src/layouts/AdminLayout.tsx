@@ -10,7 +10,6 @@ import { AdminService } from '../services/AdminService';
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
 const AdminDevotionals = lazy(() => import('../pages/admin/AdminDevotionals').then(m => ({ default: m.AdminDevotionals })));
 const AdminTranslations = lazy(() => import('../pages/admin/AdminTranslations').then(m => ({ default: m.AdminTranslations })));
-const AdminIdentity = lazy(() => import('../pages/admin/AdminIdentity').then(m => ({ default: m.AdminIdentity })));
 const AdminUsers = lazy(() => import('../pages/admin/AdminUsers').then(m => ({ default: m.AdminUsers })));
 const AdminSupporters = lazy(() => import('../pages/admin/AdminSupporters').then(m => ({ default: m.AdminSupporters })));
 
@@ -203,7 +202,7 @@ export function AdminLayout() {
     }
 
     // -----------------------------------------------------
-    // IDENTITY / TELEMETRY
+    // IDENTITY / TELEMETRY (merged into Dashboard)
     // -----------------------------------------------------
 
     if (
@@ -211,7 +210,7 @@ export function AdminLayout() {
       pathname === '/admin/telemetry'
     ) {
 
-      return <AdminIdentity />;
+      return <AdminDashboard />;
 
     }
 

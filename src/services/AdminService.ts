@@ -39,6 +39,14 @@ export type DailySeriesPoint = {
   reads: number;
 };
 
+export type ReadingTrends = {
+  global_total_reads: number;
+  total_devotionals: number;
+  avg_reads_per_devotional: number;
+  monthly: Array<{ month: string; reads: number }>;
+  yearly: Array<{ year: number; reads: number; growth_rate: number | null }>;
+};
+
 export class AdminService {
   static async checkAdminRole(): Promise<boolean> {
     const res = await illumineFetch('/users/me');
@@ -134,5 +142,21 @@ export class AdminService {
       active_users: r.activeUsers ?? r.active_users ?? 0,
       reads: r.reads ?? r.events ?? 0,
     }));
+  }
+
+  static async getReadingTrends(): Promise<ReadingTrends | null> {
+    const res = await illumineFetch('/analytics/devotionals/reading-trends');
+    if (!res.ok) {
+      console.error('[Dashboard] L1 endpoint /analytics/devotionals/reading-trends com falha:', res.status);
+      return null;
+    }
+    const body = await res.json();
+    return {
+      global_total_reads: body.globalTotalReads ?? 0,
+      total_devotionals: body.totalDevotionals ?? 0,
+      avg_reads_per_devotional: body.avgReadsPerDevotional ?? 0,
+      monthly: (body.monthly ?? []).map((m: any) => ({ month: m.month, reads: m.reads ?? 0 })),
+      yearly: (body.yearly ?? []).map((y: any) => ({ year: y.year, reads: y.reads ?? 0, growth_rate: y.growthRate ?? null })),
+    };
   }
 }

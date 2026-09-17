@@ -15,6 +15,7 @@
   "savedNav": "Guardados",
   "profile": "Perfil",
   "shareActions": {
+    "dailyLabel": "Devocional del Día",
     "invalidId": "No es posible compartir este contenido en este momento.",
     "message": "Una reflexión de 3 minutos para detenerse, respirar y enfocarse en lo que realmente importa hoy.\\n\\nLee gratis en la aplicación:\\n👉 {{url}}",
     "title": "3 Minutos para la Vida",
@@ -45,7 +46,9 @@
     "saveReflection": "Guardar",
     "savingReflection": "Guardando...",
     "reflectionSaved": "Guardado en tu jornada.",
-    "loginToSave": "Inicia sesión para guardar tu reflexión"
+    "loginToSave": "Inicia sesión para guardar tu reflexión",
+    "writtenBy": "escrito por",
+    "authorRole": "Pastor en la Iglesia Missão Mobilização"
   },
   "testimonials": {
     "title": "¿Cómo te tocó esta reflexión?",

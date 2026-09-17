@@ -20,9 +20,6 @@ export function AdminDevotionals() {
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
-  // WhatsApp share state
-  const [waPreviewLang, setWaPreviewLang] = useState<string | null>(null);
-
   // Content image state (Dica de conteúdo / Apoio ao projeto) — keyed by field name
   const [contentImageError] = useState<Record<string, string>>({});
 
@@ -92,7 +89,6 @@ export function AdminDevotionals() {
 
       setEditForm({ ...fullDevotional, translations: translationsMap });
       setEditingId(id);
-      setWaPreviewLang(null);
       const sourceLang = languages.find(l => l.is_source)?.iso_code || 'pt-BR';
       setCurrentLang(sourceLang);
     } catch (err: any) {
@@ -139,32 +135,8 @@ export function AdminDevotionals() {
     setEditingId(null);
     setEditForm(null);
     setShowPreview(false);
-    setWaPreviewLang(null);
     const sourceLang = languages.find(l => l.is_source)?.iso_code || 'pt-BR';
     setCurrentLang(sourceLang);
-  };
-
-  // ─── WhatsApp Share ───────────────────────────────────────────────────────
-
-  const WA_CTA: Record<string, string> = {
-    'pt-BR': '📖 Leia o devocional de hoje:',
-    'en':    '📖 Read today\'s devotional:',
-    'es':    '📖 Lee el devocional de hoy:',
-  };
-
-  const buildWaText = (langCode: string): string => {
-    const isSource = languages.find(l => l.iso_code === langCode)?.is_source;
-    const tr = editForm?.translations?.[langCode];
-    const title = ((isSource ? editForm?.title : tr?.title) || editForm?.title || '').trim();
-    const principle = ((isSource ? editForm?.principle_statement : tr?.principle_statement) || editForm?.principle_statement || '').trim();
-    const cta = WA_CTA[langCode] || WA_CTA['pt-BR'];
-    const link = 'https://www.3minutesforlife.com';
-    return [title, principle ? `"${principle}"` : '', cta, link].filter(Boolean).join('\n\n');
-  };
-
-  const handleShareWhatsApp = (langCode: string) => {
-    const text = buildWaText(langCode);
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -717,64 +689,6 @@ export function AdminDevotionals() {
             {saving ? 'Salvando...' : 'Salvar Devocional'}
           </button>
         </form>
-
-        {/* ── WhatsApp Share Section ── */}
-        {editingId !== 'new' && (
-          <div style={{ marginTop: '32px', borderTop: '2px solid #eee', paddingTop: '24px' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '4px' }}>📤 Compartilhar no WhatsApp</h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--color-text-light)', marginBottom: '20px' }}>
-              Gera e abre o WhatsApp com o texto do devocional no idioma selecionado.
-            </p>
-
-            {languages.map(lang => {
-              const lc: string = lang.iso_code;
-              const preview = buildWaText(lc);
-              const isActive = waPreviewLang === lc;
-
-              return (
-                <div
-                  key={lc}
-                  style={{
-                    background: 'var(--color-surface)',
-                    borderRadius: '12px',
-                    padding: '16px',
-                    marginBottom: '12px',
-                    border: '1px solid #e5e7eb',
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                    <strong style={{ fontSize: '0.95rem' }}>{lang.flag_emoji} {lang.name}</strong>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button
-                        type="button"
-                        onClick={() => setWaPreviewLang(isActive ? null : lc)}
-                        style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid #ddd', background: 'white', fontSize: '0.82rem', cursor: 'pointer' }}
-                      >
-                        {isActive ? 'Ocultar prévia' : 'Ver prévia'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleShareWhatsApp(lc)}
-                        style={{ padding: '6px 14px', borderRadius: '8px', border: 'none', background: '#25D366', color: 'white', fontWeight: '700', fontSize: '0.82rem', cursor: 'pointer' }}
-                      >
-                        Abrir WhatsApp
-                      </button>
-                    </div>
-                  </div>
-
-                  {isActive && (
-                    <div style={{ marginTop: '12px' }}>
-                      <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#6b7280', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Prévia do texto</div>
-                      <div style={{ background: '#dcf8c6', borderRadius: '12px', borderBottomLeftRadius: '4px', padding: '12px 14px', fontSize: '0.875rem', lineHeight: '1.6', whiteSpace: 'pre-wrap', wordBreak: 'break-word', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-                        {preview || <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>Salve o devocional antes de compartilhar.</span>}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
       {mediaPickerOpen && mediaPickerTarget && (
         <MediaLibraryPicker
           onSelect={(url) => {

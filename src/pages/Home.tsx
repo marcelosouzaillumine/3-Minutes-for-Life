@@ -158,6 +158,7 @@ export function Home({ onExplore }: HomeProps) {
     <PrincipleView
       devotional={devotional}
       onExplore={onExplore}
+      isDaily
     />
   );
 }

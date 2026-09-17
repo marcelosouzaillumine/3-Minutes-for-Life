@@ -24,6 +24,8 @@ interface PrincipleViewProps {
     note?: string;
   };
   onExplore?: () => void;
+  /** true apenas para o devocional do dia (Home) — define o rótulo da imagem de compartilhamento. */
+  isDaily?: boolean;
 }
 
 export function PrincipleView({
@@ -32,6 +34,7 @@ export function PrincipleView({
   showLogo = true,
   customAction,
   onExplore,
+  isDaily = false,
 }: PrincipleViewProps) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
@@ -282,9 +285,10 @@ export function PrincipleView({
 
           <div className="devotional-signature" aria-label="Autor">
             <div className="devotional-signature-info">
-              <span className="devotional-signature-eyebrow">escrito por</span>
+              <span className="devotional-signature-eyebrow">{t('home.writtenBy', 'escrito por')}</span>
+              {/* Nome próprio — não é traduzido, mantido no original em qualquer idioma. */}
               <span className="devotional-signature-name">Marcelo Souza</span>
-              <span className="devotional-signature-title">Pastor na Igreja Missão Mobilização</span>
+              <span className="devotional-signature-title">{t('home.authorRole', 'Pastor na Igreja Missão Mobilização')}</span>
             </div>
             <svg className="devotional-signature-ornament" viewBox="0 0 36 36" fill="none" aria-hidden="true">
               <polygon points="18,2 34,10 34,26 18,34 2,26 2,10" stroke="currentColor" strokeWidth="1.5" fill="none"/>
@@ -762,6 +766,7 @@ export function PrincipleView({
             category={devotional.categories?.name ?? ''}
             scripture={devotional.scripture_reference ?? ''}
             devotionalId={devotional.id}
+            isDaily={isDaily}
           />
 
         </div>

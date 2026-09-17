@@ -4,7 +4,7 @@ import { AdminContentService } from '../../services/AdminContentService';
 import { ManualTranslationEditor } from '../../components/admin/ManualTranslationEditor';
 import '../../styles/admin.css';
 
-type FilterMode = 'all' | 'gaps' | 'complete';
+type FilterMode = 'all' | 'gaps' | 'stale' | 'complete';
 
 const STATE_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
   manual_published: { label: '✓', color: '#059669', bg: '#ecfdf5', border: '#6ee7b7' },
@@ -109,6 +109,9 @@ export function AdminTranslations() {
           return !s || s === 'none';
         });
       }
+      if (filterMode === 'stale') {
+        return languages.some(l => devo.langMap?.[l.iso_code]?.isStale);
+      }
       if (filterMode === 'complete') {
         return languages.every(l => {
           const s = devo.langMap?.[l.iso_code]?.state;
@@ -123,6 +126,9 @@ export function AdminTranslations() {
   const totalDevos = devotionals.length;
   const withGaps = devotionals.filter(d =>
     languages.some(l => { const s = d.langMap?.[l.iso_code]?.state; return !s || s === 'none'; })
+  ).length;
+  const withStale = devotionals.filter(d =>
+    languages.some(l => d.langMap?.[l.iso_code]?.isStale)
   ).length;
   const complete = totalDevos - withGaps;
 
@@ -164,6 +170,7 @@ export function AdminTranslations() {
           { label: 'Devocionais', value: totalDevos, color: '#64748b', bg: '#f1f5f9' },
           { label: 'Idiomas', value: languages.length, color: '#7c3aed', bg: '#f5f3ff' },
           { label: 'Com lacunas', value: withGaps, color: '#dc2626', bg: '#fef2f2' },
+          { label: 'Desatualizados', value: withStale, color: '#d97706', bg: '#fffbeb' },
           { label: 'Completos', value: complete, color: '#059669', bg: '#ecfdf5' },
         ].map(s => (
           <div key={s.label} style={{
@@ -193,6 +200,7 @@ export function AdminTranslations() {
           {([
             ['all', 'Todos'],
             ['gaps', 'Com lacunas'],
+            ['stale', 'Desatualizadas'],
             ['complete', 'Completos'],
           ] as [FilterMode, string][]).map(([id, label]) => (
             <button
@@ -260,24 +268,30 @@ export function AdminTranslations() {
                 {languages.map(lang => {
                   const entry = devo.langMap?.[lang.iso_code];
                   const state = entry?.state || 'none';
+                  const isStale = !!entry?.isStale;
                   const cfg = STATE_CONFIG[state] || STATE_CONFIG.none;
+                  const stateLabel = state === 'none' ? 'Não traduzido' : state === 'draft' ? 'Rascunho' : state === 'manual_published' ? 'Manual publicado' : 'IA publicado';
 
                   return (
                     <button
                       key={lang.iso_code}
                       onClick={() => openEditor(devo, lang)}
-                      title={`${lang.name} — ${state === 'none' ? 'Não traduzido' : state === 'draft' ? 'Rascunho' : state === 'manual_published' ? 'Manual publicado' : 'IA publicado'}`}
+                      title={isStale
+                        ? `${lang.name} — ${stateLabel} — ⚠️ Desatualizada: o texto original foi editado depois desta tradução`
+                        : `${lang.name} — ${stateLabel}`}
                       style={{
                         display: 'inline-flex', alignItems: 'center', gap: '3px',
                         padding: '4px 9px', borderRadius: '6px',
-                        border: `1px solid ${cfg.border}`,
-                        background: cfg.bg, color: cfg.color,
+                        border: `1px solid ${isStale ? '#fcd34d' : cfg.border}`,
+                        background: isStale ? '#fffbeb' : cfg.bg,
+                        color: cfg.color,
                         fontSize: '0.75rem', fontWeight: 700,
                         cursor: 'pointer', whiteSpace: 'nowrap',
                       }}
                     >
                       {lang.flag_emoji} {lang.iso_code.toUpperCase()}
                       <span style={{ marginLeft: '2px', fontSize: '0.7rem' }}>{cfg.label}</span>
+                      {isStale && <span style={{ marginLeft: '1px' }}>⚠️</span>}
                     </button>
                   );
                 })}

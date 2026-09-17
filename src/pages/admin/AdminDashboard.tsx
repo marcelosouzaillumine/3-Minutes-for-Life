@@ -11,7 +11,7 @@ import {
   Tooltip,
   Cell,
 } from 'recharts';
-import { AdminService, type DashboardMetrics, type DailySeriesPoint } from '../../services/AdminService';
+import { AdminService, type DashboardMetrics, type DailySeriesPoint, type ReadingTrends } from '../../services/AdminService';
 
 const ACCENT = '#c46d53';
 const ACCENT_SOFT = '#e8c3b6';
@@ -31,6 +31,7 @@ const funnelChartData = (metrics: DashboardMetrics) => [
 export function AdminDashboard() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [dailySeries, setDailySeries] = useState<DailySeriesPoint[]>([]);
+  const [readingTrends, setReadingTrends] = useState<ReadingTrends | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [period, setPeriod] = useState('7d'); // 'today', '7d', '30d'
@@ -83,6 +84,11 @@ export function AdminDashboard() {
     fetchMetrics();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period]);
+
+  // Histórico global de leituras — dado vitalício, não muda com o seletor de período.
+  useEffect(() => {
+    AdminService.getReadingTrends().then(setReadingTrends);
+  }, []);
 
   if (isLoading) {
     return (
@@ -347,6 +353,84 @@ export function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* ---------------- HISTÓRICO GLOBAL DE LEITURAS ---------------- */}
+      {readingTrends && (
+        <div className="admin-section">
+          <h3>Histórico Global de Leituras</h3>
+          <p style={{ color: 'var(--color-text-light)', fontSize: '0.85rem', marginBottom: '12px' }}>
+            Total acumulado desde o início — não muda com o seletor de período acima.
+          </p>
+
+          <div className="admin-grid" style={{ marginBottom: '20px' }}>
+            <div className="admin-card">
+              <div className="admin-card-title">Total de Leituras (vitalício)</div>
+              <div className="admin-card-value">{readingTrends.global_total_reads}</div>
+            </div>
+            <div className="admin-card">
+              <div className="admin-card-title">Média de Leituras por Devocional</div>
+              <div className="admin-card-value">{readingTrends.avg_reads_per_devotional}</div>
+            </div>
+          </div>
+
+          <h4 style={{ fontSize: '0.9rem', margin: '0 0 8px 0' }}>Últimos 12 meses</h4>
+          <div style={{ width: '100%', height: 200 }}>
+            <ResponsiveContainer>
+              <BarChart data={readingTrends.monthly} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
+                <XAxis
+                  dataKey="month"
+                  tickFormatter={(m: string) => m.slice(5)}
+                  tick={{ fontSize: 11, fill: 'var(--color-text-light)' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis tick={{ fontSize: 11, fill: 'var(--color-text-light)' }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <Tooltip
+                  formatter={(value: any) => [value, 'Leituras']}
+                  labelFormatter={(m: any) => new Date(`${m}-01T00:00:00`).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+                  contentStyle={{ borderRadius: 8, border: '1px solid var(--color-border)', fontSize: '0.85rem' }}
+                />
+                <Bar dataKey="reads" name="Leituras" radius={[6, 6, 0, 0]} fill={ACCENT} maxBarSize={28} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {readingTrends.yearly.length > 0 && (
+            <>
+              <h4 style={{ fontSize: '0.9rem', margin: '20px 0 8px 0' }}>Por Ano — Taxa de Crescimento</h4>
+              <div className="admin-table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Ano</th>
+                      <th>Leituras</th>
+                      <th>Crescimento vs. ano anterior</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {readingTrends.yearly.map(y => (
+                      <tr key={y.year}>
+                        <td>{y.year}</td>
+                        <td>{y.reads}</td>
+                        <td>
+                          {y.growth_rate === null
+                            ? '—'
+                            : (
+                              <span style={{ color: y.growth_rate >= 0 ? GOOD : BAD, fontWeight: 600 }}>
+                                {y.growth_rate >= 0 ? '↑' : '↓'} {Math.abs(y.growth_rate)}%
+                              </span>
+                            )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       <div className="admin-section">
         <h3>Top Conteúdos (Engajamento)</h3>

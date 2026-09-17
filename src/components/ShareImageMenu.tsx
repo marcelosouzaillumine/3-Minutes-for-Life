@@ -9,6 +9,9 @@ interface Props {
   category?: string
   scripture?: string
   devotionalId?: string
+  /** true para o devocional do dia (rótulo "DEVOCIONAL DO DIA"); caso
+   *  contrário mostra a categoria do devocional, ambos traduzidos. */
+  isDaily?: boolean
 }
 
 const FORMATS: { key: ShareFormat; label: string; dim: string; icon: string }[] = [
@@ -77,12 +80,21 @@ async function buildOgUrl(devotionalId: string | undefined, lang: string): Promi
   return fallback
 }
 
-export function ShareImageMenu({ title = '', principle = '', scripture = '', devotionalId }: Props) {
+export function ShareImageMenu({ title = '', principle = '', category = '', scripture = '', devotionalId, isDaily = false }: Props) {
   const { t, i18n }           = useTranslation('common')
   const [open, setOpen]       = useState(false)
   const [loading, setLoading] = useState<ShareFormat | null>(null)
   const [error, setError]     = useState<string | null>(null)
   const logoRef               = useRef<string>('')
+
+  // Rótulo em destaque no topo da imagem: "DEVOCIONAL DO DIA" só quando é
+  // de fato o devocional de hoje; caso contrário, a categoria do devocional
+  // selecionado (biblioteca) — os dois já traduzidos para o idioma ativo.
+  const imageLabel = (
+    isDaily
+      ? t('shareActions.dailyLabel', 'Devocional do Dia')
+      : t(`categories.${category}`, category || t('categories.Devocional', 'Devocional'))
+  ).toUpperCase()
 
   // Pre-fetch logo on mount into ref (não precisa de state / re-render)
   useEffect(() => {
@@ -107,6 +119,7 @@ export function ShareImageMenu({ title = '', principle = '', scripture = '', dev
         title,
         principle,
         scripture,
+        label: imageLabel,
         logoDataUrl: logoRef.current,
       })
 

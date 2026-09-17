@@ -82,7 +82,8 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
         support_message: form.support_message || null,
         support_banner_url: form.support_banner_url || null,
         support_link_url: form.support_link_url || null,
-        status: 'draft'
+        status: 'draft',
+        source_content_hash: devotional.content_hash || null,
       });
 
       setSuccessMessage('Rascunho salvo com sucesso!');
@@ -129,7 +130,8 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
         support_message: form.support_message || null,
         support_banner_url: form.support_banner_url || null,
         support_link_url: form.support_link_url || null,
-        status: 'published'
+        status: 'published',
+        source_content_hash: devotional.content_hash || null,
       });
 
       setSuccessMessage('Tradução manual publicada com sucesso!');
