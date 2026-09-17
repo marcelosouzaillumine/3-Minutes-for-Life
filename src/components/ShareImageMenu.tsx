@@ -119,6 +119,7 @@ export function ShareImageMenu({ title = '', principle = '', scripture = '', dev
 
       if (canWebShare && navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], title: '3 Minutes For Life', text: shareText })
+        setOpen(false)
       } else {
         const objUrl = URL.createObjectURL(blob)
         const link   = document.createElement('a')
@@ -128,6 +129,7 @@ export function ShareImageMenu({ title = '', principle = '', scripture = '', dev
         link.click()
         document.body.removeChild(link)
         URL.revokeObjectURL(objUrl)
+        setOpen(false)
       }
     } catch (err: any) {
       if (err?.name !== 'AbortError') {
