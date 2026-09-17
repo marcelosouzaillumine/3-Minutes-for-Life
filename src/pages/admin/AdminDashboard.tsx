@@ -411,7 +411,7 @@ export function AdminDashboard() {
           {readingTrends.yearly.length > 0 && (
             <>
               <h4 style={{ fontSize: '0.9rem', margin: '20px 0 8px 0' }}>Por Ano — Taxa de Crescimento</h4>
-              <div className="admin-table-container">
+              <div className="admin-table-container admin-table-responsive">
                 <table className="admin-table">
                   <thead>
                     <tr>
@@ -423,9 +423,9 @@ export function AdminDashboard() {
                   <tbody>
                     {readingTrends.yearly.map(y => (
                       <tr key={y.year}>
-                        <td>{y.year}</td>
-                        <td>{y.reads}</td>
-                        <td>
+                        <td data-label="Ano">{y.year}</td>
+                        <td data-label="Leituras">{y.reads}</td>
+                        <td data-label="Crescimento">
                           {y.growth_rate === null
                             ? '—'
                             : (
@@ -469,7 +469,7 @@ export function AdminDashboard() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <div className="admin-table-container" style={{ marginTop: '16px' }}>
+            <div className="admin-table-container admin-table-responsive" style={{ marginTop: '16px' }}>
               <table className="admin-table">
                 <thead>
                   <tr>
@@ -480,11 +480,11 @@ export function AdminDashboard() {
                 <tbody>
                   {metrics.top_content.map((item, index) => (
                     <tr key={index}>
-                      <td>
+                      <td data-label="Devocional">
                         {item.devotional_title
                           || (item.content_id ? item.content_id.split('-').slice(0, 3).join('-') + '...' : '—')}
                       </td>
-                      <td>{item.opens}</td>
+                      <td data-label="Leituras">{item.opens}</td>
                     </tr>
                   ))}
                 </tbody>

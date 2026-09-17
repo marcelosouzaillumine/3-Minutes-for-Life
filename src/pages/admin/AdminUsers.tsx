@@ -156,7 +156,7 @@ export function AdminUsers() {
           {search ? 'Nenhum usuário corresponde à busca.' : 'Nenhum usuário cadastrado ainda.'}
         </div>
       ) : (
-        <div style={{ overflowX: 'auto', backgroundColor: 'var(--color-bg)', borderRadius: '12px', border: '1px solid var(--color-border)', marginBottom: '24px' }}>
+        <div className="admin-table-responsive" style={{ overflowX: 'auto', backgroundColor: 'var(--color-bg)', borderRadius: '12px', border: '1px solid var(--color-border)', marginBottom: '24px' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-secondary, rgba(0,0,0,0.02))' }}>
@@ -175,24 +175,24 @@ export function AdminUsers() {
                   onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.02)')}
                   onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
                 >
-                  <td style={{ padding: '12px 16px' }}>
+                  <td data-label="Usuário" style={{ padding: '12px 16px' }}>
                     <div style={{ fontWeight: 500, color: 'var(--color-text)' }}>{user.full_name || 'Sem nome'}</div>
                     <div style={{ fontSize: '0.8rem', color: 'var(--color-text-light)' }}>{user.email}</div>
                   </td>
-                  <td style={{ padding: '12px 16px' }}>
+                  <td data-label="Papéis" style={{ padding: '12px 16px' }}>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                       {user.role
                         ? <RoleBadge role={user.role.name} />
                         : <span style={{ color: 'var(--color-text-light)', fontSize: '0.8rem' }}>—</span>}
                     </div>
                   </td>
-                  <td style={{ padding: '12px 16px', color: 'var(--color-text-light)', whiteSpace: 'nowrap' }}>
+                  <td data-label="Cadastro" style={{ padding: '12px 16px', color: 'var(--color-text-light)', whiteSpace: 'nowrap' }}>
                     {formatDate(user.created_at)}
                   </td>
-                  <td style={{ padding: '12px 16px', color: 'var(--color-text-light)', whiteSpace: 'nowrap' }}>
+                  <td data-label="Último acesso" style={{ padding: '12px 16px', color: 'var(--color-text-light)', whiteSpace: 'nowrap' }}>
                     {formatDate(user.last_sign_in_at)}
                   </td>
-                  <td style={{ padding: '12px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                  <td data-label="Ação" style={{ padding: '12px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                     <button
                       onClick={() => setSelectedUser(user)}
                       style={{
@@ -212,7 +212,7 @@ export function AdminUsers() {
       )}
 
       {result && result.totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
           <span style={{ fontSize: '0.85rem', color: 'var(--color-text-light)' }}>
             Página {result.page} de {result.totalPages} ({result.total} usuários)
           </span>

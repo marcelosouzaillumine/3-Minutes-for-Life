@@ -387,6 +387,75 @@
   background-color: #f9fafb;
 }
 
+/*
+ * Card view para tabelas de admin em telas estreitas: cada <tr> vira um
+ * cartão e cada <td> vira uma linha "rótulo: valor" usando data-label.
+ * !important é necessário porque várias tabelas de admin estilizam
+ * th/td com inline styles (whiteSpace, maxWidth, textAlign etc.), que
+ * têm prioridade sobre qualquer seletor de classe.
+ */
+@media (max-width: 640px) {
+  .admin-table-responsive {
+    overflow-x: visible !important;
+  }
+
+  .admin-table-responsive table {
+    width: 100%;
+  }
+
+  .admin-table-responsive thead {
+    display: none;
+  }
+
+  .admin-table-responsive tbody,
+  .admin-table-responsive tr,
+  .admin-table-responsive td {
+    display: block;
+    width: 100%;
+  }
+
+  .admin-table-responsive tr {
+    margin-bottom: 12px;
+    border: 1px solid var(--color-border, #eaeaea);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .admin-table-responsive tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .admin-table-responsive td {
+    display: block !important;
+    padding: 10px 14px !important;
+    border-bottom: 1px solid var(--color-border-light, rgba(0, 0, 0, 0.06)) !important;
+    text-align: left !important;
+    white-space: normal !important;
+    max-width: none !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+  }
+
+  .admin-table-responsive td:last-child {
+    border-bottom: none !important;
+  }
+
+  .admin-table-responsive td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--color-text-light, #666);
+  }
+
+  .admin-table-responsive td:not([data-label])::before {
+    content: none;
+  }
+}
+
 /* Modifiers for Dashboard layout columns */
 .admin-dashboard-columns {
   display: flex;

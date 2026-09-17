@@ -253,7 +253,7 @@ export function RelationshipTestimonials() {
           {status !== 'all' || searchTerm ? t('admin.relationship.noResultsFiltered', 'Nenhum registro corresponde aos filtros selecionados.') : t('admin.relationship.noTestimonials', 'Ainda não recebemos testemunhos.')}
         </div>
       ) : (
-        <div style={{ overflowX: 'auto', backgroundColor: 'var(--color-bg)', borderRadius: '12px', border: '1px solid var(--color-border)', marginBottom: '24px' }}>
+        <div className="admin-table-responsive" style={{ overflowX: 'auto', backgroundColor: 'var(--color-bg)', borderRadius: '12px', border: '1px solid var(--color-border)', marginBottom: '24px' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-secondary, rgba(0,0,0,0.02))' }}>
@@ -273,22 +273,22 @@ export function RelationshipTestimonials() {
                   onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.02)')}
                   onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
                 >
-                  <td style={{ padding: '12px 16px', color: 'var(--color-text-light)', whiteSpace: 'nowrap' }}>
+                  <td data-label={t('admin.relationship.columns.date', 'Data')} style={{ padding: '12px 16px', color: 'var(--color-text-light)', whiteSpace: 'nowrap' }}>
                     {formatDate(item.created_at)}
                   </td>
-                  <td style={{ padding: '12px 16px', fontWeight: 500, color: 'var(--color-text)', whiteSpace: 'nowrap' }}>
+                  <td data-label={t('admin.relationship.columns.user', 'Usuário')} style={{ padding: '12px 16px', fontWeight: 500, color: 'var(--color-text)', whiteSpace: 'nowrap' }}>
                     {item.user_full_name || t('admin.relationship.anonymousUser', 'Usuário da Comunidade')}
                   </td>
-                  <td style={{ padding: '12px 16px', color: 'var(--color-text-light)', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <td data-label={t('admin.relationship.columns.devotional', 'Devocional')} style={{ padding: '12px 16px', color: 'var(--color-text-light)', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {item.devotional_title || t('admin.relationship.generalDevotional', 'Geral')}
                   </td>
-                  <td style={{ padding: '12px 16px', color: 'var(--color-text)', maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <td data-label={t('admin.relationship.columns.preview', 'Relato')} style={{ padding: '12px 16px', color: 'var(--color-text)', maxWidth: '280px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {item.content}
                   </td>
-                  <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
+                  <td data-label={t('admin.relationship.columns.status', 'Status')} style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
                     {getStatusBadge(item.status)}
                   </td>
-                  <td style={{ padding: '12px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                  <td data-label={t('admin.relationship.columns.action', 'Ação')} style={{ padding: '12px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                     <button
                       onClick={() => setSelectedTestimonial(item)}
                       style={{
@@ -314,7 +314,7 @@ export function RelationshipTestimonials() {
 
       {/* Pagination Controls */}
       {result && result.totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
           <span style={{ fontSize: '0.85rem', color: 'var(--color-text-light)' }}>
             {t('admin.relationship.paginationTotal', { total: result.total, page: result.page, totalPages: result.totalPages, defaultValue: `Mostrando página ${result.page} de ${result.totalPages} (${result.total} registros)` })}
           </span>

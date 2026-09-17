@@ -210,7 +210,7 @@ export function AdminSupporters() {
           {search || status ? 'Nenhum apoiador corresponde aos filtros.' : 'Nenhum apoiador registrado ainda.'}
         </div>
       ) : (
-        <div style={{ overflowX: 'auto', backgroundColor: 'var(--color-bg)', borderRadius: '12px', border: '1px solid var(--color-border)', marginBottom: '24px' }}>
+        <div className="admin-table-responsive" style={{ overflowX: 'auto', backgroundColor: 'var(--color-bg)', borderRadius: '12px', border: '1px solid var(--color-border)', marginBottom: '24px' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-secondary, rgba(0,0,0,0.02))' }}>
@@ -230,20 +230,20 @@ export function AdminSupporters() {
                   onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.02)')}
                   onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
                 >
-                  <td style={{ padding: '12px 16px' }}>
+                  <td data-label="Apoiador" style={{ padding: '12px 16px' }}>
                     <div style={{ fontWeight: 500, color: 'var(--color-text)' }}>{supporter.full_name || 'Sem nome'}</div>
                     <div style={{ fontSize: '0.8rem', color: 'var(--color-text-light)' }}>{supporter.email}</div>
                   </td>
-                  <td style={{ padding: '12px 16px' }}>
+                  <td data-label="Status" style={{ padding: '12px 16px' }}>
                     <StatusBadge status={supporter.status} />
                   </td>
-                  <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
+                  <td data-label="Total contribuído" style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
                     <div style={{ fontWeight: 600, color: 'var(--color-text)' }}>{formatBRL(supporter.total_contributed_cents)}</div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--color-text-light)' }}>
                       {supporter.contribution_count} {supporter.contribution_count === 1 ? 'contribuição' : 'contribuições'}
                     </div>
                   </td>
-                  <td style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
+                  <td data-label="Última contribuição" style={{ padding: '12px 16px', whiteSpace: 'nowrap' }}>
                     {supporter.last_contribution_at ? (
                       <>
                         <div style={{ color: 'var(--color-text)' }}>
@@ -261,10 +261,10 @@ export function AdminSupporters() {
                       <span style={{ color: 'var(--color-text-light)' }}>Nenhuma ainda</span>
                     )}
                   </td>
-                  <td style={{ padding: '12px 16px', color: 'var(--color-text-light)', whiteSpace: 'nowrap' }}>
+                  <td data-label="Apoiador desde" style={{ padding: '12px 16px', color: 'var(--color-text-light)', whiteSpace: 'nowrap' }}>
                     {formatDate(supporter.supporter_since)}
                   </td>
-                  <td style={{ padding: '12px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                  <td data-label="Ação" style={{ padding: '12px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                     <button
                       onClick={() => handleToggleStatus(supporter)}
                       disabled={busyId === supporter.supporter_id}
@@ -288,7 +288,7 @@ export function AdminSupporters() {
       )}
 
       {result && result.totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
           <span style={{ fontSize: '0.85rem', color: 'var(--color-text-light)' }}>
             Página {result.page} de {result.totalPages} ({result.total} apoiadores)
           </span>
