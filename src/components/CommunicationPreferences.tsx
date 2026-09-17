@@ -97,8 +97,10 @@ export function CommunicationPreferences() {
           body: JSON.stringify({ consents: [{ channel, purpose: illuminePurpose, granted: next }] }),
         });
         if (res.ok) { setSaving(null); return; }
-      } catch {
-        // fallthrough
+        const errBody = await res.json().catch(() => ({}));
+        console.error('[CommunicationPreferences] L1 /consent PUT falhou', res.status, errBody);
+      } catch (e) {
+        console.error('[CommunicationPreferences] L1 /consent PUT exception', e);
       }
     }
 

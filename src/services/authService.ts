@@ -146,7 +146,7 @@ export const authService = {
       const body = await res.json().catch(() => ({}))
       const code = body.error || 'OAUTH_FAILED'
       if (code === 'OAUTH_NOT_CONFIGURED') throw new Error('Login OAuth não configurado no servidor.')
-      throw new Error(code)
+      throw new Error(body.message || code)
     }
 
     const d = await res.json()

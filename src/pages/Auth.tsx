@@ -169,8 +169,8 @@ export const Auth: React.FC = () => {
       await authService.signInWithOAuth('google', response.credential);
       navigate(redirectTo, { replace: true });
     } catch (err: any) {
-      console.error(err);
-      setError(t('login.errorGoogle'));
+      console.error('[Google OAuth error]', err);
+      setError(`${t('login.errorGoogle')} (${err?.message || 'unknown'})`);
     } finally {
       setLoading(false);
     }
