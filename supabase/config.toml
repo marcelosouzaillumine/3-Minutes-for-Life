@@ -193,25 +193,13 @@ enabled = true
 # ============================================================
 # EDGE FUNCTIONS
 # ============================================================
-
-[functions.translate-devotional]
-enabled = true
-verify_jwt = false
-import_map = "./functions/translate-devotional/deno.json"
-entrypoint = "./functions/translate-devotional/index.ts"
-
-[functions.communication-inapp]
-enabled = true
-verify_jwt = false
-import_map = "./functions/communication-inapp/deno.json"
-entrypoint = "./functions/communication-inapp/index.ts"
-
-[functions.communication-email-webhook]
-enabled = true
-verify_jwt = false
-entrypoint = "./functions/communication-email-webhook/index.ts"
-[functions.communication-dispatch]
-verify_jwt = false
-
-[functions.communication-worker]
-verify_jwt = false
+#
+# FASE 1 (2026-09-17): translate-devotional, communication-inapp,
+# communication-email-webhook, communication-dispatch, communication-worker,
+# communication-email, asaas-create-checkout e test-e2e foram removidas daqui
+# e do diretório supabase/functions/ por comprovadamente não terem consumidor
+# no código do 3ML (o Illumine OS já implementa os equivalentes — ver
+# fase1_descomissionamento.md). As funções continuam ATIVAS no projeto
+# Supabase (esta remoção é só do código-fonte deste repositório); o
+# undeploy real requer `supabase functions delete <slug>` e ainda depende
+# de confirmação explícita, registrada no mesmo relatório.
