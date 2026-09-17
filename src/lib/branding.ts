@@ -6,6 +6,12 @@ interface TenantBranding {
   logoUrl: string | null
   iconUrl: string | null
   primaryColor: string | null
+  website: string | null
+  contactEmail: string | null
+  razaoSocial: string | null
+  cnpj: string | null
+  addressCity: string | null
+  addressState: string | null
 }
 
 let _branding: TenantBranding | null = null

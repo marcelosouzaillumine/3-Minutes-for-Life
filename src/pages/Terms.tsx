@@ -1,4 +1,5 @@
 import { BrandLogo } from '../components/BrandLogo';
+import { useTenantBranding } from '../hooks/useTenantBranding';
 import './Landing.css';
 import './Legal.css';
 
@@ -6,10 +7,15 @@ import './Legal.css';
  * Termos de Uso.
  *
  * ATENÇÃO: ponto de partida técnico, não parecer jurídico. Precisa de
- * revisão por profissional habilitado antes de publicar, e os campos
- * [DEFINIR] precisam ser preenchidos.
+ * revisão por profissional habilitado antes de publicar.
  */
 export function Terms() {
+  const branding = useTenantBranding();
+  const contactEmail = branding?.contactEmail || 'atendimento@3minutesforlife.com';
+  const forumComarca = branding?.addressCity
+    ? `${branding.addressCity}${branding.addressState ? `, ${branding.addressState}` : ''}`
+    : '[DEFINIR: comarca]';
+
   return (
     <div className="legal-page">
 
@@ -129,19 +135,19 @@ export function Terms() {
         <h2>Lei aplicável</h2>
         <p>
           Estes termos são regidos pela lei brasileira. Fica eleito o foro de
-          [DEFINIR: comarca] para dirimir questões deles decorrentes.
+          {' '}{forumComarca} para dirimir questões deles decorrentes.
         </p>
 
         <p className="legal-contact">
           Dúvidas sobre estes termos:{' '}
-          <a href="mailto:atendimento@3minutesforlife.com">atendimento@3minutesforlife.com</a>
+          <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
         </p>
       </main>
 
       <footer className="legal-footer">
         <a href="/">Página inicial</a>
         <a href="/privacidade">Política de privacidade</a>
-        <a href="mailto:atendimento@3minutesforlife.com">Contato</a>
+        <a href={`mailto:${contactEmail}`}>Contato</a>
       </footer>
 
     </div>

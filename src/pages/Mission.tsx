@@ -11,6 +11,7 @@ import { MissionProgress } from '../components/MissionProgress';
 import { MissionService } from '../services/MissionService';
 import { BrandLogo } from '../components/BrandLogo';
 import { useBrlToUsdRate, formatUsdFromBrl } from '../hooks/useBrlToUsdRate';
+import { useTenantBranding } from '../hooks/useTenantBranding';
 
 function useIntersectionObserver() {
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -49,6 +50,8 @@ export function Mission() {
   const { t, i18n } = useTranslation('mission');
   const isPortuguese = i18n.language?.toLowerCase().startsWith('pt');
   const usdRate = useBrlToUsdRate();
+  const branding = useTenantBranding();
+  const contactEmail = branding?.contactEmail || 'atendimento@3minutesforlife.com';
   const setRef = useIntersectionObserver();
 
   const [currentUsers, setCurrentUsers] = useState(0);
@@ -312,7 +315,7 @@ export function Mission() {
             <a href="/apoiar">{t('footer.navDonate', 'Apoiar')}</a>
             <a href="/privacidade">{t('footer.privacy')}</a>
             <a href="/termos">{t('footer.terms')}</a>
-            <a href="mailto:atendimento@3minutesforlife.com">
+            <a href={`mailto:${contactEmail}`}>
               {t('footer.contact', 'Contato')}
             </a>
           </div>

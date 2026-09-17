@@ -1,4 +1,5 @@
 import { BrandLogo } from '../components/BrandLogo';
+import { useTenantBranding } from '../hooks/useTenantBranding';
 import './Landing.css';
 import './Legal.css';
 
@@ -10,10 +11,15 @@ import './Legal.css';
  *
  * ATENÇÃO: este texto é um ponto de partida técnico, não um parecer
  * jurídico. Antes de publicar, precisa ser revisado por alguém
- * habilitado, e os campos marcados com [DEFINIR] precisam ser
- * preenchidos.
+ * habilitado.
  */
 export function Privacy() {
+  const branding = useTenantBranding();
+  const contactEmail = branding?.contactEmail || 'atendimento@3minutesforlife.com';
+  const responsibleParty = branding?.razaoSocial
+    ? `${branding.razaoSocial}${branding.cnpj ? ` (CNPJ ${branding.cnpj})` : ''}`
+    : '[DEFINIR: razão social e CNPJ, ou nome do responsável]';
+
   return (
     <div className="legal-page">
 
@@ -43,10 +49,9 @@ export function Privacy() {
 
         <h2>Quem é responsável pelos seus dados</h2>
         <p>
-          O responsável pelo tratamento dos dados descritos aqui é
-          [DEFINIR: razão social e CNPJ, ou nome do responsável], que pode ser
-          contatado pelo e-mail{' '}
-          <a href="mailto:atendimento@3minutesforlife.com">atendimento@3minutesforlife.com</a>.
+          O responsável pelo tratamento dos dados descritos aqui é{' '}
+          {responsibleParty}, que pode ser contatado pelo e-mail{' '}
+          <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.
         </p>
 
         <h2>Que dados coletamos</h2>
@@ -136,7 +141,7 @@ export function Privacy() {
           se tratamos seus dados, acessá-los, corrigi-los, solicitar sua exclusão,
           revogar consentimentos e pedir a portabilidade. Para exercer qualquer
           um deles, escreva para{' '}
-          <a href="mailto:atendimento@3minutesforlife.com">atendimento@3minutesforlife.com</a>.
+          <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.
         </p>
         <p>
           A exclusão da conta remove seus dados pessoais, reflexões e pedidos.
@@ -157,14 +162,14 @@ export function Privacy() {
 
         <p className="legal-contact">
           Dúvidas sobre privacidade:{' '}
-          <a href="mailto:atendimento@3minutesforlife.com">atendimento@3minutesforlife.com</a>
+          <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
         </p>
       </main>
 
       <footer className="legal-footer">
         <a href="/">Página inicial</a>
         <a href="/termos">Termos de uso</a>
-        <a href="mailto:atendimento@3minutesforlife.com">Contato</a>
+        <a href={`mailto:${contactEmail}`}>Contato</a>
       </footer>
 
     </div>

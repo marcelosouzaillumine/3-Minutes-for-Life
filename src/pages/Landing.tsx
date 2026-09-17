@@ -6,6 +6,7 @@ import type { Devotional } from '../types/Devotional';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { BrandLogo } from '../components/BrandLogo';
 import { useTranslation } from 'react-i18next';
+import { useTenantBranding } from '../hooks/useTenantBranding';
 
 function useIntersectionObserver() {
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -47,6 +48,8 @@ function useIntersectionObserver() {
 
 export function Landing() {
   const { t } = useTranslation(['landing']);
+  const branding = useTenantBranding();
+  const contactEmail = branding?.contactEmail || 'atendimento@3minutesforlife.com';
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const setRef = useIntersectionObserver();
@@ -923,7 +926,7 @@ export function Landing() {
               )}
             </a>
 
-            <a href="mailto:atendimento@3minutesforlife.com">
+            <a href={`mailto:${contactEmail}`}>
               {t(
                 'landing:footer.links.contact'
               )}
