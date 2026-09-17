@@ -137,9 +137,9 @@ async function drawInstagram(
   w: number, _h: number,
   d: DrawData,
   fontSize: { logo: number; title: number; principle: number; scripture: number; site: number },
-  pad: { x: number; top: number; bot: number; afterLogo: number },
+  pad: { x: number; top: number; bot: number; afterLogo: number; afterLabel?: number },
 ) {
-  const { x: PX, top: PT, afterLogo: AL } = pad
+  const { x: PX, top: PT, afterLogo: AL, afterLabel: ALGAP = 40 } = pad
   const IW = w - PX * 2
   let y = PT
 
@@ -154,7 +154,7 @@ async function drawInstagram(
   ctx.font      = `700 22px ${SERIF}`
   ctx.fillStyle = GOLD
   spacedText(ctx, 'DEVOCIONAL DO DIA', PX, y, 8)
-  y += 22 + 40
+  y += 22 + ALGAP
 
   // Title
   ctx.font      = `800 ${fontSize.title}px ${SERIF}`
@@ -225,7 +225,7 @@ export async function createShareImage(
   } else if (format === 'story') {
     await drawInstagram(ctx, w, h, data,
       { logo: 456, title: 108, principle: 56, scripture: 28, site: 26 },
-      { x: 110, top: 130, bot: 340, afterLogo: 120 },
+      { x: 110, top: 130, bot: 180, afterLogo: 150, afterLabel: 60 },
     )
   } else if (format === 'feed') {
     await drawInstagram(ctx, w, h, data,
