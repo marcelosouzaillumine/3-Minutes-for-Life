@@ -217,7 +217,7 @@ async function drawInstagram(
 
   // Website
   ctx.font = `400 ${SITE_SIZE}px ${SERIF}`
-  alpha(ctx, 0.65, () => {
+  alpha(ctx, 0.75, () => {
     ctx.fillStyle = GOLD
     spacedText(ctx, '3minutesforlife.com', PX, y, 4)
   })
