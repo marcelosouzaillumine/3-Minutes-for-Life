@@ -54,6 +54,15 @@ function applyBrandingToDOM(b: TenantBranding): void {
     root.style.setProperty('--accent-strong', shadeColor(b.primaryColor, -25))
     root.style.setProperty('--accent-hover', shadeColor(b.primaryColor, -35))
   }
+  if (b.iconUrl) {
+    // A aba do navegador só lê os <link rel="icon"> do próprio index.html —
+    // trocar isso aqui é o único jeito de refletir o ícone do tenant sem
+    // rebuild. O ícone do PWA instalado (manifest.webmanifest) é gerado em
+    // build time e não é afetado por esta troca em runtime.
+    document
+      .querySelectorAll<HTMLLinkElement>('link[rel="icon"], link[rel="apple-touch-icon"]')
+      .forEach(link => { link.href = b.iconUrl! })
+  }
 }
 
 function shadeColor(hex: string, percent: number): string {
