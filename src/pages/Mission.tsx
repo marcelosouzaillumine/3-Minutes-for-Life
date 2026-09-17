@@ -135,10 +135,10 @@ export function Mission() {
           )}
 
           <div className="mission-hero-cta">
-            <button type="button" className="btn-primary" onClick={goToContributePage}>
+            <button type="button" className="mission-btn-primary" onClick={goToContributePage}>
               {t('hero.ctaBtn')}
             </button>
-            <a href="/" className="btn-secondary">{t('hero.ctaSecondary')}</a>
+            <a href="/" className="mission-btn-secondary">{t('hero.ctaSecondary')}</a>
           </div>
         </div>
 

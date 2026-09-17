@@ -360,12 +360,17 @@ export function AdminDashboard() {
           <h3>Histórico Global de Leituras</h3>
           <p style={{ color: 'var(--color-text-light)', fontSize: '0.85rem', marginBottom: '12px' }}>
             Total acumulado desde o início — não muda com o seletor de período acima.
+            "Leituras Únicas" conta 1 vez por usuário+devocional; "Aberturas" conta toda vez que a tela foi aberta (inclui reaberturas e o histórico importado de antes da migração).
           </p>
 
           <div className="admin-grid" style={{ marginBottom: '20px' }}>
             <div className="admin-card">
-              <div className="admin-card-title">Total de Leituras (vitalício)</div>
+              <div className="admin-card-title">Total de Leituras Únicas (vitalício)</div>
               <div className="admin-card-value">{readingTrends.global_total_reads}</div>
+            </div>
+            <div className="admin-card">
+              <div className="admin-card-title">Total de Aberturas (vitalício)</div>
+              <div className="admin-card-value">{readingTrends.global_total_opens}</div>
             </div>
             <div className="admin-card">
               <div className="admin-card-title">Média de Leituras por Devocional</div>

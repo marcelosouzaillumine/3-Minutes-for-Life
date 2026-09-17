@@ -367,7 +367,10 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
       {/* Side-by-side or stacked Editor Layout */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
+        // min(360px, 100%) evita que a coluna force overflow horizontal em
+        // telas mais estreitas que 360px (o valor fixo antigo estourava a
+        // largura da página em mobile).
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(360px, 100%), 1fr))',
         gap: '24px',
         alignItems: 'start'
       }}>

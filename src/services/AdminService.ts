@@ -41,6 +41,7 @@ export type DailySeriesPoint = {
 
 export type ReadingTrends = {
   global_total_reads: number;
+  global_total_opens: number;
   total_devotionals: number;
   avg_reads_per_devotional: number;
   monthly: Array<{ month: string; reads: number }>;
@@ -153,6 +154,7 @@ export class AdminService {
     const body = await res.json();
     return {
       global_total_reads: body.globalTotalReads ?? 0,
+      global_total_opens: body.globalTotalOpens ?? 0,
       total_devotionals: body.totalDevotionals ?? 0,
       avg_reads_per_devotional: body.avgReadsPerDevotional ?? 0,
       monthly: (body.monthly ?? []).map((m: any) => ({ month: m.month, reads: m.reads ?? 0 })),

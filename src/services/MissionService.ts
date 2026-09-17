@@ -19,11 +19,12 @@ export interface Campaign {
 }
 
 export interface RecurringSubscription {
-  asaasSubscriptionId: string;
+  subscriptionId: string;
+  provider: 'asaas' | 'stripe';
   amountCents: number;
   currency: string;
   status: string;
-  cycle?: 'MONTHLY' | 'YEARLY';
+  cycle?: 'MONTHLY' | 'YEARLY' | 'month' | 'year';
   createdAt: string;
 }
 
@@ -149,25 +150,81 @@ export const MissionService = {
     return this.createCheckout(amountCents, cpfCnpj, 'one_time');
   },
 
-  async getMySubscriptions(): Promise<RecurringSubscription[]> {
-    const res = await illumineFetch('/asaas/subscriptions/mine');
-    if (!res.ok) return [];
-    const body = await res.json();
-    const subscriptions: any[] = body.subscriptions ?? [];
-    return subscriptions.map((s): RecurringSubscription => ({
-      asaasSubscriptionId: s.asaasSubscriptionId,
-      amountCents: s.amount,
-      currency: s.currency ?? 'BRL',
-      status: s.status,
-      cycle: s.cycle,
-      createdAt: s.createdAt,
-    }));
+  // Doação internacional via Stripe — sem CPF/CNPJ (só o Asaas/Brasil exige).
+  // Usado quando o doador não está no Brasil (cartão internacional).
+  async createInternationalCheckout(
+    amountCents: number,
+    frequency: 'one_time' | 'monthly' | 'yearly' = 'one_time',
+    currency: string = 'USD'
+  ): Promise<{ checkoutUrl: string; contributionId: string }> {
+    const isRecurring = frequency === 'monthly' || frequency === 'yearly';
+
+    const illumineUser = illumineAuth.getUser();
+    if (!illumineUser?.email) throw new Error('Autenticação necessária.');
+
+    const customerName = illumineUser.name ?? illumineUser.email.split('@')[0];
+
+    const res = await illumineFetch('/stripe/checkout', {
+      method: 'POST',
+      body: JSON.stringify({
+        amountCents,
+        currency,
+        customer: { name: customerName, email: illumineUser.email },
+        isRecurring,
+        interval: frequency === 'yearly' ? 'year' : 'month',
+        description: 'Contribution to 3 Minutes For Life',
+      }),
+    });
+
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body?.error || 'Erro ao criar o checkout.');
+    }
+
+    const payload = await res.json();
+    if (!payload.checkoutUrl) throw new Error(payload?.error || 'Erro ao criar o checkout.');
+
+    return { checkoutUrl: payload.checkoutUrl, contributionId: payload.intentId ?? '' };
   },
 
-  async cancelSubscription(asaasSubscriptionId: string): Promise<void> {
-    const res = await illumineFetch(`/asaas/subscriptions/${encodeURIComponent(asaasSubscriptionId)}`, {
-      method: 'DELETE',
-    });
+  async getMySubscriptions(): Promise<RecurringSubscription[]> {
+    const [asaasRes, stripeRes] = await Promise.all([
+      illumineFetch('/asaas/subscriptions/mine'),
+      illumineFetch('/stripe/subscriptions/mine'),
+    ]);
+
+    const asaas: RecurringSubscription[] = asaasRes.ok
+      ? ((await asaasRes.json()).subscriptions ?? []).map((s: any): RecurringSubscription => ({
+          subscriptionId: s.asaasSubscriptionId,
+          provider: 'asaas',
+          amountCents: s.amount,
+          currency: s.currency ?? 'BRL',
+          status: s.status,
+          cycle: s.cycle,
+          createdAt: s.createdAt,
+        }))
+      : [];
+
+    const stripe: RecurringSubscription[] = stripeRes.ok
+      ? ((await stripeRes.json()).subscriptions ?? []).map((s: any): RecurringSubscription => ({
+          subscriptionId: s.stripeSubscriptionId,
+          provider: 'stripe',
+          amountCents: s.amount,
+          currency: s.currency ?? 'USD',
+          status: s.status,
+          cycle: s.cycle,
+          createdAt: s.createdAt,
+        }))
+      : [];
+
+    return [...asaas, ...stripe];
+  },
+
+  async cancelSubscription(subscriptionId: string, provider: 'asaas' | 'stripe' = 'asaas'): Promise<void> {
+    const path = provider === 'stripe'
+      ? `/stripe/subscriptions/${encodeURIComponent(subscriptionId)}`
+      : `/asaas/subscriptions/${encodeURIComponent(subscriptionId)}`;
+    const res = await illumineFetch(path, { method: 'DELETE' });
     if (!res.ok && res.status !== 204) {
       const body = await res.json().catch(() => ({}));
       throw new Error(body?.error || 'Erro ao cancelar a assinatura.');

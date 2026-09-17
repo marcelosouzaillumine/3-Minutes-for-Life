@@ -254,11 +254,11 @@ export const AdminContentService = {
     const devotionals = (data?.devotionals ?? []).map(l1DevToSnake)
 
     return devotionals.map((devotional: any) => {
-      const langMap: Record<string, { manual: any; ai: any; state: string; isStale: boolean }> = {}
+      const langMap: Record<string, { manual: any; ai: any; state: string; isStale: boolean; isPossiblyStale: boolean }> = {}
 
       for (const t of devotional.devotional_translations || []) {
         const lang = t.language
-        if (!langMap[lang]) langMap[lang] = { manual: null, ai: null, state: 'none', isStale: false }
+        if (!langMap[lang]) langMap[lang] = { manual: null, ai: null, state: 'none', isStale: false, isPossiblyStale: false }
         if (t.translation_source === 'manual') langMap[lang].manual = t
         else langMap[lang].ai = t
       }
@@ -271,12 +271,27 @@ export const AdminContentService = {
         else if (ai?.status === 'published') { langMap[lang].state = 'ai_published'; active = ai }
         else { langMap[lang].state = 'draft'; active = ai }
 
-        // Desatualizada: a tradução foi gerada a partir de um texto original
-        // que já mudou (hash gravado na tradução != hash atual do devocional).
+        // Desatualizada (confirmado): a tradução tem hash de origem gravado e
+        // ele não bate mais com o hash atual do devocional.
         langMap[lang].isStale = !!(
           active?.source_content_hash &&
           devotional.content_hash &&
           active.source_content_hash !== devotional.content_hash
+        )
+
+        // Desatualizada (possível, não confirmada): tradução antiga, de antes
+        // do hash de origem existir (source_content_hash nulo), então não dá
+        // pra comparar com precisão. Usa data como indício: se o devocional
+        // foi editado depois da última vez que a tradução foi salva, pode ter
+        // ficado pra trás — mas qualquer edição (até de campo não traduzível)
+        // bate esse sinal, então é heurística, não confirmação.
+        langMap[lang].isPossiblyStale = !!(
+          !langMap[lang].isStale &&
+          active &&
+          !active.source_content_hash &&
+          devotional.updated_at &&
+          active.updated_at &&
+          new Date(devotional.updated_at).getTime() > new Date(active.updated_at).getTime()
         )
       }
 

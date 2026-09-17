@@ -34,7 +34,7 @@ export function Contribute() {
   const [activePlan, setActivePlan] = useState<ContributionPlan | null>(null);
   const [amountReais, setAmountReais] = useState('20');
   const [cpfCnpj, setCpfCnpj] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'pix' | 'credit_card'>('pix');
+  const [paymentMethod, setPaymentMethod] = useState<'pix' | 'credit_card' | 'international'>('pix');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
@@ -67,21 +67,30 @@ export function Contribute() {
 
     const amountCents = Math.round(Number(amountReais.replace(',', '.')) * 100);
     const minAmount = activePlan.frequency === 'yearly' ? 5000 : 500;
-    const minText = activePlan.frequency === 'yearly' ? 'R$ 50,00' : 'R$ 5,00';
+    const minText = paymentMethod === 'international'
+      ? (activePlan.frequency === 'yearly' ? '$50.00' : '$5.00')
+      : (activePlan.frequency === 'yearly' ? 'R$ 50,00' : 'R$ 5,00');
 
     if (!Number.isFinite(amountCents) || amountCents < minAmount) {
       setFormError(t('contribution:oneTime.errorMinAmount', `O valor mínimo é ${minText}.`));
       return;
     }
 
-    const cleanCpfCnpj = onlyDigits(cpfCnpj);
-    if (cleanCpfCnpj.length !== 11 && cleanCpfCnpj.length !== 14) {
-      setFormError(t('contribution:oneTime.errorCpf', 'Informe um CPF ou CNPJ válido.'));
-      return;
-    }
-
     setIsSubmitting(true);
     try {
+      if (paymentMethod === 'international') {
+        const { checkoutUrl } = await MissionService.createInternationalCheckout(amountCents, activePlan.frequency);
+        window.location.href = checkoutUrl;
+        return;
+      }
+
+      const cleanCpfCnpj = onlyDigits(cpfCnpj);
+      if (cleanCpfCnpj.length !== 11 && cleanCpfCnpj.length !== 14) {
+        setFormError(t('contribution:oneTime.errorCpf', 'Informe um CPF ou CNPJ válido.'));
+        setIsSubmitting(false);
+        return;
+      }
+
       const { checkoutUrl } = await MissionService.createCheckout(
         amountCents,
         cleanCpfCnpj,
@@ -373,6 +382,27 @@ export function Contribute() {
                 >
                   💳 Cartão
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod('international')}
+                  style={{
+                    flex: 1,
+                    padding: '0.6rem 0.5rem',
+                    borderRadius: '8px',
+                    border: `2px solid ${paymentMethod === 'international' ? '#2563eb' : '#ddd'}`,
+                    background: paymentMethod === 'international' ? '#eff6ff' : '#fafafa',
+                    color: paymentMethod === 'international' ? '#1d4ed8' : '#555',
+                    fontWeight: paymentMethod === 'international' ? 700 : 400,
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.35rem',
+                  }}
+                >
+                  🌎 International
+                </button>
               </div>
 
               {!user ? (
@@ -389,7 +419,9 @@ export function Contribute() {
               ) : (
                 <form onSubmit={handleCheckoutSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <label style={{ fontSize: '0.88rem', fontWeight: 600, color: '#333' }}>
-                    {t('contribution:oneTime.amountLabel', 'Valor (R$)')}
+                    {paymentMethod === 'international'
+                      ? t('contribution:oneTime.amountLabelUsd', 'Amount (USD)')
+                      : t('contribution:oneTime.amountLabel', 'Valor (R$)')}
                     <input
                       type="text"
                       inputMode="decimal"
@@ -411,6 +443,7 @@ export function Contribute() {
                     />
                   </label>
 
+                  {paymentMethod !== 'international' && (
                   <label style={{ fontSize: '0.88rem', fontWeight: 600, color: '#333' }}>
                     {t('contribution:oneTime.cpfLabel', 'CPF ou CNPJ')}
                     <input
@@ -435,6 +468,7 @@ export function Contribute() {
                       Exigido pelo Banco Central para emissão do pagamento.
                     </span>
                   </label>
+                  )}
 
                   {formError && (
                     <div style={{
@@ -465,8 +499,12 @@ export function Contribute() {
                       style={{ flex: 2 }}
                     >
                       {isSubmitting
-                        ? (paymentMethod === 'credit_card' ? 'Criando link de pagamento…' : 'Gerando PIX…')
-                        : (paymentMethod === 'credit_card' ? 'Pagar com Cartão' : 'Pagar com PIX')}
+                        ? (paymentMethod === 'credit_card' ? 'Criando link de pagamento…'
+                          : paymentMethod === 'international' ? 'Creating checkout…'
+                          : 'Gerando PIX…')
+                        : (paymentMethod === 'credit_card' ? 'Pagar com Cartão'
+                          : paymentMethod === 'international' ? 'Continue to payment'
+                          : 'Pagar com PIX')}
                     </button>
                   </div>
                 </form>

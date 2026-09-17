@@ -29,12 +29,12 @@ export function MySubscriptions() {
     fetchSubscriptions();
   }, []);
 
-  const handleCancel = async (subscriptionId: string) => {
+  const handleCancel = async (subscriptionId: string, provider: 'asaas' | 'stripe') => {
     if (!window.confirm(t('profile:subscriptions.cancelConfirm'))) return;
     setCancellingId(subscriptionId);
     setFeedback('');
     try {
-      await MissionService.cancelSubscription(subscriptionId);
+      await MissionService.cancelSubscription(subscriptionId, provider);
       setFeedback(t('profile:subscriptions.cancelSuccess'));
       await fetchSubscriptions();
     } catch (err) {
@@ -96,12 +96,12 @@ export function MySubscriptions() {
               style: 'currency',
               currency: s.currency || 'BRL',
             });
-            const cycleLabel = s.cycle === 'YEARLY'
+            const cycleLabel = (s.cycle === 'YEARLY' || s.cycle === 'year')
               ? t('profile:subscriptions.yearly')
               : t('profile:subscriptions.monthly');
-            const isCancelling = cancellingId === s.asaasSubscriptionId;
+            const isCancelling = cancellingId === s.subscriptionId;
             return (
-              <div key={s.asaasSubscriptionId} style={{
+              <div key={s.subscriptionId} style={{
                 padding: '1.5rem',
                 backgroundColor: 'var(--color-bg)',
                 borderRadius: '12px',
@@ -121,7 +121,7 @@ export function MySubscriptions() {
                 <button
                   type="button"
                   disabled={isCancelling}
-                  onClick={() => handleCancel(s.asaasSubscriptionId)}
+                  onClick={() => handleCancel(s.subscriptionId, s.provider)}
                   style={{
                     padding: '8px 16px',
                     fontSize: '0.85rem',

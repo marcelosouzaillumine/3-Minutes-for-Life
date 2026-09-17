@@ -99,7 +99,7 @@
    BUTTONS
    ========================================================= */
 
-.btn-primary {
+.mission-btn-primary {
   background-color: var(--landing-accent);
   color: #fff;
 
@@ -124,7 +124,7 @@
   align-items: center;
 }
 
-.btn-primary:hover {
+.mission-btn-primary:hover {
   background-color: var(--landing-accent-hover);
   transform: translateY(-2px);
 
@@ -133,7 +133,7 @@
 }
 
 
-.btn-secondary {
+.mission-btn-secondary {
   background: transparent;
 
   border: 1px solid var(--landing-border);
@@ -161,7 +161,7 @@
   align-items: center;
 }
 
-.btn-secondary:hover {
+.mission-btn-secondary:hover {
   border-color: var(--landing-text);
 }
 
@@ -1456,8 +1456,8 @@
   }
 
 
-  .btn-primary,
-  .btn-secondary {
+  .mission-btn-primary,
+  .mission-btn-secondary {
     width: 100%;
 
     box-sizing: border-box;

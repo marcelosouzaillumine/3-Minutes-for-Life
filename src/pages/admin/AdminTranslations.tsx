@@ -110,7 +110,7 @@ export function AdminTranslations() {
         });
       }
       if (filterMode === 'stale') {
-        return languages.some(l => devo.langMap?.[l.iso_code]?.isStale);
+        return languages.some(l => devo.langMap?.[l.iso_code]?.isStale || devo.langMap?.[l.iso_code]?.isPossiblyStale);
       }
       if (filterMode === 'complete') {
         return languages.every(l => {
@@ -128,7 +128,7 @@ export function AdminTranslations() {
     languages.some(l => { const s = d.langMap?.[l.iso_code]?.state; return !s || s === 'none'; })
   ).length;
   const withStale = devotionals.filter(d =>
-    languages.some(l => d.langMap?.[l.iso_code]?.isStale)
+    languages.some(l => d.langMap?.[l.iso_code]?.isStale || d.langMap?.[l.iso_code]?.isPossiblyStale)
   ).length;
   const complete = totalDevos - withGaps;
 
@@ -269,20 +269,24 @@ export function AdminTranslations() {
                   const entry = devo.langMap?.[lang.iso_code];
                   const state = entry?.state || 'none';
                   const isStale = !!entry?.isStale;
+                  const isPossiblyStale = !!entry?.isPossiblyStale;
                   const cfg = STATE_CONFIG[state] || STATE_CONFIG.none;
                   const stateLabel = state === 'none' ? 'Não traduzido' : state === 'draft' ? 'Rascunho' : state === 'manual_published' ? 'Manual publicado' : 'IA publicado';
+                  const staleTitle = isStale
+                    ? ' — ⚠️ Desatualizada: o texto original foi editado depois desta tradução'
+                    : isPossiblyStale
+                    ? ' — 🕓 Possivelmente desatualizada: tradução antiga (de antes do controle por hash), o devocional foi editado depois — revisar manualmente'
+                    : '';
 
                   return (
                     <button
                       key={lang.iso_code}
                       onClick={() => openEditor(devo, lang)}
-                      title={isStale
-                        ? `${lang.name} — ${stateLabel} — ⚠️ Desatualizada: o texto original foi editado depois desta tradução`
-                        : `${lang.name} — ${stateLabel}`}
+                      title={`${lang.name} — ${stateLabel}${staleTitle}`}
                       style={{
                         display: 'inline-flex', alignItems: 'center', gap: '3px',
                         padding: '4px 9px', borderRadius: '6px',
-                        border: `1px solid ${isStale ? '#fcd34d' : cfg.border}`,
+                        border: `1px solid ${isStale ? '#fcd34d' : isPossiblyStale ? '#e2e8f0' : cfg.border}`,
                         background: isStale ? '#fffbeb' : cfg.bg,
                         color: cfg.color,
                         fontSize: '0.75rem', fontWeight: 700,
@@ -292,6 +296,7 @@ export function AdminTranslations() {
                       {lang.flag_emoji} {lang.iso_code.toUpperCase()}
                       <span style={{ marginLeft: '2px', fontSize: '0.7rem' }}>{cfg.label}</span>
                       {isStale && <span style={{ marginLeft: '1px' }}>⚠️</span>}
+                      {!isStale && isPossiblyStale && <span style={{ marginLeft: '1px' }}>🕓</span>}
                     </button>
                   );
                 })}
