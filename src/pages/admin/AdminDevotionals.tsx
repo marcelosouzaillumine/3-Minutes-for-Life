@@ -680,11 +680,10 @@ export function AdminDevotionals() {
             );
           })()}
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={saving}
-            className="action-button-primary"
-            style={{ width: '100%', padding: '16px', marginTop: '8px', fontSize: '1rem' }}
+            style={{ width: '100%', padding: '16px', marginTop: '8px', fontSize: '1rem', background: 'var(--color-primary)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', opacity: saving ? 0.7 : 1 }}
           >
             {saving ? 'Salvando...' : 'Salvar Devocional'}
           </button>
