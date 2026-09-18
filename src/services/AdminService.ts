@@ -1,6 +1,7 @@
 import { illumineFetch } from '../lib/illumine';
 
 export type DashboardMetrics = {
+  total_users: number;
   intelligence: {
     active_users: { current: number; previous: number };
     reads: { current: number; previous: number };
@@ -48,6 +49,8 @@ export type ReadingTrends = {
   avg_reads_per_devotional: number;
   monthly: Array<{ month: string; reads: number }>;
   yearly: Array<{ year: number; reads: number; growth_rate: number | null }>;
+  monthly_opens: Array<{ month: string; opens: number }>;
+  yearly_opens: Array<{ year: number; opens: number; growth_rate: number | null }>;
 };
 
 export class AdminService {
@@ -98,6 +101,7 @@ export class AdminService {
     const topContent: any[] = perf.topRead ?? (Array.isArray(perf) ? perf : perf.data ?? []);
 
     return {
+      total_users: ovRetention.totalUsers ?? 0,
       intelligence: {
         active_users: { current: ov.activeUsers?.current ?? ovRetention.dau ?? ov.dau ?? 0, previous: ov.activeUsers?.previous ?? 0 },
         reads: { current: ov.reads?.current ?? ovFunnel.opened ?? ov.totalReads ?? 0, previous: ov.reads?.previous ?? 0 },
@@ -163,6 +167,8 @@ export class AdminService {
       avg_reads_per_devotional: body.avgReadsPerDevotional ?? 0,
       monthly: (body.monthly ?? []).map((m: any) => ({ month: m.month, reads: m.reads ?? 0 })),
       yearly: (body.yearly ?? []).map((y: any) => ({ year: y.year, reads: y.reads ?? 0, growth_rate: y.growthRate ?? null })),
+      monthly_opens: (body.monthlyOpens ?? []).map((m: any) => ({ month: m.month, opens: m.opens ?? 0 })),
+      yearly_opens: (body.yearlyOpens ?? []).map((y: any) => ({ year: y.year, opens: y.opens ?? 0, growth_rate: y.growthRate ?? null })),
     };
   }
 }

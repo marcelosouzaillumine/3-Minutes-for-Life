@@ -180,6 +180,11 @@ export function AdminDashboard() {
 
       <div className="admin-grid">
         <div className="admin-card">
+          <div className="admin-card-title">Usuários Cadastrados</div>
+          <div className="admin-card-value">{metrics.total_users}</div>
+        </div>
+
+        <div className="admin-card">
           <div className="admin-card-title">Usuários Ativos</div>
           <div className="admin-card-value">
             {metrics.intelligence.active_users.current}
@@ -425,6 +430,63 @@ export function AdminDashboard() {
                       <tr key={y.year}>
                         <td data-label="Ano">{y.year}</td>
                         <td data-label="Leituras">{y.reads}</td>
+                        <td data-label="Crescimento">
+                          {y.growth_rate === null
+                            ? '—'
+                            : (
+                              <span style={{ color: y.growth_rate >= 0 ? GOOD : BAD, fontWeight: 600 }}>
+                                {y.growth_rate >= 0 ? '↑' : '↓'} {Math.abs(y.growth_rate)}%
+                              </span>
+                            )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+
+          <h4 style={{ fontSize: '0.9rem', margin: '20px 0 8px 0' }}>Aberturas — Últimos 12 meses</h4>
+          <div style={{ width: '100%', height: 200 }}>
+            <ResponsiveContainer>
+              <BarChart data={readingTrends.monthly_opens} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
+                <XAxis
+                  dataKey="month"
+                  tickFormatter={(m: string) => m.slice(5)}
+                  tick={{ fontSize: 11, fill: 'var(--color-text-light)' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis tick={{ fontSize: 11, fill: 'var(--color-text-light)' }} axisLine={false} tickLine={false} allowDecimals={false} />
+                <Tooltip
+                  formatter={(value: any) => [value, 'Aberturas']}
+                  labelFormatter={(m: any) => new Date(`${m}-01T00:00:00`).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+                  contentStyle={{ borderRadius: 8, border: '1px solid var(--color-border)', fontSize: '0.85rem' }}
+                />
+                <Bar dataKey="opens" name="Aberturas" radius={[6, 6, 0, 0]} fill={GOOD} maxBarSize={28} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {readingTrends.yearly_opens.length > 0 && (
+            <>
+              <h4 style={{ fontSize: '0.9rem', margin: '20px 0 8px 0' }}>Aberturas por Ano — Taxa de Crescimento</h4>
+              <div className="admin-table-container admin-table-responsive">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Ano</th>
+                      <th>Aberturas</th>
+                      <th>Crescimento vs. ano anterior</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {readingTrends.yearly_opens.map(y => (
+                      <tr key={y.year}>
+                        <td data-label="Ano">{y.year}</td>
+                        <td data-label="Aberturas">{y.opens}</td>
                         <td data-label="Crescimento">
                           {y.growth_rate === null
                             ? '—'
