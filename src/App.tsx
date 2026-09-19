@@ -49,6 +49,12 @@ function RequireGuest({ children }: { children: React.ReactNode }) {
 // The /app shell with bottom navigation and tab routing
 function AppShell() {
   const [currentTab, setCurrentTab] = useState<Tab>('home');
+  // Tocar na aba já ativa remonta a tela dela (volta ao início, ex.: sai do devocional aberto na Biblioteca)
+  const [tabResetKey, setTabResetKey] = useState(0);
+  const handleTabChange = (tab: Tab) => {
+    if (tab === currentTab) setTabResetKey(k => k + 1);
+    else setCurrentTab(tab);
+  };
   const renderContent = () => {
     switch (currentTab) {
       case 'home':     return <Home onExplore={() => setCurrentTab('explore')} />;
@@ -61,8 +67,8 @@ function AppShell() {
 
   return (
     <div className="app-container">
-      <main className="content-area">{renderContent()}</main>
-      <BottomNav currentTab={currentTab} setTab={setCurrentTab} />
+      <main className="content-area" key={tabResetKey}>{renderContent()}</main>
+      <BottomNav currentTab={currentTab} setTab={handleTabChange} />
     </div>
   );
 }
