@@ -209,7 +209,9 @@ export const AdminContentService = {
 
   async getCategories(): Promise<any[]> {
     const cats = await l1Get('/devotionals/categories')
-    return (Array.isArray(cats) ? cats : []).map((c: any) => ({ id: c.id, name: c.name, slug: c.slug }))
+    return (Array.isArray(cats) ? cats : [])
+      .map((c: any) => ({ id: c.id, name: c.name, slug: c.slug }))
+      .sort((a, b) => String(a.name ?? '').localeCompare(String(b.name ?? ''), 'pt-BR', { sensitivity: 'base' }))
   },
 
   async createCategory(name: string): Promise<any> {

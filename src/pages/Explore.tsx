@@ -53,7 +53,7 @@ export function Explore() {
         .map(d => d.categories?.name)
         .filter(Boolean) as string[]
     )
-  );
+  ).sort((a, b) => a.localeCompare(b, i18n.language, { sensitivity: 'base' }));
 
   const handleSelectDevotional = async (id: string) => {
     setLoadingDevotional(true);
