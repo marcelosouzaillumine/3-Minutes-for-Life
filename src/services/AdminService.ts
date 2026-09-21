@@ -53,6 +53,20 @@ export type ReadingTrends = {
   yearly_opens: Array<{ year: number; opens: number; growth_rate: number | null }>;
 };
 
+export type DevotionalRankingItem = {
+  devotional_id: string;
+  unique_reads: number;
+  total_opens: number;
+  // null = fora do ranking (rascunho/agendado)
+  rank_by_reads: number | null;
+  rank_by_opens: number | null;
+};
+
+export type DevotionalRanking = {
+  total_ranked: number;
+  items: DevotionalRankingItem[];
+};
+
 export class AdminService {
   static async checkAdminRole(): Promise<boolean> {
     const res = await illumineFetch('/users/me');
@@ -149,6 +163,25 @@ export class AdminService {
       active_users: r.activeUsers ?? r.active_users ?? 0,
       reads: r.reads ?? r.events ?? 0,
     }));
+  }
+
+  static async getDevotionalRanking(): Promise<DevotionalRanking | null> {
+    const res = await illumineFetch('/analytics/devotionals/ranking');
+    if (!res.ok) {
+      console.error('[Conteúdo] L1 endpoint /analytics/devotionals/ranking com falha:', res.status);
+      return null;
+    }
+    const body = await res.json();
+    return {
+      total_ranked: body.totalRanked ?? 0,
+      items: (body.items ?? []).map((i: any) => ({
+        devotional_id: i.devotionalId,
+        unique_reads: i.uniqueReads ?? 0,
+        total_opens: i.totalOpens ?? 0,
+        rank_by_reads: i.rankByReads ?? null,
+        rank_by_opens: i.rankByOpens ?? null,
+      })),
+    };
   }
 
   static async getReadingTrends(): Promise<ReadingTrends | null> {

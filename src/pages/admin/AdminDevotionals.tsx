@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AdminContentService } from '../../services/AdminContentService';
+import { AdminService, type DevotionalRanking, type DevotionalRankingItem } from '../../services/AdminService';
 import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { PrincipleView } from '../../components/PrincipleView';
 import { MediaLibraryPicker } from '../../components/admin/MediaLibraryPicker';
@@ -11,6 +12,9 @@ export function AdminDevotionals() {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  // null = ranking indisponível (gateway sem o endpoint ou falha de rede);
+  // a lista de conteúdo continua funcionando sem as métricas.
+  const [ranking, setRanking] = useState<DevotionalRanking | null>(null);
 
   // States for editor
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -44,14 +48,16 @@ export function AdminDevotionals() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [devs, cats, langs] = await Promise.all([
+      const [devs, cats, langs, rank] = await Promise.all([
         AdminContentService.getDevotionals(),
         AdminContentService.getCategories(),
-        AdminContentService.getLanguages()
+        AdminContentService.getLanguages(),
+        AdminService.getDevotionalRanking().catch(() => null)
       ]);
       setDevotionals(devs);
       setCategories(cats);
       setLanguages(langs);
+      setRanking(rank);
     } catch (err: any) {
       setError('Erro ao carregar dados: ' + err.message);
     } finally {
@@ -247,6 +253,8 @@ export function AdminDevotionals() {
       setDeletingDevotionalId(devo.id);
       await AdminContentService.deleteDevotional(devo.id);
       setDevotionals(prev => prev.filter(d => d.id !== devo.id));
+      // Excluir um episódio reposiciona todos os abaixo dele no ranking.
+      setRanking(await AdminService.getDevotionalRanking().catch(() => null));
     } catch (err: any) {
       alert('Erro ao excluir devocional: ' + err.message);
     } finally {
@@ -281,6 +289,59 @@ export function AdminDevotionals() {
       }}>
         {labels[status] || status}
       </span>
+    );
+  };
+
+  const fmt = (n: number) => n.toLocaleString('pt-BR');
+
+  const renderStats = (stats: DevotionalRankingItem | undefined) => {
+    // Episódio criado depois da última carga do ranking: mostra zeros, sem posição.
+    const s = stats ?? { devotional_id: '', unique_reads: 0, total_opens: 0, rank_by_reads: null, rank_by_opens: null };
+    const ranked = s.rank_by_reads !== null;
+    return (
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        gap: '6px 14px',
+        marginTop: '10px',
+        paddingTop: '10px',
+        borderTop: '1px solid rgba(0,0,0,0.06)',
+        fontSize: '0.85rem',
+      }}>
+        <span title="Usuários distintos que leram este episódio">
+          📖 <strong>{fmt(s.unique_reads)}</strong> {s.unique_reads === 1 ? 'leitura única' : 'leituras únicas'}
+        </span>
+        <span title="Todas as aberturas do episódio, incluindo reaberturas e visitantes">
+          👁️ <strong>{fmt(s.total_opens)}</strong> {s.total_opens === 1 ? 'abertura' : 'aberturas'}
+        </span>
+        <span
+          title={ranked
+            ? `Ranking entre ${ranking?.total_ranked ?? 0} episódios, por leituras únicas (desempate por aberturas). Por aberturas: ${s.rank_by_opens}º.`
+            : 'Rascunhos e episódios agendados não entram no ranking'}
+          style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+        >
+          {ranked ? (
+            <>
+              <span style={{
+                background: 'var(--color-primary)',
+                color: 'white',
+                borderRadius: '12px',
+                padding: '2px 10px',
+                fontWeight: 'bold',
+                fontSize: '0.8rem',
+              }}>
+                🏆 #{s.rank_by_reads} de {ranking?.total_ranked}
+              </span>
+              <span style={{ color: 'var(--color-text-light)', fontSize: '0.75rem' }}>
+                #{s.rank_by_opens} em aberturas
+              </span>
+            </>
+          ) : (
+            <span style={{ color: 'var(--color-text-light)', fontSize: '0.75rem' }}>Fora do ranking</span>
+          )}
+        </span>
+      </div>
     );
   };
 
@@ -814,6 +875,8 @@ export function AdminDevotionals() {
     );
   }
 
+  const rankingById = new Map(ranking?.items.map(i => [i.devotional_id, i]) ?? []);
+
   return (
     <div style={{ padding: '20px', paddingBottom: '100px', width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
@@ -856,6 +919,11 @@ export function AdminDevotionals() {
         <div style={{ color: 'red', textAlign: 'center' }}>{error}</div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {!ranking && devotionals.length > 0 && (
+            <div style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', textAlign: 'center' }}>
+              Métricas de leitura e ranking indisponíveis no momento.
+            </div>
+          )}
           {devotionals.map(devo => (
             <div 
               key={devo.id} 
@@ -897,6 +965,7 @@ export function AdminDevotionals() {
                 <span>📅 {devo.publication_date}</span>
                 {devo.categories?.name && <span>🏷️ {devo.categories.name}</span>}
               </div>
+              {ranking && renderStats(rankingById.get(devo.id))}
             </div>
           ))}
           {devotionals.length === 0 && (
