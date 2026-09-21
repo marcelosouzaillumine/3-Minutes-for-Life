@@ -3,7 +3,7 @@ import { getTodayInSaoPaulo } from '../utils/date';
 import { useState, useEffect } from 'react';
 import type { Devotional } from '../types/Devotional';
 import { useTranslation } from 'react-i18next';
-import { AnalyticsService } from '../services/AnalyticsService';
+import { JourneyService } from '../services/JourneyService';
 import { PrincipleView } from '../components/PrincipleView';
 import { DevotionalHeader } from '../components/DevotionalHeader';
 
@@ -52,14 +52,7 @@ export function Home({ onExplore }: HomeProps) {
          * silenciosamente, fazendo a métrica "Leituras" nunca contar
          * as leituras feitas pela Home.
          */
-        AnalyticsService.trackEvent(
-          'devotional_opened',
-          {
-            devotional_id: data.id,
-            title: data.title,
-            language: i18n.language,
-          }
-        );
+        JourneyService.registerOpen(data, 'home', i18n.language);
       } catch (err: any) {
         console.error('Failed to load daily devotional:', err);
 

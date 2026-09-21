@@ -54,7 +54,7 @@ export function Favorites() {
       ) : (
         <div className="category-list">
           {favoriteDevotionals.map(d => (
-            <div key={d.id} className="principle-list-item" onClick={() => setSelectedDevotional(d)}>
+            <div key={d.id} className="principle-list-item" onClick={() => { setSelectedDevotional(d); JourneyService.registerOpen(d, 'favorites', i18n.language); }}>
               <span className="label" style={{ marginBottom: '4px' }}>{d.categories?.name}</span>
               <h3 className="principle-list-title">{d.title}</h3>
               <p className="principle-list-preview">

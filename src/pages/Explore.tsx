@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { DevotionalService } from '../services/DevotionalService';
 import type { Devotional } from '../types/Devotional';
 import { PrincipleView } from '../components/PrincipleView';
+import { JourneyService } from '../services/JourneyService';
 import { useTranslation } from 'react-i18next';
 
 export function Explore() {
@@ -60,6 +61,7 @@ export function Explore() {
     try {
       const full = await DevotionalService.getDevotional(id, i18n.language);
       setSelectedDevotional(full);
+      JourneyService.registerOpen(full, 'library', i18n.language);
     } catch (err) {
       console.error(err);
     } finally {

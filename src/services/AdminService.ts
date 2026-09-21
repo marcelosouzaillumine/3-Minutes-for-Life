@@ -10,7 +10,6 @@ export type DashboardMetrics = {
   };
   funnel: {
     accessed: number;
-    read: number;
     shared: number;
     testified: number;
     responded: number;
@@ -69,6 +68,17 @@ export type DevotionalRanking = {
   items: DevotionalRankingItem[];
 };
 
+// O gateway só entende `from`/`to`/`days` (DateRangeSchema); `startDate`/`endDate`
+// eram ignorados e o seletor de período do dashboard nunca chegava às consultas.
+// Datas 'YYYY-MM-DD' locais viram o início do primeiro dia e o fim do último,
+// no fuso do admin.
+export function dateRangeParams(startDate: string, endDate: string): URLSearchParams {
+  return new URLSearchParams({
+    from: new Date(`${startDate}T00:00:00`).toISOString(),
+    to: new Date(`${endDate}T23:59:59.999`).toISOString(),
+  });
+}
+
 export class AdminService {
   static async checkAdminRole(): Promise<boolean> {
     const res = await illumineFetch('/users/me');
@@ -79,7 +89,7 @@ export class AdminService {
   }
 
   static async getDashboardMetrics(startDate: string, endDate: string): Promise<DashboardMetrics | null> {
-    const params = new URLSearchParams({ startDate, endDate });
+    const params = dateRangeParams(startDate, endDate);
     const [overviewRes, retentionRes, funnelRes, perfRes] = await Promise.all([
       illumineFetch('/analytics/overview'),
       illumineFetch('/analytics/retention/day-n'),
@@ -125,9 +135,10 @@ export class AdminService {
         testimonials: { current: ov.testimonials?.current ?? 0, previous: ov.testimonials?.previous ?? 0 },
       },
       funnel: {
-        accessed: funnel.accessed ?? funnel.opened ?? 0,
-        read: funnel.read ?? funnel.completed ?? 0,
-        shared: funnel.shared ?? 0,
+        // Pessoas distintas no período (gateway novo); cai nos totais antigos
+        // (linhas de leitura / eventos) enquanto o gateway não for atualizado.
+        accessed: funnel.accessedUsers ?? funnel.accessed ?? funnel.opened ?? 0,
+        shared: funnel.sharedUsers ?? funnel.shared ?? 0,
         testified: funnel.testified ?? 0,
         responded: funnel.responded ?? 0,
         returned: funnel.returned ?? 0,
@@ -152,7 +163,7 @@ export class AdminService {
   }
 
   static async getDashboardDailySeries(startDate: string, endDate: string): Promise<DailySeriesPoint[]> {
-    const params = new URLSearchParams({ startDate, endDate });
+    const params = dateRangeParams(startDate, endDate);
     const res = await illumineFetch(`/analytics/activity?${params}`);
     if (!res.ok) {
       console.error('[Dashboard] L1 endpoint /analytics/activity com falha:', res.status);

@@ -1,6 +1,27 @@
 import { illumineFetch } from '../lib/illumine';
+import { AnalyticsService } from './AnalyticsService';
 
 export const JourneyService = {
+
+  /**
+   * Registra a abertura de um episódio por um usuário logado: o evento de
+   * analytics (aberturas) e a marcação como lido (leituras únicas). Os dois
+   * precisam andar juntos — quando só o evento era enviado (Home, desde
+   * 20/08), as leituras únicas deixaram de crescer.
+   */
+  registerOpen(
+    devotional: { id: string; legacy_id?: number; title?: string },
+    channel: 'home' | 'library' | 'favorites',
+    language: string
+  ) {
+    AnalyticsService.trackEvent('devotional_opened', {
+      devotional_id: devotional.id,
+      title: devotional.title,
+      channel,
+      language,
+    });
+    return this.start(devotional.id, devotional.legacy_id).catch(console.error);
+  },
 
   async start(devotionalId: string, legacyId?: number) {
     const path = legacyId

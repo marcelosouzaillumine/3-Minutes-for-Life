@@ -21,7 +21,6 @@ const MUTED = '#9ca3af';
 
 const funnelChartData = (metrics: DashboardMetrics) => [
   { label: 'Acessou', value: metrics.funnel.accessed },
-  { label: 'Leu', value: metrics.funnel.read },
   { label: 'Compartilhou', value: metrics.funnel.shared },
   { label: 'Testemunhou', value: metrics.funnel.testified },
   { label: 'Respondido', value: metrics.funnel.responded },
