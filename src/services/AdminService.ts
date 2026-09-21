@@ -57,9 +57,11 @@ export type DevotionalRankingItem = {
   devotional_id: string;
   unique_reads: number;
   total_opens: number;
+  total_shares: number;
   // null = fora do ranking (rascunho/agendado)
   rank_by_reads: number | null;
   rank_by_opens: number | null;
+  rank_by_shares: number | null;
 };
 
 export type DevotionalRanking = {
@@ -178,8 +180,10 @@ export class AdminService {
         devotional_id: i.devotionalId,
         unique_reads: i.uniqueReads ?? 0,
         total_opens: i.totalOpens ?? 0,
+        total_shares: i.totalShares ?? 0,
         rank_by_reads: i.rankByReads ?? null,
         rank_by_opens: i.rankByOpens ?? null,
+        rank_by_shares: i.rankByShares ?? null,
       })),
     };
   }

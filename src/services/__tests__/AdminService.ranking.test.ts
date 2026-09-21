@@ -20,8 +20,8 @@ describe('AdminService.getDevotionalRanking', () => {
     mockFetch.mockResolvedValue(jsonResponse({
       totalRanked: 2,
       items: [
-        { devotionalId: 'a', title: 'A', uniqueReads: 17, totalOpens: 40, rankByReads: 1, rankByOpens: 1 },
-        { devotionalId: 'b', title: 'B', uniqueReads: 0, totalOpens: 0, rankByReads: null, rankByOpens: null },
+        { devotionalId: 'a', title: 'A', uniqueReads: 17, totalOpens: 40, totalShares: 6, rankByReads: 1, rankByOpens: 1, rankByShares: 2 },
+        { devotionalId: 'b', title: 'B', uniqueReads: 0, totalOpens: 0, totalShares: 0, rankByReads: null, rankByOpens: null, rankByShares: null },
       ],
     }));
 
@@ -31,8 +31,8 @@ describe('AdminService.getDevotionalRanking', () => {
     expect(result).toEqual({
       total_ranked: 2,
       items: [
-        { devotional_id: 'a', unique_reads: 17, total_opens: 40, rank_by_reads: 1, rank_by_opens: 1 },
-        { devotional_id: 'b', unique_reads: 0, total_opens: 0, rank_by_reads: null, rank_by_opens: null },
+        { devotional_id: 'a', unique_reads: 17, total_opens: 40, total_shares: 6, rank_by_reads: 1, rank_by_opens: 1, rank_by_shares: 2 },
+        { devotional_id: 'b', unique_reads: 0, total_opens: 0, total_shares: 0, rank_by_reads: null, rank_by_opens: null, rank_by_shares: null },
       ],
     });
   });
@@ -44,7 +44,7 @@ describe('AdminService.getDevotionalRanking', () => {
 
     expect(result).toEqual({
       total_ranked: 0,
-      items: [{ devotional_id: 'a', unique_reads: 0, total_opens: 0, rank_by_reads: null, rank_by_opens: null }],
+      items: [{ devotional_id: 'a', unique_reads: 0, total_opens: 0, total_shares: 0, rank_by_reads: null, rank_by_opens: null, rank_by_shares: null }],
     });
   });
 

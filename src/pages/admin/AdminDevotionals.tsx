@@ -296,7 +296,7 @@ export function AdminDevotionals() {
 
   const renderStats = (stats: DevotionalRankingItem | undefined) => {
     // Episódio criado depois da última carga do ranking: mostra zeros, sem posição.
-    const s = stats ?? { devotional_id: '', unique_reads: 0, total_opens: 0, rank_by_reads: null, rank_by_opens: null };
+    const s = stats ?? { devotional_id: '', unique_reads: 0, total_opens: 0, total_shares: 0, rank_by_reads: null, rank_by_opens: null, rank_by_shares: null };
     const ranked = s.rank_by_reads !== null;
     return (
       <div style={{
@@ -314,6 +314,9 @@ export function AdminDevotionals() {
         </span>
         <span title="Todas as aberturas do episódio, incluindo reaberturas e visitantes">
           👁️ <strong>{fmt(s.total_opens)}</strong> {s.total_opens === 1 ? 'abertura' : 'aberturas'}
+        </span>
+        <span title="Compartilhamentos concluídos deste episódio (o mesmo episódio compartilhado duas vezes conta duas)">
+          🔗 <strong>{fmt(s.total_shares)}</strong> {s.total_shares === 1 ? 'compartilhamento' : 'compartilhamentos'}
         </span>
         <span
           title={ranked
@@ -335,6 +338,8 @@ export function AdminDevotionals() {
               </span>
               <span style={{ color: 'var(--color-text-light)', fontSize: '0.75rem' }}>
                 #{s.rank_by_opens} em aberturas
+                {/* Sem compartilhamentos todos empatam em último: a posição não informa nada. */}
+                {s.total_shares > 0 && s.rank_by_shares !== null && <> · #{s.rank_by_shares} em compartilhamentos</>}
               </span>
             </>
           ) : (

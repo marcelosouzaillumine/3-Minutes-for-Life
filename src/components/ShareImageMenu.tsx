@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { type ShareFormat } from './ShareImageCard'
 import { createShareImage } from './createShareImage'
+import { AnalyticsService } from '../services/AnalyticsService'
 
 interface Props {
   title?: string
@@ -132,6 +133,16 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
 
       if (canWebShare && navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file], title: '3 Minutes For Life', text: shareText })
+        // Só conta depois que o usuário conclui: cancelar rejeita com AbortError
+        // e cai no catch. O download de fallback (abaixo) não conta — não dá
+        // para saber se a imagem chegou a ser enviada.
+        AnalyticsService.trackEvent('content_shared', {
+          devotional_id: devotionalId,
+          channel: format,
+          has_editorial_image: true,
+          language: i18n.language,
+          is_daily: isDaily,
+        })
         setOpen(false)
       } else {
         const objUrl = URL.createObjectURL(blob)
