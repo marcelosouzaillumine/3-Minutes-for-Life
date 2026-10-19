@@ -1,4 +1,4 @@
-import { illumineFetch } from '../lib/illumine';
+import { illumineFetch, illumineAuth } from '../lib/illumine';
 import type { Devotional, DevotionalTranslation, DevotionalShareAsset, ResolvedShareAsset } from '../types/Devotional';
 import { principles, allPrinciples } from '../data/principles';
 import { getTodayInSaoPaulo } from '../utils/date';
@@ -273,7 +273,9 @@ export const DevotionalService = {
     const contentLanguage = normalizeLanguage(rawLanguage);
 
     try {
-      const res = await illumineFetch(`/devotionals/${id}`);
+      // Visitante sem sessão (link compartilhado) usa a rota pública do gateway
+      const path = illumineAuth.isAuthenticated() ? `/devotionals/${id}` : `/public/devotionals/${id}`;
+      const res = await illumineFetch(path);
       if (!res.ok) throw new Error(`L1 /devotionals/${id} falhou com status ${res.status}`);
       const raw = await res.json();
       const data = mapIllumineToDevotional(raw);
