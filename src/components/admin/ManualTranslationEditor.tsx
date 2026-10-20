@@ -52,12 +52,9 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [mediaPickerTarget, setMediaPickerTarget] = useState<'content_tip_image_url' | 'support_banner_url' | null>(null);
 
+  // Só desvincula a imagem desta tradução; o arquivo continua na biblioteca de mídia.
   const handleContentImageRemove = (field: 'content_tip_image_url' | 'support_banner_url') => {
-    const oldUrl = form[field];
     setForm(f => ({ ...f, [field]: '' }));
-    if (oldUrl) {
-      AdminContentService.deleteShareAssetFile(oldUrl).catch(() => {});
-    }
   };
 
   const handleSaveDraft = async () => {

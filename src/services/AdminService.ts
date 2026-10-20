@@ -88,6 +88,15 @@ export class AdminService {
     return role ? ['super_admin', 'admin', 'analyst'].includes(role) : false;
   }
 
+  // Área de mídia: só administradores (o analista de leitura não gerencia arquivos).
+  static async isFullAdmin(): Promise<boolean> {
+    const res = await illumineFetch('/users/me');
+    if (!res.ok) return false;
+    const user = await res.json();
+    const role = user?.role ?? user?.app_role ?? user?.admin_role;
+    return role ? ['super_admin', 'admin'].includes(role) : false;
+  }
+
   static async getDashboardMetrics(startDate: string, endDate: string): Promise<DashboardMetrics | null> {
     const params = dateRangeParams(startDate, endDate);
     const [overviewRes, retentionRes, funnelRes, perfRes] = await Promise.all([

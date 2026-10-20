@@ -1,8 +1,15 @@
+import { useEffect, useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
+import { AdminService } from '../services/AdminService';
 
 export function AdminBottomNav() {
 
   const { pathname } = useLocation();
+  const [isFullAdmin, setIsFullAdmin] = useState(false);
+
+  useEffect(() => {
+    AdminService.isFullAdmin().then(setIsFullAdmin).catch(() => setIsFullAdmin(false));
+  }, []);
 
   return (
     <nav className="bottom-nav">
@@ -269,6 +276,29 @@ export function AdminBottomNav() {
         Apoiadores
 
       </Link>
+
+      {/* =================================================
+                MÍDIA (só administradores)
+            ================================================= */}
+
+      {isFullAdmin && (
+        <Link
+          to="/admin/media"
+          className={`nav-item ${pathname.includes('/media') ? 'active' : ''}`}
+          style={{ textDecoration: 'none' }}
+        >
+          <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
+          </svg>
+
+          Mídia
+        </Link>
+      )}
 
     </nav>
   );

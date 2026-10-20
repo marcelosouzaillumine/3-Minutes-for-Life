@@ -521,12 +521,9 @@ export function AdminDevotionals() {
               }
             };
 
+            // Só desvincula a imagem deste conteúdo; o arquivo continua na biblioteca de mídia.
             const handleContentImageRemove = (field: 'content_tip_image_url' | 'support_banner_url') => {
-              const oldUrl = getValue(field);
               setValue(field, '');
-              if (oldUrl) {
-                AdminContentService.deleteShareAssetFile(oldUrl).catch(() => {});
-              }
             };
 
             return (

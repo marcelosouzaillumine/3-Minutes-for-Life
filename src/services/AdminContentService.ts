@@ -432,6 +432,23 @@ export const AdminContentService = {
     return []
   },
 
+  // Listagem completa para a área de administração da biblioteca (com tamanho e data).
+  async listLibraryFiles(): Promise<Array<{ key: string; name: string; url: string; size: number; lastModified: string | null }>> {
+    const res = await illumineFetch('/storage?folder=library&limit=1000')
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}))
+      throw new Error(`Falha ao listar imagens (${res.status}): ${body.error ?? ''}`)
+    }
+    const result = await res.json()
+    return (result.files ?? []).map((f: any) => ({
+      key: f.key,
+      name: f.name,
+      url: f.publicUrl,
+      size: f.size ?? 0,
+      lastModified: f.lastModified ?? null,
+    }))
+  },
+
   async uploadLibraryImage(file: File): Promise<string> {
     return uploadToStorage(file, 'library')
   },

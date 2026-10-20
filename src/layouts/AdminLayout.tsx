@@ -11,6 +11,7 @@ const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard').then(m
 const AdminDevotionals = lazy(() => import('../pages/admin/AdminDevotionals').then(m => ({ default: m.AdminDevotionals })));
 const AdminTranslations = lazy(() => import('../pages/admin/AdminTranslations').then(m => ({ default: m.AdminTranslations })));
 const AdminUsers = lazy(() => import('../pages/admin/AdminUsers').then(m => ({ default: m.AdminUsers })));
+const AdminMedia = lazy(() => import('../pages/admin/AdminMedia').then(m => ({ default: m.AdminMedia })));
 const AdminSupporters = lazy(() => import('../pages/admin/AdminSupporters').then(m => ({ default: m.AdminSupporters })));
 
 const RelationshipOverview = lazy(() => import('../pages/admin/relationship/RelationshipOverview').then(m => ({ default: m.RelationshipOverview })));
@@ -235,6 +236,18 @@ export function AdminLayout() {
     ) {
 
       return <AdminSupporters />;
+
+    }
+
+    // -----------------------------------------------------
+    // MEDIA (biblioteca de imagens — só administradores)
+    // -----------------------------------------------------
+
+    if (
+      pathname === '/admin/media'
+    ) {
+
+      return <AdminMedia />;
 
     }
 
