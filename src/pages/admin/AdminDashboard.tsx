@@ -154,8 +154,15 @@ export function AdminDashboard() {
     { label: 'D30', window: 'dias 8–30', value: calcRetentionPct(metrics.retention.d30, metrics.retention.cohort_size) },
   ];
 
+  // O gateway devolve '—' quando não acha o título do devocional; trata como ausente.
+  const topContentTitle = (item: { devotional_title: string | null; content_id?: string }) => {
+    const title = item.devotional_title?.trim();
+    return title && title !== '—' ? title : 'Devocional não identificado';
+  };
+  const truncateLabel = (text: string, max = 26) => (text.length > max ? text.slice(0, max - 1) + '…' : text);
   const topContentChartData = metrics.top_content.map(item => ({
-    label: item.devotional_title || (item.content_id ? item.content_id.split('-')[0] + '…' : 'Sem título'),
+    label: truncateLabel(topContentTitle(item)),
+    full: topContentTitle(item),
     opens: item.opens,
   }));
 
@@ -511,19 +518,21 @@ export function AdminDashboard() {
           <>
             <div style={{ width: '100%', height: Math.max(140, topContentChartData.length * 42) }}>
               <ResponsiveContainer>
-                <BarChart data={topContentChartData} layout="vertical" margin={{ top: 4, right: 24, left: 8, bottom: 4 }}>
+                <BarChart data={topContentChartData} layout="vertical" margin={{ top: 4, right: 36, left: 8, bottom: 4 }}>
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--color-border)" />
                   <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--color-text-light)' }} axisLine={false} tickLine={false} allowDecimals={false} />
                   <YAxis
                     type="category"
                     dataKey="label"
-                    width={160}
+                    width={170}
+                    interval={0}
                     tick={{ fontSize: 11, fill: 'var(--color-text)' }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <Tooltip
                     formatter={(value: any) => [value, 'Leituras']}
+                    labelFormatter={(_label: any, payload: any) => payload?.[0]?.payload?.full ?? _label}
                     contentStyle={{ borderRadius: 8, border: '1px solid var(--color-border)', fontSize: '0.85rem' }}
                   />
                   <Bar dataKey="opens" radius={[0, 6, 6, 0]} fill={MUTED} maxBarSize={22} />
@@ -542,8 +551,7 @@ export function AdminDashboard() {
                   {metrics.top_content.map((item, index) => (
                     <tr key={index}>
                       <td data-label="Devocional">
-                        {item.devotional_title
-                          || (item.content_id ? item.content_id.split('-').slice(0, 3).join('-') + '...' : '—')}
+                        {topContentTitle(item)}
                       </td>
                       <td data-label="Leituras">{item.opens}</td>
                     </tr>

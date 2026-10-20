@@ -695,3 +695,9 @@
     width: 100%;
   }
 }
+/* Gráficos (recharts): sem contorno azul de foco ao clicar no gráfico */
+.recharts-wrapper,
+.recharts-wrapper:focus,
+.recharts-surface:focus {
+  outline: none;
+}
