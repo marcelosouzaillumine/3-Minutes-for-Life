@@ -21,6 +21,8 @@ export function AdminMedia() {
   const [search, setSearch] = useState('');
   const [copied, setCopied] = useState('');
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [dragging, setDragging] = useState(false);
+  const dragDepth = useRef(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const load = async () => {
@@ -44,9 +46,8 @@ export function AdminMedia() {
     });
   }, []);
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = Array.from(e.target.files ?? []);
-    if (selected.length === 0) return;
+  const uploadFiles = async (selected: File[]) => {
+    if (selected.length === 0 || uploading) return;
     setUploading(true);
     setError('');
     const problems: string[] = [];
@@ -63,6 +64,32 @@ export function AdminMedia() {
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
     await load();
+  };
+
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => uploadFiles(Array.from(e.target.files ?? []));
+
+  // Arrastar e soltar: dragDepth evita o "pisca" ao passar sobre elementos filhos
+  const isFileDrag = (e: React.DragEvent) => Array.from(e.dataTransfer.types).includes('Files');
+  const handleDragEnter = (e: React.DragEvent) => {
+    if (!isFileDrag(e)) return;
+    e.preventDefault();
+    dragDepth.current += 1;
+    setDragging(true);
+  };
+  const handleDragOver = (e: React.DragEvent) => {
+    if (isFileDrag(e)) e.preventDefault();
+  };
+  const handleDragLeave = (e: React.DragEvent) => {
+    if (!isFileDrag(e)) return;
+    dragDepth.current = Math.max(0, dragDepth.current - 1);
+    if (dragDepth.current === 0) setDragging(false);
+  };
+  const handleDrop = (e: React.DragEvent) => {
+    if (!isFileDrag(e)) return;
+    e.preventDefault();
+    dragDepth.current = 0;
+    setDragging(false);
+    uploadFiles(Array.from(e.dataTransfer.files));
   };
 
   const handleDelete = async (file: LibraryFile) => {
@@ -107,7 +134,25 @@ export function AdminMedia() {
   const totalSize = files.reduce((sum, f) => sum + f.size, 0);
 
   return (
-    <div style={{ padding: '24px 16px 120px', maxWidth: '1100px', margin: '0 auto' }}>
+    <div
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      style={{ padding: '24px 16px 120px', maxWidth: '1100px', margin: '0 auto', minHeight: '70vh', position: 'relative' }}
+    >
+      {dragging && (
+        <div
+          style={{
+            position: 'absolute', inset: 0, zIndex: 10, pointerEvents: 'none',
+            border: '2px dashed var(--color-primary, #1e2535)', borderRadius: '12px',
+            background: 'rgba(30, 37, 53, 0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 600, color: 'var(--color-primary, #1e2535)',
+          }}
+        >
+          Solte as imagens para enviar
+        </div>
+      )}
       <h1 className="admin-title">Biblioteca de imagens</h1>
       <p style={{ color: '#6b7280', fontSize: '0.9rem', margin: '4px 0 16px' }}>
         {files.length} {files.length === 1 ? 'imagem' : 'imagens'} · {formatSize(totalSize)}. Aqui a exclusão é definitiva;
@@ -128,7 +173,7 @@ export function AdminMedia() {
           disabled={uploading}
           style={{ background: 'var(--color-primary, #1e2535)', color: '#fff', border: 'none', borderRadius: '8px', padding: '8px 14px', cursor: 'pointer' }}
         >
-          {uploading ? 'Enviando...' : '+ Enviar imagens'}
+          {uploading ? 'Enviando...' : '+ Enviar imagens (ou arraste aqui)'}
         </button>
         <input ref={fileInputRef} type="file" multiple accept="image/jpeg,image/png,image/webp" style={{ display: 'none' }} onChange={handleUpload} />
       </div>
