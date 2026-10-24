@@ -29,7 +29,7 @@ export function MySubscriptions() {
     fetchSubscriptions();
   }, []);
 
-  const handleCancel = async (subscriptionId: string, provider: 'asaas' | 'stripe') => {
+  const handleCancel = async (subscriptionId: string, provider: RecurringSubscription['provider']) => {
     if (!window.confirm(t('profile:subscriptions.cancelConfirm'))) return;
     setCancellingId(subscriptionId);
     setFeedback('');

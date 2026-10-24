@@ -41,6 +41,8 @@ export function Contribute() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   const [usdRate, setUsdRate] = useState<number | null>(null);
+  // Volta da página de pagamento do OS (?status=paid&session=…&ref=…).
+  const [paidReturn] = useState(() => new URLSearchParams(window.location.search).get('status') === 'paid');
 
   // Busca a taxa de câmbio uma vez ao montar, só para "aquecer" o cache —
   // se o doador trocar de método de pagamento antes disso terminar, o
@@ -194,6 +196,12 @@ export function Contribute() {
           </a>
         </nav>
       </header>
+
+      {paidReturn && (
+        <div role="status" style={{ maxWidth: 720, margin: '1rem auto 0', padding: '0.9rem 1.1rem', borderRadius: 10, background: '#ecfdf5', color: '#065f46', fontWeight: 600, textAlign: 'center' }}>
+          {t('contribution:paidReturn', 'Pagamento recebido. Obrigado por apoiar a missão!')}
+        </div>
+      )}
 
       {/* ==================================================
           CONTEÚDO

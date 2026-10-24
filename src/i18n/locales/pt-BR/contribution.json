@@ -18,5 +18,6 @@
       "mensalLivre": "Mensal"
     },
     "errorNoLink": "Link de pagamento não configurado para esta opção."
-  }
+  },
+  "paidReturn": "Pagamento recebido. Obrigado por apoiar a missão!"
 }

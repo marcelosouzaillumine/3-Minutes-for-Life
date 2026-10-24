@@ -20,7 +20,7 @@ export interface Campaign {
 
 export interface RecurringSubscription {
   subscriptionId: string;
-  provider: 'asaas' | 'stripe';
+  provider: 'asaas' | 'stripe' | 'pay';
   amountCents: number;
   currency: string;
   status: string;
@@ -41,6 +41,12 @@ export interface Contribution {
   started_at: string;
   ended_at?: string;
 }
+
+const HOSTED_CHECKOUT_ERRORS: Record<string, string> = {
+  CPF_CNPJ_INVALID: 'Informe um CPF ou CNPJ válido.',
+  AMOUNT_TOO_LOW: 'O valor informado é menor que o mínimo.',
+  RATE_LIMITED: 'Muitas tentativas. Aguarde um pouco e tente de novo.',
+};
 
 export const MissionService = {
   async getSupporterStatus(_userId: string): Promise<Supporter | null> {
@@ -119,12 +125,33 @@ export const MissionService = {
 
     const customerName = illumineUser.name ?? illumineUser.email.split('@')[0];
 
+    // Página de pagamento do OS (PIX e cartão, com a marca do 3 Minutes). Enquanto o gateway ainda
+    // não tem a rota ou o produto de pagamento cadastrado (404/503), cai no checkout antigo do Asaas.
+    const customer = { name: customerName, cpfCnpj: cpfCnpj.replace(/\D/g, '') };
+    const cycle = frequency === 'yearly' ? 'YEARLY' : frequency === 'monthly' ? 'MONTHLY' : 'ONE_TIME';
+    const methods = paymentMethod === 'pix' ? ['PIX'] : paymentMethod === 'credit_card' ? ['CREDIT_CARD'] : undefined;
+
+    const hosted = await illumineFetch('/3minutes/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ amountCents, cycle, customer, ...(methods ? { methods } : {}) }),
+    });
+
+    if (hosted.ok) {
+      const payload = await hosted.json();
+      if (!payload.paymentUrl) throw new Error('Erro ao criar o checkout.');
+      return { checkoutUrl: payload.paymentUrl, contributionId: '' };
+    }
+    if (hosted.status !== 404 && hosted.status !== 503) {
+      const body = await hosted.json().catch(() => ({}));
+      throw new Error(HOSTED_CHECKOUT_ERRORS[body?.error as string] ?? body?.error ?? 'Erro ao criar o checkout.');
+    }
+
     const res = await illumineFetch('/asaas/checkout', {
       method: 'POST',
       body: JSON.stringify({
         billingType,
         amountCents,
-        customer: { name: customerName, email: illumineUser.email, cpfCnpj: cpfCnpj.replace(/\D/g, '') },
+        customer: { ...customer, email: illumineUser.email },
         isRecurring,
         cycle: frequency === 'yearly' ? 'YEARLY' : 'MONTHLY',
         description: 'Apoio à Missão 3 Minutes for Life',
@@ -188,10 +215,23 @@ export const MissionService = {
   },
 
   async getMySubscriptions(): Promise<RecurringSubscription[]> {
-    const [asaasRes, stripeRes] = await Promise.all([
+    const [asaasRes, stripeRes, payRes] = await Promise.all([
       illumineFetch('/asaas/subscriptions/mine'),
       illumineFetch('/stripe/subscriptions/mine'),
+      illumineFetch('/3minutes/subscriptions/mine'),
     ]);
+
+    const pay: RecurringSubscription[] = payRes.ok
+      ? ((await payRes.json()).subscriptions ?? []).map((s: any): RecurringSubscription => ({
+          subscriptionId: s.reference,
+          provider: 'pay',
+          amountCents: s.amountCents,
+          currency: 'BRL',
+          status: s.status,
+          cycle: s.cycle,
+          createdAt: s.createdAt,
+        }))
+      : [];
 
     const asaas: RecurringSubscription[] = asaasRes.ok
       ? ((await asaasRes.json()).subscriptions ?? []).map((s: any): RecurringSubscription => ({
@@ -217,13 +257,15 @@ export const MissionService = {
         }))
       : [];
 
-    return [...asaas, ...stripe];
+    return [...pay, ...asaas, ...stripe];
   },
 
-  async cancelSubscription(subscriptionId: string, provider: 'asaas' | 'stripe' = 'asaas'): Promise<void> {
+  async cancelSubscription(subscriptionId: string, provider: RecurringSubscription['provider'] = 'asaas'): Promise<void> {
     const path = provider === 'stripe'
       ? `/stripe/subscriptions/${encodeURIComponent(subscriptionId)}`
-      : `/asaas/subscriptions/${encodeURIComponent(subscriptionId)}`;
+      : provider === 'pay'
+        ? `/3minutes/subscriptions/${encodeURIComponent(subscriptionId)}`
+        : `/asaas/subscriptions/${encodeURIComponent(subscriptionId)}`;
     const res = await illumineFetch(path, { method: 'DELETE' });
     if (!res.ok && res.status !== 204) {
       const body = await res.json().catch(() => ({}));
