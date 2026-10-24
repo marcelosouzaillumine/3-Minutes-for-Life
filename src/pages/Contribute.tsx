@@ -162,7 +162,7 @@ export function Contribute() {
         >
           {t(
             'contribution:modal.desc',
-            'O 3 Minutos para a Vida é gratuito. Sua contribuição ajuda outra pessoa a receber também.'
+            'O 3 Minutos para a Vida é gratuito. Sua contribuição ajuda essa mensagem a chegar a mais pessoas.'
           )}
         </p>
 
