@@ -6,8 +6,7 @@ import './Mission.css';
 import { BrandLogo } from '../components/BrandLogo';
 import { useAuth } from '../context/AuthContext';
 import { MissionService } from '../services/MissionService';
-import { fetchBrlToUsdRate, FALLBACK_BRL_TO_USD_RATE, formatUsdFromBrl } from '../hooks/useBrlToUsdRate';
-import { detectLikelyBrazil } from '../lib/geo';
+import { fetchBrlToUsdRate, formatUsdFromBrl } from '../hooks/useBrlToUsdRate';
 
 type ContributionPlan = {
   key: string;
@@ -37,51 +36,16 @@ export function Contribute() {
   const [activePlan, setActivePlan] = useState<ContributionPlan | null>(null);
   const [amountReais, setAmountReais] = useState('20');
   const [cpfCnpj, setCpfCnpj] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<'pix' | 'credit_card' | 'international'>('pix');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   const [usdRate, setUsdRate] = useState<number | null>(null);
   // Volta da página de pagamento do OS (?status=paid&session=…&ref=…).
   const [paidReturn] = useState(() => new URLSearchParams(window.location.search).get('status') === 'paid');
 
-  // Busca a taxa de câmbio uma vez ao montar, só para "aquecer" o cache —
-  // se o doador trocar de método de pagamento antes disso terminar, o
-  // handler abaixo busca de novo (aguardando) em vez de usar um valor stale.
+  // Taxa de câmbio só para mostrar o preço em USD a quem usa o site em outro idioma.
   useEffect(() => {
     fetchBrlToUsdRate().then(setUsdRate);
   }, []);
-
-  // Troca de método de pagamento com conversão de moeda: os planos são
-  // definidos em R$, então ao entrar em "International" o valor precisa virar
-  // USD de verdade (não repetir o mesmo número), e ao sair precisa voltar a
-  // ser R$. Feito de forma imperativa (não como efeito reativo) para não ter
-  // condição de corrida com a busca assíncrona da taxa.
-  const handleSelectPaymentMethod = async (method: 'pix' | 'credit_card' | 'international') => {
-    if (!activePlan || method === paymentMethod) {
-      setPaymentMethod(method);
-      return;
-    }
-
-    const enteringInternational = method === 'international';
-    const leavingInternational = paymentMethod === 'international';
-
-    if (enteringInternational) {
-      const rate = usdRate ?? await fetchBrlToUsdRate();
-      if (usdRate === null) setUsdRate(rate);
-      const baseBrl = activePlan.isFixedAmount ? Number(activePlan.defaultAmount) : Number(amountReais.replace(',', '.'));
-      if (Number.isFinite(baseBrl)) setAmountReais((baseBrl * rate).toFixed(2));
-    } else if (leavingInternational) {
-      if (activePlan.isFixedAmount) {
-        setAmountReais(activePlan.defaultAmount);
-      } else {
-        const rate = usdRate ?? FALLBACK_BRL_TO_USD_RATE;
-        const baseUsd = Number(amountReais.replace(',', '.'));
-        if (Number.isFinite(baseUsd)) setAmountReais((baseUsd / rate).toFixed(2));
-      }
-    }
-
-    setPaymentMethod(method);
-  };
 
   // Abre automaticamente o modal quando vindo do /missao com ?tier=&periodicity=
   useEffect(() => {
@@ -97,24 +61,10 @@ export function Contribute() {
     }
   }, []);
 
-  const openCheckout = async (plan: ContributionPlan) => {
+  const openCheckout = (plan: ContributionPlan) => {
     setFormError('');
     setActivePlan(plan);
-
-    if (detectLikelyBrazil()) {
-      setPaymentMethod('pix');
-      setAmountReais(plan.defaultAmount);
-      return;
-    }
-
-    // Sugestão inicial "International" pra quem parece estar fora do Brasil
-    // — já entra com o valor convertido pra USD (mesma conversão usada na
-    // troca manual de método), não com o número em R$ como se fosse dólar.
-    setPaymentMethod('international');
-    const rate = usdRate ?? await fetchBrlToUsdRate();
-    if (usdRate === null) setUsdRate(rate);
-    const baseBrl = Number(plan.defaultAmount);
-    setAmountReais(Number.isFinite(baseBrl) ? (baseBrl * rate).toFixed(2) : plan.defaultAmount);
+    setAmountReais(plan.defaultAmount);
   };
 
   const handleCheckoutSubmit = async (e: React.FormEvent) => {
@@ -125,36 +75,23 @@ export function Contribute() {
 
     const amountCents = Math.round(Number(amountReais.replace(',', '.')) * 100);
     const minAmount = activePlan.frequency === 'yearly' ? 5000 : 500;
-    const minText = paymentMethod === 'international'
-      ? (activePlan.frequency === 'yearly' ? '$50.00' : '$5.00')
-      : (activePlan.frequency === 'yearly' ? 'R$ 50,00' : 'R$ 5,00');
+    const minText = activePlan.frequency === 'yearly' ? 'R$ 50,00' : 'R$ 5,00';
 
     if (!Number.isFinite(amountCents) || amountCents < minAmount) {
       setFormError(t('contribution:oneTime.errorMinAmount', `O valor mínimo é ${minText}.`));
       return;
     }
 
+    const cleanCpfCnpj = onlyDigits(cpfCnpj);
+    if (cleanCpfCnpj.length !== 11 && cleanCpfCnpj.length !== 14) {
+      setFormError(t('contribution:oneTime.errorCpf', 'Informe um CPF ou CNPJ válido.'));
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      if (paymentMethod === 'international') {
-        const { checkoutUrl } = await MissionService.createInternationalCheckout(amountCents, activePlan.frequency);
-        window.location.href = checkoutUrl;
-        return;
-      }
-
-      const cleanCpfCnpj = onlyDigits(cpfCnpj);
-      if (cleanCpfCnpj.length !== 11 && cleanCpfCnpj.length !== 14) {
-        setFormError(t('contribution:oneTime.errorCpf', 'Informe um CPF ou CNPJ válido.'));
-        setIsSubmitting(false);
-        return;
-      }
-
-      const { checkoutUrl } = await MissionService.createCheckout(
-        amountCents,
-        cleanCpfCnpj,
-        activePlan.frequency,
-        paymentMethod
-      );
+      // PIX ou cartão: o doador escolhe na página de pagamento.
+      const { checkoutUrl } = await MissionService.createCheckout(amountCents, cleanCpfCnpj, activePlan.frequency);
       window.location.href = checkoutUrl;
     } catch (err: any) {
       setFormError(err.message || t('contribution:oneTime.errorGeneric', 'Não foi possível criar o checkout. Tente novamente.'));
@@ -406,73 +343,6 @@ export function Contribute() {
                 {activePlan.title}
               </h3>
 
-              {/* Payment method selector */}
-              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem' }}>
-                <button
-                  type="button"
-                  onClick={() => handleSelectPaymentMethod('pix')}
-                  style={{
-                    flex: 1,
-                    padding: '0.6rem 0.5rem',
-                    borderRadius: '8px',
-                    border: `2px solid ${paymentMethod === 'pix' ? '#2563eb' : '#ddd'}`,
-                    background: paymentMethod === 'pix' ? '#eff6ff' : '#fafafa',
-                    color: paymentMethod === 'pix' ? '#1d4ed8' : '#555',
-                    fontWeight: paymentMethod === 'pix' ? 700 : 400,
-                    cursor: 'pointer',
-                    fontSize: '0.9rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.35rem',
-                  }}
-                >
-                  🟢 PIX
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSelectPaymentMethod('credit_card')}
-                  style={{
-                    flex: 1,
-                    padding: '0.6rem 0.5rem',
-                    borderRadius: '8px',
-                    border: `2px solid ${paymentMethod === 'credit_card' ? '#2563eb' : '#ddd'}`,
-                    background: paymentMethod === 'credit_card' ? '#eff6ff' : '#fafafa',
-                    color: paymentMethod === 'credit_card' ? '#1d4ed8' : '#555',
-                    fontWeight: paymentMethod === 'credit_card' ? 700 : 400,
-                    cursor: 'pointer',
-                    fontSize: '0.9rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.35rem',
-                  }}
-                >
-                  💳 Cartão
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSelectPaymentMethod('international')}
-                  style={{
-                    flex: 1,
-                    padding: '0.6rem 0.5rem',
-                    borderRadius: '8px',
-                    border: `2px solid ${paymentMethod === 'international' ? '#2563eb' : '#ddd'}`,
-                    background: paymentMethod === 'international' ? '#eff6ff' : '#fafafa',
-                    color: paymentMethod === 'international' ? '#1d4ed8' : '#555',
-                    fontWeight: paymentMethod === 'international' ? 700 : 400,
-                    cursor: 'pointer',
-                    fontSize: '0.9rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.35rem',
-                  }}
-                >
-                  🌎 International
-                </button>
-              </div>
-
               {!user ? (
                 <div style={{ textAlign: 'center', padding: '1rem 0' }}>
                   <p style={{ fontSize: '0.95rem', color: '#555', marginBottom: '1.25rem' }}>
@@ -487,9 +357,7 @@ export function Contribute() {
               ) : (
                 <form onSubmit={handleCheckoutSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   <label style={{ fontSize: '0.88rem', fontWeight: 600, color: '#333' }}>
-                    {paymentMethod === 'international'
-                      ? t('contribution:oneTime.amountLabelUsd', 'Amount (USD)')
-                      : t('contribution:oneTime.amountLabel', 'Valor (R$)')}
+                    {t('contribution:oneTime.amountLabel', 'Valor (R$)')}
                     <input
                       type="text"
                       inputMode="decimal"
@@ -511,7 +379,6 @@ export function Contribute() {
                     />
                   </label>
 
-                  {paymentMethod !== 'international' && (
                   <label style={{ fontSize: '0.88rem', fontWeight: 600, color: '#333' }}>
                     {t('contribution:oneTime.cpfLabel', 'CPF ou CNPJ')}
                     <input
@@ -536,7 +403,6 @@ export function Contribute() {
                       Exigido pelo Banco Central para emissão do pagamento.
                     </span>
                   </label>
-                  )}
 
                   {formError && (
                     <div style={{
@@ -567,12 +433,8 @@ export function Contribute() {
                       style={{ flex: 2 }}
                     >
                       {isSubmitting
-                        ? (paymentMethod === 'credit_card' ? 'Criando link de pagamento…'
-                          : paymentMethod === 'international' ? 'Creating checkout…'
-                          : 'Gerando PIX…')
-                        : (paymentMethod === 'credit_card' ? 'Pagar com Cartão'
-                          : paymentMethod === 'international' ? 'Continue to payment'
-                          : 'Pagar com PIX')}
+                        ? t('contribution:oneTime.submitting', 'Abrindo o pagamento…')
+                        : t('contribution:oneTime.submit', 'Continuar para o pagamento')}
                     </button>
                   </div>
                 </form>

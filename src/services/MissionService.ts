@@ -111,15 +111,9 @@ export const MissionService = {
   async createCheckout(
     amountCents: number,
     cpfCnpj: string,
-    frequency: 'one_time' | 'monthly' | 'yearly' = 'one_time',
-    paymentMethod: 'pix' | 'credit_card' | 'undefined' = 'undefined'
+    frequency: 'one_time' | 'monthly' | 'yearly' = 'one_time'
   ): Promise<{ checkoutUrl: string; contributionId: string; providerReference?: string }> {
     const isRecurring = frequency === 'monthly' || frequency === 'yearly';
-    const billingType =
-      paymentMethod === 'pix' ? 'PIX'
-      : paymentMethod === 'credit_card' ? 'CREDIT_CARD'
-      : 'UNDEFINED';
-
     const illumineUser = illumineAuth.getUser();
     if (!illumineUser?.email) throw new Error('Autenticação necessária.');
 
@@ -129,11 +123,10 @@ export const MissionService = {
     // não tem a rota ou o produto de pagamento cadastrado (404/503), cai no checkout antigo do Asaas.
     const customer = { name: customerName, cpfCnpj: cpfCnpj.replace(/\D/g, '') };
     const cycle = frequency === 'yearly' ? 'YEARLY' : frequency === 'monthly' ? 'MONTHLY' : 'ONE_TIME';
-    const methods = paymentMethod === 'pix' ? ['PIX'] : paymentMethod === 'credit_card' ? ['CREDIT_CARD'] : undefined;
 
     const hosted = await illumineFetch('/3minutes/checkout', {
       method: 'POST',
-      body: JSON.stringify({ amountCents, cycle, customer, ...(methods ? { methods } : {}) }),
+      body: JSON.stringify({ amountCents, cycle, customer }),
     });
 
     if (hosted.ok) {
@@ -149,7 +142,7 @@ export const MissionService = {
     const res = await illumineFetch('/asaas/checkout', {
       method: 'POST',
       body: JSON.stringify({
-        billingType,
+        billingType: 'UNDEFINED',
         amountCents,
         customer: { ...customer, email: illumineUser.email },
         isRecurring,
@@ -175,43 +168,6 @@ export const MissionService = {
 
   async createOneTimePixCheckout(amountCents: number, cpfCnpj: string): Promise<{ checkoutUrl: string; contributionId: string }> {
     return this.createCheckout(amountCents, cpfCnpj, 'one_time');
-  },
-
-  // Doação internacional via Stripe — sem CPF/CNPJ (só o Asaas/Brasil exige).
-  // Usado quando o doador não está no Brasil (cartão internacional).
-  async createInternationalCheckout(
-    amountCents: number,
-    frequency: 'one_time' | 'monthly' | 'yearly' = 'one_time',
-    currency: string = 'USD'
-  ): Promise<{ checkoutUrl: string; contributionId: string }> {
-    const isRecurring = frequency === 'monthly' || frequency === 'yearly';
-
-    const illumineUser = illumineAuth.getUser();
-    if (!illumineUser?.email) throw new Error('Autenticação necessária.');
-
-    const customerName = illumineUser.name ?? illumineUser.email.split('@')[0];
-
-    const res = await illumineFetch('/stripe/checkout', {
-      method: 'POST',
-      body: JSON.stringify({
-        amountCents,
-        currency,
-        customer: { name: customerName, email: illumineUser.email },
-        isRecurring,
-        interval: frequency === 'yearly' ? 'year' : 'month',
-        description: 'Contribution to 3 Minutes For Life',
-      }),
-    });
-
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body?.error || 'Erro ao criar o checkout.');
-    }
-
-    const payload = await res.json();
-    if (!payload.checkoutUrl) throw new Error(payload?.error || 'Erro ao criar o checkout.');
-
-    return { checkoutUrl: payload.checkoutUrl, contributionId: payload.intentId ?? '' };
   },
 
   async getMySubscriptions(): Promise<RecurringSubscription[]> {
