@@ -20,7 +20,7 @@ export interface Campaign {
 
 export interface RecurringSubscription {
   subscriptionId: string;
-  provider: 'asaas' | 'stripe' | 'pay';
+  provider: 'asaas' | 'pay';
   amountCents: number;
   currency: string;
   status: string;
@@ -171,9 +171,8 @@ export const MissionService = {
   },
 
   async getMySubscriptions(): Promise<RecurringSubscription[]> {
-    const [asaasRes, stripeRes, payRes] = await Promise.all([
+    const [asaasRes, payRes] = await Promise.all([
       illumineFetch('/asaas/subscriptions/mine'),
-      illumineFetch('/stripe/subscriptions/mine'),
       illumineFetch('/3minutes/subscriptions/mine'),
     ]);
 
@@ -201,27 +200,13 @@ export const MissionService = {
         }))
       : [];
 
-    const stripe: RecurringSubscription[] = stripeRes.ok
-      ? ((await stripeRes.json()).subscriptions ?? []).map((s: any): RecurringSubscription => ({
-          subscriptionId: s.stripeSubscriptionId,
-          provider: 'stripe',
-          amountCents: s.amount,
-          currency: s.currency ?? 'USD',
-          status: s.status,
-          cycle: s.cycle,
-          createdAt: s.createdAt,
-        }))
-      : [];
-
-    return [...pay, ...asaas, ...stripe];
+    return [...pay, ...asaas];
   },
 
   async cancelSubscription(subscriptionId: string, provider: RecurringSubscription['provider'] = 'asaas'): Promise<void> {
-    const path = provider === 'stripe'
-      ? `/stripe/subscriptions/${encodeURIComponent(subscriptionId)}`
-      : provider === 'pay'
-        ? `/3minutes/subscriptions/${encodeURIComponent(subscriptionId)}`
-        : `/asaas/subscriptions/${encodeURIComponent(subscriptionId)}`;
+    const path = provider === 'pay'
+      ? `/3minutes/subscriptions/${encodeURIComponent(subscriptionId)}`
+      : `/asaas/subscriptions/${encodeURIComponent(subscriptionId)}`;
     const res = await illumineFetch(path, { method: 'DELETE' });
     if (!res.ok && res.status !== 204) {
       const body = await res.json().catch(() => ({}));
