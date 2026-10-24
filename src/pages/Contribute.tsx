@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 /* Usa header/nav/logo da Landing além dos cards da Mission. */
 import './Landing.css';
@@ -10,33 +10,23 @@ import { fetchBrlToUsdRate, formatUsdFromBrl } from '../hooks/useBrlToUsdRate';
 
 type ContributionPlan = {
   key: string;
-  title: string;
-  defaultAmount: string;
+  amountCents: number;
   frequency: 'one_time' | 'monthly' | 'yearly';
-  isFixedAmount?: boolean;
 };
 
-function onlyDigits(value: string): string {
-  return (value || '').replace(/\D/g, '');
-}
-
-// Plano padrão para cada combinação tier+periodicity (vinda do /missao via query string)
+// Planos de valor fixo; ?tier=&periodicity= (vindo do /missao) escolhe um deles.
 const PLAN_MAP: Record<string, ContributionPlan> = {
-  apoio_mensal: { key: 'apoio_mensal', title: 'Apoio Mensal', defaultAmount: '9.90', frequency: 'monthly', isFixedAmount: true },
-  apoio_anual:  { key: 'apoio_anual',  title: 'Apoio Anual',  defaultAmount: '59.90', frequency: 'yearly',  isFixedAmount: true },
-  livre_unica:  { key: 'livre_unica',  title: 'Contribuição Única', defaultAmount: '20.00', frequency: 'one_time', isFixedAmount: false },
-  livre_mensal: { key: 'livre_mensal', title: 'Contribuição Mensal', defaultAmount: '20.00', frequency: 'monthly', isFixedAmount: false },
+  apoio_mensal: { key: 'apoio_mensal', amountCents: 990, frequency: 'monthly' },
+  apoio_anual: { key: 'apoio_anual', amountCents: 5990, frequency: 'yearly' },
+  apoio_unico: { key: 'apoio_unico', amountCents: 7990, frequency: 'one_time' },
 };
 
 export function Contribute() {
   const { t, i18n } = useTranslation(['mission', 'contribution', 'common']);
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const isPortuguese = i18n.language?.toLowerCase().startsWith('pt');
 
-  const [activePlan, setActivePlan] = useState<ContributionPlan | null>(null);
-  const [amountReais, setAmountReais] = useState('20');
-  const [cpfCnpj, setCpfCnpj] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingKey, setPendingKey] = useState<string | null>(null);
   const [formError, setFormError] = useState('');
   const [usdRate, setUsdRate] = useState<number | null>(null);
   // Volta da página de pagamento do OS (?status=paid&session=…&ref=…).
@@ -47,57 +37,38 @@ export function Contribute() {
     fetchBrlToUsdRate().then(setUsdRate);
   }, []);
 
-  // Abre automaticamente o modal quando vindo do /missao com ?tier=&periodicity=
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const tier = params.get('tier');
-    const periodicity = params.get('periodicity');
-    if (tier && periodicity) {
-      const plan = PLAN_MAP[`${tier}_${periodicity}`];
-      if (plan) {
-        setAmountReais(plan.defaultAmount);
-        setActivePlan(plan);
-      }
-    }
-  }, []);
-
-  const openCheckout = (plan: ContributionPlan) => {
+  // Vai direto para a página de pagamento (o CPF/CNPJ é pedido lá). Sem login, entra e volta já no plano escolhido.
+  const startCheckout = async (plan: ContributionPlan) => {
+    if (pendingKey) return;
     setFormError('');
-    setActivePlan(plan);
-    setAmountReais(plan.defaultAmount);
-  };
-
-  const handleCheckoutSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormError('');
-
-    if (!activePlan) return;
-
-    const amountCents = Math.round(Number(amountReais.replace(',', '.')) * 100);
-    const minAmount = activePlan.frequency === 'yearly' ? 5000 : 500;
-    const minText = activePlan.frequency === 'yearly' ? 'R$ 50,00' : 'R$ 5,00';
-
-    if (!Number.isFinite(amountCents) || amountCents < minAmount) {
-      setFormError(t('contribution:oneTime.errorMinAmount', `O valor mínimo é ${minText}.`));
+    if (!user) {
+      const back = `/apoiar?tier=${plan.key.split('_')[0]}&periodicity=${plan.key.split('_')[1]}`;
+      window.location.href = `/login?redirectTo=${encodeURIComponent(back)}`;
       return;
     }
-
-    const cleanCpfCnpj = onlyDigits(cpfCnpj);
-    if (cleanCpfCnpj.length !== 11 && cleanCpfCnpj.length !== 14) {
-      setFormError(t('contribution:oneTime.errorCpf', 'Informe um CPF ou CNPJ válido.'));
-      return;
-    }
-
-    setIsSubmitting(true);
+    setPendingKey(plan.key);
     try {
-      // PIX ou cartão: o doador escolhe na página de pagamento.
-      const { checkoutUrl } = await MissionService.createCheckout(amountCents, cleanCpfCnpj, activePlan.frequency);
+      const { checkoutUrl } = await MissionService.createCheckout(plan.amountCents, plan.frequency);
       window.location.href = checkoutUrl;
     } catch (err: any) {
       setFormError(err.message || t('contribution:oneTime.errorGeneric', 'Não foi possível criar o checkout. Tente novamente.'));
-      setIsSubmitting(false);
+      setPendingKey(null);
     }
   };
+
+  // Volta do login (ou link do /missao) com ?tier=&periodicity=: segue direto para o pagamento.
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (loading || !user || autoStarted.current) return;
+    const params = new URLSearchParams(window.location.search);
+    const tier = params.get('tier');
+    const periodicity = params.get('periodicity');
+    const plan = tier && periodicity ? PLAN_MAP[`${tier}_${periodicity}`] : undefined;
+    if (plan) {
+      autoStarted.current = true;
+      void startCheckout(plan);
+    }
+  }, [loading, user]);
 
   return (
     <div className="mission-page">
@@ -192,17 +163,10 @@ export function Contribute() {
             <button
               type="button"
               className="editorial-btn"
-              onClick={() =>
-                openCheckout({
-                  key: 'apoio_mensal',
-                  title: t('mission:editorial.monthlyTitle', 'Apoio Mensal'),
-                  defaultAmount: '9.90',
-                  frequency: 'monthly',
-                  isFixedAmount: true,
-                })
-              }
+              disabled={!!pendingKey}
+              onClick={() => startCheckout(PLAN_MAP.apoio_mensal)}
             >
-              {t('mission:editorial.monthlyBtn', 'Apoiar mensalmente')}
+              {pendingKey === 'apoio_mensal' ? t('contribution:oneTime.submitting', 'Abrindo o pagamento…') : t('mission:editorial.monthlyBtn', 'Apoiar mensalmente')}
             </button>
           </div>
 
@@ -234,212 +198,46 @@ export function Contribute() {
             <button
               type="button"
               className="editorial-btn primary"
-              onClick={() =>
-                openCheckout({
-                  key: 'apoio_anual',
-                  title: t('mission:editorial.yearlyTitle', 'Apoio Anual'),
-                  defaultAmount: '59.90',
-                  frequency: 'yearly',
-                  isFixedAmount: true,
-                })
-              }
+              disabled={!!pendingKey}
+              onClick={() => startCheckout(PLAN_MAP.apoio_anual)}
             >
-              {t('mission:editorial.yearlyBtn', 'Apoiar anualmente')}
+              {pendingKey === 'apoio_anual' ? t('contribution:oneTime.submitting', 'Abrindo o pagamento…') : t('mission:editorial.yearlyBtn', 'Apoiar anualmente')}
             </button>
           </div>
 
-          {/* Contribuição Voluntária Livre */}
+          {/* Apoio único (sem recorrência) */}
           <div className="editorial-tier">
             <h3 className="editorial-tier-name">
-              {t('mission:editorial.freeTitle', 'Contribuição voluntária')}
+              {t('mission:editorial.singleTitle', 'Apoio único')}
             </h3>
 
             <div className="editorial-tier-price">
+              <span className="editorial-price-main">
+                {isPortuguese
+                  ? t('mission:editorial.singlePriceMain', 'R$ 79,90')
+                  : (formatUsdFromBrl(79.90, usdRate) ?? '…')}
+                <small>{t('mission:editorial.singlePriceUnit', ' único')}</small>
+              </span>
               <span className="editorial-price-sub">
-                {t(
-                  'mission:editorial.freeDesc',
-                  'Quer contribuir com outro valor? Você escolhe quanto e como contribuir.'
-                )}
+                {t('mission:editorial.singleDesc', 'Um único pagamento, sem renovação automática.')}
               </span>
             </div>
 
-            <div className="editorial-tier-free-options">
-              <button
-                type="button"
-                className="editorial-btn"
-                onClick={() =>
-                  openCheckout({
-                    key: 'livre_unica',
-                    title: t('mission:editorial.freeBtnSingle', 'Contribuição Única'),
-                    defaultAmount: '20.00',
-                    frequency: 'one_time',
-                    isFixedAmount: false,
-                  })
-                }
-              >
-                {t('mission:editorial.freeBtnSingle', 'Contribuição única')}
-              </button>
-
-              <button
-                type="button"
-                className="editorial-btn"
-                onClick={() =>
-                  openCheckout({
-                    key: 'livre_mensal',
-                    title: t('mission:editorial.freeBtnMonthly', 'Contribuição Mensal'),
-                    defaultAmount: '20.00',
-                    frequency: 'monthly',
-                    isFixedAmount: false,
-                  })
-                }
-              >
-                {t('mission:editorial.freeBtnMonthly', 'Contribuição mensal')}
-              </button>
-            </div>
+            <button
+              type="button"
+              className="editorial-btn"
+              disabled={!!pendingKey}
+              onClick={() => startCheckout(PLAN_MAP.apoio_unico)}
+            >
+              {pendingKey === 'apoio_unico' ? t('contribution:oneTime.submitting', 'Abrindo o pagamento…') : t('mission:editorial.singleBtn', 'Apoiar uma vez')}
+            </button>
           </div>
 
         </div>
 
-        {/* Modal / Formulário de Checkout Dinâmico */}
-        {activePlan && (
-          <div style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.65)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: '1rem',
-          }}>
-            <div style={{
-              background: '#fff',
-              borderRadius: '16px',
-              padding: '2rem',
-              maxWidth: '440px',
-              width: '100%',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
-              position: 'relative',
-            }}>
-              <button
-                type="button"
-                onClick={() => { setActivePlan(null); setFormError(''); }}
-                style={{
-                  position: 'absolute',
-                  top: '1rem',
-                  right: '1rem',
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '1.25rem',
-                  cursor: 'pointer',
-                  color: '#666',
-                }}
-                aria-label="Fechar"
-              >
-                ✕
-              </button>
-
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '0.5rem', color: '#1a1a1a' }}>
-                {activePlan.title}
-              </h3>
-
-              {!user ? (
-                <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-                  <p style={{ fontSize: '0.95rem', color: '#555', marginBottom: '1.25rem' }}>
-                    {t('contribution:oneTime.needsLogin', 'Entre ou crie sua conta para vincular seu apoio ao seu perfil.')}
-                  </p>
-                  <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
-                    <a className="editorial-btn primary" href="/login?redirectTo=/apoiar" style={{ flex: 1 }}>
-                      {t('contribution:oneTime.login', 'Entrar ou criar conta')}
-                    </a>
-                  </div>
-                </div>
-              ) : (
-                <form onSubmit={handleCheckoutSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <label style={{ fontSize: '0.88rem', fontWeight: 600, color: '#333' }}>
-                    {t('contribution:oneTime.amountLabel', 'Valor (R$)')}
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      value={amountReais}
-                      onChange={e => setAmountReais(e.target.value)}
-                      disabled={activePlan.isFixedAmount}
-                      style={{
-                        display: 'block',
-                        width: '100%',
-                        marginTop: '0.4rem',
-                        padding: '0.75rem',
-                        borderRadius: '8px',
-                        border: '1px solid #ccc',
-                        fontSize: '1.1rem',
-                        boxSizing: 'border-box',
-                        backgroundColor: activePlan.isFixedAmount ? '#f5f5f5' : '#fff',
-                      }}
-                      required
-                    />
-                  </label>
-
-                  <label style={{ fontSize: '0.88rem', fontWeight: 600, color: '#333' }}>
-                    {t('contribution:oneTime.cpfLabel', 'CPF ou CNPJ')}
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      placeholder="000.000.000-00"
-                      value={cpfCnpj}
-                      onChange={e => setCpfCnpj(e.target.value)}
-                      style={{
-                        display: 'block',
-                        width: '100%',
-                        marginTop: '0.4rem',
-                        padding: '0.75rem',
-                        borderRadius: '8px',
-                        border: '1px solid #ccc',
-                        fontSize: '1rem',
-                        boxSizing: 'border-box',
-                      }}
-                      required
-                    />
-                    <span style={{ fontSize: '0.78rem', color: '#888', marginTop: '0.25rem', display: 'block' }}>
-                      Exigido pelo Banco Central para emissão do pagamento.
-                    </span>
-                  </label>
-
-                  {formError && (
-                    <div style={{
-                      backgroundColor: '#fde8e8',
-                      color: '#c0392b',
-                      padding: '0.75rem',
-                      borderRadius: '8px',
-                      fontSize: '0.85rem',
-                    }}>
-                      {formError}
-                    </div>
-                  )}
-
-                  <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-                    <button
-                      type="button"
-                      onClick={() => { setActivePlan(null); setFormError(''); }}
-                      disabled={isSubmitting}
-                      className="editorial-btn"
-                      style={{ flex: 1 }}
-                    >
-                      {t('common:cancel', 'Cancelar')}
-                    </button>
-                    <button
-                      type="submit"
-                      className="editorial-btn primary"
-                      disabled={isSubmitting}
-                      style={{ flex: 2 }}
-                    >
-                      {isSubmitting
-                        ? t('contribution:oneTime.submitting', 'Abrindo o pagamento…')
-                        : t('contribution:oneTime.submit', 'Continuar para o pagamento')}
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
+        {formError && (
+          <div role="alert" style={{ maxWidth: 520, margin: '1.5rem auto 0', backgroundColor: '#fde8e8', color: '#c0392b', padding: '0.75rem', borderRadius: 8, fontSize: '0.9rem', textAlign: 'center' }}>
+            {formError}
           </div>
         )}
 

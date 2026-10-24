@@ -62,10 +62,11 @@
     "yearlyPriceUnit": "/ano",
     "yearlyDesc": "A forma mais econômica de apoiar continuamente o projeto.",
     "yearlyBtn": "Apoiar anualmente",
-    "freeTitle": "Contribuição voluntária",
-    "freeDesc": "Quer contribuir com outro valor? Você escolhe quanto e como contribuir.",
-    "freeBtnSingle": "Contribuição única",
-    "freeBtnMonthly": "Contribuição mensal"
+    "singleTitle": "Apoio único",
+    "singlePriceMain": "R$ 79,90",
+    "singlePriceUnit": " único",
+    "singleDesc": "Um único pagamento, sem renovação automática.",
+    "singleBtn": "Apoiar uma vez"
   },
   "closing": {
     "p1": "Começa com uma pessoa.",

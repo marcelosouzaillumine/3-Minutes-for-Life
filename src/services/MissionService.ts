@@ -1,4 +1,4 @@
-import { illumineFetch, illumineAuth } from '../lib/illumine';
+import { illumineFetch } from '../lib/illumine';
 
 export interface Supporter {
   id: string;
@@ -108,66 +108,20 @@ export const MissionService = {
     }));
   },
 
+  /** Cria a sessão na página de pagamento do OS (PIX e cartão). O CPF/CNPJ é pedido lá, não aqui. */
   async createCheckout(
     amountCents: number,
-    cpfCnpj: string,
     frequency: 'one_time' | 'monthly' | 'yearly' = 'one_time'
-  ): Promise<{ checkoutUrl: string; contributionId: string; providerReference?: string }> {
-    const isRecurring = frequency === 'monthly' || frequency === 'yearly';
-    const illumineUser = illumineAuth.getUser();
-    if (!illumineUser?.email) throw new Error('Autenticação necessária.');
-
-    const customerName = illumineUser.name ?? illumineUser.email.split('@')[0];
-
-    // Página de pagamento do OS (PIX e cartão, com a marca do 3 Minutes). Enquanto o gateway ainda
-    // não tem a rota ou o produto de pagamento cadastrado (404/503), cai no checkout antigo do Asaas.
-    const customer = { name: customerName, cpfCnpj: cpfCnpj.replace(/\D/g, '') };
+  ): Promise<{ checkoutUrl: string }> {
     const cycle = frequency === 'yearly' ? 'YEARLY' : frequency === 'monthly' ? 'MONTHLY' : 'ONE_TIME';
-
-    const hosted = await illumineFetch('/3minutes/checkout', {
+    const res = await illumineFetch('/3minutes/checkout', {
       method: 'POST',
-      body: JSON.stringify({ amountCents, cycle, customer }),
+      body: JSON.stringify({ amountCents, cycle }),
     });
-
-    if (hosted.ok) {
-      const payload = await hosted.json();
-      if (!payload.paymentUrl) throw new Error('Erro ao criar o checkout.');
-      return { checkoutUrl: payload.paymentUrl, contributionId: '' };
-    }
-    if (hosted.status !== 404 && hosted.status !== 503) {
-      const body = await hosted.json().catch(() => ({}));
-      throw new Error(HOSTED_CHECKOUT_ERRORS[body?.error as string] ?? body?.error ?? 'Erro ao criar o checkout.');
-    }
-
-    const res = await illumineFetch('/asaas/checkout', {
-      method: 'POST',
-      body: JSON.stringify({
-        billingType: 'UNDEFINED',
-        amountCents,
-        customer: { ...customer, email: illumineUser.email },
-        isRecurring,
-        cycle: frequency === 'yearly' ? 'YEARLY' : 'MONTHLY',
-        description: 'Apoio à Missão 3 Minutes for Life',
-      }),
-    });
-
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body?.error || 'Erro ao criar o checkout.');
-    }
-
-    const payload = await res.json();
-    if (!payload.checkoutUrl) throw new Error(payload?.error || 'Erro ao criar o checkout.');
-
-    return {
-      checkoutUrl: payload.checkoutUrl,
-      contributionId: payload.donationId ?? payload.asaasPaymentId ?? payload.asaasSubscriptionId ?? '',
-      providerReference: payload.asaasPaymentId || payload.asaasSubscriptionId,
-    };
-  },
-
-  async createOneTimePixCheckout(amountCents: number, cpfCnpj: string): Promise<{ checkoutUrl: string; contributionId: string }> {
-    return this.createCheckout(amountCents, cpfCnpj, 'one_time');
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(HOSTED_CHECKOUT_ERRORS[body?.error as string] ?? 'Não foi possível abrir o pagamento. Tente novamente.');
+    if (!body.paymentUrl) throw new Error('Não foi possível abrir o pagamento. Tente novamente.');
+    return { checkoutUrl: body.paymentUrl };
   },
 
   async getMySubscriptions(): Promise<RecurringSubscription[]> {

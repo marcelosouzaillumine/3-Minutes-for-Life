@@ -69,10 +69,11 @@
     "yearlyPriceUnit": "/yr",
     "yearlyDesc": "The most economical way to continuously support the project.",
     "yearlyBtn": "Support yearly",
-    "freeTitle": "Voluntary contribution",
-    "freeDesc": "Want to contribute a different amount? You choose how much and how often.",
-    "freeBtnSingle": "One-time contribution",
-    "freeBtnMonthly": "Monthly contribution"
+    "singleTitle": "One-time support",
+    "singlePriceMain": "R$ 79.90",
+    "singlePriceUnit": " one-time",
+    "singleDesc": "A single payment, no automatic renewal.",
+    "singleBtn": "Support once"
   },
   "closing": {
     "p1": "It starts with one person.",

@@ -272,18 +272,17 @@ export function Mission() {
           </div>
 
           <div className="editorial-tier">
-            <h3 className="editorial-tier-name">{t('editorial.freeTitle')}</h3>
+            <h3 className="editorial-tier-name">{t('editorial.singleTitle')}</h3>
             <div className="editorial-tier-price">
-              <span className="editorial-price-sub">{t('editorial.freeDesc')}</span>
+              <span className="editorial-price-main">
+                {isPortuguese ? t('editorial.singlePriceMain') : (formatUsdFromBrl(79.90, usdRate) ?? '…')}
+                <small>{t('editorial.singlePriceUnit')}</small>
+              </span>
+              <span className="editorial-price-sub">{t('editorial.singleDesc')}</span>
             </div>
-            <div className="editorial-tier-free-options">
-              <button type="button" className="editorial-btn" onClick={() => handleCheckoutRedirect('livre', 'unica')}>
-                {t('editorial.freeBtnSingle')}
-              </button>
-              <button type="button" className="editorial-btn" onClick={() => handleCheckoutRedirect('livre', 'mensal')}>
-                {t('editorial.freeBtnMonthly')}
-              </button>
-            </div>
+            <button type="button" className="editorial-btn" onClick={() => handleCheckoutRedirect('apoio', 'unico')}>
+              {t('editorial.singleBtn')}
+            </button>
           </div>
 
         </div>
