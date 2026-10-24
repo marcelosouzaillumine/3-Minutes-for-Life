@@ -155,7 +155,7 @@ export function AdminDashboard() {
   ];
 
   // O gateway devolve '—' quando não acha o título do devocional; trata como ausente.
-  const topContentTitle = (item: { devotional_title: string | null; content_id?: string }) => {
+  const topContentTitle = (item: { devotional_title?: string | null; content_id?: string }) => {
     const title = item.devotional_title?.trim();
     return title && title !== '—' ? title : 'Devocional não identificado';
   };
