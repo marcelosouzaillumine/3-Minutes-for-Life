@@ -47,15 +47,15 @@
 </ul>
 
 <h2>3. Base URL</h2>
-<pre><code>https://splendid-nourishment-production-8e84.up.railway.app</code></pre>
+<pre><code>https://api.3minutesforlife.com</code></pre>
 <p>Todas as rotas começam com <code>/partner</code>.</p>
 
 <h2>4. Endpoints</h2>
 
 <h3>4.1 — Devocional do dia</h3>
 <pre><code>GET /partner/devotionals/today</code></pre>
-<p>Retorna o devocional cuja data de publicação é a data de hoje (UTC). Retorna <code>404</code> se não houver devocional para a data.</p>
-<pre><code>curl "https://splendid-nourishment-production-8e84.up.railway.app/partner/devotionals/today" \
+<p>Aceita <code>?lang=</code>. Retorna o devocional cuja data de publicação é a data de hoje (UTC). Retorna <code>404</code> se não houver devocional para a data.</p>
+<pre><code>curl "https://api.3minutesforlife.com/partner/devotionals/today" \
   -H "x-api-key: SUA_CHAVE"</code></pre>
 
 <h3>4.2 — Lista de devocionais</h3>
@@ -67,8 +67,9 @@
   <tr><td><code>search</code></td><td>texto</td><td>—</td><td>Busca por texto</td></tr>
   <tr><td><code>categoryId</code></td><td>texto</td><td>—</td><td>Filtra por categoria</td></tr>
   <tr><td><code>themeId</code></td><td>texto</td><td>—</td><td>Filtra por tema</td></tr>
+  <tr><td><code>lang</code></td><td>texto</td><td>pt-BR</td><td>Idioma do conteúdo (ver seção 5)</td></tr>
 </table>
-<pre><code>curl "https://splendid-nourishment-production-8e84.up.railway.app/partner/devotionals?page=1&amp;perPage=10" \
+<pre><code>curl "https://api.3minutesforlife.com/partner/devotionals?page=1&amp;perPage=10" \
   -H "x-api-key: SUA_CHAVE"</code></pre>
 <p>Resposta:</p>
 <pre><code>{
@@ -81,11 +82,28 @@
 
 <h3>4.3 — Devocional por ID</h3>
 <pre><code>GET /partner/devotionals/:id</code></pre>
-<pre><code>curl "https://splendid-nourishment-production-8e84.up.railway.app/partner/devotionals/ID_DO_DEVOCIONAL" \
+<pre><code>curl "https://api.3minutesforlife.com/partner/devotionals/ID_DO_DEVOCIONAL" \
   -H "x-api-key: SUA_CHAVE"</code></pre>
 <p>Retorna <code>404</code> se o ID não existir.</p>
 
-<h2>5. Campos do devocional</h2>
+<h2>5. Idiomas</h2>
+<p>O conteúdo original está em português do Brasil (<code>pt-BR</code>). Para receber outro idioma, use o parâmetro <code>lang</code> em qualquer endpoint:</p>
+<pre><code>curl "https://api.3minutesforlife.com/partner/devotionals/today?lang=en" \
+  -H "x-api-key: SUA_CHAVE"</code></pre>
+<ul>
+  <li><code>lang</code> aceita códigos como <code>en</code>, <code>es</code> ou <code>en-US</code> (<code>en-US</code> usa a tradução <code>en</code>, e vice-versa).</li>
+  <li>Sem <code>lang</code>, ou com <code>lang=pt-BR</code>, a resposta vem em português.</li>
+  <li>Só traduções publicadas são entregues. Se o idioma pedido não estiver disponível, o conteúdo volta em português e o campo <code>language</code> mostra <code>pt-BR</code>. Confira sempre esse campo.</li>
+  <li><code>availableLanguages</code> lista os idiomas disponíveis para aquele devocional.</li>
+</ul>
+<p>Campos da resposta relacionados a idioma:</p>
+<table>
+  <tr><th>Campo</th><th>Descrição</th></tr>
+  <tr><td><code>language</code></td><td>Idioma do conteúdo retornado</td></tr>
+  <tr><td><code>availableLanguages</code></td><td>Idiomas disponíveis para este devocional</td></tr>
+</table>
+
+<h2>6. Campos do devocional</h2>
 <table>
   <tr><th>Campo</th><th>Descrição</th></tr>
   <tr><td><code>id</code></td><td>Identificador único</td></tr>
@@ -102,7 +120,7 @@
 </table>
 <p class="note">Campos opcionais podem vir como <code>null</code>. Ignore campos desconhecidos: novos campos podem ser adicionados sem aviso.</p>
 
-<h2>6. Erros</h2>
+<h2>7. Erros</h2>
 <table>
   <tr><th>HTTP</th><th><code>error</code></th><th>Significado</th></tr>
   <tr><td>400</td><td><code>INVALID_QUERY</code></td><td>Parâmetro inválido (ver <code>details</code>)</td></tr>
@@ -114,11 +132,11 @@
 </table>
 <pre><code>{ "error": "INVALID_API_KEY" }</code></pre>
 
-<h2>7. Limite de requisições</h2>
+<h2>8. Limite de requisições</h2>
 <p>O limite é de <strong>120 requisições por minuto</strong> por IP. As respostas incluem <code>x-ratelimit-limit</code>, <code>x-ratelimit-remaining</code> e <code>x-ratelimit-reset</code>. Ao receber <code>429</code>, aguarde o tempo indicado em <code>retry-after</code>.</p>
 <p>Recomendação: guarde em cache o devocional do dia no seu servidor (ele muda uma vez por dia) em vez de consultar a API a cada acesso de usuário.</p>
 
-<h2>8. Suporte</h2>
+<h2>9. Suporte</h2>
 <p>Dúvidas, renovação ou revogação de chave: <strong>marcelo.illumine@icloud.com</strong>.</p>
 
 </body>

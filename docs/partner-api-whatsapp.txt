@@ -1,0 +1,23 @@
+Olá! Tudo bem? 😊
+
+Segue a documentação da *API de Parceiros do 3 Minutes for Life* (PDF em anexo), que permite exibir os devocionais no seu app/site.
+
+*Resumo rápido*
+• Base URL: https://api.3minutesforlife.com
+• Autenticação: header `x-api-key` com a sua chave
+• Endpoints (somente leitura):
+  – GET /partner/devotionals/today → devocional do dia
+  – GET /partner/devotionals → lista paginada
+  – GET /partner/devotionals/:id → devocional específico
+• Idiomas: português por padrão; use `?lang=en` ou `?lang=es` para receber traduções (quando disponíveis)
+• Limite: 120 requisições por minuto
+
+*Exemplo*
+curl "https://api.3minutesforlife.com/partner/devotionals/today" -H "x-api-key: SUA_CHAVE"
+
+*Sobre a chave*
+Vou enviar a chave em uma mensagem separada. Ela é de uso exclusivo seu: use somente no servidor (backend), nunca em app mobile ou código público. Válida por 12 meses.
+
+Recomendo guardar o devocional do dia em cache no seu servidor, já que ele muda uma vez por dia.
+
+Qualquer dúvida, é só me chamar! 🙏
