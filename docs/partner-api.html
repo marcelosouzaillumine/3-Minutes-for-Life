@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3 Minutes for Life — API de Parceiros</title>
+<style>
+  :root { --text:#111010; --muted:#5A5750; --accent:#B07840; --border:#D8D4CB; --code-bg:#F3F1EC; --surface:#FAFAF8; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --text:#E8E5DE; --muted:#948F86; --accent:#C99050; --border:#2E2B24; --code-bg:#1E1C18; --surface:#161410; }
+  }
+  :root[data-theme="dark"] { --text:#E8E5DE; --muted:#948F86; --accent:#C99050; --border:#2E2B24; --code-bg:#1E1C18; --surface:#161410; }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--surface); color:var(--text); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-size:15px; line-height:1.7; max-width:720px; margin:0 auto; padding:48px 16px 80px; }
+  h1 { font-size:28px; margin-bottom:4px; }
+  h2 { font-size:20px; margin:40px 0 12px; padding-top:8px; border-top:1px solid var(--border); }
+  h3 { font-size:15px; margin:24px 0 8px; color:var(--accent); }
+  p, ul { margin-bottom:12px; }
+  ul { padding-left:22px; }
+  .sub { color:var(--muted); margin-bottom:24px; }
+  code { font-family:ui-monospace,Menlo,monospace; font-size:13px; background:var(--code-bg); padding:1px 5px; border-radius:4px; }
+  pre { background:var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:14px 16px; overflow-x:auto; margin-bottom:14px; }
+  pre code { background:none; padding:0; }
+  table { width:100%; border-collapse:collapse; margin-bottom:14px; font-size:14px; display:block; overflow-x:auto; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--border); vertical-align:top; }
+  th { color:var(--muted); font-weight:600; }
+  .note { border-left:3px solid var(--accent); padding:4px 14px; color:var(--muted); margin-bottom:14px; }
+  @media print { body { padding:0; } }
+</style>
+</head>
+<body>
+
+<h1>API de Parceiros</h1>
+<p class="sub">3 Minutes for Life · acesso somente leitura aos devocionais publicados · v1</p>
+
+<h2>1. Visão geral</h2>
+<p>A API permite que aplicativos e sites parceiros exibam os devocionais do 3 Minutes for Life. Todas as chamadas são <code>GET</code>, retornam JSON (UTF-8) e exigem uma chave de API.</p>
+
+<h2>2. Autenticação</h2>
+<p>Envie a chave no header <code>x-api-key</code> em toda requisição:</p>
+<pre><code>x-api-key: 3mfl_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></pre>
+<ul>
+  <li>A chave é fornecida pela equipe do 3 Minutes for Life e exibida uma única vez. Guarde-a em local seguro.</li>
+  <li>Use a chave <strong>apenas no servidor</strong> (backend). Não a inclua em apps mobile, JavaScript de navegador ou repositórios públicos.</li>
+  <li>Cada chave tem validade (data informada na entrega) e o escopo <code>devotionals:read</code>.</li>
+  <li>Se a chave vazar, avise-nos imediatamente: ela será revogada e uma nova será emitida.</li>
+</ul>
+
+<h2>3. Base URL</h2>
+<pre><code>https://splendid-nourishment-production-8e84.up.railway.app</code></pre>
+<p>Todas as rotas começam com <code>/partner</code>.</p>
+
+<h2>4. Endpoints</h2>
+
+<h3>4.1 — Devocional do dia</h3>
+<pre><code>GET /partner/devotionals/today</code></pre>
+<p>Retorna o devocional cuja data de publicação é a data de hoje (UTC). Retorna <code>404</code> se não houver devocional para a data.</p>
+<pre><code>curl "https://splendid-nourishment-production-8e84.up.railway.app/partner/devotionals/today" \
+  -H "x-api-key: SUA_CHAVE"</code></pre>
+
+<h3>4.2 — Lista de devocionais</h3>
+<pre><code>GET /partner/devotionals</code></pre>
+<table>
+  <tr><th>Parâmetro</th><th>Tipo</th><th>Padrão</th><th>Descrição</th></tr>
+  <tr><td><code>page</code></td><td>inteiro</td><td>1</td><td>Página</td></tr>
+  <tr><td><code>perPage</code></td><td>inteiro</td><td>20</td><td>Itens por página (máx. 50)</td></tr>
+  <tr><td><code>search</code></td><td>texto</td><td>—</td><td>Busca por texto</td></tr>
+  <tr><td><code>categoryId</code></td><td>texto</td><td>—</td><td>Filtra por categoria</td></tr>
+  <tr><td><code>themeId</code></td><td>texto</td><td>—</td><td>Filtra por tema</td></tr>
+</table>
+<pre><code>curl "https://splendid-nourishment-production-8e84.up.railway.app/partner/devotionals?page=1&amp;perPage=10" \
+  -H "x-api-key: SUA_CHAVE"</code></pre>
+<p>Resposta:</p>
+<pre><code>{
+  "data": [ { "id": "...", "title": "...", "publicationDate": "2026-10-26", ... } ],
+  "page": 1,
+  "perPage": 10,
+  "total": 365,
+  "totalPages": 37
+}</code></pre>
+
+<h3>4.3 — Devocional por ID</h3>
+<pre><code>GET /partner/devotionals/:id</code></pre>
+<pre><code>curl "https://splendid-nourishment-production-8e84.up.railway.app/partner/devotionals/ID_DO_DEVOCIONAL" \
+  -H "x-api-key: SUA_CHAVE"</code></pre>
+<p>Retorna <code>404</code> se o ID não existir.</p>
+
+<h2>5. Campos do devocional</h2>
+<table>
+  <tr><th>Campo</th><th>Descrição</th></tr>
+  <tr><td><code>id</code></td><td>Identificador único</td></tr>
+  <tr><td><code>title</code></td><td>Título</td></tr>
+  <tr><td><code>publicationDate</code></td><td>Data de publicação (<code>AAAA-MM-DD</code>)</td></tr>
+  <tr><td><code>principleStatement</code></td><td>Princípio do dia</td></tr>
+  <tr><td><code>scriptureReference</code> / <code>scriptureText</code></td><td>Referência e texto bíblico</td></tr>
+  <tr><td><code>reflection</code></td><td>Reflexão</td></tr>
+  <tr><td><code>practicalApplication</code></td><td>Aplicação prática</td></tr>
+  <tr><td><code>prayer</code></td><td>Oração</td></tr>
+  <tr><td><code>audioUrl</code></td><td>Áudio do devocional, quando houver</td></tr>
+  <tr><td><code>categoryId</code>, <code>themeId</code></td><td>Categoria e tema</td></tr>
+  <tr><td><code>status</code></td><td>Sempre <code>published</code> na lista</td></tr>
+</table>
+<p class="note">Campos opcionais podem vir como <code>null</code>. Ignore campos desconhecidos: novos campos podem ser adicionados sem aviso.</p>
+
+<h2>6. Erros</h2>
+<table>
+  <tr><th>HTTP</th><th><code>error</code></th><th>Significado</th></tr>
+  <tr><td>400</td><td><code>INVALID_QUERY</code></td><td>Parâmetro inválido (ver <code>details</code>)</td></tr>
+  <tr><td>401</td><td><code>API_KEY_REQUIRED</code></td><td>Header <code>x-api-key</code> ausente</td></tr>
+  <tr><td>401</td><td><code>INVALID_API_KEY</code></td><td>Chave inexistente ou revogada</td></tr>
+  <tr><td>401</td><td><code>API_KEY_EXPIRED</code></td><td>Chave expirada</td></tr>
+  <tr><td>404</td><td><code>DEVOTIONAL_NOT_FOUND</code></td><td>Devocional não encontrado</td></tr>
+  <tr><td>429</td><td>—</td><td>Limite de requisições excedido</td></tr>
+</table>
+<pre><code>{ "error": "INVALID_API_KEY" }</code></pre>
+
+<h2>7. Limite de requisições</h2>
+<p>O limite é de <strong>120 requisições por minuto</strong> por IP. As respostas incluem <code>x-ratelimit-limit</code>, <code>x-ratelimit-remaining</code> e <code>x-ratelimit-reset</code>. Ao receber <code>429</code>, aguarde o tempo indicado em <code>retry-after</code>.</p>
+<p>Recomendação: guarde em cache o devocional do dia no seu servidor (ele muda uma vez por dia) em vez de consultar a API a cada acesso de usuário.</p>
+
+<h2>8. Suporte</h2>
+<p>Dúvidas, renovação ou revogação de chave: <strong>marcelo.illumine@icloud.com</strong>.</p>
+
+</body>
+</html>
