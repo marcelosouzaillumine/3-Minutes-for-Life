@@ -65,6 +65,12 @@ Cada etapa tem **verificação** (go/no-go) e **rollback**. Só passo para a seg
 
 *Rollback:* nada a desfazer.
 
+### Etapa 0 — resultado (2026-10-27)
+
+- **Dump:** `~/Backups/3ml-cutover/plataforma-20261027-140509.dump` (formato custom, 1,9 MB, 2.587 entradas, sha256 `0c59921b…`), feito por você. Restaurou sem erros num banco local. Há um segundo dump (`…140256`) do mesmo dia.
+- **Contagens de referência (produção, 14:05):** devotionals 64 · translations 235 · user_devotionals 245 · favorites 2 · testimonials 4 · prayer_requests 7 · reflections 15 · referrals 13 · translation_jobs 82 · tenant_api_keys 1 · users 92.
+- **Janela sugerida:** leituras em `app_events` do tenant (60 dias, horário de Brasília) são menores entre 07h e 09h (14 a 45 eventos/h, contra 100 a 130 no meio do dia). A madrugada (00h-06h) tem uso não desprezível, o que sugere leitores em outros fusos. Proposta: **07h-08h de um dia útil**.
+
 ### Etapa 1 — Gateway novo no ar, **inativo** (impacto zero)
 1. Cherry-pick para `origin/main` (como nos deploys anteriores) de: endpoints `permissions` e `resolve` (`a6bd01d`), ramo remoto de analytics (`5b4cad2`) e proxy B1. Sem `PRODUCT_API_PROXY_URL` e sem `THREE_MINUTES_API_*`, o comportamento é idêntico ao atual.
 2. Deploy. Sondar: rotas novas dão `401` sem token (404 = ainda não subiu); rotas antigas seguem iguais; `/partner/devotionals` com a chave real segue 200.
