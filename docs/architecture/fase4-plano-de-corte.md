@@ -88,6 +88,15 @@ Cada etapa tem **verificação** (go/no-go) e **rollback**. Só passo para a seg
 *Verificação:* diffs vazios (ou só ordem de campos e a correção de idiomas, que descrevo); admin/usuário comum com as permissões certas.
 *Rollback:* nada a desfazer no tráfego; se a carga ficou errada, `TRUNCATE` das tabelas do serviço novo (banco dedicado, ainda sem escrita real) e repetir.
 
+### Etapa 2 — resultado parcial (2026-10-27, 14h-15h)
+
+- **Etapa 1 feita:** gateway `307b24c` (origin/main = `b3a39f0` + 4 commits do 3ML) em produção às 14h18, deploy `6a7fca17`, sem 5xx; rotas novas 401 sem token, antigas inalteradas.
+- **Variáveis do `3-minutes-api`:** `GOOGLE_AI_API_KEY`, `PROXY_SHARED_SECRET` e `CORS_ALLOWED_ORIGINS` (com `capacitor://localhost` e `https://localhost`) definidas; serviço redeployado (`b24dee4e`).
+- **Carga real:** 17 tabelas OK (64 devocionais, 235 traduções, 245 leituras, 15 reflexões, 13 indicações, 4 testemunhos, 7 orações, 1 chave de parceiro). O Postgres do serviço só tem endereço interno, então foi aberto um **TCP proxy público temporário** (`switchyard.proxy.rlwy.net:39737`) para rodar a migração de fora. **Remover (`railway tcp-proxy delete`) depois do espelho final da Etapa 3.**
+- **Chave `analytics:read`** criada e guardada fora do repositório (arquivo 600 no scratchpad); **ainda não** foi posta no gateway: `THREE_MINUTES_API_URL/KEY` entram só no Deploy B do corte, para o painel não passar a ler um serviço que ainda recebe dados atrasados.
+- **Paridade de analytics em produção** (plataforma por SELECT x serviço): atividade diária, retenção, dia-N, sequências, funil, desempenho, ranking, tendências, visão geral e engajamento **idênticos**; coortes só funcionam no serviço (o código antigo tem o bug do `INTERVAL`).
+- **Faltam:** login real no serviço novo e comparação sombra de leituras com token real (passos 4 e 5), e a verificação da API de parceiros com a chave real.
+
 ### Etapa 3 — Corte (janela curta, ~10 min, com congelamento de escritas)
 Antes: aviso curto ao time; abrir logs do gateway e do serviço.
 
