@@ -82,11 +82,22 @@ Opções para decidir antes do corte:
 2. **Eventos de leitura na plataforma:** o 3-minutes-api registra `devotional_read`/`completed`/`favorited` em `app_events` e o painel é reescrito sobre eles. O histórico (243 leituras) entra como carga única.
 3. **Adiar:** manter o painel de devocionais lendo as tabelas antigas, que permanecem na plataforma congeladas. Os números param de crescer após o corte, então só serve por tempo curto.
 
+## 7.1 Analytics — implementado (opção 1)
+
+**3-minutes-api:** `GET /internal/analytics/*` (catálogo, leituras por devocional, leitores distintos, série diária, DAU/WAU/MAU, retenção dia-N, coortes, sequências, engajamento por usuário, tendências). Autenticado por chave de API com escopo `analytics:read`; a chave de parceiro (`devotionals:read`) não abre estas rotas e vice-versa. O tenant vem sempre da chave.
+
+**Plataforma** (commit `5b4cad2`, branch `feat/edi-product`, sem push nem deploy): `ProductAnalyticsSource` em `analytics-core` e ramos remotos em `AnalyticsService`. Só ativa com `THREE_MINUTES_API_URL` e `THREE_MINUTES_API_KEY` (e, se o tenant não for `3minutes`, `THREE_MINUTES_TENANT_ID`). Sem as variáveis, nada muda. Com elas, o tenant do 3ML lê leituras, favoritos e retenção do serviço e combina com `app_events` localmente (aberturas, compartilhamentos). Falha do serviço vira erro, nunca cai nas tabelas antigas (que ficariam desatualizadas).
+
+**Verificação:** `AnalyticsService` antigo (produção, só SELECT) contra o novo (3-minutes-api local sobre cópia dos dados): atividade diária, DAU/WAU/MAU, retenção dia-N, sequências, funil (30 e 365 dias), desempenho de conteúdo, ranking, tendências, visão geral e engajamento de usuário saíram **idênticos**. Em "desempenho de conteúdo", empates no corte do top 10 podem escolher outro item (o SQL antigo não define ordem); o novo desempata por id.
+
+**Bug já existente na produção:** `getCohortRetention` falha hoje (`invalid input syntax for type interval: "1 $5"`), porque `INTERVAL '1 ${unidade}'` dentro do template vira parâmetro. O endpoint de coortes do painel não funciona na plataforma atual. A versão do 3-minutes-api passa a unidade como parâmetro e funciona; portanto as coortes voltam a existir após o corte. Não corrigi o código antigo.
+
 ## 8. Pré-requisitos do corte (fase 4)
 
 - Deploy no gateway dos dois endpoints novos.
 - Deploy do código novo do `3-minutes-api` (já na `main` do repositório, mas a migration `pastoral_user_snapshot` e o código só entram no Railway no próximo push).
 - Variável `GOOGLE_AI_API_KEY` no serviço novo (tradução).
-- Decisão de analytics (seção 7).
+- Criar no banco do 3-minutes-api uma chave com escopo `analytics:read` (`SCOPES=analytics:read KEY_NAME=plataforma TENANT_ID=3minutes npm run key:create`) e defini-la no gateway como `THREE_MINUTES_API_KEY`, junto com `THREE_MINUTES_API_URL`. Só depois da migração dos dados.
+- Deploy do gateway com o commit `5b4cad2` (inofensivo sem as variáveis).
 - Rodar a migração em produção, no momento do corte, e repetir logo antes de trocar o app (idempotente), para levar o que entrou nesse intervalo.
 - Mover `api.3minutesforlife.com` e trocar as rotas do app.
