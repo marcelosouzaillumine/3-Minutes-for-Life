@@ -40,6 +40,20 @@ Regras do proxy: repassa `Authorization`, `x-tenant-slug`, `x-api-key`, `Content
 | B4 | Script de sondagem (smoke) pós-etapa: health, 401 sem token, rota de parceiro com chave, leitura autenticada, escrita e remoção de teste | Saída verde/vermelha em um comando |
 | B5 | Corrigir `availableLanguages` repetido no gateway atual (idiomas duplicados para o parceiro) ou aceitar que a correção chega com o corte | Decisão sua |
 
+### 3.1 Status dos itens B (2026-10-27, nada disto está em produção)
+
+| # | Situação | Onde |
+|---|---|---|
+| B1 | **Pronto.** 11 testes do gateway (config, matriz de caminhos, repasse de método/query/corpo/cabeçalhos, sem cookies, 204, 502, congelamento). Lado do serviço: `PROXY_SHARED_SECRET` + rate limit pelo IP real (3 testes). | Illumine OS `f29dd4e` (local, sem push); 3-minutes-api `bd5581d` (local, sem push) |
+| B2 | **Pronto e ensaiado nos dois sentidos** com edição, remoção e chave de parceiro: o destino ficou idêntico por contagem e checksum em todas as tabelas. `--mirror` aborta se for apagar mais de 50 linhas numa tabela. | 3-minutes-api `987db41` |
+| B3 | **Pronto** (`scripts/shadow-compare.mjs`, só GET). Testado contra o serviço local; ainda não contra um gateway real. | 3-minutes-api (próximo commit) |
+| B4 | **Pronto** (`scripts/smoke.mjs`), incluindo favoritar e desfavoritar de teste. Testado localmente: 17 verificações OK. | idem |
+| B5 | **Corrigido** no gateway (idiomas únicos, manual antes de IA) com teste. | Illumine OS `54a6ead` |
+
+Não coberto: um ensaio ponta a ponta com o gateway real encaminhando ao serviço (os testes do proxy usam um `fetch`
+simulado). Isso acontece na Etapa 1/2, com o proxy ainda desligado em produção e ligado só num gateway local ou de teste.
+Rota pública `/public/devotionals/:id`: adiada por decisão sua.
+
 ## 4. Etapas
 
 Cada etapa tem **verificação** (go/no-go) e **rollback**. Só passo para a seguinte depois do seu OK.
