@@ -277,15 +277,15 @@ export function PrincipleView({
           {/* Citação bíblica: entre a frase de destaque e a reflexão. */}
           {(devotional.scripture_reference || devotional.scripture_text) && (
             <blockquote className="principle-scripture">
-              {devotional.scripture_text && (
-                <p className="principle-scripture-text">
-                  &ldquo;{devotional.scripture_text}&rdquo;
-                </p>
-              )}
               {devotional.scripture_reference && (
                 <cite className="principle-scripture-reference">
                   {devotional.scripture_reference}
                 </cite>
+              )}
+              {devotional.scripture_text && (
+                <p className="principle-scripture-text">
+                  &ldquo;{devotional.scripture_text}&rdquo;
+                </p>
               )}
             </blockquote>
           )}
