@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DevotionalService } from '../services/DevotionalService';
+import { JourneyService } from '../services/JourneyService';
+import { PrincipleView } from './PrincipleView';
+import type { Devotional } from '../types/Devotional';
 import { ReflectionService } from '../services/ReflectionService';
 import type { PersonalReflectionWithDevotional } from '../services/ReflectionService';
 
@@ -14,6 +18,24 @@ export function ReflectionList() {
   const { t, i18n } = useTranslation(['profile', 'common']);
   const [reflections, setReflections] = useState<PersonalReflectionWithDevotional[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<Devotional | null>(null);
+  const [openingId, setOpeningId] = useState<string | null>(null);
+
+  const openDevotional = async (r: PersonalReflectionWithDevotional) => {
+    if (openingId) return;
+    setOpeningId(r.id);
+    try {
+      const [d] = await DevotionalService.getDevotionalsByIds([r.devotional_id], i18n.language);
+      if (d) {
+        setSelected(d);
+        JourneyService.registerOpen(d, 'library', i18n.language);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setOpeningId(null);
+    }
+  };
 
   const fetchReflections = async () => {
     try {
@@ -30,6 +52,10 @@ export function ReflectionList() {
   useEffect(() => {
     fetchReflections();
   }, []);
+
+  if (selected) {
+    return <PrincipleView devotional={selected} onBack={() => { setSelected(null); fetchReflections(); }} />;
+  }
 
   if (loading) {
     return (
@@ -63,7 +89,12 @@ export function ReflectionList() {
     <div style={{ marginTop: '2rem' }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {reflections.map(r => (
-          <div key={r.id} style={{
+          <div key={r.id} role="button" tabIndex={0}
+            onClick={() => openDevotional(r)}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDevotional(r); } }}
+            style={{
+            cursor: 'pointer',
+            opacity: openingId === r.id ? 0.6 : 1,
             padding: '1.5rem',
             backgroundColor: 'var(--color-bg)',
             borderRadius: '12px',

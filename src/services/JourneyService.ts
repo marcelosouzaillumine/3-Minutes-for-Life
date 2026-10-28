@@ -1,6 +1,32 @@
 import { illumineFetch } from '../lib/illumine';
 import { AnalyticsService } from './AnalyticsService';
 
+/**
+ * A Home registra a abertura toda vez que é montada, então navegar entre abas
+ * gerava rajadas de eventos do mesmo usuário para o mesmo episódio (20+ em
+ * segundos). Uma abertura por episódio/canal a cada 30 minutos é suficiente.
+ */
+const OPEN_DEDUPE_MS = 30 * 60 * 1000;
+const recentOpens = new Map<string, number>();
+
+function shouldTrackOpen(key: string, now = Date.now()): boolean {
+  let last = recentOpens.get(key);
+  try {
+    const stored = sessionStorage.getItem(`open:${key}`);
+    if (stored) last = Math.max(last ?? 0, Number(stored));
+  } catch {
+    /* sessionStorage indisponível: vale só o cache em memória */
+  }
+  if (last && now - last < OPEN_DEDUPE_MS) return false;
+  recentOpens.set(key, now);
+  try {
+    sessionStorage.setItem(`open:${key}`, String(now));
+  } catch {
+    /* ignora */
+  }
+  return true;
+}
+
 export const JourneyService = {
 
   /**
@@ -14,12 +40,14 @@ export const JourneyService = {
     channel: 'home' | 'library' | 'favorites',
     language: string
   ) {
-    AnalyticsService.trackEvent('devotional_opened', {
-      devotional_id: devotional.id,
-      title: devotional.title,
-      channel,
-      language,
-    });
+    if (shouldTrackOpen(`${devotional.id}:${channel}`)) {
+      AnalyticsService.trackEvent('devotional_opened', {
+        devotional_id: devotional.id,
+        title: devotional.title,
+        channel,
+        language,
+      });
+    }
     return this.start(devotional.id, devotional.legacy_id).catch(console.error);
   },
 

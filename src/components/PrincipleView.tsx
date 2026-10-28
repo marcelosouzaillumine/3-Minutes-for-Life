@@ -45,6 +45,7 @@ export function PrincipleView({
   const authorRole = branding?.authorRole || t('home.authorRole', 'Pastor na Igreja Missão Mobilização');
 
   const [saved, setSaved] = useState(false);
+  const [completed, setCompleted] = useState(false);
   const [showLoginToSave, setShowLoginToSave] = useState(false);
   const [reflectionContent, setReflectionContent] = useState('');
   const [savingReflection, setSavingReflection] = useState(false);
@@ -127,7 +128,7 @@ export function PrincipleView({
   const markComplete = async () => {
     try {
       await JourneyService.complete(devotional.id, devotional.legacy_id);
-      alert(t('completed'));
+      setCompleted(true);
     } catch (err) {
       console.error(err);
     }
@@ -721,8 +722,9 @@ export function PrincipleView({
               {user && (
                 <button
                   type="button"
-                  className="action-btn"
+                  className={`action-btn ${completed ? 'active' : ''}`}
                   onClick={markComplete}
+                  aria-pressed={completed}
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -736,7 +738,7 @@ export function PrincipleView({
                   </svg>
 
                   <span className="action-label">
-                    {t('complete')}
+                    {completed ? t('completed') : t('complete')}
                   </span>
                 </button>
               )}
