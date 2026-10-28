@@ -1165,31 +1165,32 @@ h4 {
 .principle-scripture {
   width: 100%;
   margin: 0 0 2.25rem;
-  padding: 1rem 0;
-  border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.principle-scripture-reference {
-  display: block;
-  margin: 0 0 0.5rem;
-  font-size: 0.75rem;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 1.2;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--color-text-light);
-  overflow-wrap: break-word;
-  word-break: break-word;
+  padding: 1rem 1.1rem;
+  border-radius: 10px;
+  background: #f6f3ee;
+  background: color-mix(in srgb, var(--accent-strong) 7%, var(--color-bg));
 }
 
 .principle-scripture-text {
   margin: 0;
   font-family: var(--font-serif);
   font-size: 1rem;
-  line-height: 1.6;
+  line-height: 1.55;
   color: var(--color-text);
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.principle-scripture-reference {
+  display: block;
+  margin: 0.6rem 0 0;
+  font-size: 0.75rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-light);
   overflow-wrap: break-word;
   word-break: break-word;
 }
