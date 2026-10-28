@@ -46,10 +46,13 @@ export function CommunicationPreferences() {
             for (const [pu, val] of Object.entries(purposes as any)) {
               const mappedPurpose = PURPOSE_FROM_ILLUMINE[pu];
               if (!mappedPurpose) continue;
+              // O lembrete diário só vale com um "sim" registrado: o padrão do servidor
+              // (sem registro = concedido) não pode aparecer como ligado.
+              const explicit = (val as any).updatedAt != null;
               rows.push({
                 channel: ch as Channel,
                 purpose: mappedPurpose,
-                granted: (val as any).granted ?? false,
+                granted: ((val as any).granted ?? false) && (mappedPurpose !== 'devotional_updates' || explicit),
                 occurred_at: (val as any).updatedAt ?? new Date().toISOString(),
               });
             }
@@ -126,8 +129,8 @@ export function CommunicationPreferences() {
     },
     {
       purpose: 'devotional_updates',
-      title: t('profile:consent.updatesTitle', 'Novidades'),
-      desc: t('profile:consent.updatesDesc', 'Avisos quando uma nova reflexão é publicada.'),
+      title: t('profile:consent.updatesTitle', 'Lembrete diário'),
+      desc: t('profile:consent.updatesDesc', 'Um e-mail por dia, às 7h, com a reflexão de hoje. Só chega se você ativar.'),
     },
     {
       purpose: 'project_support',
@@ -152,7 +155,7 @@ export function CommunicationPreferences() {
           </div>
 
           <div className="consent-toggles">
-            {(['email', 'whatsapp'] as Channel[]).map(channel => {
+            {((group.purpose === 'devotional_updates' ? ['email'] : ['email', 'whatsapp']) as Channel[]).map(channel => {
               const key = `${group.purpose}:${channel}`;
               return (
                 <label key={channel} className="consent-toggle">

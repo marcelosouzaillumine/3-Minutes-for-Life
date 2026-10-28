@@ -48,7 +48,10 @@
     "reflectionSaved": "Guardado na sua jornada.",
     "loginToSave": "Entre para guardar sua reflexão",
     "writtenBy": "escrito por",
-    "authorRole": "Pastor na Igreja Missão Mobilização"
+    "authorRole": "Pastor na Igreja Missão Mobilização",
+    "practiced": "Pratiquei hoje",
+    "lastNoteTitle": "Na última vez, você anotou",
+    "lastNoteFrom": "em “{{title}}”"
   },
   "testimonials": {
     "title": "O que Deus falou ao seu coração por meio desta reflexão?",
@@ -202,5 +205,15 @@
         "action": "Ação"
       }
     }
+  },
+  "journey": {
+    "streak_one": "{{count}} dia seguido",
+    "streak_other": "{{count}} dias seguidos",
+    "title": "Sua jornada",
+    "currentStreak": "dias seguidos",
+    "longestStreak": "maior sequência",
+    "daysThisMonth": "dias lidos no mês",
+    "completedThisMonth": "concluídos no mês",
+    "note": "Perdeu um dia? Sem problema: o importante é voltar."
   }
 }

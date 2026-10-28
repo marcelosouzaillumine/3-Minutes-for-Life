@@ -84,6 +84,14 @@ export const JourneyService = {
     return !isFav;
   },
 
+  /** Leituras e conclusões do usuário logado (base da sequência e do resumo mensal). */
+  async getProgress(): Promise<{ readAt: string | null; completedAt: string | null }[]> {
+    const res = await illumineFetch('/devotionals/progress');
+    if (!res.ok) return [];
+    const rows = (await res.json()) as any[];
+    return rows.map((r) => ({ readAt: r.readAt ?? null, completedAt: r.completedAt ?? null }));
+  },
+
   async getStatus(devotionalId: string, legacyId?: number) {
     const path = legacyId
       ? `/devotionals/legacy/${legacyId}/status`

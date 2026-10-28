@@ -1,3 +1,10 @@
+/** Soma dias a uma data AAAA-MM-DD (calendário, sem fuso). */
+export function addDaysToKey(key: string, delta: number): string {
+  const d = new Date(`${key}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + delta);
+  return d.toISOString().slice(0, 10);
+}
+
 export function getTodayInSaoPaulo(): string {
   try {
     const formatter = new Intl.DateTimeFormat('en-US', {

@@ -48,7 +48,10 @@
     "reflectionSaved": "Guardado en tu jornada.",
     "loginToSave": "Inicia sesión para guardar tu reflexión",
     "writtenBy": "escrito por",
-    "authorRole": "Pastor en la Iglesia Missão Mobilização"
+    "authorRole": "Pastor en la Iglesia Missão Mobilização",
+    "practiced": "Lo practiqué hoy",
+    "lastNoteTitle": "La última vez, escribiste",
+    "lastNoteFrom": "en “{{title}}”"
   },
   "testimonials": {
     "title": "¿Cómo te tocó esta reflexión?",
@@ -202,5 +205,15 @@
         "action": "Acción"
       }
     }
+  },
+  "journey": {
+    "streak_one": "{{count}} día seguido",
+    "streak_other": "{{count}} días seguidos",
+    "title": "Tu recorrido",
+    "currentStreak": "días seguidos",
+    "longestStreak": "mayor racha",
+    "daysThisMonth": "días leídos este mes",
+    "completedThisMonth": "completados este mes",
+    "note": "¿Te saltaste un día? No pasa nada: lo importante es volver."
   }
 }

@@ -48,7 +48,10 @@
     "reflectionSaved": "Saved to your journey.",
     "loginToSave": "Sign in to save your reflection",
     "writtenBy": "written by",
-    "authorRole": "Pastor at Igreja Missão Mobilização"
+    "authorRole": "Pastor at Igreja Missão Mobilização",
+    "practiced": "I practiced today",
+    "lastNoteTitle": "Last time, you wrote",
+    "lastNoteFrom": "on “{{title}}”"
   },
   "testimonials": {
     "title": "How did this reflection touch you?",
@@ -202,5 +205,15 @@
         "action": "Action"
       }
     }
+  },
+  "journey": {
+    "streak_one": "{{count}} day in a row",
+    "streak_other": "{{count}} days in a row",
+    "title": "Your journey",
+    "currentStreak": "days in a row",
+    "longestStreak": "longest streak",
+    "daysThisMonth": "days read this month",
+    "completedThisMonth": "completed this month",
+    "note": "Missed a day? No problem: what matters is coming back."
   }
 }

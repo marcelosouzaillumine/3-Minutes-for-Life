@@ -226,6 +226,20 @@ export const DevotionalService = {
     return this._fetchDailyFromNetwork(dateStr, contentLanguage);
   },
 
+  /**
+   * Guarda no aparelho o devocional de uma data futura (normalmente amanhã),
+   * para abrir sem internet. Silencioso: se ainda não foi publicado, não faz nada.
+   */
+  async prefetchDaily(dateStr: string, requestedLanguage?: string): Promise<void> {
+    const contentLanguage = normalizeLanguage(requestedLanguage || i18n.language || 'pt-BR');
+    try {
+      if (await ContentCacheService.getDaily(dateStr, contentLanguage)) return;
+      await this._fetchDailyFromNetwork(dateStr, contentLanguage);
+    } catch {
+      /* ainda não publicado ou sem rede */
+    }
+  },
+
   async _refreshDailyInBackground(dateStr: string, contentLanguage: string): Promise<void> {
     try {
       await this._fetchDailyFromNetwork(dateStr, contentLanguage);
@@ -263,6 +277,9 @@ export const DevotionalService = {
       if (err?.code === 'DEVOTIONAL_NOT_AVAILABLE') throw err;
 
       console.warn('[DevotionalService] L1 indisponível, usando dados locais:', err);
+      // Sem rede, o devocional real (mesmo vencido) vale mais que um texto da biblioteca local.
+      const stale = await ContentCacheService.getDaily(dateStr, contentLanguage, true);
+      if (stale) return { ...stale, isCached: true, source: 'indexeddb' };
       const local = principleToDevotional(principleForDate(dateStr), dateStr);
       return local;
     }

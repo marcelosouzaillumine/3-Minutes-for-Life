@@ -108,11 +108,12 @@ export const ContentCacheService = {
     await this.setDevotional(devotional, language);
   },
 
-  async getDaily(dateStr: string, language: string): Promise<Devotional | null> {
+  /** `allowStale`: usado sem rede, quando um devocional vencido ainda é melhor que nenhum. */
+  async getDaily(dateStr: string, language: string, allowStale = false): Promise<Devotional | null> {
     const key = `DAILY_${dateStr}_${language}`;
     const result = await dbWrapper.get(key) as { payload: Devotional; cached_at?: number } | undefined;
     if (result && result.payload) {
-      if (Date.now() - (result.cached_at || 0) > CACHE_TTL_MS) return null; // expired
+      if (!allowStale && Date.now() - (result.cached_at || 0) > CACHE_TTL_MS) return null; // expired
       return result.payload;
     }
     return null;

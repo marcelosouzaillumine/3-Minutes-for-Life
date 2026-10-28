@@ -1,5 +1,5 @@
 import { DevotionalService } from '../services/DevotionalService';
-import { getTodayInSaoPaulo } from '../utils/date';
+import { addDaysToKey, getTodayInSaoPaulo } from '../utils/date';
 import { useState, useEffect } from 'react';
 import type { Devotional } from '../types/Devotional';
 import { useTranslation } from 'react-i18next';
@@ -53,6 +53,9 @@ export function Home({ onExplore }: HomeProps) {
          * as leituras feitas pela Home.
          */
         JourneyService.registerOpen(data, 'home', i18n.language);
+
+        // Deixa o de amanhã pronto no aparelho, para abrir mesmo sem internet.
+        DevotionalService.prefetchDaily(addDaysToKey(todayStr, 1), i18n.language);
       } catch (err: any) {
         console.error('Failed to load daily devotional:', err);
 
