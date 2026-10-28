@@ -1151,7 +1151,6 @@ h4 {
   color: var(--color-text-light);
 }
 
-.principle-scripture-section,
 .principle-audio-section,
 .principle-practice-section,
 .principle-prayer-section,
@@ -1163,21 +1162,30 @@ h4 {
   border-top: 1px solid var(--color-border);
 }
 
-.principle-scripture-reference {
+.principle-scripture {
+  width: 100%;
+  margin: 0 0 2.25rem;
+  padding: 0.1rem 0 0.1rem 1.1rem;
+  border-left: 2px solid var(--color-border);
+}
+
+.principle-scripture-text {
   margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.5;
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  line-height: 1.7;
   color: var(--color-text);
   overflow-wrap: break-word;
   word-break: break-word;
 }
 
-.principle-scripture-text {
-  margin: 1rem 0 0;
-  font-family: var(--font-serif);
-  font-size: 1.1rem;
-  line-height: 1.7;
+.principle-scripture-reference {
+  display: block;
+  margin: 0.6rem 0 0;
+  font-size: 0.9rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.5;
   color: var(--color-text-light);
   overflow-wrap: break-word;
   word-break: break-word;

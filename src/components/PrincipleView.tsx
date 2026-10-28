@@ -247,7 +247,7 @@ export function PrincipleView({
 
         {/* ======================================================
             INTRODUCTION
-            Categoria → Título → Princípio → Reflexão
+            Categoria → Título → Princípio → Citação → Reflexão
             ====================================================== */}
 
         <section className="principle-introduction">
@@ -272,6 +272,22 @@ export function PrincipleView({
             <p className="principle-statement">
               {devotional.principle_statement}
             </p>
+          )}
+
+          {/* Citação bíblica: entre a frase de destaque e a reflexão. */}
+          {(devotional.scripture_reference || devotional.scripture_text) && (
+            <blockquote className="principle-scripture">
+              {devotional.scripture_text && (
+                <p className="principle-scripture-text">
+                  &ldquo;{devotional.scripture_text}&rdquo;
+                </p>
+              )}
+              {devotional.scripture_reference && (
+                <cite className="principle-scripture-reference">
+                  {devotional.scripture_reference}
+                </cite>
+              )}
+            </blockquote>
           )}
 
           <div className="principle-reflection-wrapper">
@@ -302,41 +318,6 @@ export function PrincipleView({
           </div>
 
         </section>
-
-        {/* ======================================================
-            SCRIPTURE
-            IMEDIATAMENTE APÓS A REFLEXÃO
-            ====================================================== */}
-
-        {(devotional.scripture_reference ||
-          devotional.scripture_text) && (
-            <section className="principle-scripture-section">
-
-              {devotional.scripture_reference && (
-                <>
-                  <span className="principle-section-label">
-                    {t(
-                      'home.scriptureReference',
-                      'Referência bíblica'
-                    )}
-                  </span>
-
-                  <p className="principle-scripture-reference">
-                    {devotional.scripture_reference}
-                  </p>
-                </>
-              )}
-
-              {devotional.scripture_text && (
-                <p className="principle-scripture-text">
-                  &ldquo;
-                  {devotional.scripture_text}
-                  &rdquo;
-                </p>
-              )}
-
-            </section>
-          )}
 
         {/* ======================================================
             AUDIO
