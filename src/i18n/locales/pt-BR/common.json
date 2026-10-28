@@ -60,6 +60,8 @@
     "noneRelated": "Não está relacionada a uma devocional específica",
     "textareaPlaceholder": "Escreva aqui...",
     "minCharsAlert": "Por favor, escreva um pouco mais (mínimo de 20 caracteres).",
+    "minCharsHint": "Escreva pelo menos 20 caracteres para enviar. Faltam {{count}}.",
+    "minCharsReached": "Mínimo de 20 caracteres atingido.",
     "privateNoticeTitle": "Seu relato é privado.",
     "privateNoticeBody": "Ele não será exibido para outros usuários.",
     "submitBtn": "Compartilhar minha história",

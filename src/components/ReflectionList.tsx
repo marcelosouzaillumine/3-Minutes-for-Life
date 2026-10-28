@@ -3,6 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { ReflectionService } from '../services/ReflectionService';
 import type { PersonalReflectionWithDevotional } from '../services/ReflectionService';
 
+// Título no idioma do usuário (ex.: 'en-US' -> 'en'); cai no título base do devocional.
+function titleFor(r: PersonalReflectionWithDevotional, language: string): string | undefined {
+  const titles = r.devotionals?.titles;
+  const lang = language || 'pt-BR';
+  return titles?.[lang] ?? titles?.[lang.split('-')[0]] ?? r.devotionals?.title;
+}
+
 export function ReflectionList() {
   const { t, i18n } = useTranslation(['profile', 'common']);
   const [reflections, setReflections] = useState<PersonalReflectionWithDevotional[]>([]);
@@ -69,7 +76,7 @@ export function ReflectionList() {
                 fontWeight: 600,
                 color: 'var(--color-text)'
               }}>
-                {r.devotionals?.title || t('common:categories.Devocional', 'Devocional')}
+                {titleFor(r, i18n.language) || t('common:categories.Devocional', 'Devocional')}
               </div>
               <div style={{ fontSize: '0.8rem', color: 'var(--color-text-light)' }}>
                 {new Date(r.created_at).toLocaleDateString(i18n.language || 'pt-BR')}

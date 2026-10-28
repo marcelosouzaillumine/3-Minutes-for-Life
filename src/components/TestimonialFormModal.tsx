@@ -13,6 +13,8 @@ interface TestimonialFormModalProps {
   onSuccess?: () => void;
 }
 
+const MIN_TESTIMONIAL_CHARS = 20;
+
 export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess }: TestimonialFormModalProps) {
   const { t } = useTranslation(['common']);
   const { user } = useAuth();
@@ -43,7 +45,7 @@ export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (content.length < 20) {
+    if (content.length < MIN_TESTIMONIAL_CHARS) {
       alert(t('testimonials.minCharsAlert', 'Por favor, escreva um pouco mais (mínimo de 20 caracteres).'));
       return;
     }
@@ -197,8 +199,13 @@ export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess 
                   }}
                   required
                 />
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--color-text-light)' }}>
-                  {content.length}/3000
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--color-text-light)' }}>
+                  <span role="status" aria-live="polite">
+                    {content.length < MIN_TESTIMONIAL_CHARS
+                      ? t('testimonials.minCharsHint', { count: MIN_TESTIMONIAL_CHARS - content.length, defaultValue: 'Escreva pelo menos 20 caracteres para enviar. Faltam {{count}}.' })
+                      : t('testimonials.minCharsReached', 'Mínimo de 20 caracteres atingido.')}
+                  </span>
+                  <span>{content.length}/3000</span>
                 </div>
               </div>
 
@@ -219,7 +226,7 @@ export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess 
               <button 
                 type="submit" 
                 className="btn-primary" 
-                disabled={isSubmitting || content.length < 20}
+                disabled={isSubmitting || content.length < MIN_TESTIMONIAL_CHARS}
               >
                 {isSubmitting 
                   ? t('testimonials.submittingBtn', 'Enviando...') 

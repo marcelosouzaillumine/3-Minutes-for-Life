@@ -60,6 +60,8 @@
     "noneRelated": "Not related to a specific devotional",
     "textareaPlaceholder": "Write here...",
     "minCharsAlert": "Please write a little more (minimum 20 characters).",
+    "minCharsHint": "Write at least 20 characters to submit. {{count}} to go.",
+    "minCharsReached": "Minimum of 20 characters reached.",
     "privateNoticeTitle": "Your story is private.",
     "privateNoticeBody": "It will not be displayed to other users.",
     "submitBtn": "Share my story",

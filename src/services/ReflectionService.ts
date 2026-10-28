@@ -10,7 +10,7 @@ export interface PersonalReflection {
 }
 
 export interface PersonalReflectionWithDevotional extends PersonalReflection {
-  devotionals?: { title: string };
+  devotionals?: { title: string; titles?: Record<string, string> };
 }
 
 function normalizeReflection(r: any): PersonalReflection {
@@ -36,7 +36,11 @@ export const ReflectionService = {
     const res = await illumineFetch('/users/me/reflections');
     if (!res.ok) return [];
     const rows: any[] = await res.json();
-    return rows.map(normalizeReflection);
+    return rows.map((r) => ({
+      ...normalizeReflection(r),
+      // O servidor devolve o devocional da anotação (título base e títulos por idioma).
+      devotionals: r.devotional ? { title: r.devotional.title, titles: r.devotional.titles } : undefined,
+    }));
   },
 
   async saveReflection(devotionalId: string, content: string): Promise<void> {
