@@ -495,6 +495,16 @@ h4 {
   stroke: var(--color-accent);
 }
 
+.action-btn.action-complete.active svg {
+  fill: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  stroke: var(--color-accent);
+}
+
+.action-btn.action-complete.active svg polyline {
+  fill: none;
+  stroke-width: 2px;
+}
+
 .action-btn svg {
   width: 28px;
   height: 28px;

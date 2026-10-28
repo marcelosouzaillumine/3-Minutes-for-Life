@@ -722,7 +722,7 @@ export function PrincipleView({
               {user && (
                 <button
                   type="button"
-                  className={`action-btn ${completed ? 'active' : ''}`}
+                  className={`action-btn action-complete ${completed ? 'active' : ''}`}
                   onClick={markComplete}
                   aria-pressed={completed}
                 >
@@ -732,9 +732,17 @@ export function PrincipleView({
                     stroke="currentColor"
                     aria-hidden="true"
                   >
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-
-                    <polyline points="22 4 12 14.01 9 11.01" />
+                    {completed ? (
+                      <>
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="7.5 12.5 10.5 15.5 16.5 9" />
+                      </>
+                    ) : (
+                      <>
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                      </>
+                    )}
                   </svg>
 
                   <span className="action-label">
