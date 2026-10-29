@@ -25,6 +25,17 @@ export interface KidsVersion {
   status: 'draft' | 'published';
 }
 
+export interface FamilyPrayer {
+  id: string;
+  authorName: string | null;
+  text: string;
+  createdAt: string;
+  mine: boolean;
+  canDelete: boolean;
+  prayedCount: number;
+  prayedByMe: boolean;
+}
+
 export class FamilyError extends Error {
   code: string;
   constructor(code: string) { super(code); this.code = code; }
@@ -63,6 +74,18 @@ export const FamilyService = {
   },
   async removeChild(id: string): Promise<Family> {
     return (await call(`/families/me/children/${encodeURIComponent(id)}`, json('DELETE'))).family;
+  },
+  async prayers(): Promise<FamilyPrayer[]> {
+    return (await call('/families/me/prayers')).prayers ?? [];
+  },
+  async addPrayer(text: string): Promise<FamilyPrayer[]> {
+    return (await call('/families/me/prayers', json('POST', { text }))).prayers ?? [];
+  },
+  async removePrayer(id: string): Promise<FamilyPrayer[]> {
+    return (await call(`/families/me/prayers/${encodeURIComponent(id)}`, json('DELETE'))).prayers ?? [];
+  },
+  async togglePrayed(id: string): Promise<FamilyPrayer[]> {
+    return (await call(`/families/me/prayers/${encodeURIComponent(id)}/pray`, json('POST'))).prayers ?? [];
   },
   /** Versões infantis aprovadas do devocional (vazio quando ainda não existem). */
   async getKids(devotionalId: string, language: string): Promise<KidsVersion[]> {

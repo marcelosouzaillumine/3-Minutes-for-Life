@@ -270,6 +270,15 @@
       "full": "Esa familia ya está completa.",
       "already": "Ya estás en una familia.",
       "generic": "No se pudo completar. Inténtalo de nuevo."
+    },
+    "prayers": {
+      "title": "Muro de oración",
+      "placeholder": "Una petición para que la familia ore",
+      "add": "Publicar",
+      "empty": "Aún no hay peticiones.",
+      "iPrayed": "Oré",
+      "pray": "Orar",
+      "privacy": "Solo la familia lo ve. Quien creó la familia modera y puede quitar cualquier petición."
     }
   }
 }

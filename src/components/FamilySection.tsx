@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BANDS, FamilyError, FamilyService, inviteLink, pendingFamilyCode, type Band, type Family } from '../services/FamilyService';
+import { BANDS, FamilyError, FamilyService, inviteLink, pendingFamilyCode, type Band, type Family, type FamilyPrayer } from '../services/FamilyService';
 
 const bandLabel = (b: Band) => b.replace('-', ' a ');
 
@@ -17,6 +17,8 @@ export function FamilySection() {
   const [nick, setNick] = useState('');
   const [band, setBand] = useState<Band>('7-10');
   const [copied, setCopied] = useState(false);
+  const [prayers, setPrayers] = useState<FamilyPrayer[]>([]);
+  const [prayerText, setPrayerText] = useState('');
 
   const fail = (e: unknown) => {
     const c = e instanceof FamilyError ? e.code : '';
@@ -41,6 +43,18 @@ export function FamilySection() {
   useEffect(() => {
     FamilyService.get().then(setFamily).catch(() => {}).finally(() => setLoading(false));
   }, []);
+
+  const hasFamily = !!family;
+  useEffect(() => {
+    if (hasFamily) FamilyService.prayers().then(setPrayers).catch(() => {});
+  }, [hasFamily]);
+
+  const runPrayers = async (fn: () => Promise<FamilyPrayer[]>) => {
+    setBusy(true);
+    setError('');
+    try { setPrayers(await fn()); } catch (e) { fail(e); }
+    setBusy(false);
+  };
 
   if (loading) return null;
   const isOwner = family?.role === 'owner';
@@ -111,6 +125,31 @@ export function FamilySection() {
         </form>
       ) : null}
       <p className="family__hint">{t('family.childPrivacy', 'Crianças não têm conta: guardamos só o apelido e a faixa de idade, nunca sobrenome, foto ou e-mail.')}</p>
+
+      <p className="family__label">{t('family.prayers.title', 'Mural de oração')}</p>
+      <form className="family__row" onSubmit={(e) => { e.preventDefault(); const text = prayerText.trim(); if (text) runPrayers(async () => { const r = await FamilyService.addPrayer(text); setPrayerText(''); return r; }); }}>
+        <input value={prayerText} onChange={(e) => setPrayerText(e.target.value)} maxLength={280} placeholder={t('family.prayers.placeholder', 'Um pedido para a família orar')} aria-label={t('family.prayers.placeholder', 'Um pedido para a família orar')} />
+        <button type="submit" className="btn-secondary" disabled={busy || !prayerText.trim()}>{t('family.prayers.add', 'Publicar')}</button>
+      </form>
+      {prayers.length === 0 ? (
+        <p className="family__hint">{t('family.prayers.empty', 'Nenhum pedido ainda.')}</p>
+      ) : (
+        <ul className="family__prayers">
+          {prayers.map((p) => (
+            <li key={p.id}>
+              <span className="family__prayer-author">{p.authorName ?? t('family.someone', 'Alguém')}</span>
+              <p>{p.text}</p>
+              <div className="family__row">
+                <button type="button" className={`family__amen${p.prayedByMe ? ' is-on' : ''}`} disabled={busy} aria-pressed={p.prayedByMe} onClick={() => runPrayers(() => FamilyService.togglePrayed(p.id))}>
+                  {p.prayedByMe ? t('family.prayers.iPrayed', 'Eu orei') : t('family.prayers.pray', 'Orar')}{p.prayedCount > 0 ? ` · ${p.prayedCount}` : ''}
+                </button>
+                {p.canDelete && <button type="button" className="family__link" disabled={busy} onClick={() => runPrayers(() => FamilyService.removePrayer(p.id))}>{t('family.remove', 'Remover')}</button>}
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="family__hint">{t('family.prayers.privacy', 'Só a família vê. Quem criou a família modera e pode remover qualquer pedido.')}</p>
 
       <p className="family__label">{t('family.invite', 'Convidar um adulto')}</p>
       <div className="family__row">

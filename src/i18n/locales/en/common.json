@@ -270,6 +270,15 @@
       "full": "That family is already full.",
       "already": "You are already in a family.",
       "generic": "Could not finish. Please try again."
+    },
+    "prayers": {
+      "title": "Prayer wall",
+      "placeholder": "A request for the family to pray for",
+      "add": "Post",
+      "empty": "No requests yet.",
+      "iPrayed": "I prayed",
+      "pray": "Pray",
+      "privacy": "Only the family sees it. Whoever created the family moderates and can remove any request."
     }
   }
 }
