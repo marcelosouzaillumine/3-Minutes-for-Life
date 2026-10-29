@@ -84,6 +84,12 @@ const GROUPS: string[] = [
   `fracasso falha falhei errei erro vergonha fracassado fail failure mistake shame fracaso vergüenza`,
 ];
 
+// Nome estável de cada grupo, na mesma ordem de GROUPS (aparece no ranking do painel).
+const TOPIC_KEYS = [
+  'cansaco', 'ansiedade', 'tristeza', 'gratidao', 'decisao', 'perdao', 'esperanca', 'recomeco',
+  'solidao', 'familia', 'trabalho', 'paciencia', 'oracao', 'saude', 'fracasso',
+] as const;
+
 // radical → grupos a que pertence
 const GROUP_OF = new Map<string, number[]>();
 const GROUP_STEMS: Set<string>[] = GROUPS.map((g, i) => {
@@ -158,4 +164,28 @@ export function searchMoments<T extends SearchableDevotional>(
     if (score > 0) out.push({ devotional: d, score });
   }
   return out.sort((a, b) => b.score - a.score).slice(0, limit);
+}
+
+const directStems = (query: string) =>
+  new Set(tokens(query).filter((w) => !STOPWORDS.has(w) && w.length > 1).map(stem));
+
+/** Temas (cansaço, ansiedade…) que a frase toca. Serve ao painel, nunca à pessoa. */
+export function topicsOf(query: string): string[] {
+  const out = new Set<string>();
+  for (const s of directStems(query)) for (const g of GROUP_OF.get(s) ?? []) out.add(TOPIC_KEYS[g]);
+  return [...out];
+}
+
+/**
+ * Palavras úteis da frase para estatística: sem palavras vazias, só letras, até 24 caracteres, no
+ * máximo 5. A frase inteira nunca é guardada, porque quem escreve conta coisas pessoais.
+ */
+export function significantWords(query: string): string[] {
+  const seen = new Set<string>();
+  for (const w of query.toLowerCase().match(/\p{L}+/gu) ?? []) {
+    if (w.length < 3 || w.length > 24 || STOPWORDS.has(strip(w))) continue;
+    seen.add(w);
+    if (seen.size === 5) break;
+  }
+  return [...seen];
 }

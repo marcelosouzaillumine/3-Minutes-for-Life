@@ -11,13 +11,21 @@ import {
   Tooltip,
   Cell,
 } from 'recharts';
-import { AdminService, type DashboardMetrics, type DailySeriesPoint, type ReadingTrends } from '../../services/AdminService';
+import { AdminService, type DashboardMetrics, type DailySeriesPoint, type ReadingTrends, type SearchTerms } from '../../services/AdminService';
 
 const ACCENT = 'var(--color-accent, #c46d53)';
 const ACCENT_SOFT = '#e8c3b6';
 const GOOD = '#059669';
 const BAD = '#dc2626';
 const MUTED = '#9ca3af';
+
+const TOPIC_LABELS: Record<string, string> = {
+  cansaco: 'Cansaço e falta de forças', ansiedade: 'Ansiedade e medo', tristeza: 'Tristeza e luto',
+  gratidao: 'Gratidão e alegria', decisao: 'Decisão e direção', perdao: 'Perdão e culpa',
+  esperanca: 'Esperança e fé', recomeco: 'Recomeço e mudança', solidao: 'Solidão e rejeição',
+  familia: 'Família e relacionamentos', trabalho: 'Trabalho e propósito', paciencia: 'Paciência e espera',
+  oracao: 'Oração', saude: 'Saúde e doença', fracasso: 'Fracasso e vergonha',
+};
 
 const funnelChartData = (metrics: DashboardMetrics) => [
   { label: 'Acessou', value: metrics.funnel.accessed },
@@ -31,6 +39,7 @@ export function AdminDashboard() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [dailySeries, setDailySeries] = useState<DailySeriesPoint[]>([]);
   const [readingTrends, setReadingTrends] = useState<ReadingTrends | null>(null);
+  const [searchTerms, setSearchTerms] = useState<SearchTerms | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [period, setPeriod] = useState('7d'); // 'today', '7d', '30d'
@@ -82,6 +91,11 @@ export function AdminDashboard() {
   useEffect(() => {
     fetchMetrics();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period]);
+
+  // O que as pessoas procuram: acompanha o seletor de período.
+  useEffect(() => {
+    AdminService.getSearchTerms(period === 'today' ? 1 : period === '30d' ? 30 : 7).then(setSearchTerms);
   }, [period]);
 
   // Histórico global de leituras — dado vitalício, não muda com o seletor de período.
@@ -511,6 +525,54 @@ export function AdminDashboard() {
           )}
         </div>
       )}
+
+      <div className="admin-section">
+        <h3>O que as pessoas procuram</h3>
+        {searchTerms && searchTerms.total > 0 ? (
+          <>
+            <p style={{ color: 'var(--color-text-light)', fontSize: '0.9rem', margin: '0 0 12px' }}>
+              {searchTerms.total} {searchTerms.total === 1 ? 'busca' : 'buscas'} no período
+              {searchTerms.without_results > 0 && <> · {searchTerms.without_results} sem nenhum resultado</>}.
+              Só as palavras são guardadas, nunca a frase inteira.
+            </p>
+            <div className="admin-table-container admin-table-responsive">
+              <table className="admin-table">
+                <thead>
+                  <tr><th>Palavra</th><th>Buscas</th><th>Sem resultado</th></tr>
+                </thead>
+                <tbody>
+                  {searchTerms.terms.map(t => (
+                    <tr key={t.term}>
+                      <td data-label="Palavra">{t.term}</td>
+                      <td data-label="Buscas">{t.count}</td>
+                      <td data-label="Sem resultado">{t.without_results > 0 ? t.without_results : '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {searchTerms.topics.length > 0 && (
+              <div className="admin-table-container admin-table-responsive" style={{ marginTop: '16px' }}>
+                <table className="admin-table">
+                  <thead><tr><th>Tema</th><th>Buscas</th></tr></thead>
+                  <tbody>
+                    {searchTerms.topics.map(t => (
+                      <tr key={t.topic}>
+                        <td data-label="Tema">{TOPIC_LABELS[t.topic] ?? t.topic}</td>
+                        <td data-label="Buscas">{t.count}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        ) : (
+          <div style={{ textAlign: 'center', padding: '20px', color: 'var(--color-text-light)' }}>
+            Ainda não houve buscas neste período.
+          </div>
+        )}
+      </div>
 
       <div className="admin-section">
         <h3>Top Conteúdos (Engajamento)</h3>

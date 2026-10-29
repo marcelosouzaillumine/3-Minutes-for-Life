@@ -2509,3 +2509,16 @@ a:focus-visible {
 }
 .principle-practiced input { width: 1.15rem; height: 1.15rem; }
 
+
+.home-explore__moment {
+  display: block;
+  margin: 0.9rem auto 0;
+  background: none;
+  border: 0;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-text-light, #6b7280);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}

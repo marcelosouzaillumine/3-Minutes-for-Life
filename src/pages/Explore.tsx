@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { DevotionalService } from '../services/DevotionalService';
 import type { Devotional } from '../types/Devotional';
 import { PrincipleView } from '../components/PrincipleView';
 import { JourneyService } from '../services/JourneyService';
-import { searchMoments } from '../utils/momentSearch';
+import { searchMoments, significantWords, topicsOf } from '../utils/momentSearch';
+import { AnalyticsService } from '../services/AnalyticsService';
 import { useTranslation } from 'react-i18next';
 
 export function Explore() {
@@ -18,6 +19,8 @@ export function Explore() {
   const [searchQuery, setSearchQuery] = useState('');
   // Biblioteca completa (com o texto), carregada só quando a pessoa começa a escrever.
   const [library, setLibrary] = useState<Devotional[] | null>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
+  const lastTracked = useRef('');
 
   useEffect(() => {
     DevotionalService.getDevotionalsForBrowse(i18n.language)
@@ -43,6 +46,37 @@ export function Explore() {
       .catch(() => {});
     return () => { alive = false; };
   }, [hasQuery, library, i18n.language]);
+
+  // Vindo do link no fim do devocional: abre já com o cursor na busca.
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem('explore:focus') === '1') {
+        sessionStorage.removeItem('explore:focus');
+        setTimeout(() => searchInput.current?.focus(), 150);
+      }
+    } catch { /* sem sessionStorage, só não foca */ }
+  }, [loading]);
+
+  // Estatística da busca: depois que a pessoa para de digitar, uma vez por frase. Vão só as palavras
+  // úteis, os temas e quantos devocionais voltaram, nunca a frase inteira.
+  const trimmed = searchQuery.trim();
+  useEffect(() => {
+    if (trimmed.length < 3 || !library) return;
+    const handle = setTimeout(() => {
+      if (lastTracked.current === trimmed.toLowerCase()) return;
+      lastTracked.current = trimmed.toLowerCase();
+      const terms = significantWords(trimmed);
+      const topics = topicsOf(trimmed);
+      if (!terms.length && !topics.length) return;
+      AnalyticsService.trackEvent('library_search', {
+        terms,
+        topics,
+        results: searchMoments(trimmed, library).length,
+        language: i18n.language,
+      });
+    }, 1500);
+    return () => clearTimeout(handle);
+  }, [trimmed, library, i18n.language]);
 
   if (loading) {
     return (
@@ -135,6 +169,7 @@ export function Explore() {
       <h2 style={{ marginBottom: '1.5rem', fontWeight: 500 }}>{t('title')}</h2>
 
       <input
+        ref={searchInput}
         type="search"
         value={searchQuery}
         onChange={e => setSearchQuery(e.target.value)}

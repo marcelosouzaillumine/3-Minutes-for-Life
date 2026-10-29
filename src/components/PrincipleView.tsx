@@ -828,6 +828,16 @@ export function PrincipleView({
             >
               {t('home.exploreMore', 'Explorar mais')}
             </button>
+            <button
+              type="button"
+              className="home-explore__moment"
+              onClick={() => {
+                try { sessionStorage.setItem('explore:focus', '1'); } catch { /* segue sem o foco */ }
+                onExplore();
+              }}
+            >
+              {t('home.findMoment', 'Procurar um devocional para o seu momento')}
+            </button>
           </div>
         )}
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { searchMoments, type SearchableDevotional } from './momentSearch';
+import { searchMoments, significantWords, topicsOf, type SearchableDevotional } from './momentSearch';
 
 const lib: SearchableDevotional[] = [
   { id: 'a', title: 'Deus também encontra os cansados', principle_statement: 'O descanso é um presente.', reflection: 'Quando as forças acabam, ele sustenta.' },
@@ -37,5 +37,23 @@ describe('searchMoments', () => {
     const r = searchMoments('perdoar mágoa gratidão', lib, 2);
     expect(r).toHaveLength(2);
     expect(r[0].score).toBeGreaterThanOrEqual(r[1].score);
+  });
+});
+
+describe('estatística da busca', () => {
+  it('guarda só palavras úteis, sem a frase inteira', () => {
+    expect(significantWords('Estou muito cansada do trabalho')).toEqual(['cansada', 'trabalho']);
+    expect(significantWords('a de o')).toEqual([]);
+  });
+
+  it('descarta palavras longas demais e limita a 5', () => {
+    expect(significantWords('x'.repeat(30))).toEqual([]);
+    expect(significantWords('paz amor fé luz vida força ajuda')).toHaveLength(5);
+  });
+
+  it('traduz a frase em temas, em qualquer idioma', () => {
+    expect(topicsOf('estou sem forças')).toContain('cansaco');
+    expect(topicsOf('tengo miedo del futuro')).toContain('ansiedade');
+    expect(topicsOf('xyzabc')).toEqual([]);
   });
 });

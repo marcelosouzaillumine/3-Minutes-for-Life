@@ -39,6 +39,13 @@ export type DailySeriesPoint = {
   reads: number;
 };
 
+export type SearchTerms = {
+  total: number;
+  without_results: number;
+  terms: { term: string; count: number; without_results: number }[];
+  topics: { topic: string; count: number }[];
+};
+
 export type ReadingTrends = {
   global_total_reads: number;
   global_total_opens: number;
@@ -226,6 +233,21 @@ export class AdminService {
       yearly: (body.yearly ?? []).map((y: any) => ({ year: y.year, reads: y.reads ?? 0, growth_rate: y.growthRate ?? null })),
       monthly_opens: (body.monthlyOpens ?? []).map((m: any) => ({ month: m.month, opens: m.opens ?? 0 })),
       yearly_opens: (body.yearlyOpens ?? []).map((y: any) => ({ year: y.year, opens: y.opens ?? 0, growth_rate: y.growthRate ?? null })),
+    };
+  }
+
+  static async getSearchTerms(days: number): Promise<SearchTerms | null> {
+    const res = await illumineFetch(`/analytics/search/terms?days=${days}`);
+    if (!res.ok) {
+      console.error('[Dashboard] L1 endpoint /analytics/search/terms com falha:', res.status);
+      return null;
+    }
+    const body = await res.json();
+    return {
+      total: body.total ?? 0,
+      without_results: body.withoutResults ?? 0,
+      terms: (body.terms ?? []).map((t: any) => ({ term: t.term, count: t.count ?? 0, without_results: t.withoutResults ?? 0 })),
+      topics: (body.topics ?? []).map((t: any) => ({ topic: t.topic, count: t.count ?? 0 })),
     };
   }
 }
