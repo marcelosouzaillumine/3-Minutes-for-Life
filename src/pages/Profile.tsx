@@ -12,6 +12,7 @@ import { MySubscriptions } from '../components/MySubscriptions';
 import { useTranslation } from 'react-i18next';
 import './Profile.css';
 import { CommunicationPreferences } from '../components/CommunicationPreferences';
+import { FamilySection } from '../components/FamilySection';
 import { Conversations } from '../components/Conversations';
 import { CommunicationInbox } from '../components/CommunicationInbox';
 import { ConversationService } from '../services/ConversationService';
@@ -320,6 +321,10 @@ export function Profile() {
             </svg>
           </div>
         </div>
+      </div>
+
+      <div className="profile-section">
+        <FamilySection />
       </div>
 
       <div className="profile-section">

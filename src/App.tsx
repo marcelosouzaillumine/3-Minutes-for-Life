@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Explore } from './pages/Explore';
 import { Favorites } from './pages/Favorites';
@@ -15,6 +15,7 @@ import { Terms } from './pages/Terms';
 import { ResetPassword } from './pages/ResetPassword';
 import { useAuth } from './context/AuthContext';
 import { useState, useEffect } from 'react';
+import { pendingFamilyCode } from './services/FamilyService';
 import { AnalyticsService } from './services/AnalyticsService';
 
 const AdminLayout = lazy(() => import('./layouts/AdminLayout').then(m => ({ default: m.AdminLayout })));
@@ -46,9 +47,17 @@ function RequireGuest({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Convite de família (/f/CODIGO): guarda o código e segue para o app; quem ainda não entrou passa pelo login.
+function FamilyInviteLanding() {
+  const { code } = useParams<{ code: string }>();
+  useEffect(() => { if (code) pendingFamilyCode.set(code); }, [code]);
+  return <Navigate to="/app" replace />;
+}
+
 // The /app shell with bottom navigation and tab routing
 function AppShell() {
-  const [currentTab, setCurrentTab] = useState<Tab>('home');
+  // Com um convite de família pendente, abre direto no Perfil, onde fica a entrada na família.
+  const [currentTab, setCurrentTab] = useState<Tab>(() => (pendingFamilyCode.get() ? 'profile' : 'home'));
   // Tocar na aba já ativa remonta a tela dela (volta ao início, ex.: sai do devocional aberto na Biblioteca)
   const [tabResetKey, setTabResetKey] = useState(0);
   const handleTabChange = (tab: Tab) => {
@@ -105,6 +114,7 @@ function AppRoutes() {
         <Route path="/termos" element={<Terms />} />
         <Route path="/r/:code" element={<SharedDevotional />} />
         <Route path="/hoje" element={<SharedDevotional />} />
+        <Route path="/f/:code" element={<FamilyInviteLanding />} />
 
         <Route path="/login" element={<RequireGuest><Auth /></RequireGuest>} />
         <Route path="/signup" element={<Navigate to="/login" replace />} />

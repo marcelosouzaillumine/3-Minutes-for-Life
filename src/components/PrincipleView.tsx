@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ReminderInvite } from './ReminderInvite';
+import { KidsReading } from './KidsReading';
 import { useNavigate } from 'react-router-dom';
 import type { Devotional } from '../types/Devotional';
 import { JourneyService } from '../services/JourneyService';
@@ -819,6 +820,8 @@ export function PrincipleView({
         {/* ======================================================
             EXPLORE MORE
             ====================================================== */}
+
+        <KidsReading devotionalId={devotional.id} scriptureReference={devotional.scripture_reference} />
 
         <ReminderInvite />
 
