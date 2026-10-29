@@ -199,14 +199,23 @@ function PlansStudio({ rows }: { rows: Row[] }) {
 
   const save = async (status: 'draft' | 'published') => {
     if (!editing) return;
-    if (!editing.title.trim() || !editing.themeWord.trim() || editing.items.length === 0) {
-      setMsg('Preencha título, palavra do plano e escolha ao menos um devocional.');
+    if (!editing.title.trim() || !editing.description.trim() || !editing.themeWord.trim()) {
+      setMsg('Preencha título, descrição e palavra do plano.');
+      return;
+    }
+    if (status === 'published' && editing.items.length < 3) {
+      setMsg('Para publicar, o plano precisa de ao menos 3 devocionais. Como rascunho pode ter menos.');
       return;
     }
     setSaving(true);
     const r = await FamilyAdmin.saveTemplate(editing.id, { title: editing.title.trim(), description: editing.description.trim(), themeWord: editing.themeWord.trim(), items: editing.items, status });
     if (r.ok) { setEditing({ ...editing, id: r.template.id, status }); refresh(); setMsg(status === 'published' ? 'Plano publicado: as famílias já podem escolher.' : 'Plano salvo como rascunho.'); }
-    else setMsg(r.error === 'ITEMS_NOT_PUBLISHED' ? 'Há devocional que não está publicado.' : 'Não foi possível salvar.');
+    else setMsg(
+      r.error === 'INVALID_ITEMS' ? 'Algum devocional do plano não está publicado, ou foi repetido.'
+      : r.error === 'PLAN_TOO_SHORT' ? 'Para publicar, o plano precisa de ao menos 3 devocionais.'
+      : r.error === 'VALIDATION_ERROR' ? 'Confira os campos: título até 80, descrição até 400 e palavra até 30 caracteres.'
+      : `Não foi possível salvar (${r.error}).`,
+    );
     setSaving(false);
   };
 
