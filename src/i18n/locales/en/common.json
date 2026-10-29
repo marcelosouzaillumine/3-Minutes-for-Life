@@ -49,9 +49,7 @@
     "loginToSave": "Sign in to save your reflection",
     "writtenBy": "written by",
     "authorRole": "Pastor at Igreja Missão Mobilização",
-    "practiced": "I practiced today",
-    "lastNoteTitle": "Last time, you wrote",
-    "lastNoteFrom": "on “{{title}}”"
+    "practiced": "I practiced today"
   },
   "testimonials": {
     "title": "How did this reflection touch you?",

@@ -49,9 +49,7 @@
     "loginToSave": "Inicia sesión para guardar tu reflexión",
     "writtenBy": "escrito por",
     "authorRole": "Pastor en la Iglesia Missão Mobilização",
-    "practiced": "Lo practiqué hoy",
-    "lastNoteTitle": "La última vez, escribiste",
-    "lastNoteFrom": "en “{{title}}”"
+    "practiced": "Lo practiqué hoy"
   },
   "testimonials": {
     "title": "¿Cómo te tocó esta reflexión?",

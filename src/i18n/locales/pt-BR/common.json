@@ -49,9 +49,7 @@
     "loginToSave": "Entre para guardar sua reflexão",
     "writtenBy": "escrito por",
     "authorRole": "Pastor na Igreja Missão Mobilização",
-    "practiced": "Pratiquei hoje",
-    "lastNoteTitle": "Na última vez, você anotou",
-    "lastNoteFrom": "em “{{title}}”"
+    "practiced": "Pratiquei hoje"
   },
   "testimonials": {
     "title": "O que Deus falou ao seu coração por meio desta reflexão?",

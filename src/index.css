@@ -2509,12 +2509,3 @@ a:focus-visible {
 }
 .principle-practiced input { width: 1.15rem; height: 1.15rem; }
 
-.my-reflection-last {
-  margin: 0 0 1rem;
-  padding: 0.75rem 1rem;
-  border-left: 2px solid var(--color-border, rgba(0, 0, 0, 0.15));
-  font-size: 0.9rem;
-  color: var(--color-text-light, #6b7280);
-}
-.my-reflection-last p { margin: 0.35rem 0 0; font-style: italic; }
-.my-reflection-last-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }

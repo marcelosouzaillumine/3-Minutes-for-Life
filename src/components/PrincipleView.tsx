@@ -53,7 +53,6 @@ export function PrincipleView({
   const [savedReflectionSuccess, setSavedReflectionSuccess] =
     useState(false);
   const [practiced, setPracticed] = useState(false);
-  const [lastNote, setLastNote] = useState<{ title: string; content: string } | null>(null);
   const journey = useJourney(isDaily && !!user);
 
   /*
@@ -114,34 +113,6 @@ export function PrincipleView({
       /* sem armazenamento: vale só nesta sessão */
     }
   };
-
-  /*
-   * Continuidade: no devocional do dia, lembra o que a pessoa anotou
-   * na última reflexão de outro devocional.
-   */
-  useEffect(() => {
-    if (!isDaily || !user) {
-      setLastNote(null);
-      return;
-    }
-    let mounted = true;
-    ReflectionService.getUserReflections()
-      .then((rows) => {
-        if (!mounted) return;
-        const prev = rows
-          .filter((r) => r.devotional_id !== devotional.id && r.content?.trim())
-          .sort((a, b) => b.updated_at.localeCompare(a.updated_at))[0];
-        setLastNote(
-          prev
-            ? { title: prev.devotionals?.titles?.[i18n.language] ?? prev.devotionals?.title ?? '', content: prev.content.trim() }
-            : null
-        );
-      })
-      .catch(() => {});
-    return () => {
-      mounted = false;
-    };
-  }, [isDaily, user, devotional.id, i18n.language]);
 
   /*
    * ============================================================
@@ -482,16 +453,6 @@ export function PrincipleView({
               'home.myReflectionPrompt'
             )}
           </p>
-
-          {user && lastNote && !reflectionContent && (
-            <blockquote className="my-reflection-last">
-              <span className="my-reflection-last-title">
-                {t('home.lastNoteTitle', 'Na última vez, você anotou')}
-                {lastNote.title ? ` ${t('home.lastNoteFrom', { title: lastNote.title })}` : ''}
-              </span>
-              <p>{lastNote.content.length > 220 ? `${lastNote.content.slice(0, 220)}…` : lastNote.content}</p>
-            </blockquote>
-          )}
 
           {user ? (
             <div className="my-reflection-authenticated">
