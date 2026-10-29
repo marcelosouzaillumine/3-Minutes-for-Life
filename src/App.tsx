@@ -104,6 +104,7 @@ function AppRoutes() {
         <Route path="/privacidade" element={<Privacy />} />
         <Route path="/termos" element={<Terms />} />
         <Route path="/r/:code" element={<SharedDevotional />} />
+        <Route path="/hoje" element={<SharedDevotional />} />
 
         <Route path="/login" element={<RequireGuest><Auth /></RequireGuest>} />
         <Route path="/signup" element={<Navigate to="/login" replace />} />

@@ -8,6 +8,7 @@ import { illumineFetch } from '../lib/illumine';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { DevotionalHeader } from '../components/DevotionalHeader';
+import { getTodayInSaoPaulo } from '../utils/date';
 
 export function SharedDevotional() {
   const { t, i18n } = useTranslation(['common']);
@@ -15,6 +16,8 @@ export function SharedDevotional() {
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams<{ code: string }>();
+  // /hoje: o devocional do dia aberto a quem ainda não entrou (sem "alguém compartilhou").
+  const isToday = location.pathname === '/hoje';
 
   const [devotional, setDevotional] =
     useState<Devotional | null>(null);
@@ -59,7 +62,7 @@ export function SharedDevotional() {
            * ------------------------------------------------------
            */
 
-          if (!devotionalId) {
+          if (!devotionalId && !isToday) {
             throw new Error(
               'No devotional ID found'
             );
@@ -89,11 +92,9 @@ export function SharedDevotional() {
            * ------------------------------------------------------
            */
 
-          const data =
-            await DevotionalService.getDevotional(
-              devotionalId,
-              targetLang
-            );
+          const data = devotionalId
+            ? await DevotionalService.getDevotional(devotionalId, targetLang)
+            : await DevotionalService.getPublicByDate(getTodayInSaoPaulo(), targetLang);
 
           if (!mounted) {
             return;
@@ -111,10 +112,10 @@ export function SharedDevotional() {
             'devotional_opened',
             {
               devotional_id:
-                devotionalId,
+                devotionalId ?? data.id,
 
               channel:
-                'shared_link',
+                isToday ? 'public_today' : 'shared_link',
 
               language:
                 targetLang,
@@ -256,7 +257,7 @@ export function SharedDevotional() {
               SENDER MESSAGE
           ===================================================== */}
 
-          <div className="shared-devotional-sender">
+          {!isToday && <div className="shared-devotional-sender">
 
             {/* Avatar com a inicial: transforma um aviso de sistema em
                 gesto de alguém. Decorativo — o nome já está no texto,
@@ -279,7 +280,7 @@ export function SharedDevotional() {
               )}
             </span>
 
-          </div>
+          </div>}
 
           {/* ====================================================
               DEVOTIONAL

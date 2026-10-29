@@ -895,6 +895,16 @@ export function Landing() {
             </a>
 
             <a
+              href="/hoje"
+              onClick={(event) => {
+                event.preventDefault();
+                navigate('/hoje');
+              }}
+            >
+              {t('landing:footer.links.today')}
+            </a>
+
+            <a
               href="#sobre"
               onClick={(event) => {
                 event.preventDefault();

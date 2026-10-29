@@ -313,6 +313,19 @@ export const DevotionalService = {
     }
   },
 
+  /** Devocional publicado de uma data, para quem não entrou (rota pública do gateway). */
+  async getPublicByDate(dateStr: string, requestedLanguage?: string): Promise<Devotional> {
+    const contentLanguage = normalizeLanguage(requestedLanguage || i18n.language || 'pt-BR');
+    const res = await illumineFetch(`/public/devotionals/date/${dateStr}`);
+    if (!res.ok) throw new Error(`public date ${dateStr} falhou com status ${res.status}`);
+    const data = mapIllumineToDevotional(await res.json());
+    const resolved = resolveTranslation(data, contentLanguage, 'supabase', false);
+    resolved.share_assets = resolveShareAssets(contentLanguage, data.devotional_share_assets || []);
+    delete (resolved as any).devotional_share_assets;
+    resolved.share_quote = resolved.principle_statement || resolved.title;
+    return resolved;
+  },
+
   async getDevotionals(requestedLanguage?: string): Promise<Devotional[]> {
     const rawLanguage = requestedLanguage || i18n.language || 'pt-BR';
     const contentLanguage = normalizeLanguage(rawLanguage);

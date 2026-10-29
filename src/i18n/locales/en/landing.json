@@ -139,7 +139,8 @@
       "privacy": "Privacy",
       "terms": "Terms",
       "contact": "Contact",
-      "donate": "Donate"
+      "donate": "Donate",
+      "today": "Today's devotional"
     },
     "copy": "{{brandName}}"
   }
