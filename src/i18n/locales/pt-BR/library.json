@@ -5,6 +5,6 @@
   "categories": "Categorias",
   "count_one": "{{count}} devocional",
   "count_other": "{{count}} devocionais",
-  "search_placeholder": "Buscar devocional...",
-  "search_no_results": "Nenhum devocional encontrado para \"{{query}}\"."
+  "search_placeholder": "Como você está hoje? Escreva em poucas palavras",
+  "search_no_results": "Não encontramos devocionais para \"{{query}}\". Tente outras palavras."
 }

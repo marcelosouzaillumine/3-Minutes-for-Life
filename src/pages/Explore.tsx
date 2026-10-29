@@ -3,6 +3,7 @@ import { DevotionalService } from '../services/DevotionalService';
 import type { Devotional } from '../types/Devotional';
 import { PrincipleView } from '../components/PrincipleView';
 import { JourneyService } from '../services/JourneyService';
+import { searchMoments } from '../utils/momentSearch';
 import { useTranslation } from 'react-i18next';
 
 export function Explore() {
@@ -15,6 +16,8 @@ export function Explore() {
   const [selectedDevotional, setSelectedDevotional] = useState<Devotional | null>(null);
   const [loadingDevotional, setLoadingDevotional] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  // Biblioteca completa (com o texto), carregada só quando a pessoa começa a escrever.
+  const [library, setLibrary] = useState<Devotional[] | null>(null);
 
   useEffect(() => {
     DevotionalService.getDevotionalsForBrowse(i18n.language)
@@ -28,6 +31,18 @@ export function Explore() {
         setLoading(false);
       });
   }, [i18n.language]);
+
+  useEffect(() => { setLibrary(null); }, [i18n.language]);
+
+  const hasQuery = searchQuery.trim().length > 0;
+  useEffect(() => {
+    if (!hasQuery || library) return;
+    let alive = true;
+    DevotionalService.getDevotionals(i18n.language)
+      .then(data => { if (alive) setLibrary(data); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [hasQuery, library, i18n.language]);
 
   if (loading) {
     return (
@@ -107,12 +122,13 @@ export function Explore() {
   }
 
   const trimmedQuery = searchQuery.trim();
-  const searchResults = trimmedQuery
-    ? devotionals.filter(d => {
-        const haystack = `${d.title ?? ''} ${d.principle_statement ?? ''}`.toLowerCase();
-        return haystack.includes(trimmedQuery.toLowerCase());
-      })
-    : [];
+  // Frase livre ("estou sem forças") → devocionais cujo texto mais conversa com ela.
+  // Enquanto a biblioteca completa não chega, vale a busca simples por título e princípio.
+  const searchResults: { id: string; title: string; principle_statement?: string | null }[] = !trimmedQuery
+    ? []
+    : library
+      ? searchMoments(trimmedQuery, library).map(m => m.devotional)
+      : devotionals.filter(d => `${d.title ?? ''} ${d.principle_statement ?? ''}`.toLowerCase().includes(trimmedQuery.toLowerCase()));
 
   return (
     <div>
