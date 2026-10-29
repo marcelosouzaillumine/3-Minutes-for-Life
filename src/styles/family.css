@@ -1,0 +1,139 @@
+/* Espaço da família e folhas: tipografia de leitura, hairlines e o dourado da marca como único destaque. */
+
+.fam { padding: 1.5rem 1.25rem 6rem; max-width: 32rem; margin: 0 auto; color: var(--text-strong); }
+.fam--loading { text-align: center; color: var(--text-muted); padding-top: 4rem; }
+
+.fam-eyebrow { margin: 0 0 0.35rem; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+.fam-eyebrow--accent { color: var(--accent-strong); }
+.fam-note { margin: 0.5rem 0 0; font-size: 0.8rem; line-height: 1.45; color: var(--text-muted); }
+.fam-note--right { text-align: right; }
+.fam-error { margin: 0.25rem 0; font-size: 0.85rem; color: #b42318; }
+
+/* Cabeçalho */
+.fam-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.25rem; }
+.fam-head__name, .fam-hero__title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 2rem; line-height: 1.1; }
+.fam-head__sub { margin: 0.4rem 0 0; font-size: 0.85rem; color: var(--text-muted); }
+.fam-icon-btn { flex: none; width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 1px solid var(--border-subtle); background: var(--surface); color: var(--text-strong); font-size: 1.2rem; cursor: pointer; }
+
+/* Boas-vindas */
+.fam-hero { padding-top: 2.5rem; display: grid; gap: 0.75rem; }
+.fam-hero__text { margin: 0 0 0.75rem; line-height: 1.6; color: var(--text-muted); }
+
+/* Semana */
+.fam-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.4rem; margin-bottom: 1.5rem; }
+.fam-week__day { aspect-ratio: 1; border-radius: 10px; background: #F3EFE8; display: flex; align-items: center; justify-content: center; }
+.fam-week__day i { font-style: normal; font-size: 0.7rem; color: var(--text-faint); }
+.fam-week__day.is-read { background: var(--accent-strong); }
+.fam-week__day.is-read i { color: #fff; }
+
+/* Pessoas */
+.fam-people { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.25rem; }
+.fam-person { display: grid; justify-items: center; gap: 0.15rem; width: 4rem; background: none; border: 0; padding: 0; font: inherit; color: inherit; }
+.fam-person--add { cursor: pointer; }
+.fam-person__label { font-size: 0.78rem; max-width: 4rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fam-person__state { font-size: 0.68rem; color: var(--text-muted); }
+.fam-avatar { width: 3rem; height: 3rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 500; background: #F3EFE8; color: var(--text-strong); border: 2px solid transparent; }
+.fam-avatar.is-read { border-color: var(--accent-strong); background: #fff; color: var(--accent-strong); }
+.fam-avatar--child { background: var(--surface-dark); color: var(--accent-on-dark); }
+.fam-avatar--add { background: none; border: 1px dashed var(--text-faint); color: var(--text-muted); font-size: 1.3rem; font-weight: 400; }
+
+/* Botões */
+.fam-btn { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 3rem; padding: 0 1.25rem; border-radius: 12px; font: inherit; font-size: 0.95rem; cursor: pointer; text-decoration: none; border: 1px solid transparent; }
+.fam-btn:disabled { opacity: 0.5; cursor: default; }
+.fam-btn--primary { background: var(--surface-dark); color: var(--text-on-dark); }
+.fam-btn--secondary { background: transparent; color: var(--text-strong); border-color: var(--text-strong); }
+.fam-btn--ghost { background: transparent; color: var(--text-muted); }
+.fam-btn--danger { background: transparent; color: #b42318; border-color: #f0c9c5; }
+.fam-cta { margin: 1.25rem 0 1.75rem; }
+
+/* Cartões */
+.fam-card { display: grid; gap: 0.5rem; width: 100%; text-align: left; padding: 1.1rem 1.15rem; margin-bottom: 1rem; border: 1px solid var(--border-subtle); border-radius: 16px; background: var(--surface); font: inherit; color: inherit; }
+.fam-card--accent { border-color: #D9C7A8; background: #FBF7F0; }
+.fam-card--dashed { border-style: dashed; cursor: pointer; }
+.fam-card__row { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; }
+.fam-card__title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 1.35rem; line-height: 1.2; }
+.fam-card__text { margin: 0; font-size: 0.9rem; line-height: 1.55; color: var(--text-muted); }
+.fam-dots { display: flex; gap: 0.35rem; }
+.fam-dot { flex: 1; height: 4px; border-radius: 2px; background: #E7E0D3; }
+.fam-dot.is-done { background: var(--accent-strong); }
+.fam-dot.is-now { background: var(--accent-strong); opacity: 0.45; }
+.fam-summary__word { margin: 0; font-family: var(--font-serif); font-size: 2.2rem; line-height: 1.1; }
+
+/* Seções e mural */
+.fam-section { margin-top: 1.5rem; }
+.fam-section__title { margin: 0; font-size: 1rem; font-weight: 500; }
+.fam-prayers { list-style: none; margin: 0.75rem 0 0; padding: 0; display: grid; gap: 0.6rem; }
+.fam-prayer { padding: 0.85rem 1rem; border: 1px solid var(--border-subtle); border-radius: 14px; }
+.fam-prayer__text { margin: 0 0 0.5rem; line-height: 1.5; }
+.fam-prayer__actions { display: flex; align-items: center; gap: 0.6rem; }
+.fam-chip { background: none; border: 1px solid var(--border-subtle); border-radius: 999px; padding: 0.3rem 0.9rem; font: inherit; font-size: 0.82rem; cursor: pointer; color: var(--text-strong); }
+.fam-chip.is-on { border-color: var(--accent-strong); color: var(--accent-strong); }
+.fam-link { background: none; border: 0; padding: 0; font: inherit; font-size: 0.85rem; color: var(--accent-strong); cursor: pointer; }
+.fam-link--muted { color: var(--text-muted); }
+
+/* Formulários */
+.fam-form { display: grid; gap: 0.9rem; }
+.fam-form label { display: grid; gap: 0.35rem; font-size: 0.82rem; color: var(--text-muted); }
+.fam-form input, .fam-form textarea, .fam-inline input, .fam-inline select { padding: 0.75rem 0.85rem; border: 1px solid var(--border-subtle); border-radius: 10px; font: inherit; font-size: 1rem; color: var(--text-strong); background: var(--surface); }
+.fam-inline { display: flex; gap: 0.5rem; align-items: stretch; margin: 0.75rem 0; }
+.fam-inline input { flex: 1; min-width: 0; }
+.fam-inline .fam-btn { width: auto; min-height: 0; }
+.fam-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--border-subtle); font-size: 0.95rem; }
+.fam-confirm { display: grid; gap: 0.5rem; padding: 1rem; margin-top: 1rem; border: 1px solid #f0c9c5; border-radius: 12px; }
+.fam-confirm p { margin: 0; font-size: 0.9rem; line-height: 1.5; }
+
+/* Folha (bottom sheet) */
+.sheet-backdrop { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: flex-end; justify-content: center; background: rgba(31, 38, 46, 0.45); }
+.sheet { width: 100%; max-width: 32rem; max-height: 88vh; overflow-y: auto; background: var(--canvas); border-radius: 22px 22px 0 0; padding: 0.5rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom)); }
+.sheet__grip { width: 2.5rem; height: 4px; border-radius: 2px; background: #D8D3CA; margin: 0.35rem auto 0.9rem; }
+.sheet__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.sheet__title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 1.4rem; }
+.sheet__close { background: none; border: 0; font-size: 1.6rem; line-height: 1; color: var(--text-muted); cursor: pointer; }
+.sheet__body { display: grid; gap: 0.85rem; }
+
+/* Ritual: tela cheia, uma coisa por vez */
+.ritual { position: fixed; inset: 0; z-index: 1100; display: flex; flex-direction: column; background: var(--canvas); color: var(--text-strong); }
+.ritual__top { display: flex; align-items: center; gap: 1rem; padding: calc(0.75rem + env(safe-area-inset-top)) 1.25rem 0.5rem; }
+.ritual__progress { flex: 1; display: flex; gap: 0.3rem; }
+.ritual__progress i { flex: 1; height: 3px; border-radius: 2px; background: #E7E0D3; }
+.ritual__progress i.is-on { background: var(--accent-strong); }
+.ritual__body { flex: 1; overflow-y: auto; width: 100%; max-width: 32rem; margin: 0 auto; padding: 1.5rem 1.5rem 2rem; display: grid; align-content: start; gap: 1rem; }
+.ritual__title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 2rem; line-height: 1.15; }
+.ritual__lead { margin: 0; font-size: 1.05rem; line-height: 1.6; color: var(--text-muted); }
+.ritual__ref { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 1.6rem; }
+.ritual__verse { margin: 0; font-family: var(--font-serif); font-size: 1.5rem; line-height: 1.55; padding-left: 1rem; border-left: 2px solid var(--accent-strong); }
+.ritual__text { font-size: 1.1rem; line-height: 1.75; }
+.ritual__prayer { font-family: var(--font-serif); font-size: 1.25rem; }
+.ritual__kid { padding: 1rem 1.1rem; border: 1px solid var(--border-subtle); border-radius: 14px; }
+.ritual__kid h3 { margin: 0 0 0.4rem; font-size: 0.8rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-strong); }
+.ritual__kid p { margin: 0 0 0.5rem; font-size: 1.1rem; line-height: 1.65; }
+.ritual__nav { display: flex; gap: 0.75rem; width: 100%; max-width: 32rem; margin: 0 auto; padding: 0.75rem 1.5rem calc(1rem + env(safe-area-inset-bottom)); }
+.ritual__nav .fam-btn--primary { flex: 2; }
+.ritual__nav .fam-btn--ghost { flex: 1; }
+
+.fam-today { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin: 1rem 0; padding: 0.9rem 1rem; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); }
+.fam-today .fam-eyebrow { margin: 0 0 0.15rem; }
+.fam-today__text { margin: 0; font-size: 0.85rem; color: var(--text-muted); }
+.fam-today__btn { width: auto; min-height: 2.5rem; flex: none; font-size: 0.85rem; }
+
+/* Estúdio (admin) */
+.studio__tabs { display: flex; gap: 0.25rem; margin: 0.5rem 0 1rem; border-bottom: 1px solid var(--border-subtle); }
+.studio__tabs button { background: none; border: 0; padding: 0.6rem 0.9rem; font: inherit; font-size: 0.9rem; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.studio__tabs button.is-on { color: var(--text-strong); border-bottom-color: var(--accent-strong); }
+.studio__list { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 0.4rem; }
+.studio__list li > button { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; width: 100%; text-align: left; padding: 0.8rem 1rem; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface); font: inherit; cursor: pointer; color: var(--text-strong); }
+.studio__list small { display: block; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem; }
+.studio__badge { flex: none; font-style: normal; font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 999px; background: #F3EFE8; color: var(--text-muted); }
+.studio__badge--done { background: #E6F0E4; color: #2f6b2a; }
+.studio__badge--draft { background: #FBF1DC; color: #8a5a00; }
+.studio__title { margin: 0.5rem 0 1rem; font-family: var(--font-serif); font-weight: 400; font-size: 1.4rem; }
+.studio__grid { display: grid; gap: 1.25rem; }
+@media (min-width: 960px) { .studio__grid { grid-template-columns: 1fr 1.2fr 0.9fr; align-items: start; } }
+.studio__source, .studio__screen { font-size: 0.88rem; line-height: 1.6; padding: 1rem; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); }
+.studio__screen h5 { margin: 0.8rem 0 0.2rem; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); }
+.studio__screen p { margin: 0; }
+.studio__screen blockquote { margin: 0.5rem 0; padding-left: 0.8rem; border-left: 2px solid var(--accent-strong); font-family: var(--font-serif); }
+.studio__actions { display: flex; gap: 0.6rem; margin: 1rem 0; }
+.studio__order { list-style: none; margin: 0 0 0.5rem; padding: 0; display: grid; gap: 0.3rem; }
+.studio__order li { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; padding: 0.5rem 0.8rem; border: 1px solid var(--border-subtle); border-radius: 10px; font-size: 0.9rem; }
+.studio__order button { background: none; border: 0; cursor: pointer; font-size: 1rem; color: var(--text-muted); padding: 0.2rem 0.4rem; }

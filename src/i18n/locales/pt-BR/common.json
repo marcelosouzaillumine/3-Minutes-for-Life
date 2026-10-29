@@ -280,5 +280,145 @@
       "pray": "Orar",
       "privacy": "Só a família vê. Quem criou a família modera e pode remover qualquer pedido."
     }
-  }
+  },
+  "fam": {
+    "err": {
+      "code": "Esse código não existe. Confira com quem convidou.",
+      "full": "Essa família já está completa.",
+      "already": "Você já está em uma família.",
+      "generic": "Não foi possível concluir. Tente de novo."
+    },
+    "loading": "Carregando…",
+    "title": "Família",
+    "hero": {
+      "title": "Leiam juntos",
+      "text": "Três minutos por dia, com a mesma passagem para todos da casa. Os adultos veem quem já leu e as crianças têm a sua própria versão.",
+      "create": "Criar a nossa família",
+      "join": "Tenho um código de convite"
+    },
+    "childPrivacy": "Crianças não têm conta: guardamos só o apelido e a faixa de idade, nunca sobrenome, foto ou e-mail.",
+    "create": {
+      "title": "Nova família",
+      "name": "Nome da família",
+      "namePh": "Família Souza",
+      "meeting": "Horário combinado (opcional)",
+      "meetingPh": "Jantar, 20h",
+      "cta": "Criar família"
+    },
+    "join": {
+      "title": "Entrar numa família",
+      "code": "Código de convite",
+      "cta": "Entrar"
+    },
+    "inviteMessage": "Vem ler o devocional com a nossa família: {{link}}",
+    "streak_one": "{{count}} dias lendo juntos",
+    "streak_many": "{{count}} dias lendo juntos",
+    "streak_other": "{{count}} dias lendo juntos",
+    "streak0": "Comecem hoje",
+    "manage": {
+      "title": "Gerenciar família"
+    },
+    "week": "Últimos 7 dias",
+    "who": "Quem lê",
+    "you": "você",
+    "someone": "Alguém",
+    "read": "leu hoje",
+    "notYet": "ainda não",
+    "invite": {
+      "short": "convidar",
+      "title": "Convidar um adulto",
+      "text": "Cada adulto entra com a própria conta. Nenhum telefone é guardado.",
+      "whatsapp": "Enviar pelo WhatsApp",
+      "copy": "Copiar link",
+      "code": "Código",
+      "new": "Gerar novo código de convite"
+    },
+    "readersToday_one": "{{count}} de {{total}} já leram hoje",
+    "readersToday_many": "{{count}} de {{total}} já leram hoje",
+    "readersToday_other": "{{count}} de {{total}} já leram hoje",
+    "noneToday": "Ninguém leu hoje ainda.",
+    "ritual": "Ler em família",
+    "plan": {
+      "label": "Plano da família",
+      "day": "dia {{n}} de {{total}}",
+      "today": "Hoje no plano: {{title}}",
+      "read": "Ler o dia do plano em família",
+      "next": "Começar o próximo plano",
+      "choose": "Escolher um plano de 7 dias",
+      "chooseHint": "Uma trilha para ler junto, um dia de cada vez.",
+      "sheet": "Escolha o plano",
+      "days_one": "{{count}} dias",
+      "days_many": "{{count}} dias",
+      "days_other": "{{count}} dias",
+      "start": "Começar",
+      "stop": "Encerrar o plano atual"
+    },
+    "summary": {
+      "label": "Semana concluída",
+      "title": "Vocês leram juntos {{n}} de {{total}} dias",
+      "word": "A palavra que ficou",
+      "prayers_one": "{{count}} orações pelos pedidos da família",
+      "prayers_many": "{{count}} orações pelos pedidos da família",
+      "prayers_other": "{{count}} orações pelos pedidos da família",
+      "question": "Para continuar a conversa: o que vocês agradeceriam a Deus por esta semana?",
+      "noScore": "Sem placar de quem faltou."
+    },
+    "prayers": {
+      "title": "Mural de oração",
+      "new": "Novo pedido",
+      "empty": "Nenhum pedido ainda. Só a família vê.",
+      "iPrayed": "Eu orei",
+      "pray": "Orar",
+      "privacy": "Só a família vê. Quem criou a família modera e pode remover qualquer pedido.",
+      "ph": "Um pedido para a família orar",
+      "add": "Publicar"
+    },
+    "remove": "Remover",
+    "copied": "Copiado",
+    "save": "Salvar",
+    "children": "Crianças",
+    "ages": "{{range}} anos",
+    "nickname": "Apelido",
+    "band": "Faixa de idade",
+    "add": "Adicionar",
+    "delete": "Apagar família",
+    "leave": "Sair da família",
+    "confirmDelete": "Apagar a família? Os adultos saem do grupo e tudo o que foi guardado é apagado, inclusive os apelidos das crianças e o mural.",
+    "confirmLeave": "Sair desta família?",
+    "confirmYes": "Sim, continuar",
+    "cancel": "Cancelar",
+    "today": {
+      "none": "Ninguém leu ainda hoje",
+      "readers_one": "{{count}} de {{total}} já leram hoje",
+      "readers_many": "{{count}} de {{total}} já leram hoje",
+      "readers_other": "{{count}} de {{total}} já leram hoje",
+      "planDay": "plano, dia {{n}}"
+    }
+  },
+  "ritual": {
+    "error": "Não foi possível abrir o devocional agora.",
+    "close": "Fechar",
+    "title": "Ler em família",
+    "planDay": "Plano · dia {{n}}",
+    "today": "Devocional de hoje",
+    "pickDaily": "Devocional do dia",
+    "pickPlan": "Do plano · dia {{n}}",
+    "whoIsHere": "Quem está à mesa?",
+    "meeting": "Hora combinada: {{time}}",
+    "scripture": "A passagem",
+    "reader": "{{name}} lê em voz alta",
+    "story": "O que o texto diz",
+    "years": "anos",
+    "noKids": "Ainda não há versão para esta faixa. Leia o texto dos adultos e converse.",
+    "practice": "Para conversar e praticar",
+    "prayer": "Oração",
+    "doneTitle": "Vocês leram juntos.",
+    "almost": "Vamos registrar?",
+    "doneText": "Cada adulto marca a própria leitura. Obrigado por separar esse tempo.",
+    "markText": "Isso registra a sua leitura de hoje.",
+    "together": "Concluímos juntos",
+    "back": "Voltar",
+    "next": "Continuar"
+  },
+  "familyNav": "Família"
 }

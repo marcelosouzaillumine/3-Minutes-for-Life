@@ -2566,24 +2566,4 @@ a:focus-visible {
 .kids__guide p { margin: 0.25rem 0 0; }
 .kids__close { display: block; margin: 1rem auto 0; background: none; border: 0; cursor: pointer; color: var(--color-text-light, #6b7280); text-decoration: underline; }
 
-.family__hint { margin: 0.4rem 0 0.9rem; font-size: 0.85rem; color: var(--color-text-light, #6b7280); }
-.family__label { margin: 1rem 0 0.4rem; font-size: 0.85rem; font-weight: 500; }
-.family__form { display: grid; gap: 0.5rem; margin: 0 0 1.1rem; }
-.family__form label { font-size: 0.85rem; color: var(--color-text-light, #6b7280); }
-.family__row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
-.family__row input { flex: 1; min-width: 6rem; }
-.family input, .family select { padding: 0.55rem 0.7rem; border: 1px solid var(--color-border, #e5e0d8); border-radius: 8px; font: inherit; background: transparent; color: inherit; }
-.family a.btn-secondary { text-decoration: none; display: inline-block; }
-.family__members { list-style: none; margin: 0 0 0.5rem; padding: 0; display: grid; gap: 0.35rem; }
-.family__members li { display: flex; align-items: center; gap: 0.5rem; }
-.family__dot { width: 1.2rem; height: 1.2rem; border-radius: 50%; border: 1px solid var(--color-border, #cfc9bf); display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem; flex: none; }
-.family__members li.is-read .family__dot { background: var(--color-accent, #c46d53); border-color: var(--color-accent, #c46d53); color: #fff; }
-.family__link { background: none; border: 0; padding: 0 0 0 0.6rem; cursor: pointer; color: var(--color-text-light, #6b7280); text-decoration: underline; font: inherit; font-size: 0.85rem; }
-.family__leave { margin-top: 1.25rem; background: none; border: 0; cursor: pointer; color: #dc2626; text-decoration: underline; font: inherit; font-size: 0.9rem; padding: 0; }
-
-.family__prayers { list-style: none; margin: 0.6rem 0 0.4rem; padding: 0; display: grid; gap: 0.6rem; }
-.family__prayers li { border: 1px solid var(--color-border, #e5e0d8); border-radius: 10px; padding: 0.6rem 0.8rem; }
-.family__prayers p { margin: 0.15rem 0 0.5rem; line-height: 1.5; }
-.family__prayer-author { font-size: 0.8rem; color: var(--color-text-light, #6b7280); }
-.family__amen { background: none; border: 1px solid var(--color-border, #cfc9bf); border-radius: 999px; padding: 0.2rem 0.8rem; cursor: pointer; color: inherit; font: inherit; font-size: 0.85rem; }
-.family__amen.is-on { border-color: var(--color-accent, #c46d53); color: var(--color-accent, #c46d53); }
+.profile-row-link { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 1rem 0; background: none; border: 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); font: inherit; font-size: 1rem; color: var(--text-strong); cursor: pointer; }

@@ -280,5 +280,140 @@
       "pray": "Pray",
       "privacy": "Only the family sees it. Whoever created the family moderates and can remove any request."
     }
-  }
+  },
+  "fam": {
+    "err": {
+      "code": "That code doesn't exist. Check with whoever invited you.",
+      "full": "This family is already full.",
+      "already": "You're already in a family.",
+      "generic": "Couldn't finish. Please try again."
+    },
+    "loading": "Loading…",
+    "title": "Family",
+    "hero": {
+      "title": "Read together",
+      "text": "Three minutes a day, the same passage for everyone at home. Adults see who has read and children get a version of their own.",
+      "create": "Create our family",
+      "join": "I have an invite code"
+    },
+    "childPrivacy": "Children have no account: we keep only a nickname and an age band, never a surname, photo or e-mail.",
+    "create": {
+      "title": "New family",
+      "name": "Family name",
+      "namePh": "The Smith family",
+      "meeting": "Agreed time (optional)",
+      "meetingPh": "Dinner, 8pm",
+      "cta": "Create family"
+    },
+    "join": {
+      "title": "Join a family",
+      "code": "Invite code",
+      "cta": "Join"
+    },
+    "inviteMessage": "Come read the devotional with our family: {{link}}",
+    "streak_one": "{{count}} days reading together",
+    "streak_other": "{{count}} days reading together",
+    "streak0": "Start today",
+    "manage": {
+      "title": "Manage family"
+    },
+    "week": "Last 7 days",
+    "who": "Who is reading",
+    "you": "you",
+    "someone": "Someone",
+    "read": "read today",
+    "notYet": "not yet",
+    "invite": {
+      "short": "invite",
+      "title": "Invite an adult",
+      "text": "Each adult joins with their own account. No phone number is stored.",
+      "whatsapp": "Send on WhatsApp",
+      "copy": "Copy link",
+      "code": "Code",
+      "new": "Generate a new invite code"
+    },
+    "readersToday_one": "{{count}} of {{total}} have read today",
+    "readersToday_other": "{{count}} of {{total}} have read today",
+    "noneToday": "No one has read yet today.",
+    "ritual": "Read as a family",
+    "plan": {
+      "label": "Family plan",
+      "day": "day {{n}} of {{total}}",
+      "today": "Today's reading in the plan: {{title}}",
+      "read": "Read today's plan day as a family",
+      "next": "Start the next plan",
+      "choose": "Choose a 7-day plan",
+      "chooseHint": "A path to read together, one day at a time.",
+      "sheet": "Choose the plan",
+      "days_one": "{{count}} days",
+      "days_other": "{{count}} days",
+      "start": "Start",
+      "stop": "End the current plan"
+    },
+    "summary": {
+      "label": "Week complete",
+      "title": "You read together {{n}} of {{total}} days",
+      "word": "The word that stayed",
+      "prayers_one": "{{count}} prayers for the family’s requests",
+      "prayers_other": "{{count}} prayers for the family’s requests",
+      "question": "To keep the conversation going: what would you thank God for this week?",
+      "noScore": "No scoreboard of who missed."
+    },
+    "prayers": {
+      "title": "Prayer wall",
+      "new": "New request",
+      "empty": "No requests yet. Only your family sees this.",
+      "iPrayed": "I prayed",
+      "pray": "Pray",
+      "privacy": "Only your family sees this. Whoever created the family moderates and can remove any request.",
+      "ph": "A request for the family to pray for",
+      "add": "Post"
+    },
+    "remove": "Remove",
+    "copied": "Copied",
+    "save": "Save",
+    "children": "Children",
+    "ages": "{{range}} years",
+    "nickname": "Nickname",
+    "band": "Age band",
+    "add": "Add",
+    "delete": "Delete family",
+    "leave": "Leave family",
+    "confirmDelete": "Delete the family? Adults leave the group and everything stored is erased, including the children’s nicknames and the prayer wall.",
+    "confirmLeave": "Leave this family?",
+    "confirmYes": "Yes, continue",
+    "cancel": "Cancel",
+    "today": {
+      "none": "No one has read yet today",
+      "readers_one": "{{count}} of {{total}} have read today",
+      "readers_other": "{{count}} of {{total}} have read today",
+      "planDay": "plan, day {{n}}"
+    }
+  },
+  "ritual": {
+    "error": "Couldn't open the devotional right now.",
+    "close": "Close",
+    "title": "Read as a family",
+    "planDay": "Plan · day {{n}}",
+    "today": "Today's devotional",
+    "pickDaily": "Daily devotional",
+    "pickPlan": "From the plan · day {{n}}",
+    "whoIsHere": "Who's at the table?",
+    "meeting": "Agreed time: {{time}}",
+    "scripture": "The passage",
+    "reader": "{{name}} reads aloud",
+    "story": "What the text says",
+    "years": "years",
+    "noKids": "There is no version for this age band yet. Read the adult text and talk about it.",
+    "practice": "To talk about and practice",
+    "prayer": "Prayer",
+    "doneTitle": "You read together.",
+    "almost": "Shall we record it?",
+    "doneText": "Each adult marks their own reading. Thank you for setting this time aside.",
+    "markText": "This records your reading for today.",
+    "together": "We finished together",
+    "back": "Back",
+    "next": "Continue"
+  },
+  "familyNav": "Family"
 }

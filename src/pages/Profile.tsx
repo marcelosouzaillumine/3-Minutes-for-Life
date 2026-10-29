@@ -12,7 +12,6 @@ import { MySubscriptions } from '../components/MySubscriptions';
 import { useTranslation } from 'react-i18next';
 import './Profile.css';
 import { CommunicationPreferences } from '../components/CommunicationPreferences';
-import { FamilySection } from '../components/FamilySection';
 import { Conversations } from '../components/Conversations';
 import { CommunicationInbox } from '../components/CommunicationInbox';
 import { ConversationService } from '../services/ConversationService';
@@ -324,7 +323,14 @@ export function Profile() {
       </div>
 
       <div className="profile-section">
-        <FamilySection />
+        <button
+          type="button"
+          className="profile-row-link"
+          onClick={() => window.dispatchEvent(new CustomEvent('app:tab', { detail: 'family' }))}
+        >
+          <span>{t('common:familyNav', 'Família')}</span>
+          <span aria-hidden="true">›</span>
+        </button>
       </div>
 
       <div className="profile-section">

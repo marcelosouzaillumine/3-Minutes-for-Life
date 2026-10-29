@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Explore } from './pages/Explore';
+import { Family } from './pages/Family';
+import { FamilyRitual } from './components/FamilyRitual';
 import { Favorites } from './pages/Favorites';
 import { Profile } from './pages/Profile';
 import { BottomNav } from './components/BottomNav';
@@ -20,7 +22,7 @@ import { AnalyticsService } from './services/AnalyticsService';
 
 const AdminLayout = lazy(() => import('./layouts/AdminLayout').then(m => ({ default: m.AdminLayout })));
 
-type Tab = 'home' | 'explore' | 'favorites' | 'profile';
+type Tab = 'home' | 'explore' | 'family' | 'favorites' | 'profile';
 
 const LoadingScreen = () => (
   <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -56,10 +58,19 @@ function FamilyInviteLanding() {
 
 // The /app shell with bottom navigation and tab routing
 function AppShell() {
-  // Com um convite de família pendente, abre direto no Perfil, onde fica a entrada na família.
-  const [currentTab, setCurrentTab] = useState<Tab>(() => (pendingFamilyCode.get() ? 'profile' : 'home'));
+  // Com um convite de família pendente, abre direto na aba Família.
+  const [currentTab, setCurrentTab] = useState<Tab>(() => (pendingFamilyCode.get() ? 'family' : 'home'));
   // Tocar na aba já ativa remonta a tela dela (volta ao início, ex.: sai do devocional aberto na Biblioteca)
   const [tabResetKey, setTabResetKey] = useState(0);
+  // Ler em família abre por cima de qualquer aba (cartão da Home, aba Família).
+  const [ritual, setRitual] = useState<'daily' | 'plan' | null>(null);
+  useEffect(() => {
+    const onRitual = (e: Event) => setRitual(((e as CustomEvent).detail as 'daily' | 'plan') ?? 'daily');
+    const onTab = (e: Event) => setCurrentTab(((e as CustomEvent).detail as Tab) ?? 'home');
+    window.addEventListener('family:ritual', onRitual);
+    window.addEventListener('app:tab', onTab);
+    return () => { window.removeEventListener('family:ritual', onRitual); window.removeEventListener('app:tab', onTab); };
+  }, []);
   const handleTabChange = (tab: Tab) => {
     if (tab === currentTab) setTabResetKey(k => k + 1);
     else setCurrentTab(tab);
@@ -68,6 +79,7 @@ function AppShell() {
     switch (currentTab) {
       case 'home':     return <Home onExplore={() => setCurrentTab('explore')} />;
       case 'explore':  return <Explore />;
+      case 'family':   return <Family />;
       case 'favorites': return <Favorites />;
       case 'profile':  return <Profile />;
       default:         return <Home onExplore={() => setCurrentTab('explore')} />;
@@ -78,6 +90,7 @@ function AppShell() {
     <div className="app-container">
       <main className="content-area" key={tabResetKey}>{renderContent()}</main>
       <BottomNav currentTab={currentTab} setTab={handleTabChange} />
+      {ritual && <FamilyRitual source={ritual} onClose={() => setRitual(null)} />}
     </div>
   );
 }
