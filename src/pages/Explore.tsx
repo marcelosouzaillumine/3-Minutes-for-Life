@@ -5,6 +5,7 @@ import { PrincipleView } from '../components/PrincipleView';
 import { JourneyService } from '../services/JourneyService';
 import { searchMoments, significantWords, topicsOf } from '../utils/momentSearch';
 import { AnalyticsService } from '../services/AnalyticsService';
+import { PlansSection } from '../components/PlansSection';
 import { useTranslation } from 'react-i18next';
 
 export function Explore() {
@@ -37,15 +38,15 @@ export function Explore() {
 
   useEffect(() => { setLibrary(null); }, [i18n.language]);
 
-  const hasQuery = searchQuery.trim().length > 0;
+  // A biblioteca completa também alimenta os planos, então carrega ao abrir a aba, não só ao buscar.
   useEffect(() => {
-    if (!hasQuery || library) return;
+    if (library) return;
     let alive = true;
     DevotionalService.getDevotionals(i18n.language)
       .then(data => { if (alive) setLibrary(data); })
       .catch(() => {});
     return () => { alive = false; };
-  }, [hasQuery, library, i18n.language]);
+  }, [library, i18n.language]);
 
   // Vindo do link no fim do devocional: abre já com o cursor na busca.
   useEffect(() => {
@@ -201,6 +202,8 @@ export function Explore() {
           <p className="label" style={{ opacity: 0.6 }}>{t('search_no_results', { query: trimmedQuery })}</p>
         )
       ) : (
+        <>
+        <PlansSection library={library} onOpen={handleSelectDevotional} />
         <ul className="category-list">
           {categories.map(category => {
             const count = devotionals.filter(d => d.categories?.name === category).length;
@@ -212,6 +215,7 @@ export function Explore() {
             );
           })}
         </ul>
+        </>
       )}
     </div>
   );

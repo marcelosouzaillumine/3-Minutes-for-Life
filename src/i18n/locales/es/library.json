@@ -6,5 +6,20 @@
   "count_one": "{{count}} devocional",
   "count_other": "{{count}} devocionales",
   "search_placeholder": "¿Cómo estás hoy? Escribe unas palabras",
-  "search_no_results": "No encontramos devocionales para \"{{query}}\". Prueba con otras palabras."
+  "search_no_results": "No encontramos devocionales para \"{{query}}\". Prueba con otras palabras.",
+  "plans": {
+    "heading": "Planes para una secuencia",
+    "back": "Planes",
+    "progress": "{{done}} de {{total}} días completados",
+    "days_one": "{{count}} día",
+    "days_other": "{{count}} días",
+    "descanso-7": {
+      "title": "Siete días para recuperar el aliento",
+      "desc": "Para quien está cansado o ansioso: un devocional al día, a tu ritmo."
+    },
+    "confianca-21": {
+      "title": "Veintiún días para confiar",
+      "desc": "Fe, oración, paciencia y gratitud en secuencia, un día a la vez."
+    }
+  }
 }

@@ -214,5 +214,13 @@
     "daysThisMonth": "days read this month",
     "completedThisMonth": "completed this month",
     "note": "Missed a day? No problem: what matters is coming back."
+  },
+  "reminder": {
+    "ask": "Would you like the devotional by e-mail every day at 7am?",
+    "yes": "Yes, send it",
+    "no": "Not now",
+    "done": "Done. From tomorrow you'll get the devotional at 7am.",
+    "error": "Could not save. Please try again.",
+    "note": "You can change this anytime in your Profile."
   }
 }

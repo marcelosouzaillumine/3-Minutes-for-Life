@@ -214,5 +214,13 @@
     "daysThisMonth": "días leídos este mes",
     "completedThisMonth": "completados este mes",
     "note": "¿Te saltaste un día? No pasa nada: lo importante es volver."
+  },
+  "reminder": {
+    "ask": "¿Quieres recibir el devocional por correo todos los días a las 7h?",
+    "yes": "Sí, quiero",
+    "no": "Ahora no",
+    "done": "Listo. Desde mañana recibirás el devocional a las 7h.",
+    "error": "No se pudo guardar. Inténtalo de nuevo.",
+    "note": "Puedes cambiarlo cuando quieras en tu Perfil."
   }
 }

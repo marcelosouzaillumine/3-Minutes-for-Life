@@ -236,6 +236,16 @@ export class AdminService {
     };
   }
 
+  /** Datas de publicação dos devocionais publicados (base da fila de 14 dias). */
+  static async getPublishedDates(): Promise<string[] | null> {
+    const res = await illumineFetch('/devotionals?status=published&perPage=500');
+    if (!res.ok) return null;
+    const body = await res.json();
+    return (body?.devotionals ?? [])
+      .map((d: any) => String(d.publicationDate ?? '').slice(0, 10))
+      .filter(Boolean);
+  }
+
   static async getSearchTerms(days: number): Promise<SearchTerms | null> {
     const res = await illumineFetch(`/analytics/search/terms?days=${days}`);
     if (!res.ok) {

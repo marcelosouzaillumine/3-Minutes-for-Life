@@ -2522,3 +2522,33 @@ a:focus-visible {
   text-underline-offset: 3px;
   cursor: pointer;
 }
+
+.reminder-invite {
+  margin: 1.5rem auto 0;
+  max-width: 28rem;
+  padding: 1rem 1.1rem;
+  text-align: center;
+  border: 1px solid var(--color-border, #e5e0d8);
+  border-radius: 12px;
+}
+.reminder-invite__text { margin: 0 0 0.75rem; }
+.reminder-invite__actions { display: flex; justify-content: center; align-items: center; gap: 0.75rem; }
+.reminder-invite__no { background: none; border: 0; padding: 0.25rem 0.5rem; color: var(--color-text-light, #6b7280); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.reminder-invite__note { margin: 0.75rem 0 0; font-size: 0.8rem; color: var(--color-text-light, #6b7280); }
+.reminder-invite__err { margin: 0.5rem 0 0; font-size: 0.85rem; color: #dc2626; }
+.reminder-invite__ok { margin: 1.5rem auto 0; text-align: center; color: var(--color-text-light, #6b7280); }
+
+.plans { margin: 0 0 2rem; }
+.plans__heading, .plans__title { margin: 0 0 0.75rem; font-weight: 500; }
+.plans__list { display: grid; gap: 0.75rem; }
+.plans__card { display: flex; flex-direction: column; gap: 0.3rem; text-align: left; padding: 1rem 1.1rem; background: none; border: 1px solid var(--color-border, #e5e0d8); border-radius: 12px; cursor: pointer; color: inherit; font: inherit; }
+.plans__card span { font-size: 0.9rem; color: var(--color-text-light, #6b7280); }
+.plans__card em { font-size: 0.8rem; font-style: normal; color: var(--color-text-light, #6b7280); }
+.plans__back { background: none; border: 0; padding: 0; margin-bottom: 1rem; color: var(--color-text-light, #6b7280); cursor: pointer; }
+.plans__desc { margin: 0 0 0.5rem; color: var(--color-text-light, #6b7280); }
+.plans__progress { margin: 0 0 1rem; font-size: 0.9rem; }
+.plans__days { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.plans__day { display: flex; align-items: center; gap: 0.75rem; width: 100%; text-align: left; padding: 0.75rem 0.9rem; background: none; border: 1px solid var(--color-border, #e5e0d8); border-radius: 10px; cursor: pointer; color: inherit; font: inherit; }
+.plans__day-n { flex: none; width: 1.6rem; height: 1.6rem; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: var(--color-border, #e5e0d8); font-size: 0.8rem; }
+.plans__day--done { opacity: 0.65; }
+.plans__day--next { border-color: var(--color-accent, #c46d53); }

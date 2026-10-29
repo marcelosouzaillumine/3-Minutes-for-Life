@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ReminderInvite } from './ReminderInvite';
 import { useNavigate } from 'react-router-dom';
 import type { Devotional } from '../types/Devotional';
 import { JourneyService } from '../services/JourneyService';
@@ -818,6 +819,8 @@ export function PrincipleView({
         {/* ======================================================
             EXPLORE MORE
             ====================================================== */}
+
+        <ReminderInvite />
 
         {onExplore && (
           <div className="home-explore">

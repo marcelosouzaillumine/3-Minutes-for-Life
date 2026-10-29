@@ -11,6 +11,8 @@ import {
   Tooltip,
   Cell,
 } from 'recharts';
+import { queueStatus, QUEUE_TARGET_DAYS, type QueueStatus } from '../../utils/contentQueue';
+import { getTodayInSaoPaulo } from '../../utils/date';
 import { AdminService, type DashboardMetrics, type DailySeriesPoint, type ReadingTrends, type SearchTerms } from '../../services/AdminService';
 
 const ACCENT = 'var(--color-accent, #c46d53)';
@@ -39,6 +41,7 @@ export function AdminDashboard() {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [dailySeries, setDailySeries] = useState<DailySeriesPoint[]>([]);
   const [readingTrends, setReadingTrends] = useState<ReadingTrends | null>(null);
+  const [queue, setQueue] = useState<QueueStatus | null>(null);
   const [searchTerms, setSearchTerms] = useState<SearchTerms | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -97,6 +100,11 @@ export function AdminDashboard() {
   useEffect(() => {
     AdminService.getSearchTerms(period === 'today' ? 1 : period === '30d' ? 30 : 7).then(setSearchTerms);
   }, [period]);
+
+  // Fila de conteúdo: dias à frente com devocional publicado.
+  useEffect(() => {
+    AdminService.getPublishedDates().then((dates) => setQueue(dates ? queueStatus(dates, getTodayInSaoPaulo()) : null));
+  }, []);
 
   // Histórico global de leituras — dado vitalício, não muda com o seletor de período.
   useEffect(() => {
@@ -522,6 +530,24 @@ export function AdminDashboard() {
                 </table>
               </div>
             </>
+          )}
+        </div>
+      )}
+
+      {queue && (
+        <div className="admin-section">
+          <h3>Fila de devocionais</h3>
+          <p style={{ color: queue.level === 'ok' ? GOOD : queue.level === 'warning' ? '#b45309' : BAD, fontWeight: 600 }}>
+            {queue.level === 'ok'
+              ? `Tudo certo: há devocional publicado para os próximos ${QUEUE_TARGET_DAYS} dias.`
+              : queue.covered_days === 0
+                ? 'Atenção: não há devocional publicado para hoje.'
+                : `Há devocional publicado só para os próximos ${queue.covered_days} ${queue.covered_days === 1 ? 'dia' : 'dias'}. A meta é ${QUEUE_TARGET_DAYS}.`}
+          </p>
+          {queue.missing.length > 0 && (
+            <p style={{ fontSize: 13, color: MUTED }}>
+              Sem devocional em: {queue.missing.map((d) => d.slice(8, 10) + '/' + d.slice(5, 7)).join(', ')}.
+            </p>
           )}
         </div>
       )}
