@@ -59,7 +59,7 @@ export function KidsReading({ devotionalId, scriptureReference }: { devotionalId
           <h4>{t('kids.prayer', 'Oração')}</h4>
           <Paragraphs text={current.prayer} />
           <aside className="kids__guide">
-            <strong>{t('kids.guide', 'Guia do adulto')}</strong>
+            <strong>{t('kids.guide', 'Guia e material de apoio')}</strong>
             <Paragraphs text={current.adultGuide} />
           </aside>
         </div>
