@@ -111,3 +111,20 @@
   opacity: 0.6;
   cursor: default;
 }
+
+.oauth-account {
+  margin: 0 0 16px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.oauth-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-strong);
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+}
