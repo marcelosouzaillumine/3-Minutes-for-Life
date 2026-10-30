@@ -173,26 +173,26 @@ export const FamilyAdmin = {
     const res = await illumineFetch(`/plans/categories/${encodeURIComponent(id)}`, { method: 'DELETE' });
     return res.ok ? { ok: true } : { ok: false, error: (await res.json().catch(() => ({})))?.error ?? String(res.status) };
   },
-  async kidsSummary(): Promise<Record<string, { draft: number; published: number }>> {
-    const res = await illumineFetch('/devotionals/kids-summary');
+  async kidsSummary(language = 'pt-BR'): Promise<Record<string, { draft: number; published: number }>> {
+    const res = await illumineFetch(`/devotionals/kids-summary?language=${encodeURIComponent(language)}`);
     return res.ok ? (await res.json()).summary ?? {} : {};
   },
-  async getKids(devotionalId: string): Promise<Record<Band, KidsDraft | null>> {
+  async getKids(devotionalId: string, language = 'pt-BR'): Promise<Record<Band, KidsDraft | null>> {
     const res = await illumineFetch(`/devotionals/${encodeURIComponent(devotionalId)}/kids/admin`);
     const versions: any[] = res.ok ? (await res.json()).versions ?? [] : [];
     const out = {} as Record<Band, KidsDraft | null>;
     for (const b of BANDS) {
-      const v = versions.find((x) => x.band === b && (x.language ?? 'pt-BR') === 'pt-BR');
+      const v = versions.find((x) => x.band === b && (x.language ?? 'pt-BR') === language);
       out[b] = v
         ? { scriptureFocus: v.scriptureFocus ?? '', whatItSays: v.whatItSays, thinkAbout: v.thinkAbout, practice: v.practice, prayer: v.prayer, adultGuide: v.adultGuide, status: v.status }
         : null;
     }
     return out;
   },
-  async saveKids(devotionalId: string, band: Band, d: KidsDraft): Promise<boolean> {
+  async saveKids(devotionalId: string, band: Band, d: KidsDraft, language = 'pt-BR'): Promise<boolean> {
     const res = await illumineFetch(`/devotionals/${encodeURIComponent(devotionalId)}/kids/${band}`, {
       method: 'PUT',
-      body: JSON.stringify({ ...d, scriptureFocus: d.scriptureFocus.trim() || null, language: 'pt-BR' }),
+      body: JSON.stringify({ ...d, scriptureFocus: d.scriptureFocus.trim() || null, language }),
     });
     return res.ok;
   },
