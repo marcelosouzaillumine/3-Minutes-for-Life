@@ -43,8 +43,13 @@ export function KidsReading({ devotionalId, scriptureReference }: { devotionalId
       {current && (
         <div className="kids__body">
           {current.title && <h3 className="kids__title">{current.title}</h3>}
-          {scriptureReference && <p className="kids__ref">{scriptureReference}</p>}
-          {current.scriptureFocus && <blockquote className="kids__focus">{current.scriptureFocus}</blockquote>}
+          {/* Mesmo cartão de citação do devocional principal (PrincipleView). */}
+          {(scriptureReference || current.scriptureFocus) && (
+            <blockquote className="principle-scripture">
+              {scriptureReference && <cite className="principle-scripture-reference">{scriptureReference}</cite>}
+              {current.scriptureFocus && <p className="principle-scripture-text">&ldquo;{current.scriptureFocus}&rdquo;</p>}
+            </blockquote>
+          )}
           <h4>{t('kids.whatItSays', 'O que a Bíblia conta')}</h4>
           <Paragraphs text={current.whatItSays} />
           <h4>{t('kids.thinkAbout', 'Para pensar')}</h4>

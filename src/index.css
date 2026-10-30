@@ -2558,8 +2558,7 @@ a:focus-visible {
 .kids__bands { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
 .kids__band { background: none; border: 1px solid var(--color-border, #e5e0d8); border-radius: 999px; padding: 0.3rem 0.9rem; cursor: pointer; color: inherit; font: inherit; font-size: 0.9rem; }
 .kids__band--on { border-color: var(--color-accent, #c46d53); color: var(--color-accent, #c46d53); }
-.kids__ref { margin: 0 0 0.4rem; font-size: 0.85rem; color: var(--color-text-light, #6b7280); }
-.kids__focus { margin: 0 0 1rem; padding: 0 0 0 0.9rem; border-left: 3px solid var(--color-border, #e5e0d8); font-style: italic; }
+.kids__body .principle-scripture { margin-bottom: 1rem; }
 .kids__body h4 { margin: 1rem 0 0.25rem; font-size: 0.85rem; font-weight: 500; color: var(--color-text-light, #6b7280); }
 .kids__body p { margin: 0; line-height: 1.6; }
 .kids__body p + p { margin-top: 0.75rem; }
