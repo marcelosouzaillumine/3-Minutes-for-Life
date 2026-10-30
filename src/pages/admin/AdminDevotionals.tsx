@@ -382,7 +382,7 @@ export function AdminDevotionals() {
           </button>
         </div>
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-          <div style={{ width: '100%', maxWidth: '480px' }}>
+          <div style={{ width: '100%', maxWidth: 'var(--content-max-width)' }}>
             <PrincipleView
               devotional={editForm as any}
               onBack={() => setShowPreview(false)}
