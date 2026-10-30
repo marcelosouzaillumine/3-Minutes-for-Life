@@ -41,6 +41,7 @@ export function KidsReading({ devotionalId, scriptureReference }: { devotionalId
       </div>
       {current && (
         <div className="kids__body">
+          {current.title && <h3 className="kids__title">{current.title}</h3>}
           {scriptureReference && <p className="kids__ref">{scriptureReference}</p>}
           {current.scriptureFocus && <blockquote className="kids__focus">{current.scriptureFocus}</blockquote>}
           <h4>{t('kids.whatItSays', 'O que a Bíblia conta')}</h4>

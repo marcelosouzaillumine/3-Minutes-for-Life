@@ -5,8 +5,9 @@ import { PlansStudio } from './AdminPlans';
 import '../../styles/family.css';
 
 export interface Row { id: string; title: string; publicationDate: string; scriptureReference?: string | null; scriptureText?: string | null; principleStatement?: string | null; reflection?: string; practicalApplication?: string | null; prayer?: string | null }
-const EMPTY: KidsDraft = { scriptureFocus: '', whatItSays: '', thinkAbout: '', practice: '', prayer: '', adultGuide: '', status: 'draft' };
+const EMPTY: KidsDraft = { title: '', scriptureFocus: '', whatItSays: '', thinkAbout: '', practice: '', prayer: '', adultGuide: '', status: 'draft' };
 const FIELDS: { key: Exclude<keyof KidsDraft, 'status'>; label: string; rows: number }[] = [
+  { key: 'title', label: 'Título para esta faixa (até 80 caracteres)', rows: 1 },
   { key: 'scriptureFocus', label: 'Trecho da passagem (opcional)', rows: 2 },
   { key: 'whatItSays', label: 'O que a Bíblia conta', rows: 5 },
   { key: 'thinkAbout', label: 'Para pensar', rows: 4 },
@@ -88,7 +89,7 @@ function KidsStudio({ rows }: { rows: Row[] }) {
     if (!current) return;
     const d = { ...drafts[band], status };
     if (![d.whatItSays, d.thinkAbout, d.practice, d.prayer, d.adultGuide].every((x) => x.trim())) {
-      setMsg(`Faixa ${bandLabel(band)}: preencha todos os campos, menos o trecho da passagem.`);
+      setMsg(`Faixa ${bandLabel(band)}: preencha todos os campos, menos o título e o trecho da passagem.`);
       return;
     }
     setSaving(true);
@@ -164,7 +165,9 @@ function KidsStudio({ rows }: { rows: Row[] }) {
           <div className="fam-form">
             {FIELDS.map((f) => (
               <label key={f.key}>{f.label}
-                <textarea rows={f.rows} value={d[f.key]} onChange={(e) => set(f.key, e.target.value)} />
+                {f.key === 'title'
+                  ? <input maxLength={80} value={d.title} placeholder="Ex.: O segredo de Paulo" onChange={(e) => set('title', e.target.value)} />
+                  : <textarea rows={f.rows} value={d[f.key]} onChange={(e) => set(f.key, e.target.value)} />}
               </label>
             ))}
           </div>
@@ -178,6 +181,7 @@ function KidsStudio({ rows }: { rows: Row[] }) {
           <p className="fam-eyebrow">Prévia no app · {bandLabel(band)}</p>
           <div className="studio__screen">
             {current.scriptureReference && <p className="fam-eyebrow fam-eyebrow--accent">{current.scriptureReference}</p>}
+            <h4 className="studio__title">{d.title || current.title}</h4>
             {d.scriptureFocus && <blockquote>{d.scriptureFocus}</blockquote>}
             <h5>O que a Bíblia conta</h5><p>{d.whatItSays || '…'}</p>
             <h5>Para pensar</h5><p>{d.thinkAbout || '…'}</p>

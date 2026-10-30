@@ -131,6 +131,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
               perChild.map(({ child, version }) => (
                 <section key={child.id} className="ritual__kid">
                   <h3>{child.nickname} · {child.band.replace('-', ' a ')} {tt('years', 'anos')}</h3>
+                  {version?.title && <p className="ritual__kid-title">{version.title}</p>}
                   {version ? <p>{version.whatItSays}</p> : <p className="fam-note">{tt('noKids', 'Ainda não há versão para esta faixa. Leia o texto dos adultos e converse.')}</p>}
                 </section>
               ))

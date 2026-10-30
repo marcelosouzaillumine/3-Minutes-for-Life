@@ -43,6 +43,7 @@ export interface Family {
 
 export interface KidsVersion {
   band: Band;
+  title?: string | null;
   scriptureFocus: string | null;
   whatItSays: string;
   thinkAbout: string;
@@ -149,6 +150,7 @@ export const pendingFamilyCode = {
 // ─── Admin: conteúdo da família ────────────────────────────────────────────
 
 export interface KidsDraft {
+  title: string;
   scriptureFocus: string;
   whatItSays: string;
   thinkAbout: string;
@@ -184,7 +186,7 @@ export const FamilyAdmin = {
     for (const b of BANDS) {
       const v = versions.find((x) => x.band === b && (x.language ?? 'pt-BR') === language);
       out[b] = v
-        ? { scriptureFocus: v.scriptureFocus ?? '', whatItSays: v.whatItSays, thinkAbout: v.thinkAbout, practice: v.practice, prayer: v.prayer, adultGuide: v.adultGuide, status: v.status }
+        ? { title: v.title ?? '', scriptureFocus: v.scriptureFocus ?? '', whatItSays: v.whatItSays, thinkAbout: v.thinkAbout, practice: v.practice, prayer: v.prayer, adultGuide: v.adultGuide, status: v.status }
         : null;
     }
     return out;
@@ -192,7 +194,7 @@ export const FamilyAdmin = {
   async saveKids(devotionalId: string, band: Band, d: KidsDraft, language = 'pt-BR'): Promise<boolean> {
     const res = await illumineFetch(`/devotionals/${encodeURIComponent(devotionalId)}/kids/${band}`, {
       method: 'PUT',
-      body: JSON.stringify({ ...d, scriptureFocus: d.scriptureFocus.trim() || null, language }),
+      body: JSON.stringify({ ...d, title: d.title.trim() || null, scriptureFocus: d.scriptureFocus.trim() || null, language }),
     });
     return res.ok;
   },
