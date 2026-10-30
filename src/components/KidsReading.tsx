@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { illumineAuth } from '../lib/illumine';
 import { BANDS, FamilyService, type Band, type KidsVersion } from '../services/FamilyService';
+import { Paragraphs } from './Paragraphs';
 
 /** "Ler com as crianças": só aparece quando o devocional tem versão infantil aprovada. */
 export function KidsReading({ devotionalId, scriptureReference }: { devotionalId: string; scriptureReference?: string | null }) {
@@ -45,16 +46,16 @@ export function KidsReading({ devotionalId, scriptureReference }: { devotionalId
           {scriptureReference && <p className="kids__ref">{scriptureReference}</p>}
           {current.scriptureFocus && <blockquote className="kids__focus">{current.scriptureFocus}</blockquote>}
           <h4>{t('kids.whatItSays', 'O que a Bíblia conta')}</h4>
-          <p>{current.whatItSays}</p>
+          <Paragraphs text={current.whatItSays} />
           <h4>{t('kids.thinkAbout', 'Para pensar')}</h4>
-          <p>{current.thinkAbout}</p>
+          <Paragraphs text={current.thinkAbout} />
           <h4>{t('kids.practice', 'Para fazer hoje')}</h4>
-          <p>{current.practice}</p>
+          <Paragraphs text={current.practice} />
           <h4>{t('kids.prayer', 'Oração')}</h4>
-          <p>{current.prayer}</p>
+          <Paragraphs text={current.prayer} />
           <aside className="kids__guide">
             <strong>{t('kids.guide', 'Guia do adulto')}</strong>
-            <p>{current.adultGuide}</p>
+            <Paragraphs text={current.adultGuide} />
           </aside>
         </div>
       )}
