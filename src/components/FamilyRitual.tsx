@@ -8,6 +8,7 @@ import { getTodayInSaoPaulo } from '../utils/date';
 import { RITUAL_STEPS, readerForDay, versionsForChildren } from '../utils/ritual';
 import type { Devotional } from '../types/Devotional';
 import '../styles/family.css';
+import { Paragraphs } from './Paragraphs';
 
 /** Ler em família: um roteiro de tela cheia, uma coisa por vez, feito para ser lido em voz alta. */
 export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; onClose: () => void }) {
@@ -119,8 +120,12 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
           <>
             <p className="fam-eyebrow fam-eyebrow--accent">{tt('scripture', 'A passagem')}</p>
             {reader && <p className="fam-note">{tt('reader', '{{name}} lê em voz alta', { name: reader })}</p>}
-            {devotional.scripture_reference && <h2 className="ritual__ref">{devotional.scripture_reference}</h2>}
-            {devotional.scripture_text && <blockquote className="ritual__verse">{devotional.scripture_text}</blockquote>}
+            {(devotional.scripture_reference || devotional.scripture_text) && (
+              <blockquote className="principle-scripture principle-scripture--ritual">
+                {devotional.scripture_reference && <cite className="principle-scripture-reference">{devotional.scripture_reference}</cite>}
+                {devotional.scripture_text && <p className="principle-scripture-text">&ldquo;{devotional.scripture_text}&rdquo;</p>}
+              </blockquote>
+            )}
           </>
         )}
 
@@ -132,7 +137,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
                 <section key={child.id} className="ritual__kid">
                   <h3>{child.nickname} · {child.band.replace('-', ' a ')} {tt('years', 'anos')}</h3>
                   {version?.title && <p className="ritual__kid-title">{version.title}</p>}
-                  {version ? <p>{version.whatItSays}</p> : <p className="fam-note">{tt('noKids', 'Ainda não há versão para esta faixa. Leia o texto dos adultos e converse.')}</p>}
+                  {version ? <Paragraphs text={version.whatItSays} /> : <p className="fam-note">{tt('noKids', 'Ainda não há versão para esta faixa. Leia o texto dos adultos e converse.')}</p>}
                 </section>
               ))
             ) : (
@@ -147,9 +152,9 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
             {perChild.some((p) => p.version) && perChild.filter((p) => p.version).map(({ child, version }) => (
               <section key={child.id} className="ritual__kid">
                 <h3>{child.nickname}</h3>
-                <p>{version!.thinkAbout}</p>
-                <p><strong>{version!.practice}</strong></p>
-                {version!.adultGuide && <p className="fam-note">{version!.adultGuide}</p>}
+                <Paragraphs text={version!.thinkAbout} />
+                <Paragraphs text={version!.practice} strong />
+                {version!.adultGuide && <Paragraphs text={version!.adultGuide} className="fam-note" />}
               </section>
             ))}
             {devotional.practical_application && <HtmlRenderer html={devotional.practical_application} className="ritual__text" />}

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { illumineAuth } from '../lib/illumine';
 import { BANDS, FamilyService, type Band, type KidsVersion } from '../services/FamilyService';
+import { Paragraphs } from './Paragraphs';
 
 /** "Ler com as crianças": só aparece quando o devocional tem versão infantil aprovada. */
 export function KidsReading({ devotionalId, scriptureReference }: { devotionalId: string; scriptureReference?: string | null }) {
@@ -42,19 +43,24 @@ export function KidsReading({ devotionalId, scriptureReference }: { devotionalId
       {current && (
         <div className="kids__body">
           {current.title && <h3 className="kids__title">{current.title}</h3>}
-          {scriptureReference && <p className="kids__ref">{scriptureReference}</p>}
-          {current.scriptureFocus && <blockquote className="kids__focus">{current.scriptureFocus}</blockquote>}
+          {/* Mesmo cartão de citação do devocional principal (PrincipleView). */}
+          {(scriptureReference || current.scriptureFocus) && (
+            <blockquote className="principle-scripture">
+              {scriptureReference && <cite className="principle-scripture-reference">{scriptureReference}</cite>}
+              {current.scriptureFocus && <p className="principle-scripture-text">&ldquo;{current.scriptureFocus}&rdquo;</p>}
+            </blockquote>
+          )}
           <h4>{t('kids.whatItSays', 'O que a Bíblia conta')}</h4>
-          <p>{current.whatItSays}</p>
+          <Paragraphs text={current.whatItSays} />
           <h4>{t('kids.thinkAbout', 'Para pensar')}</h4>
-          <p>{current.thinkAbout}</p>
+          <Paragraphs text={current.thinkAbout} />
           <h4>{t('kids.practice', 'Para fazer hoje')}</h4>
-          <p>{current.practice}</p>
+          <Paragraphs text={current.practice} />
           <h4>{t('kids.prayer', 'Oração')}</h4>
-          <p>{current.prayer}</p>
+          <Paragraphs text={current.prayer} />
           <aside className="kids__guide">
-            <strong>{t('kids.guide', 'Guia do adulto')}</strong>
-            <p>{current.adultGuide}</p>
+            <strong>{t('kids.guide', 'Guia e material de apoio')}</strong>
+            <Paragraphs text={current.adultGuide} />
           </aside>
         </div>
       )}

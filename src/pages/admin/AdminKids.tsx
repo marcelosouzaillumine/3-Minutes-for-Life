@@ -13,7 +13,7 @@ const FIELDS: { key: Exclude<keyof KidsDraft, 'status'>; label: string; rows: nu
   { key: 'thinkAbout', label: 'Para pensar', rows: 4 },
   { key: 'practice', label: 'Para fazer hoje', rows: 3 },
   { key: 'prayer', label: 'Oração', rows: 3 },
-  { key: 'adultGuide', label: 'Guia do adulto', rows: 3 },
+  { key: 'adultGuide', label: 'Guia do adulto e material de apoio', rows: 10 },
 ];
 const bandLabel = (b: Band) => `${b.replace('-', ' a ')} anos`;
 const strip = (s?: string | null) => (s ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
