@@ -120,8 +120,12 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
           <>
             <p className="fam-eyebrow fam-eyebrow--accent">{tt('scripture', 'A passagem')}</p>
             {reader && <p className="fam-note">{tt('reader', '{{name}} lê em voz alta', { name: reader })}</p>}
-            {devotional.scripture_reference && <h2 className="ritual__ref">{devotional.scripture_reference}</h2>}
-            {devotional.scripture_text && <blockquote className="ritual__verse">{devotional.scripture_text}</blockquote>}
+            {(devotional.scripture_reference || devotional.scripture_text) && (
+              <blockquote className="principle-scripture principle-scripture--ritual">
+                {devotional.scripture_reference && <cite className="principle-scripture-reference">{devotional.scripture_reference}</cite>}
+                {devotional.scripture_text && <p className="principle-scripture-text">&ldquo;{devotional.scripture_text}&rdquo;</p>}
+              </blockquote>
+            )}
           </>
         )}
 

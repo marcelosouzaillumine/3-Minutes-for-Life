@@ -100,8 +100,10 @@
 .ritual__body { flex: 1; overflow-y: auto; width: 100%; max-width: 32rem; margin: 0 auto; padding: 1.5rem 1.5rem 2rem; display: grid; align-content: start; gap: 1rem; }
 .ritual__title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 2rem; line-height: 1.15; }
 .ritual__lead { margin: 0; font-size: 1.05rem; line-height: 1.6; color: var(--text-muted); }
-.ritual__ref { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 1.6rem; }
-.ritual__verse { margin: 0; font-family: var(--font-serif); font-size: 1.5rem; line-height: 1.55; padding-left: 1rem; border-left: 2px solid var(--accent-strong); }
+/* Mesmo cartão do devocional principal (.principle-scripture), com letra maior por ser leitura em voz alta. */
+.ritual__body .principle-scripture--ritual { margin-bottom: 0; padding: 1.25rem 1.3rem; }
+.ritual__body .principle-scripture--ritual .principle-scripture-text { font-size: 1.5rem; line-height: 1.55; }
+.ritual__body .principle-scripture--ritual .principle-scripture-reference { margin-top: 0.9rem; font-size: 0.85rem; }
 .ritual__text { font-size: 1.1rem; line-height: 1.75; }
 .ritual__prayer { font-family: var(--font-serif); font-size: 1.25rem; }
 .ritual__kid { padding: 1rem 1.1rem; border: 1px solid var(--border-subtle); border-radius: 14px; }
