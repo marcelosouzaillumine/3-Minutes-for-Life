@@ -17,7 +17,7 @@ const WHY: Record<OauthError['code'], string> = {
 
 export function Autorizar() {
   const { search } = useLocation();
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const req = useMemo(() => parseOauthRequest(search), [search]);
   const [info, setInfo] = useState<OauthInfo | null>(null);
   const [state, setState] = useState<'loading' | 'ready' | 'invalid'>(req ? 'loading' : 'invalid');
@@ -46,6 +46,12 @@ export function Autorizar() {
     };
   }, [req, loading, user]);
 
+  // Sai e volta ao login com o pedido intacto, para quem está com a conta errada.
+  async function switchAccount() {
+    await signOut();
+    window.location.href = `/login?redirectTo=${encodeURIComponent(`/autorizar${search}`)}`;
+  }
+
   async function decide(decision: 'allow' | 'deny') {
     if (!req) return;
     setBusy(true);
@@ -65,9 +71,13 @@ export function Autorizar() {
         <h1>Autorizar acesso</h1>
         {state === 'loading' && <p role="status">Carregando o pedido…</p>}
         {state === 'invalid' && <p role="alert" className="oauth-error">{error || WHY.invalid}</p>}
+        {state === 'invalid' && user && req && (
+          <p className="oauth-account">Conectado como <strong>{user.email}</strong>. <button type="button" className="oauth-link" onClick={() => void switchAccount()}>Entrar com outra conta</button></p>
+        )}
         {state === 'ready' && info && (
           <>
             <p className="oauth-lead"><strong>{info.clientName}</strong> quer ajudar a equipe editorial do 3 Minutes for Life.</p>
+            {user && <p className="oauth-account">Conectado como <strong>{user.email}</strong>. <button type="button" className="oauth-link" onClick={() => void switchAccount()}>Trocar de conta</button></p>}
             <fieldset>
               <legend>O que o Claude poderá fazer</legend>
               <label>
