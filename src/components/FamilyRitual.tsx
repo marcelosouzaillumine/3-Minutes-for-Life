@@ -29,7 +29,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
     setPresent(new Set((f?.children ?? []).map((c) => c.id)));
   }).catch(() => setFailed(true)); }, []);
 
-  const planDay = family?.plan && !family.plan.completed ? family.plan.days[family.plan.currentDay - 1] : null;
+  const planDay = family?.plan && !family.plan.completed && !family.plan.lockedUntilTomorrow ? family.plan.days[family.plan.currentDay - 1] : null;
   const canPlan = !!planDay;
   const useSource: 'daily' | 'plan' = chosen === 'plan' && canPlan ? 'plan' : 'daily';
 
@@ -131,6 +131,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
               perChild.map(({ child, version }) => (
                 <section key={child.id} className="ritual__kid">
                   <h3>{child.nickname} · {child.band.replace('-', ' a ')} {tt('years', 'anos')}</h3>
+                  {version?.title && <p className="ritual__kid-title">{version.title}</p>}
                   {version ? <p>{version.whatItSays}</p> : <p className="fam-note">{tt('noKids', 'Ainda não há versão para esta faixa. Leia o texto dos adultos e converse.')}</p>}
                 </section>
               ))

@@ -168,8 +168,10 @@ export function Family() {
           <div className="fam-card__row"><span className="fam-eyebrow fam-eyebrow--accent">{tt('plan.label', 'Plano da família')}</span><span className="fam-note">{tt('plan.day', 'dia {{n}} de {{total}}', { n: plan.currentDay, total: plan.days.length })}</span></div>
           <h2 className="fam-card__title">{plan.title}</h2>
           <div className="fam-dots">{plan.days.map((d) => <span key={d.day} className={`fam-dot${d.done ? ' is-done' : ''}${d.day === plan.currentDay ? ' is-now' : ''}`} />)}</div>
-          <p className="fam-card__text">{tt('plan.today', 'Hoje no plano: {{title}}', { title: plan.days[plan.currentDay - 1]?.title })}</p>
-          <button type="button" className="fam-btn fam-btn--secondary" onClick={() => openRitual('plan')}>{tt('plan.read', 'Ler o dia do plano em família')}</button>
+          {!plan.lockedUntilTomorrow && <p className="fam-card__text">{tt('plan.today', 'Hoje no plano: {{title}}', { title: plan.days[plan.currentDay - 1]?.title })}</p>}
+          {plan.lockedUntilTomorrow
+            ? <p className="fam-note">{tt('plan.locked', 'Hoje vocês já leram o dia {{n}}. O dia {{next}} libera amanhã.', { n: plan.currentDay - 1, next: plan.currentDay })}</p>
+            : <button type="button" className="fam-btn fam-btn--secondary" onClick={() => openRitual('plan')}>{tt('plan.read', 'Ler o dia do plano em família')}</button>}
         </section>
       )}
       {plan?.completed && plan.summary && (

@@ -15,6 +15,7 @@ import { Contribute } from './pages/Contribute';
 import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
 import { ResetPassword } from './pages/ResetPassword';
+import { Autorizar } from './pages/Autorizar';
 import { useAuth } from './context/AuthContext';
 import { useState, useEffect } from 'react';
 import { pendingFamilyCode } from './services/FamilyService';
@@ -132,6 +133,8 @@ function AppRoutes() {
         <Route path="/login" element={<RequireGuest><Auth /></RequireGuest>} />
         <Route path="/signup" element={<Navigate to="/login" replace />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        {/* Conector do Claude (MCP editorial): o admin autoriza aqui; a própria tela cuida do login. */}
+        <Route path="/autorizar" element={<Autorizar />} />
 
         <Route path="/app" element={<RequireAuth><AppShell /></RequireAuth>} />
 

@@ -2567,3 +2567,5 @@ a:focus-visible {
 .kids__close { display: block; margin: 1rem auto 0; background: none; border: 0; cursor: pointer; color: var(--color-text-light, #6b7280); text-decoration: underline; }
 
 .profile-row-link { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 1rem 0; background: none; border: 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); font: inherit; font-size: 1rem; color: var(--text-strong); cursor: pointer; }
+
+.kids__title { margin: 0 0 0.4rem; font-family: var(--font-serif); font-weight: 400; font-size: 1.3rem; }

@@ -348,7 +348,8 @@
       "days_one": "{{count}} days",
       "days_other": "{{count}} days",
       "start": "Start",
-      "stop": "End the current plan"
+      "stop": "End the current plan",
+      "locked": "You've already read day {{n}} today. Day {{next}} unlocks tomorrow."
     },
     "summary": {
       "label": "Week complete",

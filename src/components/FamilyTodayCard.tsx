@@ -19,7 +19,7 @@ export function FamilyTodayCard() {
 
   if (!family) return null;
   const readers = family.members.filter((m) => m.readToday).length;
-  const plan = family.plan && !family.plan.completed ? family.plan : null;
+  const plan = family.plan && !family.plan.completed && !family.plan.lockedUntilTomorrow ? family.plan : null;
 
   return (
     <div className="fam-today">
