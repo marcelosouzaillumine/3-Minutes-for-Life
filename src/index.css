@@ -923,7 +923,7 @@ h4 {
   position: relative;
 
   width: 100%;
-  max-width: 600px;
+  max-width: var(--content-max-width);
   min-height: 100vh;
 
   margin: 0 auto;
@@ -1914,6 +1914,37 @@ h4 {
   .page-home,
   .devotional {
     width: 100%;
+  }
+}
+
+/* Tablet: coluna de leitura mais larga (~70 caracteres por linha) e margens maiores. */
+@media (min-width: 768px) {
+  :root {
+    --content-max-width: 720px;
+    --content-padding: 2rem;
+    --devotional-title-size: 2.4rem;
+    --devotional-section-gap: 3.5rem;
+  }
+
+  .bottom-nav {
+    max-width: 460px;
+  }
+}
+
+/* Desktop: leitura confortável sem esticar a linha; a letra cresce um pouco junto com a tela. */
+@media (min-width: 1200px) {
+  html {
+    font-size: 106.25%;
+  }
+
+  :root {
+    --content-max-width: 800px;
+    --content-padding: 2.5rem;
+    --devotional-title-size: 2.75rem;
+  }
+
+  .content-area {
+    padding-top: 4rem;
   }
 }
 

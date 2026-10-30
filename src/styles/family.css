@@ -177,3 +177,6 @@
 .fam-form label .fam-note { margin: 0.1rem 0 0; }
 
 .ritual__kid-title { font-family: var(--font-serif); font-size: 1.35rem !important; line-height: 1.25; }
+
+/* Ritual em tela maior: coluna de leitura em voz alta mais larga. */
+@media (min-width: 768px) { .ritual__body { max-width: 40rem; } }
