@@ -3,7 +3,7 @@ import { illumineAuth, illumineFetch } from '../lib/illumine';
 // Autorizar o Claude (conector MCP) a ajudar a equipe editorial. O pedido chega pela barra de endereço, vindo do conector;
 // quem decide é um admin logado. As chamadas vão direto à API do produto (3-minutes-api), que ainda não passa pelo proxy do gateway.
 
-const PRODUCT_API_URL = (import.meta.env.VITE_PRODUCT_API_URL || 'https://3-minutes-api-production.up.railway.app').replace(/\/$/, '');
+const PRODUCT_API_URL = (import.meta.env.VITE_PRODUCT_API_URL || 'https://mcp.3minutesforlife.com').replace(/\/$/, '');
 
 export type EditorialAccess = 'read' | 'write';
 
