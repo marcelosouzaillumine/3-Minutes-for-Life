@@ -6,6 +6,7 @@ import { JourneyService } from '../services/JourneyService';
 import { searchMoments, significantWords, topicsOf } from '../utils/momentSearch';
 import { AnalyticsService } from '../services/AnalyticsService';
 import { PlansSection } from '../components/PlansSection';
+import { PlanCategories } from '../components/PlanCategories';
 import { useTranslation } from 'react-i18next';
 
 export function Explore() {
@@ -203,7 +204,7 @@ export function Explore() {
         )
       ) : (
         <>
-        <PlansSection library={library} onOpen={handleSelectDevotional} />
+        <PlanCategories onOpen={handleSelectDevotional} fallback={<PlansSection library={library} onOpen={handleSelectDevotional} />} />
         <ul className="category-list">
           {categories.map(category => {
             const count = devotionals.filter(d => d.categories?.name === category).length;

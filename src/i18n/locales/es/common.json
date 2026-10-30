@@ -420,5 +420,17 @@
     "back": "Atrás",
     "next": "Continuar"
   },
-  "familyNav": "Familia"
+  "familyNav": "Familia",
+  "plansx": {
+    "back": "Planes",
+    "progress": "{{done}} de {{total}} días",
+    "stop": "Dejar este plan",
+    "start": "Empezar este plan",
+    "heading": "Planes",
+    "all": "Todos",
+    "done": "Completado",
+    "days_one": "{{count}} día",
+    "days_many": "{{count}} días",
+    "days_other": "{{count}} días"
+  }
 }

@@ -415,5 +415,16 @@
     "back": "Back",
     "next": "Continue"
   },
-  "familyNav": "Family"
+  "familyNav": "Family",
+  "plansx": {
+    "back": "Plans",
+    "progress": "{{done}} of {{total}} days",
+    "stop": "Stop this plan",
+    "start": "Start this plan",
+    "heading": "Plans",
+    "all": "All",
+    "done": "Completed",
+    "days_one": "{{count}} day",
+    "days_other": "{{count}} days"
+  }
 }

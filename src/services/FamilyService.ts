@@ -24,6 +24,7 @@ export interface PlanTemplate {
   themeWord: string;
   status: 'draft' | 'published';
   days: number;
+  categoryId?: string | null;
   items?: { id: string; title: string }[];
 }
 
@@ -156,7 +157,21 @@ export interface KidsDraft {
   status: 'draft' | 'published';
 }
 
+export interface PlanCategoryAdmin { id: string; name: string; description: string; isFamily: boolean; sortOrder: number; plans: number }
+
 export const FamilyAdmin = {
+  async categories(): Promise<PlanCategoryAdmin[]> {
+    const res = await illumineFetch('/plans/categories/admin');
+    return res.ok ? (await res.json()).categories ?? [] : [];
+  },
+  async saveCategory(id: string | null, body: { name: string; description: string; sortOrder: number }): Promise<{ ok: boolean; error?: string }> {
+    const res = await illumineFetch(id ? `/plans/categories/${encodeURIComponent(id)}` : '/plans/categories', { method: id ? 'PUT' : 'POST', body: JSON.stringify(body) });
+    return res.ok ? { ok: true } : { ok: false, error: (await res.json().catch(() => ({})))?.error ?? String(res.status) };
+  },
+  async deleteCategory(id: string): Promise<{ ok: boolean; error?: string }> {
+    const res = await illumineFetch(`/plans/categories/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    return res.ok ? { ok: true } : { ok: false, error: (await res.json().catch(() => ({})))?.error ?? String(res.status) };
+  },
   async kidsSummary(): Promise<Record<string, { draft: number; published: number }>> {
     const res = await illumineFetch('/devotionals/kids-summary');
     return res.ok ? (await res.json()).summary ?? {} : {};
@@ -184,7 +199,7 @@ export const FamilyAdmin = {
     const res = await illumineFetch('/families/templates/admin');
     return res.ok ? (await res.json()).templates ?? [] : [];
   },
-  async saveTemplate(id: string | null, body: { title: string; description: string; themeWord: string; items: string[]; status: 'draft' | 'published' }): Promise<{ ok: true; template: PlanTemplate } | { ok: false; error: string }> {
+  async saveTemplate(id: string | null, body: { title: string; description: string; themeWord: string; items: string[]; status: 'draft' | 'published'; categoryId?: string | null }): Promise<{ ok: true; template: PlanTemplate } | { ok: false; error: string }> {
     const res = await illumineFetch(id ? `/families/templates/${encodeURIComponent(id)}` : '/families/templates', { method: id ? 'PUT' : 'POST', body: JSON.stringify(body) });
     const data = await res.json().catch(() => ({}));
     return res.ok ? { ok: true, template: data } : { ok: false, error: data?.error ?? String(res.status) };

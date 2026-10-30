@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { illumineFetch } from '../../lib/illumine';
-import { BANDS, FamilyAdmin, type Band, type KidsDraft, type PlanTemplate } from '../../services/FamilyService';
+import { BANDS, FamilyAdmin, type Band, type KidsDraft, type PlanCategoryAdmin, type PlanTemplate } from '../../services/FamilyService';
 import '../../styles/family.css';
 
 interface Row { id: string; title: string; publicationDate: string; scriptureReference?: string | null; scriptureText?: string | null; principleStatement?: string | null; reflection?: string; practicalApplication?: string | null; prayer?: string | null }
@@ -39,7 +39,7 @@ export function AdminKids() {
       <h3>Conteúdo da família</h3>
       <div className="studio__tabs" role="tablist">
         <button type="button" role="tab" aria-selected={tab === 'kids'} className={tab === 'kids' ? 'is-on' : ''} onClick={() => setTab('kids')}>Versões infantis</button>
-        <button type="button" role="tab" aria-selected={tab === 'plans'} className={tab === 'plans' ? 'is-on' : ''} onClick={() => setTab('plans')}>Planos da família</button>
+        <button type="button" role="tab" aria-selected={tab === 'plans'} className={tab === 'plans' ? 'is-on' : ''} onClick={() => setTab('plans')}>Planos</button>
       </div>
       {error && <p className="fam-error">{error}</p>}
       {tab === 'kids' ? <KidsStudio rows={rows} /> : <PlansStudio rows={rows} />}
@@ -172,20 +172,25 @@ function KidsStudio({ rows }: { rows: Row[] }) {
 
 function PlansStudio({ rows }: { rows: Row[] }) {
   const [templates, setTemplates] = useState<PlanTemplate[]>([]);
-  const [editing, setEditing] = useState<{ id: string | null; title: string; description: string; themeWord: string; items: string[]; status: 'draft' | 'published' } | null>(null);
+  const [editing, setEditing] = useState<{ id: string | null; title: string; description: string; themeWord: string; items: string[]; status: 'draft' | 'published'; categoryId: string | null } | null>(null);
+  const [cats, setCats] = useState<PlanCategoryAdmin[]>([]);
+  const [catEdit, setCatEdit] = useState<{ id: string | null; name: string; description: string } | null>(null);
+  const [catFilter, setCatFilter] = useState<string>('all');
   const [pick, setPick] = useState('');
   const [msg, setMsg] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const refresh = () => FamilyAdmin.templates().then(setTemplates);
+  const refresh = () => { FamilyAdmin.templates().then(setTemplates); FamilyAdmin.categories().then(setCats); };
   useEffect(() => { refresh(); }, []);
+  const familyCat = cats.find((c) => c.isFamily);
+  const catName = (id: string | null | undefined) => cats.find((c) => c.id === (id ?? familyCat?.id))?.name ?? 'Sem categoria';
   const titleOf = (id: string) => rows.find((r) => r.id === id)?.title ?? id;
 
   const edit = (t?: PlanTemplate) => {
     setMsg('');
     setEditing(t
-      ? { id: t.id, title: t.title, description: t.description, themeWord: t.themeWord, items: (t.items ?? []).map((i) => i.id), status: t.status }
-      : { id: null, title: '', description: '', themeWord: '', items: [], status: 'draft' });
+      ? { id: t.id, title: t.title, description: t.description, themeWord: t.themeWord, items: (t.items ?? []).map((i) => i.id), status: t.status, categoryId: t.categoryId ?? familyCat?.id ?? null }
+      : { id: null, title: '', description: '', themeWord: '', items: [], status: 'draft', categoryId: catFilter !== 'all' ? catFilter : familyCat?.id ?? null });
   };
 
   const move = (i: number, dir: -1 | 1) => setEditing((e) => {
@@ -208,10 +213,11 @@ function PlansStudio({ rows }: { rows: Row[] }) {
       return;
     }
     setSaving(true);
-    const r = await FamilyAdmin.saveTemplate(editing.id, { title: editing.title.trim(), description: editing.description.trim(), themeWord: editing.themeWord.trim(), items: editing.items, status });
+    const r = await FamilyAdmin.saveTemplate(editing.id, { title: editing.title.trim(), description: editing.description.trim(), themeWord: editing.themeWord.trim(), items: editing.items, status, categoryId: editing.categoryId });
     if (r.ok) { setEditing({ ...editing, id: r.template.id, status }); refresh(); setMsg(status === 'published' ? 'Plano publicado: as famílias já podem escolher.' : 'Plano salvo como rascunho.'); }
     else setMsg(
-      r.error === 'INVALID_ITEMS' ? 'Algum devocional do plano não está publicado, ou foi repetido.'
+      r.error === 'INVALID_CATEGORY' ? 'Escolha uma categoria válida.'
+      : r.error === 'INVALID_ITEMS' ? 'Algum devocional do plano não está publicado, ou foi repetido.'
       : r.error === 'PLAN_TOO_SHORT' ? 'Para publicar, o plano precisa de ao menos 3 devocionais.'
       : r.error === 'VALIDATION_ERROR' ? 'Confira os campos: título até 80, descrição até 400 e palavra até 30 caracteres.'
       : `Não foi possível salvar (${r.error}).`,
@@ -228,13 +234,46 @@ function PlansStudio({ rows }: { rows: Row[] }) {
   if (!editing) {
     return (
       <>
-        <p className="fam-note">Planos são sequências de devocionais que uma família faz junta, um por dia.</p>
+        <p className="fam-note">Planos são sequências de devocionais, um por dia. A categoria Família alimenta a aba Família; as outras aparecem em Explorar.</p>
+        <div className="fam-people">
+          <button type="button" className={`fam-chip${catFilter === 'all' ? ' is-on' : ''}`} onClick={() => setCatFilter('all')}>Todas</button>
+          {cats.map((c) => (
+            <button key={c.id} type="button" className={`fam-chip${catFilter === c.id ? ' is-on' : ''}`} onClick={() => setCatFilter(c.id)}>{c.name} · {c.plans}</button>
+          ))}
+          <button type="button" className="fam-chip" onClick={() => setCatEdit({ id: null, name: '', description: '' })}>+ Categoria</button>
+        </div>
+        {catEdit && (
+          <div className="fam-form studio__cat">
+            <label>Nome da categoria<input maxLength={40} value={catEdit.name} onChange={(e) => setCatEdit({ ...catEdit, name: e.target.value })} /></label>
+            <label>Frase curta (aparece em Explorar)<input maxLength={200} value={catEdit.description} onChange={(e) => setCatEdit({ ...catEdit, description: e.target.value })} /></label>
+            {msg && <p className="fam-error">{msg}</p>}
+            <div className="studio__actions">
+              <button type="button" className="fam-btn fam-btn--primary" onClick={async () => {
+                if (!catEdit.name.trim()) { setMsg('Dê um nome à categoria.'); return; }
+                const cur = cats.find((c) => c.id === catEdit.id);
+                const r = await FamilyAdmin.saveCategory(catEdit.id, { name: catEdit.name.trim(), description: catEdit.description.trim(), sortOrder: cur?.sortOrder ?? cats.length });
+                if (r.ok) { setCatEdit(null); setMsg(''); refresh(); } else setMsg(`Não foi possível salvar (${r.error}).`);
+              }}>Salvar categoria</button>
+              <button type="button" className="fam-btn fam-btn--ghost" onClick={() => { setCatEdit(null); setMsg(''); }}>Cancelar</button>
+              {catEdit.id && !cats.find((c) => c.id === catEdit.id)?.isFamily && (
+                <button type="button" className="fam-btn fam-btn--danger" onClick={async () => {
+                  const r = await FamilyAdmin.deleteCategory(catEdit.id!);
+                  if (r.ok) { setCatEdit(null); setCatFilter('all'); setMsg(''); refresh(); }
+                  else setMsg(r.error === 'CATEGORY_NOT_EMPTY' ? 'Mude os planos desta categoria para outra antes de excluir.' : `Não foi possível excluir (${r.error}).`);
+                }}>Excluir</button>
+              )}
+            </div>
+          </div>
+        )}
+        {catFilter !== 'all' && !catEdit && (
+          <button type="button" className="fam-link" onClick={() => { const c = cats.find((x) => x.id === catFilter); if (c) setCatEdit({ id: c.id, name: c.name, description: c.description }); }}>Editar categoria {catName(catFilter)}</button>
+        )}
         <button type="button" className="fam-btn fam-btn--primary" onClick={() => edit()}>Novo plano</button>
         <ul className="studio__list">
-          {templates.map((t) => (
+          {templates.filter((t) => catFilter === 'all' || (t.categoryId ?? familyCat?.id) === catFilter).map((t) => (
             <li key={t.id}>
               <button type="button" onClick={() => edit(t)}>
-                <span>{t.title}<small>{t.days} dias · {t.themeWord}</small></span>
+                <span>{t.title}<small>{catName(t.categoryId)} · {t.days} dias · {t.themeWord}</small></span>
                 <em className={`studio__badge studio__badge--${t.status === 'published' ? 'done' : 'draft'}`}>{t.status === 'published' ? 'Publicado' : 'Rascunho'}</em>
               </button>
             </li>
@@ -250,6 +289,11 @@ function PlansStudio({ rows }: { rows: Row[] }) {
     <>
       <button type="button" className="fam-link" onClick={() => setEditing(null)}>← Planos</button>
       <div className="fam-form">
+        <label>Categoria
+          <select value={editing.categoryId ?? ''} onChange={(e) => setEditing({ ...editing, categoryId: e.target.value || null })}>
+            {cats.map((c) => <option key={c.id} value={c.id}>{c.name}{c.isFamily ? ' (aba Família)' : ' (Explorar)'}</option>)}
+          </select>
+        </label>
         <label>Título ({editing.title.length}/80)<input maxLength={80} value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} /></label>
         <label>Descrição ({editing.description.length}/400)<textarea rows={3} maxLength={400} value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></label>
         <label>Palavra do plano, até 30 letras ({editing.themeWord.length}/30)<input maxLength={30} value={editing.themeWord} onChange={(e) => setEditing({ ...editing, themeWord: e.target.value })} /></label>
