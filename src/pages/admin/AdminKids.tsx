@@ -250,9 +250,9 @@ function PlansStudio({ rows }: { rows: Row[] }) {
     <>
       <button type="button" className="fam-link" onClick={() => setEditing(null)}>← Planos</button>
       <div className="fam-form">
-        <label>Título<input value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} /></label>
-        <label>Descrição<textarea rows={2} value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></label>
-        <label>Palavra do plano (o que a família leva no fim)<input value={editing.themeWord} onChange={(e) => setEditing({ ...editing, themeWord: e.target.value })} /></label>
+        <label>Título ({editing.title.length}/80)<input maxLength={80} value={editing.title} onChange={(e) => setEditing({ ...editing, title: e.target.value })} /></label>
+        <label>Descrição ({editing.description.length}/400)<textarea rows={3} maxLength={400} value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} /></label>
+        <label>Palavra do plano, até 30 letras ({editing.themeWord.length}/30)<input maxLength={30} value={editing.themeWord} onChange={(e) => setEditing({ ...editing, themeWord: e.target.value })} /></label>
       </div>
       <h4 className="studio__title">Devocionais, na ordem ({editing.items.length} dias)</h4>
       <ol className="studio__order">
