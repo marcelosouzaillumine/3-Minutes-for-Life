@@ -351,7 +351,8 @@
       "days_many": "{{count}} días",
       "days_other": "{{count}} días",
       "start": "Empezar",
-      "stop": "Terminar el plan actual"
+      "stop": "Terminar el plan actual",
+      "locked": "Hoy ya leyeron el día {{n}}. El día {{next}} se libera mañana."
     },
     "summary": {
       "label": "Semana completada",

@@ -29,7 +29,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
     setPresent(new Set((f?.children ?? []).map((c) => c.id)));
   }).catch(() => setFailed(true)); }, []);
 
-  const planDay = family?.plan && !family.plan.completed ? family.plan.days[family.plan.currentDay - 1] : null;
+  const planDay = family?.plan && !family.plan.completed && !family.plan.lockedUntilTomorrow ? family.plan.days[family.plan.currentDay - 1] : null;
   const canPlan = !!planDay;
   const useSource: 'daily' | 'plan' = chosen === 'plan' && canPlan ? 'plan' : 'daily';
 

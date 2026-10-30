@@ -12,6 +12,7 @@ export interface PlanState {
   days: PlanDay[];
   currentDay: number;
   completed: boolean;
+  lockedUntilTomorrow?: boolean;
   daysRead: number;
   daysTogether: number;
   summary: { daysTogether: number; daysRead: number; total: number; word: string | null; prayersOrdered: number } | null;
