@@ -54,7 +54,12 @@ export function FamilyTodayCard({ devotionalId }: { devotionalId?: string }) {
             : t('fam.today.none', 'Ninguém leu ainda hoje')}
           {plan && ` · ${t('fam.today.planDay', { n: plan.currentDay, defaultValue: 'plano, dia {{n}}' })}`}
         </p>
-        {hasKids && <span className="fam-today__tag">{t('fam.today.kids', 'Versão para crianças')}</span>}
+        {hasKids && (
+          <button type="button" className="fam-today__tag" onClick={() => {
+            try { localStorage.setItem('ritual.audience', 'kids'); } catch { /* sem armazenamento */ }
+            openRitual('daily');
+          }}>{t('fam.today.kids', 'Versão para crianças')} ›</button>
+        )}
       </div>
       <button type="button" className="fam-btn fam-btn--primary fam-today__btn" onClick={() => openRitual(plan ? 'plan' : 'daily')}>
         {t('fam.today.cta', 'Ler')}
