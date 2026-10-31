@@ -118,8 +118,8 @@ function sentencesOf(inner: string, max: number): string[] {
 
 /**
  * Agrupa blocos em telas usando a medida real do aparelho: `fits(tela, índice)` diz se aquela tela cabe.
- * Mesma regra de `paginate`: cada tela termina em parágrafo completo e só um parágrafo que não cabe sozinho
- * numa tela é dividido, no fim de uma frase.
+ * Cada tela enche até onde cabe e termina sempre em frase completa: um parágrafo que não cabe no que sobra
+ * continua na tela seguinte, sempre no fim de uma frase. Listas e citações não são divididas.
  */
 export function paginateFit(blocks: string[], fits: (page: string[], index: number) => boolean): string[][] {
   const pages: string[][] = [];
@@ -127,10 +127,9 @@ export function paginateFit(blocks: string[], fits: (page: string[], index: numb
   const flush = () => { if (cur.length) pages.push(cur); cur = []; };
   for (const b of blocks) {
     if (fits([...cur, b], pages.length)) { cur.push(b); continue; }
-    if (cur.length) { flush(); if (fits([b], pages.length)) { cur = [b]; continue; } }
     const wrapped = /^<p>([\s\S]*)<\/p>$/i.exec(b);
     const inner = wrapped ? wrapped[1] : b;
-    if (/<\/?(?:p|ul|ol|li|blockquote|div|h[1-6])\b/i.test(inner)) { cur.push(b); continue; }
+    if (/<\/?(?:p|ul|ol|li|blockquote|div|h[1-6])\b/i.test(inner)) { flush(); cur.push(b); continue; }
     const wrap = (t: string) => (wrapped ? `<p>${t}</p>` : t);
     let chunk = '';
     for (const sentence of sentencesOf(inner, Infinity)) {

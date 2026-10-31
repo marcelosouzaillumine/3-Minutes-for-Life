@@ -94,7 +94,7 @@ describe('ritual', () => {
     expect(phone.max).toBeGreaterThan(200);
   });
 
-  it('paginateFit usa a medida real: tela termina em parágrafo e só divide o que não cabe sozinho', () => {
+  it('paginateFit usa a medida real: tela enche até onde cabe e termina em frase completa', () => {
     const size = (page: string[]) => page.join('').replace(/<[^>]+>/g, '').length;
     const fits = (page: string[]) => size(page) <= 400;
     const blocks = [`<p>${'a'.repeat(150)}</p>`, `<p>${'b'.repeat(150)}</p>`, `<p>${'c'.repeat(150)}</p>`];
@@ -103,6 +103,10 @@ describe('ritual', () => {
     const pages = paginateFit([long], fits);
     expect(pages.length).toBeGreaterThan(2);
     for (const p of pages) { expect(size(p)).toBeLessThanOrEqual(400); expect(p.join('').replace(/<[^>]+>/g, '').trim().endsWith('.')).toBe(true); }
+    const two = [`<p>${'Primeira frase completa. '.repeat(10).trim()}</p>`, `<p>${'Segunda frase completa. '.repeat(10).trim()}</p>`];
+    const filled = paginateFit(two, fits);
+    expect(size(filled[0])).toBeGreaterThan(300);
+    expect(filled.every((p) => p.join('').replace(/<[^>]+>/g, '').trim().endsWith('.'))).toBe(true);
     expect(paginateFit([], fits)).toEqual([]);
   });
 });
