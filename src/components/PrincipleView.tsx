@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { ReminderInvite } from './ReminderInvite';
-import { KidsReading } from './KidsReading';
 import { FamilyTodayCard } from './FamilyTodayCard';
 import { useNavigate } from 'react-router-dom';
 import type { Devotional } from '../types/Devotional';
@@ -301,7 +300,7 @@ export function PrincipleView({
           </h1>
 
           {isDaily && <StreakLine summary={journey} />}
-          {isDaily && user && <FamilyTodayCard />}
+          {isDaily && user && <FamilyTodayCard devotionalId={devotional.id} />}
 
           {devotional.principle_statement && (
             <p className="principle-statement">
@@ -797,8 +796,6 @@ export function PrincipleView({
         {/* ======================================================
             EXPLORE MORE
             ====================================================== */}
-
-        <KidsReading devotionalId={devotional.id} scriptureReference={devotional.scripture_reference} />
 
         <ReminderInvite />
 

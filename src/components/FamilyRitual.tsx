@@ -121,6 +121,31 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   const screen = screens[Math.min(step, screens.length - 1)];
   const last = step >= screens.length - 1;
 
+  // Trocar de tela: círculos no rodapé, deslizar o dedo (gesto horizontal e deliberado) ou setas do teclado.
+  // Na primeira tela (escolha do público) e na última (registro) só os botões da própria tela valem.
+  const touch = useRef<{ x: number; y: number } | null>(null);
+  const go = (delta: number) => setStep((s) => Math.max(0, Math.min(screens.length - 1, s + delta)));
+  useEffect(() => {
+    if (step === 0 || last) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') go(1);
+      else if (e.key === 'ArrowLeft') go(-1);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [step, last, screens.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  const swipe = {
+    onTouchStart: (e: React.TouchEvent) => { touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }; },
+    onTouchEnd: (e: React.TouchEvent) => {
+      const t = touch.current;
+      touch.current = null;
+      if (!t || step === 0 || last) return;
+      const dx = e.changedTouches[0].clientX - t.x;
+      const dy = e.changedTouches[0].clientY - t.y;
+      if (Math.abs(dx) >= 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
+    },
+  };
+
   const finish = async () => {
     if (!devotional) return;
     setSaving(true);
@@ -155,7 +180,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   );
 
   return (
-    <div className={`ritual${screen.kind === 'pray' ? ' ritual--pray' : ''}`} role="dialog" aria-modal="true" aria-label={tt('title', 'Ler juntos')}>
+    <div className={`ritual${screen.kind === 'pray' ? ' ritual--pray' : ''}`} role="dialog" aria-modal="true" aria-label={tt('title', 'Ler juntos')} {...swipe}>
       <header className="ritual__top">
         <div className="ritual__progress" aria-hidden="true">
           {screens.map((s, i) => <i key={s.id} className={i <= step ? 'is-on' : ''} />)}
@@ -310,12 +335,17 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
         </div>
       </div>
 
-      {!last && (
+      {!last && (step === 0 ? (
         <footer className="ritual__nav">
-          <button type="button" className="fam-btn fam-btn--ghost" disabled={step === 0} onClick={() => setStep(step - 1)}>{tt('back', 'Voltar')}</button>
-          <button type="button" className="fam-btn fam-btn--primary" onClick={() => setStep(step + 1)}>{tt('next', 'Continuar')}</button>
+          <button type="button" className="fam-btn fam-btn--primary" onClick={() => go(1)}>{tt('start', 'Começar')}</button>
         </footer>
-      )}
+      ) : (
+        <footer className="ritual__nav ritual__nav--circles">
+          <button type="button" className="ritual__circle" aria-label={tt('back', 'Voltar')} onClick={() => go(-1)}>‹</button>
+          <span className="ritual__counter" aria-live="polite">{tt('counter', '{{n}} de {{total}}', { n: step, total: screens.length - 1 })}</span>
+          <button type="button" className="ritual__circle ritual__circle--next" aria-label={tt('next', 'Continuar')} onClick={() => go(1)}>›</button>
+        </footer>
+      ))}
     </div>
   );
 }

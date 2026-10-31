@@ -72,18 +72,24 @@ export function stepsFor(): readonly RitualStep[] {
 }
 
 /** Cabe tanto texto numa tela de leitura em voz alta antes de a próxima ideia ir para outra tela. */
-export const PAGE_CHARS = 520;
+export const PAGE_CHARS = 640;
 
-/** Parágrafos de um texto simples (linha em branco separa). */
+/**
+ * Junta as linhas de um parágrafo que só foram quebradas na largura do editor (sem linha em branco).
+ * Listas ("- item", "1. item") mantêm uma linha por item.
+ */
+const unwrap = (p: string) => (/^\s*(?:[-•*]|\d+[.)])\s/m.test(p) ? p : p.replace(/\s*\r?\n\s*/g, ' '));
+
+/** Parágrafos de um texto simples (linha em branco separa; quebra simples no meio da frase não vira linha nova). */
 export function plainBlocks(text: string | null | undefined): string[] {
-  return (text ?? '').split(/(?:\r?\n\s*){2,}/).map((p) => p.trim()).filter(Boolean);
+  return (text ?? '').split(/(?:\r?\n\s*){2,}/).map((p) => unwrap(p.trim())).filter(Boolean);
 }
 
 /** Blocos de um texto editorial: cada parágrafo, lista ou citação é um bloco (HTML). Texto simples vira parágrafos. */
 export function htmlBlocks(html: string | null | undefined): string[] {
   const raw = (html ?? '').trim();
   if (!raw) return [];
-  if (!/<(p|div|h[1-6]|ul|ol|blockquote)\b/i.test(raw)) return plainBlocks(raw).map((p) => `<p>${p.replace(/\r?\n/g, '<br/>')}</p>`);
+  if (!/<(p|div|h[1-6]|ul|ol|blockquote)\b/i.test(raw)) return plainBlocks(raw).map((p) => `<p>${p}</p>`);
   if (typeof DOMParser === 'undefined') return raw.match(/<(p|div|h[1-6]|ul|ol|blockquote)\b[\s\S]*?<\/\1>/gi) ?? [raw];
   const body = new DOMParser().parseFromString(`<body>${raw}</body>`, 'text/html').body;
   const out: string[] = [];
@@ -96,46 +102,50 @@ export function htmlBlocks(html: string | null | undefined): string[] {
 
 const textLength = (block: string) => block.replace(/<[^>]+>/g, '').length;
 
-/** Quebra um bloco maior que `max` em frases (e, se uma frase sozinha passar, em palavras), mantendo o formato do bloco. */
-function splitLong(block: string, max: number): string[] {
-  if (textLength(block) <= max) return [block];
-  const wrapped = /^<p>([\s\S]*)<\/p>$/i.exec(block);
-  const inner = wrapped ? wrapped[1] : block;
-  if (/<\/?(?:p|ul|ol|li|blockquote|div|h[1-6])\b/i.test(inner)) return [block];
-  const wrap = (t: string) => (wrapped ? `<p>${t}</p>` : t);
-  const pieces: string[] = [];
-  for (const sentence of inner.split(/(?<=[.!?…:;])\s+/)) {
-    if (sentence.length <= max) { pieces.push(sentence); continue; }
+/** Frases de um parágrafo; uma frase maior que `max` (rara) cai em grupos de palavras. */
+function sentencesOf(inner: string, max: number): string[] {
+  const out: string[] = [];
+  for (const sentence of inner.split(/(?<=[.!?…])\s+/)) {
+    if (sentence.length <= max) { out.push(sentence); continue; }
     let cur = '';
     for (const w of sentence.split(/\s+/)) {
-      if (cur && cur.length + w.length + 1 > max) { pieces.push(cur); cur = w; } else cur = cur ? `${cur} ${w}` : w;
+      if (cur && cur.length + w.length + 1 > max) { out.push(cur); cur = w; } else cur = cur ? `${cur} ${w}` : w;
     }
-    if (cur) pieces.push(cur);
+    if (cur) out.push(cur);
   }
-  const out: string[] = [];
-  let cur = '';
-  for (const piece of pieces) {
-    if (cur && cur.length + piece.length + 1 > max) { out.push(wrap(cur)); cur = piece; } else cur = cur ? `${cur} ${piece}` : piece;
-  }
-  if (cur) out.push(wrap(cur));
   return out;
 }
 
 /**
  * Agrupa blocos em telas de até `max` caracteres (a primeira, que leva o versículo, até `firstMax`).
- * Parágrafo maior que o limite é quebrado em frases: nenhuma tela deve passar do que cabe.
+ * Cada tela termina em parágrafo completo: um parágrafo que não cabe no que sobra vai inteiro para a tela
+ * seguinte. Só um parágrafo maior que uma tela inteira é dividido, sempre no fim de uma frase.
  */
 export function paginate(blocks: string[], max = PAGE_CHARS, firstMax = max): string[][] {
   const pages: string[][] = [];
   let cur: string[] = [];
   let len = 0;
   const limit = () => (pages.length === 0 ? firstMax : max);
-  for (const b of blocks.flatMap((x) => splitLong(x, Math.min(max, firstMax)))) {
+  const flush = () => { if (cur.length) pages.push(cur); cur = []; len = 0; };
+  for (const b of blocks) {
     const l = textLength(b);
-    if (cur.length && len + l > limit()) { pages.push(cur); cur = []; len = 0; }
-    cur.push(b); len += l;
+    if (len + l <= limit()) { cur.push(b); len += l; continue; }
+    const wrapped = /^<p>([\s\S]*)<\/p>$/i.exec(b);
+    const inner = wrapped ? wrapped[1] : b;
+    const splittable = !/<\/?(?:p|ul|ol|li|blockquote|div|h[1-6])\b/i.test(inner);
+    if (cur.length && (l <= max || !splittable)) { flush(); cur.push(b); len = l; continue; }
+    if (!splittable) { cur.push(b); len += l; continue; }
+    const wrap = (t: string) => (wrapped ? `<p>${t}</p>` : t);
+    let chunk = '';
+    for (const sentence of sentencesOf(inner, Math.min(max, firstMax))) {
+      const room = limit() - len;
+      if (chunk && chunk.length + 1 + sentence.length > room) { cur.push(wrap(chunk)); flush(); chunk = sentence; continue; }
+      if (!chunk && cur.length && sentence.length > room) flush();
+      chunk = chunk ? `${chunk} ${sentence}` : sentence;
+    }
+    if (chunk) { cur.push(wrap(chunk)); len += chunk.length; }
   }
-  if (cur.length) pages.push(cur);
+  flush();
   return pages;
 }
 
@@ -145,8 +155,9 @@ export function paginate(blocks: string[], max = PAGE_CHARS, firstMax = max): st
  */
 export function pageBudget(width: number, height: number): { max: number; first: number } {
   const font = Math.min(18.4, Math.max(16, width * 0.044));
-  const lines = Math.max(6, Math.floor((height - 340) / (font * 1.7)));
-  const cols = Math.max(20, (Math.min(width, 512) - 48) / (font * 0.62));
-  const fit = (n: number) => Math.max(140, Math.min(PAGE_CHARS, Math.floor(n * cols * 0.85)));
-  return { max: fit(lines), first: fit(lines - 7) };
+  // Sobra a altura menos topo, rodapé e margens (~330px); o cartão do versículo ocupa ~4 linhas da primeira tela.
+  const lines = Math.max(6, Math.floor((height - 330) / (font * 1.7)));
+  const cols = Math.max(20, (Math.min(width, 512) - 48) / (font * 0.55));
+  const fit = (n: number) => Math.max(140, Math.min(PAGE_CHARS, Math.floor(n * cols * 0.9)));
+  return { max: fit(lines), first: fit(lines - 4) };
 }

@@ -303,7 +303,7 @@ export function SharedDevotional() {
 
                     subtext: t(
                       'shared.ctaSubtext',
-                      'Crie sua conta gratuita para seguir planos de leitura, ler em família e guardar suas reflexões.'
+                      'Crie sua conta gratuita para seguir planos de leitura, ler em grupo e guardar suas reflexões.'
                     ),
 
                     label: t(

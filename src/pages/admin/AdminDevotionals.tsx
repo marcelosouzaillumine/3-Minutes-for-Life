@@ -6,8 +6,8 @@ import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { PrincipleView } from '../../components/PrincipleView';
 import { MediaLibraryPicker } from '../../components/admin/MediaLibraryPicker';
 import { DevotionalLanguages, type KidsSummaries } from '../../components/admin/DevotionalLanguages';
-import { BANDS, FamilyAdmin, type Band } from '../../services/FamilyService';
-import { KidsBandEditor, bandLabel } from '../../components/admin/KidsBandEditor';
+import { BANDS, FamilyAdmin, type Band, type KidsDraft } from '../../services/FamilyService';
+import { KidsBandEditor, KidsBandPreview, bandLabel } from '../../components/admin/KidsBandEditor';
 import { ManualTranslationEditor } from '../../components/admin/ManualTranslationEditor';
 import { publishAll, publishAllForDevotional, type PublishReport } from '../../services/PublishAllService';
 import '../../styles/admin.css';
@@ -31,6 +31,7 @@ export function AdminDevotionals() {
   const [studioMsg, setStudioMsg] = useState('');
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [bandDraft, setBandDraft] = useState<KidsDraft | null>(null);
 
   // Content image state (Dica de conteúdo / Apoio ao projeto) — keyed by field name
   const [contentImageError] = useState<Record<string, string>>({});
@@ -435,8 +436,10 @@ export function AdminDevotionals() {
     );
   };
 
-  if (showPreview && editForm) {
-    return createPortal(
+  // Faixa infantil: a prévia abre por cima e o editor continua montado, para não perder o que foi digitado.
+  const bandMode = !!editingId && editingId !== 'new' && version !== 'adult';
+  const previewOverlay = showPreview && editForm ? (
+    createPortal(
       <div style={{ position: 'fixed', inset: 0, background: 'white', zIndex: 9999, overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
         <div style={{
           position: 'sticky',
@@ -467,21 +470,30 @@ export function AdminDevotionals() {
           </button>
         </div>
         <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-          <div style={{ width: '100%', maxWidth: 'var(--content-max-width)' }}>
-            <PrincipleView
-              devotional={editForm as any}
-              onBack={() => setShowPreview(false)}
-            />
+          <div style={{ width: '100%', maxWidth: 'var(--content-max-width)', padding: '0 20px 40px', boxSizing: 'border-box' }}>
+            {bandMode ? (
+              <div style={{ paddingTop: '16px' }}>
+                <p style={{ fontSize: '0.85rem', color: 'var(--color-text-light)', margin: '0 0 12px' }}>Prévia da faixa {bandLabel(version)} · {langName(currentLang)}</p>
+                <KidsBandPreview devotional={editForm} draft={bandDraft ?? { title: '', scriptureFocus: '', whatItSays: '', thinkAbout: '', practice: '', prayer: '', adultGuide: '', status: 'draft' }} />
+              </div>
+            ) : (
+              <PrincipleView
+                devotional={editForm as any}
+                onBack={() => setShowPreview(false)}
+              />
+            )}
           </div>
         </div>
       </div>,
       document.body
-    );
-  }
+    )
+  ) : null;
+  if (previewOverlay && !bandMode) return previewOverlay;
 
   if (editingId) {
     return (
       <div style={{ padding: '20px', paddingBottom: '100px', width: '100%' }}>
+        {previewOverlay}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <button 
             onClick={handleCancelEdit}
@@ -542,7 +554,7 @@ export function AdminDevotionals() {
         })()}
 
         {editingId !== 'new' && version !== 'adult' && (
-          <KidsBandEditor devotional={editForm} language={currentLang} languageName={langName(currentLang)} band={version} onChanged={refreshStudio} />
+          <KidsBandEditor devotional={editForm} language={currentLang} languageName={langName(currentLang)} band={version} onChanged={refreshStudio} onDraft={setBandDraft} />
         )}
 
         {editingId !== 'new' && version === 'adult' && !languages.find((l) => l.iso_code === currentLang)?.is_source && (() => {

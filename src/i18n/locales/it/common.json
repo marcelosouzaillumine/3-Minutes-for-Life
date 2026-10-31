@@ -83,7 +83,7 @@
     "senderShared": "{{name}} ha condiviso con te questa riflessione.",
     "someoneShared": "Qualcuno ha condiviso con te questa riflessione.",
     "ctaText": "Che questi tre minuti non finiscano qui.",
-    "ctaSubtext": "Crea il tuo account gratuito per seguire i percorsi di lettura, leggere in famiglia e conservare le tue riflessioni.",
+    "ctaSubtext": "Crea il tuo account gratuito per seguire i percorsi di lettura, leggere in gruppo e conservare le tue riflessioni.",
     "ctaButton": "Voglio continuare",
     "ctaNote": "Accesso gratuito.",
     "sharedSuffix": "ha condiviso con te questa riflessione."
@@ -286,39 +286,39 @@
   "fam": {
     "err": {
       "code": "Questo codice non esiste. Controlla con chi ti ha invitato.",
-      "full": "Questa famiglia è già al completo.",
-      "already": "Fai già parte di una famiglia.",
+      "full": "Questo gruppo è già al completo.",
+      "already": "Sei già in un gruppo.",
       "generic": "Non è stato possibile completare l'operazione. Riprova."
     },
     "loading": "Caricamento…",
-    "title": "Famiglia",
+    "title": "Gruppo",
     "hero": {
-      "title": "Leggete insieme",
-      "text": "Tre minuti al giorno, con lo stesso brano per tutta la casa. Gli adulti vedono chi ha già letto e i bambini hanno la loro versione.",
-      "create": "Crea la nostra famiglia",
+      "title": "Ognuno con i suoi tempi, tutti nella stessa Parola",
+      "text": "Tre minuti al giorno, con lo stesso passo per tutti. Famiglia, coppia o gruppo: ognuno legge quando può e tutti vedono chi ha già letto. Se ci sono bambini, ciascuno ha la sua versione.",
+      "create": "Crea il nostro gruppo",
       "join": "Ho un codice d'invito"
     },
     "childPrivacy": "I bambini non hanno un account: conserviamo solo il soprannome e la fascia d'età, mai cognome, foto o e-mail.",
     "create": {
-      "title": "Nuova famiglia",
-      "name": "Nome della famiglia",
-      "namePh": "Famiglia Rossi",
+      "title": "Nuovo gruppo",
+      "name": "Nome del gruppo",
+      "namePh": "La famiglia Souza o il gruppo del giovedì",
       "meeting": "Orario concordato (facoltativo)",
       "meetingPh": "Cena, 20",
-      "cta": "Crea la famiglia"
+      "cta": "Crea gruppo"
     },
     "join": {
-      "title": "Entra in una famiglia",
+      "title": "Entra in un gruppo",
       "code": "Codice d'invito",
       "cta": "Entra"
     },
-    "inviteMessage": "Vieni a leggere il devozionale con la nostra famiglia: {{link}}",
+    "inviteMessage": "Vieni a leggere il devozionale con noi: {{link}}",
     "streak_one": "{{count}} giorno di lettura insieme",
     "streak_many": "{{count}} giorni di lettura insieme",
     "streak_other": "{{count}} giorni di lettura insieme",
     "streak0": "Iniziate oggi",
     "manage": {
-      "title": "Gestisci la famiglia"
+      "title": "Gestisci il gruppo"
     },
     "week": "Ultimi 7 giorni",
     "who": "Chi legge",
@@ -341,7 +341,7 @@
     "noneToday": "Oggi non ha ancora letto nessuno.",
     "ritual": "Leggere insieme",
     "plan": {
-      "label": "Percorso della famiglia",
+      "label": "Percorso del gruppo",
       "day": "giorno {{n}} di {{total}}",
       "today": "Oggi nel percorso: {{title}}",
       "read": "Leggere insieme il giorno del percorso",
@@ -360,20 +360,20 @@
       "label": "Settimana conclusa",
       "title": "Avete letto insieme {{n}} giorni su {{total}}",
       "word": "La parola che è rimasta",
-      "prayers_one": "{{count}} preghiera per le richieste della famiglia",
-      "prayers_many": "{{count}} preghiere per le richieste della famiglia",
-      "prayers_other": "{{count}} preghiere per le richieste della famiglia",
+      "prayers_one": "{{count}} preghiere per le richieste del gruppo",
+      "prayers_many": "{{count}} preghiere per le richieste del gruppo",
+      "prayers_other": "{{count}} preghiere per le richieste del gruppo",
       "question": "Per continuare la conversazione: per che cosa ringrazierete Dio di questa settimana?",
       "noScore": "Nessuna classifica di chi ha saltato."
     },
     "prayers": {
       "title": "Bacheca di preghiera",
       "new": "Nuova richiesta",
-      "empty": "Ancora nessuna richiesta. Solo la famiglia può vederle.",
+      "empty": "Ancora nessuna richiesta. Lo vede solo il tuo gruppo.",
       "iPrayed": "Ho pregato",
       "pray": "Prega",
-      "privacy": "Solo la famiglia può vederla. Chi ha creato la famiglia modera e può rimuovere qualsiasi richiesta.",
-      "ph": "Una richiesta per cui la famiglia possa pregare",
+      "privacy": "Lo vede solo il tuo gruppo. Chi ha creato il gruppo modera e può rimuovere qualsiasi richiesta.",
+      "ph": "Una richiesta per cui il gruppo preghi",
       "add": "Pubblica"
     },
     "remove": "Rimuovi",
@@ -384,10 +384,10 @@
     "nickname": "Soprannome",
     "band": "Fascia d'età",
     "add": "Aggiungi",
-    "delete": "Elimina la famiglia",
-    "leave": "Esci dalla famiglia",
-    "confirmDelete": "Eliminare la famiglia? Gli adulti escono dal gruppo e tutto ciò che è stato conservato viene cancellato, compresi i soprannomi dei bambini e la bacheca.",
-    "confirmLeave": "Uscire da questa famiglia?",
+    "delete": "Elimina il gruppo",
+    "leave": "Esci dal gruppo",
+    "confirmDelete": "Eliminare il gruppo? Gli adulti escono dal gruppo e tutto ciò che è stato salvato viene cancellato, compresi i soprannomi dei bambini e la bacheca.",
+    "confirmLeave": "Uscire da questo gruppo?",
     "confirmYes": "Sì, continua",
     "cancel": "Annulla",
     "today": {
@@ -395,11 +395,15 @@
       "readers_one": "{{count}} su {{total}} ha già letto oggi",
       "readers_many": "{{count}} su {{total}} hanno già letto oggi",
       "readers_other": "{{count}} su {{total}} hanno già letto oggi",
-      "planDay": "percorso, giorno {{n}}"
+      "planDay": "percorso, giorno {{n}}",
+      "cta": "Leggi",
+      "kids": "Versione per i bambini"
     }
   },
   "ritual": {
     "error": "Non è stato possibile aprire il devozionale ora.",
+    "start": "Inizia",
+    "counter": "{{n}} di {{total}}",
     "close": "Chiudi",
     "title": "Leggere insieme",
     "planDay": "Percorso · giorno {{n}}",
@@ -446,15 +450,15 @@
     "nickname": "Soprannome",
     "band": "Fascia d'età",
     "addChild": "Aggiungi un bambino",
-    "inviteTitle": "Leggere insieme",
-    "inviteText": "Una lettura per la tavola, con domande, un'attività e una preghiera.",
+    "inviteTitle": "Leggi con chi ami",
+    "inviteText": "Famiglia, coppia o gruppo. Ognuno con i suoi tempi.",
     "inviteCta": "Inizia",
     "guideNote": "La guida e il materiale di supporto sono nella modalità Leggere insieme.",
     "promise": "3 minuti · leggere, parlare, fare e pregare insieme",
     "withWhom": "Con chi leggi oggi?",
     "onlyAdults": "Solo adulti",
     "withKids": "Con i bambini",
-    "noKidsHint": "In coppia, in gruppo o da soli: funziona allo stesso modo. Per leggere con i bambini, aggiungili in Famiglia.",
+    "noKidsHint": "In coppia, in gruppo o da soli: funziona allo stesso modo. Per leggere con i bambini, aggiungili in Gruppo.",
     "adultQ1": "Che cosa ti ha colpito di più nel testo di oggi?",
     "adultQ2": "Dove tocca davvero la tua settimana?",
     "adultQ3": "Che cosa porti con te da questa lettura per oggi?",
@@ -469,7 +473,7 @@
     "setupWithKidsNote": "Ognuno con la lettura della sua età",
     "setupDefaultName": "La nostra lettura"
   },
-  "familyNav": "Famiglia",
+  "familyNav": "Gruppo",
   "plansx": {
     "back": "Percorsi",
     "progress": "{{done}} di {{total}} giorni",

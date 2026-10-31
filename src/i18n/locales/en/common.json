@@ -83,7 +83,7 @@
     "senderShared": "{{name}} shared this reflection with you.",
     "someoneShared": "Someone shared this reflection with you.",
     "ctaText": "May these three minutes not end here.",
-    "ctaSubtext": "Create your free account to follow reading plans, read together as a family, and keep your reflections.",
+    "ctaSubtext": "Create your free account to follow reading plans, read together with your group, and keep your reflections.",
     "ctaButton": "Continue my journey",
     "ctaNote": "Free access.",
     "sharedSuffix": "shared this reflection with you."
@@ -286,38 +286,38 @@
   "fam": {
     "err": {
       "code": "That code doesn't exist. Check with whoever invited you.",
-      "full": "This family is already full.",
-      "already": "You're already in a family.",
+      "full": "This group is already full.",
+      "already": "You're already in a group.",
       "generic": "Couldn't finish. Please try again."
     },
     "loading": "Loading…",
-    "title": "Family",
+    "title": "Group",
     "hero": {
-      "title": "Read together",
-      "text": "Three minutes a day, the same passage for everyone at home. Adults see who has read and children get a version of their own.",
-      "create": "Create our family",
+      "title": "Each at their own pace, all in the same Word",
+      "text": "Three minutes a day, the same passage for everyone. Family, couple or group: each person reads when they can, and everyone sees who has read. If there are children, each gets a version of their own.",
+      "create": "Create our group",
       "join": "I have an invite code"
     },
     "childPrivacy": "Children have no account: we keep only a nickname and an age band, never a surname, photo or e-mail.",
     "create": {
-      "title": "New family",
-      "name": "Family name",
-      "namePh": "The Smith family",
+      "title": "New group",
+      "name": "Group name",
+      "namePh": "The Smith family or Thursday cell group",
       "meeting": "Agreed time (optional)",
       "meetingPh": "Dinner, 8pm",
-      "cta": "Create family"
+      "cta": "Create group"
     },
     "join": {
-      "title": "Join a family",
+      "title": "Join a group",
       "code": "Invite code",
       "cta": "Join"
     },
-    "inviteMessage": "Come read the devotional with our family: {{link}}",
+    "inviteMessage": "Come read the devotional with us: {{link}}",
     "streak_one": "{{count}} days reading together",
     "streak_other": "{{count}} days reading together",
     "streak0": "Start today",
     "manage": {
-      "title": "Manage family"
+      "title": "Manage group"
     },
     "week": "Last 7 days",
     "who": "Who is reading",
@@ -339,7 +339,7 @@
     "noneToday": "No one has read yet today.",
     "ritual": "Read together",
     "plan": {
-      "label": "Family plan",
+      "label": "Group plan",
       "day": "day {{n}} of {{total}}",
       "today": "Today's reading in the plan: {{title}}",
       "read": "Read today's plan day together",
@@ -357,19 +357,19 @@
       "label": "Week complete",
       "title": "You read together {{n}} of {{total}} days",
       "word": "The word that stayed",
-      "prayers_one": "{{count}} prayers for the family’s requests",
-      "prayers_other": "{{count}} prayers for the family’s requests",
+      "prayers_one": "{{count}} prayers for the group’s requests",
+      "prayers_other": "{{count}} prayers for the group’s requests",
       "question": "To keep the conversation going: what would you thank God for this week?",
       "noScore": "No scoreboard of who missed."
     },
     "prayers": {
       "title": "Prayer wall",
       "new": "New request",
-      "empty": "No requests yet. Only your family sees this.",
+      "empty": "No requests yet. Only your group sees this.",
       "iPrayed": "I prayed",
       "pray": "Pray",
-      "privacy": "Only your family sees this. Whoever created the family moderates and can remove any request.",
-      "ph": "A request for the family to pray for",
+      "privacy": "Only your group sees this. Whoever created the group moderates and can remove any request.",
+      "ph": "A request for the group to pray for",
       "add": "Post"
     },
     "remove": "Remove",
@@ -380,21 +380,25 @@
     "nickname": "Nickname",
     "band": "Age band",
     "add": "Add",
-    "delete": "Delete family",
-    "leave": "Leave family",
-    "confirmDelete": "Delete the family? Adults leave the group and everything stored is erased, including the children’s nicknames and the prayer wall.",
-    "confirmLeave": "Leave this family?",
+    "delete": "Delete group",
+    "leave": "Leave group",
+    "confirmDelete": "Delete the group? Adults leave the group and everything stored is erased, including the children’s nicknames and the prayer wall.",
+    "confirmLeave": "Leave this group?",
     "confirmYes": "Yes, continue",
     "cancel": "Cancel",
     "today": {
       "none": "No one has read yet today",
       "readers_one": "{{count}} of {{total}} have read today",
       "readers_other": "{{count}} of {{total}} have read today",
-      "planDay": "plan, day {{n}}"
+      "planDay": "plan, day {{n}}",
+      "cta": "Read",
+      "kids": "Version for children"
     }
   },
   "ritual": {
     "error": "Couldn't open the devotional right now.",
+    "start": "Start",
+    "counter": "{{n}} of {{total}}",
     "close": "Close",
     "title": "Read together",
     "planDay": "Plan · day {{n}}",
@@ -440,15 +444,15 @@
     "nickname": "Nickname",
     "band": "Age range",
     "addChild": "Add a child",
-    "inviteTitle": "Read together",
-    "inviteText": "A reading for the table, with questions, an activity and a prayer.",
+    "inviteTitle": "Read with the people you love",
+    "inviteText": "Family, couple or group. Each at their own pace.",
     "inviteCta": "Start",
     "guideNote": "The guide and support material are in Read together.",
     "promise": "3 minutes · read, talk, do and pray together",
     "withWhom": "Who are you reading with today?",
     "onlyAdults": "Adults only",
     "withKids": "With children",
-    "noKidsHint": "Couple, group or on your own: it works the same way. To read with children, add them under Family.",
+    "noKidsHint": "Couple, group or on your own: it works the same way. To read with children, add them under Group.",
     "adultQ1": "What stood out to you most in today's text?",
     "adultQ2": "Where does this touch your week, honestly?",
     "adultQ3": "What are you taking from this reading into today?",
@@ -463,7 +467,7 @@
     "setupWithKidsNote": "Each one gets the reading for their age",
     "setupDefaultName": "Our reading"
   },
-  "familyNav": "Family",
+  "familyNav": "Group",
   "plansx": {
     "back": "Plans",
     "progress": "{{done}} of {{total}} days",
