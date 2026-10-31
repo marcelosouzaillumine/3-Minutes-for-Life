@@ -33,14 +33,39 @@ illumineAuth.init().catch(e => console.warn('[Illumine] init warning:', e))
 // Fetch tenant branding and apply CSS variables (fire-and-forget; falls back to hardcoded CSS)
 initBranding().catch(() => {})
 
-// Quando uma versão nova do app assume (service worker novo), recarrega uma vez: sem isso uma janela
-// aberta há dias continua com telas antigas, mesmo depois do deploy.
+// Quando uma versão nova do app assume (service worker novo), atualiza: sem isso uma janela aberta há dias
+// continua com telas antigas, mesmo depois do deploy. No meio da leitura em família não recarrega à força:
+// mostra um aviso e atualiza quando a pessoa tocar nele ou sair da leitura.
+const UPDATE_TEXT: Record<string, [string, string]> = {
+  pt: ['Nova versão disponível', 'Atualizar'], en: ['New version available', 'Update'], es: ['Nueva versión disponible', 'Actualizar'],
+  fr: ['Nouvelle version disponible', 'Mettre à jour'], it: ['Nuova versione disponibile', 'Aggiorna'],
+}
+function offerUpdate() {
+  if (!document.querySelector('.ritual')) { window.location.reload(); return }
+  if (document.getElementById('update-banner')) return
+  const [msg, action] = UPDATE_TEXT[(navigator.language || 'pt').slice(0, 2)] ?? UPDATE_TEXT.pt
+  const bar = document.createElement('div')
+  bar.id = 'update-banner'
+  bar.setAttribute('role', 'status')
+  bar.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 8px);z-index:9999;display:flex;gap:12px;align-items:center;padding:8px 8px 8px 16px;border-radius:999px;background:#1F2430;color:#fff;font:500 13px system-ui,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.2)'
+  const text = document.createElement('span')
+  text.textContent = msg
+  const btn = document.createElement('button')
+  btn.type = 'button'
+  btn.textContent = action
+  btn.style.cssText = 'border:0;border-radius:999px;padding:6px 14px;background:#fff;color:#1F2430;font:inherit;cursor:pointer'
+  btn.onclick = () => window.location.reload()
+  bar.append(text, btn)
+  document.body.appendChild(bar)
+  const watch = new MutationObserver(() => { if (!document.querySelector('.ritual')) window.location.reload() })
+  watch.observe(document.body, { childList: true, subtree: true })
+}
 if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-  let reloaded = false
+  let notified = false
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (reloaded) return
-    reloaded = true
-    window.location.reload()
+    if (notified) return
+    notified = true
+    offerUpdate()
   })
   // App instalado fica aberto em segundo plano e não navega: ao voltar para ele, procura versão nova.
   document.addEventListener('visibilitychange', () => {
