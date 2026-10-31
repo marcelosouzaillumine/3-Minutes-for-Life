@@ -50,7 +50,8 @@
     "writtenBy": "escrito por",
     "authorRole": "Pastor na Igreja Missão Mobilização",
     "practiced": "Pratiquei hoje",
-    "findMoment": "Procurar um devocional para o seu momento"
+    "findMoment": "Procurar um devocional para o seu momento",
+    "supportDefault": "Em poucos minutos, a Palavra de Deus pode encontrar espaço no dia de alguém. Sua contribuição ajuda o 3 Minutes for Life a levar devocionais a mais pessoas, em mais idiomas, e a reunir famílias em torno da Bíblia."
   },
   "testimonials": {
     "title": "O que Deus falou ao seu coração por meio desta reflexão?",
@@ -81,9 +82,9 @@
     "senderShared": "{{name}} compartilhou esta reflexão com você.",
     "someoneShared": "Alguém compartilhou esta reflexão com você.",
     "ctaText": "Que estes três minutos não terminem aqui.",
-    "ctaSubtext": "Amanhã, uma nova reflexão espera por você.",
+    "ctaSubtext": "Crie sua conta gratuita para seguir planos de leitura, ler em família e guardar suas reflexões.",
     "ctaButton": "Quero continuar",
-    "ctaNote": "Gratuito, sempre.",
+    "ctaNote": "Acesso gratuito.",
     "sharedSuffix": "compartilhou esta reflexão com você."
   },
   "categories": {
@@ -433,5 +434,20 @@
     "days_one": "{{count}} dia",
     "days_many": "{{count}} dias",
     "days_other": "{{count}} dias"
+  },
+  "plansNav": "Planos",
+  "next": {
+    "title": "E agora?",
+    "plan": "Continuar o plano",
+    "planSub": "{{title}} · dia {{day}} de {{total}}",
+    "family": "Ler em família",
+    "familySub": "Hoje, em voz alta, à mesa",
+    "moment": "Como você está hoje?",
+    "placeholder": "Escreva em poucas palavras…",
+    "c1": "Sem forças",
+    "c2": "Ansiedade",
+    "c3": "Gratidão",
+    "c4": "Decisão difícil",
+    "library": "Explorar a biblioteca"
   }
 }

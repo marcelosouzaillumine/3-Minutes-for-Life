@@ -303,7 +303,7 @@ export function SharedDevotional() {
 
                     subtext: t(
                       'shared.ctaSubtext',
-                      'Amanhã tem mais. Faça parte da jornada — é gratuito e você pode começar agora.'
+                      'Crie sua conta gratuita para seguir planos de leitura, ler em família e guardar suas reflexões.'
                     ),
 
                     label: t(
@@ -313,7 +313,7 @@ export function SharedDevotional() {
 
                     note: t(
                       'shared.ctaNote',
-                      'Sem cartão de crédito.'
+                      'Acesso gratuito.'
                     ),
 
                     onClick:

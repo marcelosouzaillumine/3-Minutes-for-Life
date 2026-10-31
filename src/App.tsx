@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { Explore } from './pages/Explore';
+import { Plans } from './pages/Plans';
 import { Family } from './pages/Family';
 import { FamilyRitual } from './components/FamilyRitual';
 import { Favorites } from './pages/Favorites';
@@ -23,7 +24,7 @@ import { AnalyticsService } from './services/AnalyticsService';
 
 const AdminLayout = lazy(() => import('./layouts/AdminLayout').then(m => ({ default: m.AdminLayout })));
 
-type Tab = 'home' | 'explore' | 'family' | 'favorites' | 'profile';
+type Tab = 'home' | 'explore' | 'plans' | 'family' | 'favorites' | 'profile';
 
 const LoadingScreen = () => (
   <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -80,6 +81,7 @@ function AppShell() {
     switch (currentTab) {
       case 'home':     return <Home onExplore={() => setCurrentTab('explore')} />;
       case 'explore':  return <Explore />;
+      case 'plans':    return <Plans />;
       case 'family':   return <Family />;
       case 'favorites': return <Favorites />;
       case 'profile':  return <Profile />;
