@@ -42,6 +42,8 @@ if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
     reloaded = true
     window.location.reload()
   })
+  // Com o app aberto por horas, procura versão nova de tempos em tempos.
+  setInterval(() => { if (document.visibilityState === 'visible') navigator.serviceWorker.getRegistration().then((r) => r?.update()).catch(() => {}) }, 30 * 60 * 1000)
   // App instalado fica aberto em segundo plano e não navega: ao voltar para ele, procura versão nova.
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') navigator.serviceWorker.getRegistration().then((r) => r?.update()).catch(() => {})
