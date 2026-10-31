@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" role="img" aria-label="Lutero fixando um papel na porta da igreja de Wittenberg">
+<rect width="400" height="200" fill="#E7ECF3"/>
+<circle cx="330" cy="40" r="18" fill="#F0D27A"/>
+<path d="M0 120L70 80 120 110 190 60 260 108 330 84 400 112V200H0Z" fill="#C3CFDE"/>
+<rect y="150" width="400" height="50" fill="#9AA9BD"/>
+<rect x="150" y="62" width="150" height="100" fill="#D9C9A8"/>
+<path d="M140 64L225 22 310 64Z" fill="#8C5A3C"/>
+<rect x="222" y="26" width="6" height="22" fill="#6B4F2F"/><path d="M215 34h20" stroke="#6B4F2F" stroke-width="5"/>
+<rect x="202" y="96" width="46" height="66" rx="23 23 0 0" fill="#6B4F2F"/>
+<rect x="212" y="108" width="12" height="16" fill="#FFF7E6" transform="rotate(-4 218 116)"/><rect x="228" y="116" width="12" height="16" fill="#FFF7E6" transform="rotate(3 234 124)"/>
+<path d="M214 112h8M214 117h8M230 120h8M230 125h8" stroke="#B9A98A" stroke-width="1.5"/>
+<rect x="166" y="84" width="22" height="30" rx="11 11 0 0" fill="#7B8FA8"/><rect x="262" y="84" width="22" height="30" rx="11 11 0 0" fill="#7B8FA8"/>
+<path d="M92 190l10-72q22-18 44 0l10 72z" fill="#3A3F4F"/>
+<circle cx="124" cy="104" r="15" fill="#F2C7A1"/><path d="M108 100q16-20 32 0z" fill="#3A3F4F"/><path d="M118 110h2M128 110h2" stroke="#3A3F4F" stroke-width="2.5" stroke-linecap="round"/><path d="M118 116q6 4 12 0" stroke="#3A3F4F" stroke-width="2" fill="none"/>
+<path d="M142 128L194 114" stroke="#3A3F4F" stroke-width="12" stroke-linecap="round"/><circle cx="196" cy="113" r="6" fill="#F2C7A1"/>
+<rect x="196" y="100" width="14" height="18" fill="#FFF7E6" transform="rotate(-6 203 109)"/>
+<rect x="64" y="154" width="38" height="26" rx="3" fill="#6B4F2F"/><path d="M70 160h26M70 166h26M70 172h18" stroke="#E8D9B8" stroke-width="2.5"/>
+</svg>

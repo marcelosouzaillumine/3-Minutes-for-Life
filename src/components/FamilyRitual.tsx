@@ -13,6 +13,9 @@ import { SectionLabel } from './SectionLabel';
 
 /** Ler juntos: um roteiro de tela cheia, uma coisa por vez, feito para ser lido em voz alta. */
 const bandArt = (band: string) => (band === '4-6' ? 'young' : 'older');
+// Devocionais com ilustração própria por faixa (arquivos em public/ilustracoes/<pasta>/<faixa>.svg).
+const OWN_ART: Record<string, string> = { cmvudrag10002oe2ldyzmvhaa: 'reforma-protestante' };
+const ownArt = (devotionalId: string | undefined, band: string) => (devotionalId && OWN_ART[devotionalId] ? `/ilustracoes/${OWN_ART[devotionalId]}/${band}.svg` : null);
 
 export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; onClose: () => void }) {
   const { t, i18n } = useTranslation('common');
@@ -137,7 +140,9 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
 
   const slack = 12;
   const tagHtml = (n: string, kind: string) => `<span class="ritual__tag ritual__tag--${kind}">${esc(n)}</span>`;
-  const heroHtml = (band?: string) => (band ? `<div class="ritual__hero ritual__hero--${bandArt(band)}"></div>` : '');
+  const heroHtml = (band?: string) => (band ? `<div class="ritual__hero ritual__hero--${bandArt(band)}"${heroStyleAttr(band)}></div>` : '');
+  const heroStyleAttr = (band: string) => { const u = ownArt(devotional?.id, band); return u ? ` style="background-image:url(${u})"` : ''; };
+  const heroStyle = (band: string) => { const u = ownArt(devotional?.id, band); return u ? { backgroundImage: `url(${u})` } : undefined; };
   const verseHtml = () => (reader ? `<p class="fam-note">${esc(tt('reader', '{{name}} lê em voz alta', { name: reader }))}</p>` : '')
     + (devotional && (devotional.scripture_reference || devotional.scripture_text)
       ? `<blockquote class="principle-scripture principle-scripture--ritual">${devotional.scripture_reference ? `<cite class="principle-scripture-reference">${esc(devotional.scripture_reference)}</cite>` : ''}${devotional.scripture_text ? `<p class="principle-scripture-text">“${esc(devotional.scripture_text)}”</p>` : ''}</blockquote>`
@@ -308,7 +313,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
                   <div className="ritual__bands">
                     {bandsHere.map((b) => (
                       <button key={b} type="button" className={`ritual__band${b === sharedBand ? ' is-on' : ''}`} aria-pressed={b === sharedBand} onClick={() => setLeadBand(b)}>
-                        <span className={`ritual__hero ritual__hero--${bandArt(b)} ritual__hero--thumb`} />
+                        <span className={`ritual__hero ritual__hero--${bandArt(b)} ritual__hero--thumb`} style={heroStyle(b)} />
                         <b>{b.replace('-', ' a ')} {tt('years', 'anos')}</b>
                       </button>
                     ))}
@@ -348,7 +353,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
 
         {screen.kind === 'read' && (
           <>
-            {screen.part === 0 && kidsView && <div className={`ritual__hero ritual__hero--${bandArt(shared[0].child.band)}`} />}
+            {screen.part === 0 && kidsView && <div className={`ritual__hero ritual__hero--${bandArt(shared[0].child.band)}`} style={heroStyle(shared[0].child.band)} />}
             <span className="ritual__tag ritual__tag--read">{tt('stepRead', '1 · Ler')}</span>
             {screen.part === 0 && (
               <>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" role="img" aria-label="A porta de Wittenberg com as 95 teses, a Bíblia aberta e a prensa de impressão">
+<defs><linearGradient id="c" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E3550"/><stop offset="1" stop-color="#6D6F8C"/></linearGradient></defs>
+<rect width="400" height="200" fill="url(#c)"/>
+<g fill="#F3E6B8"><circle cx="40" cy="30" r="1.8"/><circle cx="96" cy="52" r="1.4"/><circle cx="310" cy="26" r="1.8"/><circle cx="360" cy="60" r="1.4"/><circle cx="260" cy="44" r="1.2"/></g>
+<circle cx="348" cy="34" r="14" fill="#F3E6B8"/><circle cx="354" cy="30" r="12" fill="#2E3550" opacity=".35"/>
+<path d="M0 154h400v46H0z" fill="#23283E"/>
+<path d="M150 154V84l50-48 50 48v70z" fill="#4B4F6E"/>
+<path d="M200 36V16M192 24h16" stroke="#B9B9D0" stroke-width="3"/>
+<path d="M176 154v-44q24-26 48 0v44z" fill="#8C5A3C"/>
+<g fill="#FFF7E6"><rect x="184" y="114" width="9" height="12"/><rect x="196" y="112" width="9" height="12"/><rect x="208" y="115" width="9" height="12"/><rect x="190" y="130" width="9" height="12"/><rect x="203" y="130" width="9" height="12"/></g>
+<rect x="164" y="82" width="14" height="24" rx="7 7 0 0" fill="#F3D27A" opacity=".8"/><rect x="222" y="82" width="14" height="24" rx="7 7 0 0" fill="#F3D27A" opacity=".8"/>
+<text x="200" y="98" font-family="Georgia,serif" font-size="15" font-weight="700" fill="#F3E6B8" text-anchor="middle">95</text>
+<path d="M44 168q40-14 80 0v-36q-40-14-80 0z" fill="#8A7048"/>
+<path d="M48 164q36-12 36 0v-30q-6-8-36-4zM120 164q-36-12-36 0v-30q6-8 36-4z" fill="#FFF7E6"/>
+<path d="M54 140q16-3 24 1M54 148q16-3 24 1M90 141q8-4 24-1M90 149q8-4 24-1" stroke="#D8C9A6" stroke-width="2" fill="none"/>
+<path d="M84 126V104M66 130l-10-18M102 130l10-18" stroke="#F7D77A" stroke-width="4" stroke-linecap="round"/>
+<g transform="translate(292 112)"><rect x="0" y="40" width="70" height="8" fill="#6B4F2F"/><rect x="8" y="0" width="8" height="42" fill="#8A7048"/><rect x="54" y="0" width="8" height="42" fill="#8A7048"/><rect x="4" y="0" width="58" height="8" fill="#6B4F2F"/><rect x="14" y="26" width="42" height="10" fill="#FFF7E6"/><path d="M35 8v18" stroke="#6B4F2F" stroke-width="5"/><path d="M22 30h26" stroke="#B9A98A" stroke-width="2"/></g>
+</svg>
