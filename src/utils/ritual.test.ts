@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readerForDay, versionsForChildren } from './ritual';
+import { guideVersion, parseGuide, readerForDay, versionsForChildren } from './ritual';
 import type { KidsVersion } from '../services/FamilyService';
 
 const v = (band: KidsVersion['band']): KidsVersion => ({
@@ -16,5 +16,28 @@ describe('ritual', () => {
     const kids = [{ id: '1', band: '4-6' as const }, { id: '2', band: '11-13' as const }, { id: '3', band: '7-10' as const }];
     const out = versionsForChildren(kids, new Set(['1', '2']), [v('4-6')]);
     expect(out.map((o) => [o.child.id, o.version?.band ?? null])).toEqual([['1', '4-6'], ['2', null]]);
+  });
+
+  const guide = 'Leia em voz baixa e deixe um silêncio.\n\nPara conversar à mesa:\n- O que aperta o coração?\n- Quando você sentiu paz?\n\nAtividade em família:\nCaixinha de preocupações com papel e lápis.\n\nOração em família:\nPai, damos graças. Amém.';
+  it('separa o guia do adulto em blocos', () => {
+    expect(parseGuide(guide)).toEqual({
+      lead: 'Leia em voz baixa e deixe um silêncio.',
+      questions: ['O que aperta o coração?', 'Quando você sentiu paz?'],
+      activity: 'Caixinha de preocupações com papel e lápis.',
+      prayer: 'Pai, damos graças. Amém.',
+    });
+  });
+  it('reconhece os blocos em outro idioma pela ordem dos títulos', () => {
+    const fr = 'Lisez doucement.\n\nPour en parler à table :\n1. Qu’est-ce qui te pèse ?\n\nActivité en famille :\nUne boîte à soucis.\n\nPrière en famille :\nSeigneur, merci. Amen.';
+    expect(parseGuide(fr)?.questions).toEqual(['Qu’est-ce qui te pèse ?']);
+  });
+  it('devolve null quando o guia não segue o formato', () => {
+    expect(parseGuide('Só um texto solto, sem títulos.')).toBeNull();
+    expect(parseGuide(null)).toBeNull();
+  });
+  it('conduz a mesa pela faixa mais nova presente', () => {
+    const out = guideVersion([{ version: v('11-13') }, { version: v('7-10') }], []);
+    expect(out?.band).toBe('7-10');
+    expect(guideVersion([], [v('11-13'), v('4-6')])?.band).toBe('4-6');
   });
 });

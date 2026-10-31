@@ -4,6 +4,7 @@ import { illumineAuth } from '../lib/illumine';
 import { BANDS, FamilyService, type Band, type KidsVersion } from '../services/FamilyService';
 import { Paragraphs } from './Paragraphs';
 import { SectionLabel } from './SectionLabel';
+import { openRitual } from '../pages/Family';
 
 /** "Ler com as crianças": só aparece quando o devocional tem versão infantil aprovada. */
 export function KidsReading({ devotionalId, scriptureReference }: { devotionalId: string; scriptureReference?: string | null }) {
@@ -68,8 +69,8 @@ export function KidsReading({ devotionalId, scriptureReference }: { devotionalId
             <div className="sec-prayer"><Paragraphs text={current.prayer} /></div>
           </div>
           <aside className="kids__guide">
-            <SectionLabel icon="guide">{t('kids.guide', 'Guia e material de apoio')}</SectionLabel>
-            <Paragraphs text={current.adultGuide} />
+            <p className="fam-note">{t('ritual.guideNote', 'O guia e o material de apoio ficam no modo Ler em família.')}</p>
+            <button type="button" className="fam-btn fam-btn--secondary" onClick={() => openRitual('daily')}>{t('fam.ritual', 'Ler em família')}</button>
           </aside>
         </div>
       )}
