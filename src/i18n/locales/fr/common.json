@@ -16,6 +16,7 @@
   "profile": "Profil",
   "shareActions": {
     "dailyLabel": "Méditation du jour",
+    "imageCta": "Lisez en 3 minutes",
     "invalidId": "Il n'est pas possible de partager ce contenu pour le moment.",
     "message": "Une réflexion de 3 minutes pour s'arrêter, respirer et se concentrer sur ce qui compte vraiment aujourd'hui.\\n\\nÀ lire gratuitement dans l'application :\\n👉 {{url}}",
     "title": "3 Minutes for Life",

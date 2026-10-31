@@ -87,6 +87,7 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
   const [loading, setLoading] = useState<ShareFormat | null>(null)
   const [error, setError]     = useState<string | null>(null)
   const logoRef               = useRef<string>('')
+  const logoVerticalRef       = useRef<string>('')
 
   // Rótulo em destaque no topo da imagem: "DEVOCIONAL DO DIA" só quando é
   // de fato o devocional de hoje; caso contrário, a categoria do devocional
@@ -100,7 +101,8 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
   // Pre-fetch logo on mount into ref (não precisa de state / re-render)
   useEffect(() => {
     const origin = typeof window !== 'undefined' ? window.location.origin : ''
-    toDataUrl(`${origin}/branding/logo-on-dark.png`).then(v => { logoRef.current = v })
+    toDataUrl(`${origin}/branding/logo-on-light.png`).then(v => { logoRef.current = v })
+    toDataUrl(`${origin}/branding/logo-on-light-vertical.png`).then(v => { logoVerticalRef.current = v })
   }, [])
 
   const share = async (format: ShareFormat) => {
@@ -113,7 +115,9 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
 
       // Garantir que logo está como data URL
       if (!logoRef.current.startsWith('data:'))
-        logoRef.current = await toDataUrl(`${origin}/branding/logo-on-dark.png`)
+        logoRef.current = await toDataUrl(`${origin}/branding/logo-on-light.png`)
+      if (!logoVerticalRef.current.startsWith('data:'))
+        logoVerticalRef.current = await toDataUrl(`${origin}/branding/logo-on-light-vertical.png`)
 
       // Gerar imagem via Canvas 2D (funciona em iOS Safari)
       const blob = await createShareImage(format, {
@@ -121,7 +125,9 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
         principle,
         scripture,
         label: imageLabel,
+        cta: t('shareActions.imageCta', 'Leia em 3 minutos'),
         logoDataUrl: logoRef.current,
+        logoVerticalDataUrl: logoVerticalRef.current,
       })
 
       const filename = `devocional-${format}.png`

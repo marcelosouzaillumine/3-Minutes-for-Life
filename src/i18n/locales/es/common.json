@@ -16,6 +16,7 @@
   "profile": "Perfil",
   "shareActions": {
     "dailyLabel": "Devocional del Día",
+    "imageCta": "Lee en 3 minutos",
     "invalidId": "No es posible compartir este contenido en este momento.",
     "message": "Una reflexión de 3 minutos para detenerse, respirar y enfocarse en lo que realmente importa hoy.\\n\\nLee gratis en la aplicación:\\n👉 {{url}}",
     "title": "3 Minutos para la Vida",
