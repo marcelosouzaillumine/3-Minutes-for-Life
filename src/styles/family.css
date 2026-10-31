@@ -138,7 +138,7 @@
 .fam-today { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin: 1rem 0; padding: 0.9rem 1rem; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); }
 .fam-today .fam-eyebrow { margin: 0 0 0.15rem; }
 .fam-today__text { margin: 0; font-size: 0.85rem; color: var(--text-muted); }
-.fam-today__tag { display: inline-block; margin-top: 0.35rem; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.72rem; background: #E6F0E4; color: #2f6b2a; }
+.fam-today__tag { display: inline-block; margin-top: 0.35rem; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.72rem; background: #E6F0E4; color: #2f6b2a; border: 0; font: inherit; font-size: 0.72rem; cursor: pointer; }
 .fam-today__btn { width: auto; min-height: 2.5rem; flex: none; font-size: 0.85rem; }
 
 /* Estúdio (admin) */
