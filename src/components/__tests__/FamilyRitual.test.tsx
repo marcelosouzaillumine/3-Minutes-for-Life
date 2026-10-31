@@ -36,7 +36,8 @@ let root: Root;
 let host: HTMLDivElement;
 const flush = () => act(async () => { await new Promise((r) => setTimeout(r, 0)); });
 const click = (label: string) => act(async () => {
-  const b = [...host.querySelectorAll('button')].find((x) => x.textContent?.includes(label));
+  const names = label === 'Continuar' ? ['Continuar', 'Começar'] : [label];
+  const b = [...host.querySelectorAll('button')].find((x) => names.some((n) => x.textContent?.includes(n) || x.getAttribute('aria-label')?.includes(n)));
   if (!b) throw new Error(`botão não encontrado: ${label}`);
   b.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 });
@@ -84,6 +85,28 @@ describe('FamilyRitual', () => {
     await click('Começar a leitura');
     await flush(); await flush();
     expect(host.textContent).toContain('A paz que guarda');
+  });
+
+  it('troca de tela deslizando o dedo, mas não na primeira tela', async () => {
+    mocks.get.mockResolvedValue(family);
+    await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
+    await flush(); await flush();
+    const dialog = host.querySelector('[role="dialog"]') as HTMLElement;
+    const swipe = (from: number, to: number) => act(async () => {
+      const ev = (type: string, x: number) => Object.assign(new Event(type, { bubbles: true }), { touches: [{ clientX: x, clientY: 300 }], changedTouches: [{ clientX: x, clientY: 300 }] });
+      dialog.dispatchEvent(ev('touchstart', from));
+      dialog.dispatchEvent(ev('touchend', to));
+    });
+    await swipe(300, 100);
+    expect(host.textContent).not.toContain('1 · Ler');
+    await click('Continuar');
+    expect(host.textContent).toContain('1 · Ler');
+    await swipe(300, 100);
+    expect(host.textContent).toContain('Pergunta 1 de 2');
+    await swipe(100, 300);
+    expect(host.textContent).toContain('1 · Ler');
+    await swipe(200, 170);
+    expect(host.textContent).toContain('1 · Ler');
   });
 
   it('mostra uma pergunta por tela, a atividade e a oração em família do guia', async () => {

@@ -49,12 +49,27 @@ describe('ritual', () => {
     expect(paginate([])).toEqual([]);
   });
   it('separa texto simples e HTML em blocos', () => {
-    expect(plainBlocks('um\n\ndois\ntrês\n\n')).toEqual(['um', 'dois\ntrês']);
+    expect(plainBlocks('um\n\ndois\ntrês\n\n')).toEqual(['um', 'dois três']);
+    expect(plainBlocks('- a\n- b')).toEqual(['- a\n- b']);
     expect(htmlBlocks('um\n\ndois')).toEqual(['<p>um</p>', '<p>dois</p>']);
     expect(htmlBlocks('<p>um</p><ul><li>a</li></ul><p>dois</p>')).toEqual(['<p>um</p>', '<ul><li>a</li></ul>', '<p>dois</p>']);
     expect(htmlBlocks(null)).toEqual([]);
   });
 
+  it('a tela termina em parágrafo completo: o que não cabe vai inteiro para a seguinte', () => {
+    const pages = paginate(['<p>' + 'a'.repeat(300) + '</p>', '<p>' + 'b. '.repeat(100).trim() + '</p>'], 520);
+    expect(pages.map((p) => p.length)).toEqual([1, 1]);
+    expect(pages[1][0]).toContain('b. b.');
+  });
+  it('texto com quebra de linha só do editor não vira linha nova', () => {
+    expect(htmlBlocks('questionavam práticas\nde seu tempo')).toEqual(['<p>questionavam práticas de seu tempo</p>']);
+  });
+  it('parágrafo maior que uma tela só é dividido no fim de uma frase', () => {
+    const sentence = 'Esta é uma frase completa. ';
+    const pages = paginate([`<p>${sentence.repeat(60).trim()}</p>`], 300);
+    expect(pages.length).toBeGreaterThan(2);
+    for (const p of pages) expect(p.join('').replace(/<[^>]+>/g, '').trim().endsWith('.')).toBe(true);
+  });
   it('parágrafo longo é quebrado em frases para caber na tela', () => {
     const sentence = 'Esta é uma frase de tamanho médio para o teste de leitura em voz alta. ';
     const para = `<p>${sentence.repeat(14).trim()}</p>`;

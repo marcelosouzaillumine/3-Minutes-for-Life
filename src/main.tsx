@@ -33,6 +33,17 @@ illumineAuth.init().catch(e => console.warn('[Illumine] init warning:', e))
 // Fetch tenant branding and apply CSS variables (fire-and-forget; falls back to hardcoded CSS)
 initBranding().catch(() => {})
 
+// Quando uma versão nova do app assume (service worker novo), recarrega uma vez: sem isso uma janela
+// aberta há dias continua com telas antigas, mesmo depois do deploy.
+if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+  let reloaded = false
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloaded) return
+    reloaded = true
+    window.location.reload()
+  })
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>

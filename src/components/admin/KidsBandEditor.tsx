@@ -17,12 +17,29 @@ export const bandLabel = (b: Band) => `${b.replace('-', ' a ')} anos`;
 const strip = (s?: string | null) => (s ?? '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
 
 /** Versão infantil de uma faixa de idade, em um idioma, com o texto de referência ao lado e a prévia no app. */
-export function KidsBandEditor({ devotional, language, languageName, band, onChanged }: {
+/** Como a faixa aparece para a família: título, passagem e os quatro blocos de texto. */
+export function KidsBandPreview({ devotional, draft }: { devotional: any; draft: KidsDraft }) {
+  return (
+    <div className="studio__screen">
+      {devotional.scripture_reference && <p className="fam-eyebrow fam-eyebrow--accent">{devotional.scripture_reference}</p>}
+      <h4 className="studio__title">{draft.title || devotional.title}</h4>
+      {draft.scriptureFocus && <blockquote>{draft.scriptureFocus}</blockquote>}
+      <h5>O que a Bíblia conta</h5><p>{draft.whatItSays || '…'}</p>
+      <h5>Para pensar</h5><p>{draft.thinkAbout || '…'}</p>
+      <h5>Para fazer hoje</h5><p>{draft.practice || '…'}</p>
+      <h5>Oração</h5><p>{draft.prayer || '…'}</p>
+    </div>
+  );
+}
+
+export function KidsBandEditor({ devotional, language, languageName, band, onChanged, onDraft }: {
   devotional: any;
   language: string;
   languageName: string;
   band: Band;
   onChanged: () => void;
+  /** Avisa o rascunho atual, para o botão Preview mostrar esta faixa e não o texto adulto. */
+  onDraft?: (draft: KidsDraft) => void;
 }) {
   const [draft, setDraft] = useState<KidsDraft>(EMPTY);
   const [reference, setReference] = useState<KidsDraft | null>(null);
@@ -43,6 +60,8 @@ export function KidsBandEditor({ devotional, language, languageName, band, onCha
       .catch(() => alive && setMsg('Não foi possível carregar esta faixa.'));
     return () => { alive = false; };
   }, [devotional.id, language, band]);
+
+  useEffect(() => { onDraft?.(draft); }, [draft]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const set = (key: keyof KidsDraft, value: string) => setDraft((p) => ({ ...p, [key]: value }) as KidsDraft);
 
@@ -96,15 +115,7 @@ export function KidsBandEditor({ devotional, language, languageName, band, onCha
       </div>
       <aside className="studio__phone" aria-label="Prévia">
         <p className="fam-eyebrow">Prévia no app · {bandLabel(band)}</p>
-        <div className="studio__screen">
-          {devotional.scripture_reference && <p className="fam-eyebrow fam-eyebrow--accent">{devotional.scripture_reference}</p>}
-          <h4 className="studio__title">{draft.title || devotional.title}</h4>
-          {draft.scriptureFocus && <blockquote>{draft.scriptureFocus}</blockquote>}
-          <h5>O que a Bíblia conta</h5><p>{draft.whatItSays || '…'}</p>
-          <h5>Para pensar</h5><p>{draft.thinkAbout || '…'}</p>
-          <h5>Para fazer hoje</h5><p>{draft.practice || '…'}</p>
-          <h5>Oração</h5><p>{draft.prayer || '…'}</p>
-        </div>
+        <KidsBandPreview devotional={devotional} draft={draft} />
       </aside>
     </div>
   );
