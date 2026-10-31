@@ -965,9 +965,9 @@ export function AdminDevotionals() {
 
   return (
     <div style={{ padding: '20px', paddingBottom: '100px', width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '24px' }}>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>Conteúdo</h2>
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
           <button 
             onClick={() => setShowCategoryManager(true)}
             style={{ 
@@ -1030,6 +1030,7 @@ export function AdminDevotionals() {
               key={devo.id} 
               onClick={() => handleEditClick(devo.id)}
               style={{
+                minWidth: 0,
                 background: 'var(--color-surface)',
                 borderRadius: '12px',
                 padding: '16px',
@@ -1037,11 +1038,11 @@ export function AdminDevotionals() {
                 cursor: 'pointer'
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 'bold', margin: 0, flex: 1, paddingRight: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 'bold', margin: 0, flex: '1 1 14rem', minWidth: 0 }}>
                   {devo.title}
                 </h3>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                   {getStatusBadge(devo.status || 'published')}
                   <button
                     type="button"
@@ -1070,7 +1071,7 @@ export function AdminDevotionals() {
                   </button>
                 </div>
               </div>
-              <div style={{ fontSize: '0.85rem', color: 'var(--color-text-light)', display: 'flex', gap: '12px' }}>
+              <div style={{ fontSize: '0.85rem', color: 'var(--color-text-light)', display: 'flex', flexWrap: 'wrap', gap: '4px 12px' }}>
                 <span>📅 {devo.publication_date}</span>
                 {devo.categories?.name && <span>🏷️ {devo.categories.name}</span>}
               </div>

@@ -5,7 +5,7 @@ import { DevotionalService } from '../services/DevotionalService';
 import { JourneyService } from '../services/JourneyService';
 import { FamilyService, type Band, type Family, type KidsVersion } from '../services/FamilyService';
 import { getTodayInSaoPaulo } from '../utils/date';
-import { guideVersion, htmlBlocks, paginate, parseGuide, plainBlocks, readerForDay, versionsForChildren } from '../utils/ritual';
+import { guideVersion, htmlBlocks, pageBudget, paginate, parseGuide, plainBlocks, readerForDay, versionsForChildren } from '../utils/ritual';
 import type { Devotional } from '../types/Devotional';
 import '../styles/family.css';
 import { Paragraphs } from './Paragraphs';
@@ -91,15 +91,20 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   };
 
   const kidsView = perChild.some((p) => p.version);
+  const budget = useMemo(() => pageBudget(window.innerWidth, window.innerHeight), []);
 
   // Textos longos se dividem em partes curtas, uma ideia por tela.
-  const readKids = useMemo(() => perChild.map(({ child, version }) => ({ child, version, pages: paginate(plainBlocks(version?.whatItSays)) })), [perChild]);
-  const readAdult = useMemo(() => paginate(htmlBlocks(devotional?.reflection)), [devotional]);
+  const readKids = useMemo(() => perChild.map(({ child, version }) => ({ child, version, pages: paginate(plainBlocks(version?.whatItSays), budget.max, budget.first) })), [perChild, budget]);
+  const readAdult = useMemo(() => paginate(htmlBlocks(devotional?.reflection), budget.max, budget.first), [devotional, budget]);
   const readCount = Math.max(1, kidsView ? Math.max(...readKids.map((k) => k.pages.length)) : readAdult.length);
 
-  const doGuide = useMemo(() => paginate(plainBlocks(guide?.activity)), [guide]);
-  const doAdult = useMemo(() => paginate(htmlBlocks(devotional?.practical_application)), [devotional]);
+  const doGuide = useMemo(() => paginate(plainBlocks(guide?.activity), budget.max), [guide, budget]);
+  const doAdult = useMemo(() => paginate(htmlBlocks(devotional?.practical_application), budget.max), [devotional, budget]);
   const doCount = Math.max(1, guide ? doGuide.length : kidsView ? 1 : doAdult.length);
+
+  const prayGuide = useMemo(() => paginate(plainBlocks(guide?.prayer), budget.max), [guide, budget]);
+  const prayAdult = useMemo(() => paginate(htmlBlocks(devotional?.prayer), budget.max), [devotional, budget]);
+  const prayCount = Math.max(1, guide ? prayGuide.length : kidsView ? 1 : prayAdult.length);
 
   // Telas: ler (em partes), uma por pergunta, fazer (em partes), orar.
   const screens = useMemo(() => {
@@ -108,9 +113,10 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
     for (let i = 0; i < readCount; i++) out.push({ id: `read-${i}`, kind: 'read', part: i });
     questions.forEach((_, q) => out.push({ id: `talk-${q}`, kind: 'talk', q }));
     for (let i = 0; i < doCount; i++) out.push({ id: `do-${i}`, kind: 'do', part: i });
-    out.push({ id: 'pray', kind: 'pray' }, { id: 'done', kind: 'done' });
+    for (let i = 0; i < prayCount; i++) out.push({ id: `pray-${i}`, kind: 'pray', part: i });
+    out.push({ id: 'done', kind: 'done' });
     return out;
-  }, [questions, readCount, doCount]);
+  }, [questions, readCount, doCount, prayCount]);
 
   const screen = screens[Math.min(step, screens.length - 1)];
   const last = step >= screens.length - 1;
@@ -262,10 +268,11 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
         {screen.kind === 'pray' && (
           <>
             <span className="ritual__tag">{tt('stepPray', '4 · Orar')}</span>
+            {prayCount > 1 && <p className="fam-note">{tt('part', 'Parte {{n}} de {{total}}', { n: (screen.part ?? 0) + 1, total: prayCount })}</p>}
             {guide ? (
               <>
-                <SectionLabel icon="prayer">{tt('familyPrayer', 'Oração em família')}</SectionLabel>
-                <div className="sec-prayer"><Paragraphs text={guide.prayer} /></div>
+                {screen.part === 0 && <SectionLabel icon="prayer">{tt('familyPrayer', 'Oração em família')}</SectionLabel>}
+                <div className="sec-prayer"><Paragraphs text={(prayGuide[screen.part ?? 0] ?? []).join('\n\n')} /></div>
               </>
             ) : kidsView ? (
               <>
@@ -276,11 +283,11 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
               </>
             ) : (
               <>
-                <SectionLabel icon="prayer">{tt('prayer', 'Oração')}</SectionLabel>
-                {devotional.prayer && <HtmlRenderer html={devotional.prayer} className="ritual__text ritual__prayer sec-prayer" />}
+                {screen.part === 0 && <SectionLabel icon="prayer">{tt('prayer', 'Oração')}</SectionLabel>}
+                <HtmlRenderer html={(prayAdult[screen.part ?? 0] ?? []).join('\n')} className="ritual__text ritual__prayer sec-prayer" />
               </>
             )}
-            <p className="fam-note ritual__amen">{tt('prayHint', 'Respirem fundo, façam silêncio por um instante e orem juntos.')}</p>
+            {(screen.part ?? 0) >= prayCount - 1 && <p className="fam-note ritual__amen">{tt('prayHint', 'Respirem fundo, façam silêncio por um instante e orem juntos.')}</p>}
           </>
         )}
 
