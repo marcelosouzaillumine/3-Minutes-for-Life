@@ -474,7 +474,8 @@
     "setupDefaultName": "Nossa leitura",
     "addOnceNote": "Leitura de um dia só, na igreja por exemplo? Cadastre a criança aqui e remova depois em Grupo.",
     "addAnother": "Adicionar outra criança",
-    "addFirst": "Quem vai ler com você?"
+    "addFirst": "Quem vai ler com você?",
+    "sharedVersion": "Todos ouvem a mesma leitura. Qual versão?"
   },
   "familyNav": "Grupo",
   "plansx": {
