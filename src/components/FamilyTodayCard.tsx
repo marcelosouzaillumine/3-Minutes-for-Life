@@ -24,7 +24,7 @@ export function FamilyTodayCard() {
     return (
       <div className="fam-today">
         <div>
-          <p className="fam-eyebrow">{t('ritual.inviteTitle', 'Ler em família')}</p>
+          <p className="fam-eyebrow">{t('ritual.inviteTitle', 'Ler juntos')}</p>
           <p className="fam-today__text">{t('ritual.inviteText', 'Uma leitura para a mesa, com perguntas, uma atividade e uma oração.')}</p>
         </div>
         <button type="button" className="fam-btn fam-btn--secondary fam-today__btn" onClick={() => openRitual('daily')}>
@@ -48,7 +48,7 @@ export function FamilyTodayCard() {
         </p>
       </div>
       <button type="button" className="fam-btn fam-btn--secondary fam-today__btn" onClick={() => openRitual(plan ? 'plan' : 'daily')}>
-        {t('fam.ritual', 'Ler em família')}
+        {t('fam.ritual', 'Ler juntos')}
       </button>
     </div>
   );

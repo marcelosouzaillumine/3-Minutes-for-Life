@@ -11,7 +11,7 @@ import '../styles/family.css';
 import { Paragraphs } from './Paragraphs';
 import { SectionLabel } from './SectionLabel';
 
-/** Ler em família: um roteiro de tela cheia, uma coisa por vez, feito para ser lido em voz alta. */
+/** Ler juntos: um roteiro de tela cheia, uma coisa por vez, feito para ser lido em voz alta. */
 export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; onClose: () => void }) {
   const { t, i18n } = useTranslation('common');
   const tt: TT = (k, d, o) => t(`ritual.${k}`, typeof d === 'string' ? { defaultValue: d, ...o } : d) as string;
@@ -149,7 +149,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   );
 
   return (
-    <div className={`ritual${screen.kind === 'pray' ? ' ritual--pray' : ''}`} role="dialog" aria-modal="true" aria-label={tt('title', 'Ler em família')}>
+    <div className={`ritual${screen.kind === 'pray' ? ' ritual--pray' : ''}`} role="dialog" aria-modal="true" aria-label={tt('title', 'Ler juntos')}>
       <header className="ritual__top">
         <div className="ritual__progress" aria-hidden="true">
           {screens.map((s, i) => <i key={s.id} className={i <= step ? 'is-on' : ''} />)}
@@ -290,7 +290,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
             <h1 className="ritual__title">{saved ? tt('doneTitle', 'Vocês leram juntos.') : tt('almost', 'Vamos registrar?')}</h1>
             <p className="ritual__lead">{saved ? tt('doneText', 'Cada adulto marca a própria leitura. Obrigado por separar esse tempo.') : tt('markText', 'Isso registra a sua leitura de hoje.')}</p>
             {saved && family.week.streak > 0 && (
-              <div className="ritual__streak"><strong>{family.week.streak}</strong><span>{tt('streakDays', { count: family.week.streak, defaultValue: 'dias seguidos em família' })}</span></div>
+              <div className="ritual__streak"><strong>{family.week.streak}</strong><span>{tt('streakDays', { count: family.week.streak, defaultValue: 'dias seguidos juntos' })}</span></div>
             )}
             {saved && <p className="fam-note">{tt('tomorrow', 'Amanhã tem um novo devocional esperando por vocês.')}</p>}
             {!saved ? (
@@ -315,10 +315,8 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
 
 type TT = (k: string, d: string | Record<string, unknown>, o?: Record<string, unknown>) => string;
 
-/** Quem ainda não tem família cria uma aqui mesmo, em dois passos, e segue direto para a leitura. */
+/** Quem ainda não tem uma leitura configurada escolhe com quem lê; só crianças pedem mais um passo. */
 function RitualSetup({ onClose, onCreated, tt }: { onClose: () => void; onCreated: (f: Family) => void; tt: TT }) {
-  const [stepNo, setStepNo] = useState<1 | 2>(1);
-  const [name, setName] = useState('');
   const [fam, setFam] = useState<Family | null>(null);
   const [nick, setNick] = useState('');
   const [band, setBand] = useState<Band>('7-10');
@@ -330,31 +328,38 @@ function RitualSetup({ onClose, onCreated, tt }: { onClose: () => void; onCreate
     try { after(await fn()); } catch { setError(tt('setupError', 'Não foi possível salvar agora. Tente de novo.')); }
     setBusy(false);
   };
+  const create = (after: (f: Family) => void) => run(() => FamilyService.create(tt('setupDefaultName', 'Nossa leitura')), after);
 
   return (
-    <div className="ritual" role="dialog" aria-modal="true" aria-label={tt('title', 'Ler em família')}>
+    <div className="ritual" role="dialog" aria-modal="true" aria-label={tt('title', 'Ler juntos')}>
       <header className="ritual__top">
-        <div className="ritual__progress" aria-hidden="true"><i className="is-on" /><i className={stepNo === 2 ? 'is-on' : ''} /></div>
+        <div className="ritual__progress" aria-hidden="true"><i className="is-on" /><i className={fam ? 'is-on' : ''} /></div>
         <button type="button" className="fam-icon-btn" aria-label={tt('close', 'Fechar')} onClick={onClose}>×</button>
       </header>
       <div className="ritual__body">
-        <p className="fam-eyebrow fam-eyebrow--accent">{tt('setupStep', 'Passo {{n}} de 2', { n: stepNo })}</p>
-        {stepNo === 1 ? (
-          <form className="fam-form" onSubmit={(e) => { e.preventDefault(); if (name.trim()) run(() => FamilyService.create(name.trim()), (f) => { setFam(f); setStepNo(2); }); }}>
-            <h1 className="ritual__title">{tt('setupName', 'Como se chama a sua família?')}</h1>
-            <label><input value={name} onChange={(e) => setName(e.target.value)} placeholder={tt('setupNamePh', 'Família Souza')} maxLength={60} autoFocus /></label>
-            <p className="fam-note">{tt('setupNameNote', 'Os outros adultos entram depois, por um link de convite.')}</p>
+        {!fam ? (
+          <>
+            <h1 className="ritual__title">{tt('setupWho', 'Com quem você vai ler?')}</h1>
+            <div className="ritual__choices">
+              <button type="button" className="ritual__choice" disabled={busy} onClick={() => create(onCreated)}>
+                <strong>{tt('setupAdults', 'Só adultos')}</strong>
+                <span>{tt('setupAdultsNote', 'Sozinho, em casal ou em grupo')}</span>
+              </button>
+              <button type="button" className="ritual__choice" disabled={busy} onClick={() => create(setFam)}>
+                <strong>{tt('setupWithKids', 'Com crianças')}</strong>
+                <span>{tt('setupWithKidsNote', 'Cada uma com a leitura da sua idade')}</span>
+              </button>
+            </div>
             {error && <p className="fam-error">{error}</p>}
-            <button type="submit" className="fam-btn fam-btn--primary" disabled={busy || !name.trim()}>{tt('next', 'Continuar')}</button>
-          </form>
+          </>
         ) : (
           <>
-            <h1 className="ritual__title">{tt('setupKids', 'Quem lê com você?')}</h1>
-            {(fam?.children ?? []).map((c) => (
+            <h1 className="ritual__title">{tt('setupKids', 'Quais crianças leem com você?')}</h1>
+            {fam.children.map((c) => (
               <div key={c.id} className="ritual__kid"><h3>{c.nickname}</h3><p>{c.band.replace('-', ' a ')} {tt('years', 'anos')}</p></div>
             ))}
             <form className="fam-inline" onSubmit={(e) => { e.preventDefault(); if (nick.trim()) run(() => FamilyService.addChild(nick.trim(), band), (f) => { setFam(f); setNick(''); }); }}>
-              <input value={nick} onChange={(e) => setNick(e.target.value)} placeholder={tt('nickname', 'Apelido')} maxLength={20} aria-label={tt('nickname', 'Apelido')} />
+              <input value={nick} onChange={(e) => setNick(e.target.value)} placeholder={tt('nickname', 'Apelido')} maxLength={20} aria-label={tt('nickname', 'Apelido')} autoFocus />
               <select value={band} onChange={(e) => setBand(e.target.value as Band)} aria-label={tt('band', 'Faixa de idade')}>
                 {(['4-6', '7-10', '11-13'] as Band[]).map((b) => <option key={b} value={b}>{b.replace('-', ' a ')} {tt('years', 'anos')}</option>)}
               </select>
@@ -362,7 +367,7 @@ function RitualSetup({ onClose, onCreated, tt }: { onClose: () => void; onCreate
             </form>
             <p className="fam-note">{tt('setupKidsNote', 'Só apelido e faixa de idade. Sem sobrenome, foto ou e-mail.')}</p>
             {error && <p className="fam-error">{error}</p>}
-            <button type="button" className="fam-btn fam-btn--primary" disabled={busy || !fam} onClick={() => fam && onCreated(fam)}>{tt('setupStart', 'Começar a leitura')}</button>
+            <button type="button" className="fam-btn fam-btn--primary" disabled={busy} onClick={() => onCreated(fam)}>{tt('setupStart', 'Começar a leitura')}</button>
           </>
         )}
       </div>

@@ -51,23 +51,39 @@ beforeEach(() => {
 afterEach(() => { act(() => root.unmount()); host.remove(); vi.clearAllMocks(); });
 
 describe('FamilyRitual', () => {
-  it('quem não tem família cria uma em dois passos e segue para a leitura', async () => {
+  it('quem não tem leitura configurada escolhe só adultos e segue direto, sem pedir nome de família', async () => {
+    mocks.get.mockResolvedValue(null);
+    mocks.create.mockResolvedValue({ ...family, children: [] });
+    await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
+    await flush();
+    expect(host.textContent).toContain('Com quem você vai ler?');
+    expect(host.textContent).not.toContain('Como se chama a sua família?');
+    await click('Só adultos');
+    await flush(); await flush();
+    expect(mocks.create).toHaveBeenCalledWith('Nossa leitura');
+    expect(host.textContent).toContain('A paz que guarda');
+  });
+
+  it('com crianças, cadastra as crianças antes de começar a leitura', async () => {
     mocks.get.mockResolvedValue(null);
     mocks.create.mockResolvedValue({ ...family, children: [] });
     mocks.addChild.mockResolvedValue(family);
     await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
     await flush();
-    expect(host.textContent).toContain('Como se chama a sua família?');
-
+    await click('Com crianças');
+    await flush();
+    expect(host.textContent).toContain('Quais crianças leem com você?');
     const input = host.querySelector('input') as HTMLInputElement;
     await act(async () => {
-      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, 'Família Souza');
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, 'Bento');
       input.dispatchEvent(new Event('input', { bubbles: true }));
     });
     await act(async () => { host.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
     await flush();
-    expect(mocks.create).toHaveBeenCalledWith('Família Souza');
-    expect(host.textContent).toContain('Quem lê com você?');
+    expect(mocks.addChild).toHaveBeenCalledWith('Bento', '7-10');
+    await click('Começar a leitura');
+    await flush(); await flush();
+    expect(host.textContent).toContain('A paz que guarda');
   });
 
   it('mostra uma pergunta por tela, a atividade e a oração em família do guia', async () => {

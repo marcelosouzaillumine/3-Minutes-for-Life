@@ -160,7 +160,7 @@ export function Family() {
       </section>
       <p className="fam-note">{readers > 0 ? tt('readersToday', '{{count}} de {{total}} já leram hoje', { count: readers, total: family.members.length }) : tt('noneToday', 'Ninguém leu hoje ainda.')}</p>
 
-      <button type="button" className="fam-btn fam-btn--primary fam-cta" onClick={() => openRitual('daily')}>{tt('ritual', 'Ler em família')}</button>
+      <button type="button" className="fam-btn fam-btn--primary fam-cta" onClick={() => openRitual('daily')}>{tt('ritual', 'Ler juntos')}</button>
 
       {/* ── Plano ── */}
       {plan && !plan.completed && (
@@ -171,7 +171,7 @@ export function Family() {
           {!plan.lockedUntilTomorrow && <p className="fam-card__text">{tt('plan.today', 'Hoje no plano: {{title}}', { title: plan.days[plan.currentDay - 1]?.title })}</p>}
           {plan.lockedUntilTomorrow
             ? <p className="fam-note">{tt('plan.locked', 'Hoje vocês já leram o dia {{n}}. O dia {{next}} libera amanhã.', { n: plan.currentDay - 1, next: plan.currentDay })}</p>
-            : <button type="button" className="fam-btn fam-btn--secondary" onClick={() => openRitual('plan')}>{tt('plan.read', 'Ler o dia do plano em família')}</button>}
+            : <button type="button" className="fam-btn fam-btn--secondary" onClick={() => openRitual('plan')}>{tt('plan.read', 'Ler o dia do plano juntos')}</button>}
         </section>
       )}
       {plan?.completed && plan.summary && (

@@ -123,6 +123,11 @@
 .ritual--pray .ritual__body { text-align: center; }
 .ritual--pray .sec-prayer { font-family: var(--font-serif); font-size: 1.3rem; line-height: 1.7; }
 .ritual__amen { font-style: italic; }
+.ritual__choices { display: grid; gap: 0.75rem; }
+.ritual__choice { display: grid; gap: 0.2rem; text-align: left; width: 100%; padding: 1.1rem 1.2rem; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); color: var(--text-strong); font: inherit; cursor: pointer; }
+.ritual__choice strong { font-family: var(--font-serif); font-weight: 400; font-size: 1.25rem; }
+.ritual__choice span { font-size: 0.9rem; color: var(--text-muted); }
+.ritual__choice:disabled { opacity: 0.6; }
 .ritual__done { display: grid; gap: 1rem; justify-items: center; text-align: center; padding-top: 2rem; }
 .ritual__seal { display: grid; place-items: center; width: 4rem; height: 4rem; border-radius: 50%; font-size: 1.8rem; color: #fff; background: var(--accent-strong); }
 .fam-today { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin: 1rem 0; padding: 0.9rem 1rem; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); }

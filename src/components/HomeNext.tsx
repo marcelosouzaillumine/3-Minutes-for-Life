@@ -53,7 +53,7 @@ export function HomeNext({ onExplore }: { onExplore: () => void }) {
       {hasFamily && (
         <button type="button" className="home-next__row" onClick={() => window.dispatchEvent(new CustomEvent('family:ritual', { detail: 'daily' }))}>
           <span className="home-next__text">
-            <strong>{tt('family', 'Ler em família')}</strong>
+            <strong>{tt('family', 'Ler juntos')}</strong>
             <small>{tt('familySub', 'Hoje, em voz alta, à mesa')}</small>
           </span>
           <span aria-hidden="true">›</span>
