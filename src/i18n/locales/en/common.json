@@ -50,7 +50,8 @@
     "writtenBy": "written by",
     "authorRole": "Pastor at Igreja Missão Mobilização",
     "practiced": "I practiced today",
-    "findMoment": "Find a devotional for your moment"
+    "findMoment": "Find a devotional for your moment",
+    "supportDefault": "3 Minutes for Life exists to bring the Word to people with few minutes and a deep thirst. Every contribution widens our reach: more devotionals, more languages, and more families reading together."
   },
   "testimonials": {
     "title": "How did this reflection touch you?",
@@ -81,9 +82,9 @@
     "senderShared": "{{name}} shared this reflection with you.",
     "someoneShared": "Someone shared this reflection with you.",
     "ctaText": "May these three minutes not end here.",
-    "ctaSubtext": "Tomorrow, a fresh reflection awaits you.",
+    "ctaSubtext": "Create your free account to follow reading plans, read together as a family, and keep your reflections.",
     "ctaButton": "Continue my journey",
-    "ctaNote": "Always free.",
+    "ctaNote": "Free access.",
     "sharedSuffix": "shared this reflection with you."
   },
   "categories": {
@@ -427,5 +428,20 @@
     "done": "Completed",
     "days_one": "{{count}} day",
     "days_other": "{{count}} days"
+  },
+  "plansNav": "Plans",
+  "next": {
+    "title": "What's next?",
+    "plan": "Continue your plan",
+    "planSub": "{{title}} · day {{day}} of {{total}}",
+    "family": "Read as a family",
+    "familySub": "Today, aloud, at the table",
+    "moment": "How are you today?",
+    "placeholder": "Write in a few words…",
+    "c1": "No strength",
+    "c2": "Anxiety",
+    "c3": "Gratitude",
+    "c4": "A hard decision",
+    "library": "Explore the library"
   }
 }

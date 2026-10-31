@@ -5,8 +5,6 @@ import { PrincipleView } from '../components/PrincipleView';
 import { JourneyService } from '../services/JourneyService';
 import { searchMoments, significantWords, topicsOf } from '../utils/momentSearch';
 import { AnalyticsService } from '../services/AnalyticsService';
-import { PlansSection } from '../components/PlansSection';
-import { PlanCategories } from '../components/PlanCategories';
 import { useTranslation } from 'react-i18next';
 
 export function Explore() {
@@ -49,14 +47,19 @@ export function Explore() {
     return () => { alive = false; };
   }, [library, i18n.language]);
 
-  // Vindo do link no fim do devocional: abre já com o cursor na busca.
+  // Vindo do fim da Home: abre com a frase já escrita (ou com o cursor na busca, se não houver frase).
   useEffect(() => {
     try {
+      const phrase = sessionStorage.getItem('explore:query');
+      if (phrase) {
+        sessionStorage.removeItem('explore:query');
+        setSearchQuery(phrase);
+      }
       if (sessionStorage.getItem('explore:focus') === '1') {
         sessionStorage.removeItem('explore:focus');
-        setTimeout(() => searchInput.current?.focus(), 150);
+        if (!phrase) setTimeout(() => searchInput.current?.focus(), 150);
       }
-    } catch { /* sem sessionStorage, só não foca */ }
+    } catch { /* sem sessionStorage, só não preenche */ }
   }, [loading]);
 
   // Estatística da busca: depois que a pessoa para de digitar, uma vez por frase. Vão só as palavras
@@ -204,7 +207,6 @@ export function Explore() {
         )
       ) : (
         <>
-        <PlanCategories onOpen={handleSelectDevotional} fallback={<PlansSection library={library} onOpen={handleSelectDevotional} />} />
         <ul className="category-list">
           {categories.map(category => {
             const count = devotionals.filter(d => d.categories?.name === category).length;

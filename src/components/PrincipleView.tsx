@@ -16,6 +16,7 @@ import { DevotionalHeader } from './DevotionalHeader';
 import { useTenantBranding } from '../hooks/useTenantBranding';
 import { StreakLine, useJourney } from './JourneyStreak';
 import { SectionLabel } from './SectionLabel';
+import { HomeNext } from './HomeNext';
 
 interface PrincipleViewProps {
   devotional: Devotional;
@@ -598,41 +599,43 @@ export function PrincipleView({
             SUPPORT MESSAGE (opcional — banner e/ou texto)
             ====================================================== */}
 
-        {(devotional.support_message || devotional.support_link_url) && (
-          <section className="principle-support-section">
+        <section className="principle-support-section">
 
-            <SectionLabel icon="support">
-              {t(
-                'home.supportMessage',
-                'Apoie o projeto'
-              )}
-            </SectionLabel>
-
-            {devotional.support_message && (
-              <div className="principle-support-text">
-                <HtmlRenderer
-                  html={devotional.support_message}
-                />
-              </div>
+          <SectionLabel icon="support">
+            {t(
+              'home.supportMessage',
+              'Apoie o projeto'
             )}
+          </SectionLabel>
 
-            {/* Só um link discreto: o banner grande saiu para não competir com a leitura. */}
-            {devotional.support_link_url && (
-              <a
-                href={devotional.support_link_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="principle-support-link"
-              >
+          <div className="principle-support-text">
+            {devotional.support_message ? (
+              <HtmlRenderer
+                html={devotional.support_message}
+              />
+            ) : (
+              <p>
                 {t(
-                  'home.supportLinkLabel',
-                  'Quero apoiar'
-                )} →
-              </a>
+                  'home.supportDefault',
+                  'O 3 Minutes for Life existe para levar a Palavra a quem tem poucos minutos e muita sede. Cada contribuição amplia o nosso alcance: mais devocionais, mais idiomas e mais famílias lendo juntas.'
+                )}
+              </p>
             )}
+          </div>
 
-          </section>
-        )}
+          {/* Link discreto; sem endereço próprio, vai para a página de apoio do projeto. */}
+          <a
+            href={devotional.support_link_url || '/apoiar'}
+            {...(devotional.support_link_url ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+            className="principle-support-link"
+          >
+            {t(
+              'home.supportLinkLabel',
+              'Quero apoiar'
+            )} →
+          </a>
+
+        </section>
 
         {/* ======================================================
             SHARED CTA
@@ -803,27 +806,7 @@ export function PrincipleView({
 
         <ReminderInvite />
 
-        {onExplore && (
-          <div className="home-explore">
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={onExplore}
-            >
-              {t('home.exploreMore', 'Explorar mais')}
-            </button>
-            <button
-              type="button"
-              className="home-explore__moment"
-              onClick={() => {
-                try { sessionStorage.setItem('explore:focus', '1'); } catch { /* segue sem o foco */ }
-                onExplore();
-              }}
-            >
-              {t('home.findMoment', 'Procurar um devocional para o seu momento')}
-            </button>
-          </div>
-        )}
+        {onExplore && <HomeNext onExplore={onExplore} />}
 
       </div>
     </article>
