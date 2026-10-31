@@ -117,7 +117,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
     update();
     window.addEventListener('resize', update);
     return () => { window.removeEventListener('resize', update); m.remove(); };
-  }, [loaded, family]);
+  }, [loaded, family, devotional]);
 
   const slack = 12;
   const tagHtml = (n: string) => `<span class="ritual__tag">${esc(n)}</span>`;
