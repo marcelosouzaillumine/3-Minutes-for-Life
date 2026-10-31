@@ -97,7 +97,7 @@
 .ritual__progress { flex: 1; display: flex; gap: 0.3rem; }
 .ritual__progress i { flex: 1; height: 3px; border-radius: 2px; background: #E7E0D3; }
 .ritual__progress i.is-on { background: var(--accent-strong); }
-.ritual__body { flex: 1; overflow-y: auto; width: 100%; max-width: 32rem; margin: 0 auto; padding: 1.5rem 1.5rem 2rem; display: grid; align-content: start; gap: 1rem; }
+.ritual__body { flex: 1; overflow-y: auto; width: 100%; max-width: 32rem; margin: 0 auto; padding: 1rem 1.5rem 1.5rem; display: grid; align-content: start; gap: 1rem; }
 .ritual__title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 2rem; line-height: 1.15; }
 .ritual__verse { margin: 0; font-size: 0.95rem; font-weight: 600; letter-spacing: 0.04em; color: var(--accent, currentColor); }
 .ritual__lead { margin: 0; font-size: 1.05rem; line-height: 1.6; color: var(--text-muted); }
@@ -105,23 +105,24 @@
 .ritual__body .principle-scripture--ritual { margin-bottom: 0; padding: 1.25rem 1.3rem; }
 .ritual__body .principle-scripture--ritual .principle-scripture-text { font-size: 1.5rem; line-height: 1.55; }
 .ritual__body .principle-scripture--ritual .principle-scripture-reference { margin-top: 0.9rem; font-size: 0.85rem; }
-.ritual__text { font-size: 1.1rem; line-height: 1.75; }
-.ritual__prayer { font-family: var(--font-serif); font-size: 1.25rem; }
+.ritual__text { font-size: clamp(1rem, 4.4vw, 1.15rem); line-height: 1.7; }
+.ritual__prayer { font-family: var(--font-serif); }
 .ritual__kid { padding: 1rem 1.1rem; border: 1px solid var(--border-subtle); border-radius: 14px; }
 .ritual__kid h3 { margin: 0 0 0.4rem; font-size: 0.8rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-strong); }
-.ritual__kid p { margin: 0 0 0.5rem; font-size: 1.1rem; line-height: 1.65; }
+.ritual__kid p { margin: 0 0 0.5rem; font-size: clamp(1rem, 4.4vw, 1.15rem); line-height: 1.7; }
 .ritual__nav { display: flex; gap: 0.75rem; width: 100%; max-width: 32rem; margin: 0 auto; padding: 0.75rem 1.5rem calc(1rem + env(safe-area-inset-bottom)); }
 .ritual__nav .fam-btn--primary { flex: 2; }
 .ritual__nav .fam-btn--ghost { flex: 1; }
 
 /* Cada tela entra suave; a oração tem um fundo mais calmo; o fim celebra. */
-.ritual__screen { display: grid; gap: 1rem; animation: ritual-in 280ms ease both; }
+.ritual__screen { display: grid; gap: 0.9rem; text-wrap: pretty; animation: ritual-in 280ms ease both; }
 @keyframes ritual-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .ritual__screen { animation: none; } }
 .ritual { transition: background 400ms ease; }
 .ritual--pray { background: color-mix(in srgb, var(--accent-strong) 7%, var(--canvas)); }
 .ritual--pray .ritual__body { text-align: center; }
-.ritual--pray .sec-prayer { font-family: var(--font-serif); font-size: 1.3rem; line-height: 1.7; }
+.ritual--pray .sec-prayer { padding: 0; background: none; font-size: clamp(1rem, 4.4vw, 1.12rem); line-height: 1.75; }
+.ritual--pray .sec-prayer p { margin: 0 0 0.8rem; font-size: inherit; }
 .ritual__amen { font-style: italic; }
 .ritual__choices { display: grid; gap: 0.75rem; }
 .ritual__choice { display: grid; gap: 0.2rem; text-align: left; width: 100%; padding: 1.1rem 1.2rem; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); color: var(--text-strong); font: inherit; cursor: pointer; }
@@ -148,6 +149,9 @@
 .studio__title { margin: 0.5rem 0 1rem; font-family: var(--font-serif); font-weight: 400; font-size: 1.4rem; }
 .studio__grid { display: grid; gap: 1.25rem; }
 @media (min-width: 960px) { .studio__grid { grid-template-columns: 1fr 1.2fr 0.9fr; align-items: start; } }
+.studio__summary { cursor: pointer; font-weight: 500; font-size: 0.9rem; color: var(--text-strong); }
+.studio__source[open] > .studio__summary { margin-bottom: 0.6rem; }
+@media (min-width: 960px) { .studio__summary { display: none; } }
 .studio__source, .studio__screen { font-size: 0.88rem; line-height: 1.6; padding: 1rem; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); }
 .studio__screen h5 { margin: 0.8rem 0 0.2rem; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); }
 .studio__screen p { margin: 0; }

@@ -96,16 +96,57 @@ export function htmlBlocks(html: string | null | undefined): string[] {
 
 const textLength = (block: string) => block.replace(/<[^>]+>/g, '').length;
 
-/** Agrupa blocos em telas de até `max` caracteres; um bloco maior que isso fica sozinho, nunca é cortado. */
-export function paginate(blocks: string[], max = PAGE_CHARS): string[][] {
+/** Quebra um bloco maior que `max` em frases (e, se uma frase sozinha passar, em palavras), mantendo o formato do bloco. */
+function splitLong(block: string, max: number): string[] {
+  if (textLength(block) <= max) return [block];
+  const wrapped = /^<p>([\s\S]*)<\/p>$/i.exec(block);
+  const inner = wrapped ? wrapped[1] : block;
+  if (/<\/?(?:p|ul|ol|li|blockquote|div|h[1-6])\b/i.test(inner)) return [block];
+  const wrap = (t: string) => (wrapped ? `<p>${t}</p>` : t);
+  const pieces: string[] = [];
+  for (const sentence of inner.split(/(?<=[.!?…:;])\s+/)) {
+    if (sentence.length <= max) { pieces.push(sentence); continue; }
+    let cur = '';
+    for (const w of sentence.split(/\s+/)) {
+      if (cur && cur.length + w.length + 1 > max) { pieces.push(cur); cur = w; } else cur = cur ? `${cur} ${w}` : w;
+    }
+    if (cur) pieces.push(cur);
+  }
+  const out: string[] = [];
+  let cur = '';
+  for (const piece of pieces) {
+    if (cur && cur.length + piece.length + 1 > max) { out.push(wrap(cur)); cur = piece; } else cur = cur ? `${cur} ${piece}` : piece;
+  }
+  if (cur) out.push(wrap(cur));
+  return out;
+}
+
+/**
+ * Agrupa blocos em telas de até `max` caracteres (a primeira, que leva o versículo, até `firstMax`).
+ * Parágrafo maior que o limite é quebrado em frases: nenhuma tela deve passar do que cabe.
+ */
+export function paginate(blocks: string[], max = PAGE_CHARS, firstMax = max): string[][] {
   const pages: string[][] = [];
   let cur: string[] = [];
   let len = 0;
-  for (const b of blocks) {
+  const limit = () => (pages.length === 0 ? firstMax : max);
+  for (const b of blocks.flatMap((x) => splitLong(x, Math.min(max, firstMax)))) {
     const l = textLength(b);
-    if (cur.length && len + l > max) { pages.push(cur); cur = []; len = 0; }
+    if (cur.length && len + l > limit()) { pages.push(cur); cur = []; len = 0; }
     cur.push(b); len += l;
   }
   if (cur.length) pages.push(cur);
   return pages;
+}
+
+/**
+ * Quanto texto cabe numa tela deste aparelho (letra de ~4,4vw, entre 16 e 18,4px, linha 1,7).
+ * A primeira tela também leva o cartão do versículo, por isso cabe menos.
+ */
+export function pageBudget(width: number, height: number): { max: number; first: number } {
+  const font = Math.min(18.4, Math.max(16, width * 0.044));
+  const lines = Math.max(6, Math.floor((height - 340) / (font * 1.7)));
+  const cols = Math.max(20, (Math.min(width, 512) - 48) / (font * 0.62));
+  const fit = (n: number) => Math.max(140, Math.min(PAGE_CHARS, Math.floor(n * cols * 0.85)));
+  return { max: fit(lines), first: fit(lines - 7) };
 }

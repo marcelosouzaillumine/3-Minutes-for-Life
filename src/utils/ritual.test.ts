@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { guideVersion, htmlBlocks, paginate, parseGuide, plainBlocks, readerForDay, versionsForChildren } from './ritual';
+import { guideVersion, htmlBlocks, pageBudget, paginate, parseGuide, plainBlocks, readerForDay, versionsForChildren } from './ritual';
 import type { KidsVersion } from '../services/FamilyService';
 
 const v = (band: KidsVersion['band']): KidsVersion => ({
@@ -53,5 +53,29 @@ describe('ritual', () => {
     expect(htmlBlocks('um\n\ndois')).toEqual(['<p>um</p>', '<p>dois</p>']);
     expect(htmlBlocks('<p>um</p><ul><li>a</li></ul><p>dois</p>')).toEqual(['<p>um</p>', '<ul><li>a</li></ul>', '<p>dois</p>']);
     expect(htmlBlocks(null)).toEqual([]);
+  });
+
+  it('parágrafo longo é quebrado em frases para caber na tela', () => {
+    const sentence = 'Esta é uma frase de tamanho médio para o teste de leitura em voz alta. ';
+    const para = `<p>${sentence.repeat(14).trim()}</p>`;
+    const pages = paginate([para], 400, 200);
+    expect(pages.length).toBeGreaterThan(2);
+    for (const [i, p] of pages.entries()) {
+      const len = p.join('').replace(/<[^>]+>/g, '').length;
+      expect(len).toBeLessThanOrEqual(i === 0 ? 200 : 400);
+    }
+    expect(pages.flat().join(' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()).toBe(sentence.repeat(14).trim());
+  });
+  it('texto simples longo também é quebrado e uma frase gigante cai por palavras', () => {
+    const pages = paginate(['palavra '.repeat(200).trim()], 300);
+    expect(pages.length).toBeGreaterThan(3);
+    expect(pages.every((p) => p.join('').length <= 300)).toBe(true);
+  });
+  it('a tela cabe menos texto em celular baixo e a primeira cabe menos ainda', () => {
+    const phone = pageBudget(390, 740);
+    const tall = pageBudget(430, 900);
+    expect(phone.first).toBeLessThan(phone.max);
+    expect(phone.max).toBeLessThanOrEqual(tall.max);
+    expect(phone.max).toBeGreaterThan(200);
   });
 });

@@ -28,6 +28,8 @@ export function KidsBandEditor({ devotional, language, languageName, band, onCha
   const [reference, setReference] = useState<KidsDraft | null>(null);
   const [msg, setMsg] = useState('');
   const [saving, setSaving] = useState(false);
+  // No celular o texto de referência fica recolhido: o que se edita é a faixa escolhida, não o texto adulto.
+  const [wide] = useState(() => typeof window !== 'undefined' && !!window.matchMedia?.('(min-width: 960px)').matches);
 
   useEffect(() => {
     let alive = true;
@@ -60,7 +62,8 @@ export function KidsBandEditor({ devotional, language, languageName, band, onCha
   const translated = language !== 'pt-BR';
   return (
     <div className="studio__grid">
-      <aside className="studio__source">
+      <details className="studio__source" open={wide}>
+        <summary className="studio__summary">{translated ? `Ver a versão em português desta faixa (${bandLabel(band)})` : 'Ver o texto original do devocional'}</summary>
         <p className="fam-eyebrow">{translated ? `Versão em português desta faixa (${bandLabel(band)}) · traduza com o mesmo sentido` : 'Texto original · a versão infantil mantém esta tese e esta passagem'}</p>
         {!translated || !reference ? (
           <>
@@ -74,7 +77,7 @@ export function KidsBandEditor({ devotional, language, languageName, band, onCha
         ) : (
           FIELDS.filter((f) => reference[f.key]).map((f) => <p key={f.key}><strong>{f.label}</strong><br />{reference[f.key]}</p>)
         )}
-      </aside>
+      </details>
       <div>
         <div className="fam-form">
           {FIELDS.map((f) => (
