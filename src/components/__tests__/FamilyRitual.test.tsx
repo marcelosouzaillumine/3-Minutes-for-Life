@@ -90,4 +90,19 @@ describe('FamilyRitual', () => {
     await click('Continuar'); // orar
     expect(host.textContent).toContain('Pai, obrigado. Amém.');
   });
+
+  it('sem guia no formato, usa as perguntas do "Para pensar", uma por tela', async () => {
+    mocks.get.mockResolvedValue(family);
+    mocks.getKids.mockResolvedValue([{ band: '4-6', title: null, scriptureFocus: null, whatItSays: 'Deus cuida.', thinkAbout: 'Quando você tem medo?\nO que ajuda você a ficar calmo?', practice: 'Fazer.', prayer: 'Orar.', adultGuide: 'Só um texto solto.', status: 'published' }]);
+    await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
+    await flush(); await flush();
+    await click('Continuar'); // ler
+    await click('Continuar'); // pergunta 1
+    expect(host.textContent).toContain('Pergunta 1 de 2');
+    expect(host.textContent).toContain('Quando você tem medo?');
+    await click('Continuar');
+    expect(host.textContent).toContain('Pergunta 2 de 2');
+    await click('Ver como conduzir');
+    expect(host.textContent).toContain('Só um texto solto.');
+  });
 });
