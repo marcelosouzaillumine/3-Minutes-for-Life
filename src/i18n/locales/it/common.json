@@ -475,7 +475,9 @@
     "addOnceNote": "Una lettura di un solo giorno, in chiesa per esempio? Aggiungi il bambino qui e rimuovilo poi in Gruppo.",
     "addAnother": "Aggiungi un altro bambino",
     "addFirst": "Chi legge con te?",
-    "sharedVersion": "Tutti ascoltano la stessa lettura. Quale versione?"
+    "sharedVersion": "Tutti ascoltano la stessa lettura. Quale versione?",
+    "tableTitle": "Chi legge?",
+    "continue": "Continua"
   },
   "familyNav": "Gruppo",
   "plansx": {

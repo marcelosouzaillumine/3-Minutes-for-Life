@@ -475,7 +475,9 @@
     "addOnceNote": "Une lecture ponctuelle, à l'église par exemple ? Ajoutez l'enfant ici et retirez-le ensuite dans Groupe.",
     "addAnother": "Ajouter un autre enfant",
     "addFirst": "Qui lit avec vous ?",
-    "sharedVersion": "Tout le monde entend la même lecture. Quelle version ?"
+    "sharedVersion": "Tout le monde entend la même lecture. Quelle version ?",
+    "tableTitle": "Qui va lire ?",
+    "continue": "Continuer"
   },
   "familyNav": "Groupe",
   "plansx": {

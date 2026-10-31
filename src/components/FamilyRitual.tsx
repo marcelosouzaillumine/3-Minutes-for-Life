@@ -160,7 +160,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
     const head = (first: boolean) => (first ? heroHtml(child.band) : '') + tagHtml(tt('stepRead', '1 · Ler'), 'read') + (first ? verseHtml() : '');
     const fits: Fit | null = fitCfg ? (page, i) => {
       const base = fitCfg.measure(`<div class="ritual__screen">${head(i === 0)}</div>`);
-      const sec = `<section class="ritual__kid"><h3>${esc(child.nickname)} · ${esc(child.band)} anos</h3>${i === 0 && version?.title ? `<p class="ritual__kid-title">${esc(version.title)}</p>` : ''}${plainHtml(page)}</section>`;
+      const sec = `<section class="ritual__kid"><h3>${esc(child.band.replace('-', ' a '))} anos</h3>${i === 0 && version?.title ? `<p class="ritual__kid-title">${esc(version.title)}</p>` : ''}${plainHtml(page)}</section>`;
       return fitCfg.measure(`<div class="ritual__screen">${head(i === 0)}${sec}</div>`) <= base + (fitCfg.h - base) / nKids - slack;
     } : null;
     return { child, version, pages: run(plainBlocks(version?.whatItSays), fits, true) };
@@ -173,15 +173,15 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   const doAdult = useMemo(() => run(htmlBlocks(devotional?.practical_application), screenFits(doHead, (pg) => `<div class="ritual__text">${pg.join('')}</div>`)), [devotional, budget, fitCfg]); // eslint-disable-line react-hooks/exhaustive-deps
   const doCount = Math.max(1, guide ? doGuide.length : kidsView ? 1 : doAdult.length);
 
-  const prayHead = (f: boolean) => tagHtml(tt('stepPray', '4 · Orar'), 'pray') + (f ? label : '');
+  const prayHead = (_f: boolean) => tagHtml(tt('stepPray', '4 · Orar'), 'pray');
   const prayGuide = useMemo(() => run(plainBlocks(guide?.prayer), screenFits(prayHead, (pg) => `<div class="ritual--pray"><div class="sec-prayer">${plainHtml(pg)}</div></div>`)), [guide, budget, fitCfg]); // eslint-disable-line react-hooks/exhaustive-deps
   const prayAdult = useMemo(() => run(htmlBlocks(devotional?.prayer), screenFits(prayHead, (pg) => `<div class="ritual--pray"><div class="ritual__text ritual__prayer sec-prayer">${pg.join('')}</div></div>`)), [devotional, budget, fitCfg]); // eslint-disable-line react-hooks/exhaustive-deps
   const prayCount = Math.max(1, guide ? prayGuide.length : kidsView ? 1 : prayAdult.length);
 
   // Telas: ler (em partes), uma por pergunta, fazer (em partes), orar.
   const screens = useMemo(() => {
-    type S = { id: string; kind: 'welcome' | 'read' | 'talk' | 'do' | 'pray' | 'done'; q?: number; part?: number };
-    const out: S[] = [{ id: 'welcome', kind: 'welcome' }];
+    type S = { id: string; kind: 'welcome' | 'table' | 'read' | 'talk' | 'do' | 'pray' | 'done'; q?: number; part?: number };
+    const out: S[] = [{ id: 'welcome', kind: 'welcome' }, { id: 'table', kind: 'table' }];
     for (let i = 0; i < readCount; i++) out.push({ id: `read-${i}`, kind: 'read', part: i });
     questions.forEach((_, q) => out.push({ id: `talk-${q}`, kind: 'talk', q }));
     for (let i = 0; i < doCount; i++) out.push({ id: `do-${i}`, kind: 'do', part: i });
@@ -198,7 +198,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   const touch = useRef<{ x: number; y: number } | null>(null);
   const go = (delta: number) => setStep((s) => Math.max(0, Math.min(screens.length - 1, s + delta)));
   useEffect(() => {
-    if (step === 0 || last) return;
+    if (step <= 1 || last) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') go(1);
       else if (e.key === 'ArrowLeft') go(-1);
@@ -211,7 +211,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
     onTouchEnd: (e: React.TouchEvent) => {
       const t = touch.current;
       touch.current = null;
-      if (!t || step === 0 || last) return;
+      if (!t || step <= 1 || last) return;
       const dx = e.changedTouches[0].clientX - t.x;
       const dy = e.changedTouches[0].clientY - t.y;
       if (Math.abs(dx) >= 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
@@ -278,16 +278,22 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
             <section className="ritual__who" aria-label={tt('withWhom', 'Com quem você vai ler hoje?')}>
               <h2 className="ritual__who-title">{tt('withWhom', 'Com quem você vai ler hoje?')}</h2>
               <div className="ritual__choices">
-                <button type="button" className={`ritual__choice${audience === 'adults' ? ' is-on' : ''}`} aria-pressed={audience === 'adults'} onClick={() => pickAudience('adults')}>
+                <button type="button" className={`ritual__choice${audience === 'adults' ? ' is-on' : ''}`} aria-pressed={audience === 'adults'} onClick={() => { pickAudience('adults'); go(1); }}>
                   <strong>{tt('onlyAdults', 'Só adultos')}</strong>
                   <span>{tt('setupAdultsNote', 'Sozinho, em casal ou em grupo')}</span>
                 </button>
-                <button type="button" className={`ritual__choice${audience === 'kids' ? ' is-on' : ''}`} aria-pressed={audience === 'kids'} onClick={() => pickAudience('kids')}>
+                <button type="button" className={`ritual__choice${audience === 'kids' ? ' is-on' : ''}`} aria-pressed={audience === 'kids'} onClick={() => { pickAudience('kids'); go(1); }}>
                   <strong>{tt('withKids', 'Com crianças')}</strong>
                   <span>{tt('setupWithKidsNote', 'Cada uma com a leitura da sua idade')}</span>
                 </button>
               </div>
             </section>
+          </>
+        )}
+
+        {screen.kind === 'table' && (
+          <>
+            <h1 className="ritual__title ritual__title--sm">{tt('tableTitle', 'Quem vai ler?')}</h1>
             <section className="ritual__kids-box">
               <h3 className="ritual__who-sub">{tt('whoIsHere', 'Quem está à mesa?')}</h3>
               <div className="fam-people">
@@ -369,7 +375,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
             {kidsView ? (
               readKids.filter((k) => k.pages[screen.part ?? 0]).map(({ child, version, pages }) => (
                 <section key={child.id} className="ritual__kid">
-                  <h3>{child.nickname} · {child.band.replace('-', ' a ')} {tt('years', 'anos')}</h3>
+                  <h3>{child.band.replace('-', ' a ')} {tt('years', 'anos')}</h3>
                   {screen.part === 0 && version?.title && <p className="ritual__kid-title">{version.title}</p>}
                   <Paragraphs text={pages[screen.part ?? 0].join('\n\n')} />
                 </section>
@@ -400,7 +406,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
               </>
             ) : kidsView ? (
               shared.map(({ child, version }) => (
-                <section key={child.id} className="ritual__kid"><h3>{child.nickname}</h3><div className="sec-card"><Paragraphs text={version!.practice} strong /></div></section>
+                <section key={child.id} className="ritual__kid"><div className="sec-card"><Paragraphs text={version!.practice} strong /></div></section>
               ))
             ) : (
               <>
@@ -416,19 +422,16 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
             <span className="ritual__tag ritual__tag--pray">{tt('stepPray', '4 · Orar')}</span>
             {guide ? (
               <>
-                {screen.part === 0 && <SectionLabel icon="prayer">{tt('familyPrayer', 'Oração em família')}</SectionLabel>}
                 <div className="sec-prayer"><Paragraphs text={(prayGuide[screen.part ?? 0] ?? []).join('\n\n')} /></div>
               </>
             ) : kidsView ? (
               <>
-                <SectionLabel icon="prayer">{tt('prayer', 'Oração')}</SectionLabel>
                 {shared.filter((p) => p.version?.prayer).map(({ child, version }) => (
-                  <section key={child.id} className="ritual__kid"><h3>{child.nickname}</h3><div className="sec-prayer"><Paragraphs text={version!.prayer} /></div></section>
+                  <section key={child.id} className="ritual__kid"><div className="sec-prayer"><Paragraphs text={version!.prayer} /></div></section>
                 ))}
               </>
             ) : (
               <>
-                {screen.part === 0 && <SectionLabel icon="prayer">{tt('prayer', 'Oração')}</SectionLabel>}
                 <HtmlRenderer html={(prayAdult[screen.part ?? 0] ?? []).join('\n')} className="ritual__text ritual__prayer sec-prayer" />
               </>
             )}
@@ -455,14 +458,15 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
         </div>
       </div>
 
-      {!last && (step === 0 ? (
+      {!last && (step <= 1 ? (
         <footer className="ritual__nav">
-          <button type="button" className="fam-btn fam-btn--primary" onClick={() => go(1)}>{tt('start', 'Começar')}</button>
+          <button type="button" className="fam-btn fam-btn--primary" onClick={() => go(1)}>{step === 0 ? tt('continue', 'Continuar') : tt('start', 'Começar')}</button>
+          {step === 1 && <button type="button" className="fam-btn fam-btn--ghost" onClick={() => go(-1)}>{tt('back', 'Voltar')}</button>}
         </footer>
       ) : (
         <footer className="ritual__nav ritual__nav--circles">
           <button type="button" className="ritual__circle" aria-label={tt('back', 'Voltar')} onClick={() => go(-1)}>‹</button>
-          <span className="ritual__counter" aria-live="polite">{tt('counter', '{{n}} de {{total}}', { n: step, total: screens.length - 1 })}</span>
+          <span className="ritual__counter" aria-live="polite">{tt('counter', '{{n}} de {{total}}', { n: step - 1, total: screens.length - 2 })}</span>
           <button type="button" className="ritual__circle ritual__circle--next" aria-label={tt('next', 'Continuar')} onClick={() => go(1)}>›</button>
         </footer>
       ))}
