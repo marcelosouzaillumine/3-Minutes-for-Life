@@ -663,22 +663,6 @@ export function AdminDevotionals() {
                     />
                   </div>
                 </div>
-
-                <div>
-                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                    Apoio ao projeto (opcional)
-                  </label>
-                  <p style={{ margin: '0 0 8px', fontSize: '0.8rem', color: '#888' }}>
-                    Aparece por último, após a Dica de conteúdo. Use para convidar o leitor a apoiar o projeto. Deixe em branco para mostrar o texto padrão sobre a missão. O botão "Quero apoiar" sempre leva à página de apoio.
-                  </p>
-
-                  <RichTextEditor 
-                    key={`support_message-${currentLang}`}
-                    value={getValue('support_message')}
-                    onChange={(html) => setValue('support_message', html)}
-                  />
-
-                </div>
               </>
             );
           })()}
