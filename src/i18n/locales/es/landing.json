@@ -11,7 +11,8 @@
     "subtitle": "Una reflexión al día, para leer a solas o en familia. Un momento para detenerse, pensar en la vida y notar lo que merece tu atención.",
     "btnStart": "Leer la de hoy",
     "hint": "Sin registro para probar.",
-    "mockupLabel": "Continuar"
+    "mockupLabel": "Continuar",
+    "imageAlt": "Una mesa de madera junto a la ventana, con una taza de café, un jarrón con flores y la luz de la mañana"
   },
   "tension": {
     "kicker": "¿Por qué tres minutos?",

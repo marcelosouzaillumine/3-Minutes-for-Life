@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Landing.css';
-import { PrincipleView } from '../components/PrincipleView';
-import type { Devotional } from '../types/Devotional';
 import { LanguageSelector } from '../components/LanguageSelector';
 import { BrandLogo } from '../components/BrandLogo';
 import { useTranslation } from 'react-i18next';
@@ -53,19 +51,6 @@ export function Landing() {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const setRef = useIntersectionObserver();
-
-  const demoPrinciple = {
-    id: 1,
-    title: 'Você está dando atenção ao que importa?',
-    principle:
-      'Aquilo que recebe sua atenção ganha espaço na sua vida.',
-    reflection:
-      'Todos os dias, muitas coisas disputam nossa atenção. Mensagens, notícias, redes sociais, trabalho, problemas e preocupações. Sem nos darmos conta, podemos passar tanto tempo olhando para tudo isso que deixamos de perceber o que realmente importa.\n\nE como não conseguimos dar atenção a tudo, nossas escolhas fazem diferença. O que recebe nosso olhar com frequência influencia a maneira como vivemos.\n\nPor isso, vale a pena parar e perguntar: o que tem ocupado a minha atenção?\n\nNo meio de tantas demandas, Jesus nos chama a olhar para Deus e confiar nele. Quando fazemos isso, lembramos que nossa vida não depende de tudo o que acontece à nossa volta. Ela está segura em suas mãos.\n\nHoje, antes de seguir de uma tarefa para outra, pare por alguns minutos. Respire, fique em silêncio e perceba o que tem ocupado seus pensamentos.',
-    application:
-      'Escolha um momento do dia para ficar alguns minutos longe do celular e de outras distrações.\n\nFique em silêncio, agradeça pela vida e entregue a Deus aquilo que tem ocupado sua mente. Depois, pergunte a si mesmo: o que realmente merece minha atenção hoje?',
-    category: 'Uma reflexão para hoje',
-    date: new Date().toISOString(),
-  };
 
   const startApp = () => {
     navigate('/login');
@@ -263,32 +248,7 @@ export function Landing() {
         </div>
 
         <div className="hero-visual reveal delay-200">
-          <div className="hero-mockup-wrapper reveal delay-400">
-            <PrincipleView
-              devotional={
-                {
-                  id: demoPrinciple.id.toString(),
-                  title: demoPrinciple.title,
-                  reflection:
-                    demoPrinciple.principle +
-                    '\n\n' +
-                    demoPrinciple.reflection,
-                  practical_application:
-                    demoPrinciple.application,
-                  categories: {
-                    name: demoPrinciple.category,
-                  },
-                  status: 'published',
-                } as unknown as Devotional
-              }
-              customAction={{
-                label: t(
-                  'landing:hero.mockupLabel'
-                ),
-                onClick: startApp,
-              }}
-            />
-          </div>
+          <div className="hero-photo" role="img" aria-label={t('landing:hero.imageAlt')} />
         </div>
       </section>
 
