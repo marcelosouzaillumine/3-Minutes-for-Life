@@ -397,6 +397,7 @@ export function Profile() {
           </svg>
           {t('logout')}
         </button>
+        <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-muted, #6b7280)', margin: '1rem 0 0' }}>v{__APP_VERSION__}</p>
       </div>
     </div>
   );
