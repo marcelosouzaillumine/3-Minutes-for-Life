@@ -192,6 +192,23 @@ describe('FamilyRitual', () => {
     expect(host.textContent).toContain('O que a gratidão muda?');
   });
 
+  it('mede o espaço real da tela: com muito espaço, o texto cabe numa tela só', async () => {
+    const long = Array.from({ length: 5 }, (_, i) => `<p>${String(i).repeat(300)}.</p>`).join('');
+    vi.mocked(DevotionalService.getDailyDevotional).mockResolvedValueOnce({ id: 'd1', title: 'Longo', reflection: long, scripture_reference: 'Fp 4:6' } as never);
+    mocks.get.mockResolvedValue({ ...family, children: [] });
+    const h = vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(5000);
+    const w = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(390);
+    const sh = vi.spyOn(HTMLElement.prototype, 'scrollHeight', 'get').mockReturnValue(300);
+    try {
+      await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
+      await flush(); await flush();
+      await click('Continuar'); // ler (uma tela só)
+      expect(host.textContent).toContain('1 · Ler');
+      await click('Continuar');
+      expect(host.textContent).toContain('Pergunta 1 de');
+    } finally { h.mockRestore(); w.mockRestore(); sh.mockRestore(); }
+  });
+
   it('texto longo vira várias telas de leitura, com o versículo só na primeira', async () => {
     const long = Array.from({ length: 5 }, (_, i) => `<p>${String(i).repeat(300)}</p>`).join('');
     vi.mocked(DevotionalService.getDailyDevotional).mockResolvedValueOnce({ id: 'd1', title: 'Longo', reflection: long, scripture_reference: 'Fp 4:6' } as never);
