@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { illumineAuth } from '../lib/illumine';
 import { BANDS, FamilyService, type Band, type KidsVersion } from '../services/FamilyService';
 import { Paragraphs } from './Paragraphs';
+import { SectionLabel } from './SectionLabel';
 
 /** "Ler com as crianças": só aparece quando o devocional tem versão infantil aprovada. */
 export function KidsReading({ devotionalId, scriptureReference }: { devotionalId: string; scriptureReference?: string | null }) {
@@ -50,16 +51,24 @@ export function KidsReading({ devotionalId, scriptureReference }: { devotionalId
               {current.scriptureFocus && <p className="principle-scripture-text">&ldquo;{current.scriptureFocus}&rdquo;</p>}
             </blockquote>
           )}
-          <h4>{t('kids.whatItSays', 'O que a Bíblia conta')}</h4>
-          <Paragraphs text={current.whatItSays} />
-          <h4>{t('kids.thinkAbout', 'Para pensar')}</h4>
-          <Paragraphs text={current.thinkAbout} />
-          <h4>{t('kids.practice', 'Para fazer hoje')}</h4>
-          <Paragraphs text={current.practice} />
-          <h4>{t('kids.prayer', 'Oração')}</h4>
-          <Paragraphs text={current.prayer} />
+          <div className="kids__sec">
+            <SectionLabel icon="story" as="h4">{t('kids.whatItSays', 'O que a Bíblia conta')}</SectionLabel>
+            <Paragraphs text={current.whatItSays} />
+          </div>
+          <div className="kids__sec">
+            <SectionLabel icon="think" as="h4">{t('kids.thinkAbout', 'Para pensar')}</SectionLabel>
+            <Paragraphs text={current.thinkAbout} question />
+          </div>
+          <div className="kids__sec">
+            <SectionLabel icon="practice" as="h4">{t('kids.practice', 'Para fazer hoje')}</SectionLabel>
+            <div className="sec-card"><Paragraphs text={current.practice} /></div>
+          </div>
+          <div className="kids__sec">
+            <SectionLabel icon="prayer" as="h4">{t('kids.prayer', 'Oração')}</SectionLabel>
+            <div className="sec-prayer"><Paragraphs text={current.prayer} /></div>
+          </div>
           <aside className="kids__guide">
-            <strong>{t('kids.guide', 'Guia e material de apoio')}</strong>
+            <SectionLabel icon="guide">{t('kids.guide', 'Guia e material de apoio')}</SectionLabel>
             <Paragraphs text={current.adultGuide} />
           </aside>
         </div>

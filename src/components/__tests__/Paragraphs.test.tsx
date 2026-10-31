@@ -15,6 +15,13 @@ describe('Paragraphs', () => {
     );
   });
 
+  it('com question, destaca a última linha só quando ela é uma pergunta', () => {
+    expect(renderToStaticMarkup(<Paragraphs text={'Comentário.\nQuem conta histórias?'} question />)).toBe(
+      '<p>Comentário.<span class="sec-question">Quem conta histórias?</span></p>',
+    );
+    expect(renderToStaticMarkup(<Paragraphs text={'Comentário.\nSem pergunta.'} question />)).toBe('<p>Comentário.<br/>Sem pergunta.</p>');
+  });
+
   it('aplica a classe e o negrito pedidos', () => {
     expect(renderToStaticMarkup(<Paragraphs text="Faça isso." className="fam-note" strong />)).toBe(
       '<p class="fam-note"><strong>Faça isso.</strong></p>',

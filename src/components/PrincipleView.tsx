@@ -15,6 +15,7 @@ import { CtaEngine } from '../services/CtaEngine';
 import { DevotionalHeader } from './DevotionalHeader';
 import { useTenantBranding } from '../hooks/useTenantBranding';
 import { StreakLine, useJourney } from './JourneyStreak';
+import { SectionLabel } from './SectionLabel';
 
 interface PrincipleViewProps {
   devotional: Devotional;
@@ -359,12 +360,12 @@ export function PrincipleView({
         {devotional.audio_url && (
           <section className="principle-audio-section">
 
-            <span className="principle-section-label">
+            <SectionLabel icon="audio">
               {t(
                 'home.audio',
                 'Ouvir reflexão'
               )}
-            </span>
+            </SectionLabel>
 
             <audio
               className="principle-audio-player"
@@ -381,13 +382,14 @@ export function PrincipleView({
 
         <section className="principle-practice-section">
 
-          <span className="principle-section-label">
+          <SectionLabel icon="practice">
             {t(
               'home.practiceToday',
               'Prática de hoje'
             )}
-          </span>
+          </SectionLabel>
 
+          <div className="principle-practice-card">
           <div className="principle-practice-text">
             {devotional.practical_application ? (
               <HtmlRenderer
@@ -413,6 +415,7 @@ export function PrincipleView({
               <span>{t('home.practiced', 'Pratiquei hoje')}</span>
             </label>
           )}
+          </div>
 
         </section>
 
@@ -423,12 +426,12 @@ export function PrincipleView({
         {devotional.prayer && (
           <section className="principle-prayer-section">
 
-            <span className="principle-section-label">
+            <SectionLabel icon="prayer">
               {t(
                 'home.prayer',
                 'Oração'
               )}
-            </span>
+            </SectionLabel>
 
             <div className="principle-prayer-text">
               <HtmlRenderer
@@ -445,12 +448,12 @@ export function PrincipleView({
 
         <section className="my-reflection-section">
 
-          <h3>
+          <SectionLabel icon="write">
             {t(
               'home.myReflection',
               'Minha reflexão'
             )}
-          </h3>
+          </SectionLabel>
 
           <p className="my-reflection-prompt">
             {t(
@@ -539,12 +542,12 @@ export function PrincipleView({
         {(devotional.content_tip || devotional.content_tip_image_url) && (
           <section className="principle-tip-section">
 
-            <span className="principle-section-label">
+            <SectionLabel icon="tip">
               {t(
                 'home.contentTip',
                 'Uma dica para você'
               )}
-            </span>
+            </SectionLabel>
 
             <div
               className={
@@ -595,41 +598,15 @@ export function PrincipleView({
             SUPPORT MESSAGE (opcional — banner e/ou texto)
             ====================================================== */}
 
-        {(devotional.support_message || devotional.support_banner_url) && (
+        {(devotional.support_message || devotional.support_link_url) && (
           <section className="principle-support-section">
 
-            <span className="principle-section-label">
+            <SectionLabel icon="support">
               {t(
                 'home.supportMessage',
                 'Apoie o projeto'
               )}
-            </span>
-
-            {devotional.support_banner_url && (
-              devotional.support_link_url ? (
-                <a
-                  href={devotional.support_link_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="principle-support-banner-link"
-                  aria-label={t('home.supportLinkLabel', 'Quero apoiar')}
-                >
-                  <img
-                    src={devotional.support_banner_url}
-                    alt=""
-                    className="principle-support-banner"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                  />
-                </a>
-              ) : (
-                <img
-                  src={devotional.support_banner_url}
-                  alt=""
-                  className="principle-support-banner"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                />
-              )
-            )}
+            </SectionLabel>
 
             {devotional.support_message && (
               <div className="principle-support-text">
@@ -639,19 +616,18 @@ export function PrincipleView({
               </div>
             )}
 
-            {/* O botão só aparece quando NÃO há banner clicável: com os
-                dois, a mesma ação teria dois CTAs concorrendo. */}
-            {devotional.support_link_url && !devotional.support_banner_url && (
+            {/* Só um link discreto: o banner grande saiu para não competir com a leitura. */}
+            {devotional.support_link_url && (
               <a
                 href={devotional.support_link_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="principle-support-button"
+                className="principle-support-link"
               >
                 {t(
                   'home.supportLinkLabel',
                   'Quero apoiar'
-                )}
+                )} →
               </a>
             )}
 

@@ -669,53 +669,8 @@ export function AdminDevotionals() {
                     Apoio ao projeto (opcional)
                   </label>
                   <p style={{ margin: '0 0 8px', fontSize: '0.8rem', color: '#888' }}>
-                    Aparece por último, após a Dica de conteúdo. Use para convidar o leitor a apoiar o projeto. Pode usar só banner, só texto, ou os dois juntos — deixe ambos em branco para não exibir.
+                    Aparece por último, após a Dica de conteúdo. Use para convidar o leitor a apoiar o projeto. Pode usar só texto, só o link, ou os dois — deixe ambos em branco para não exibir.
                   </p>
-
-                  <div style={{ marginBottom: '10px' }}>
-                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>
-                      🖼️ Banner opcional (imagem larga, no topo da seção)
-                    </label>
-
-                    {getValue('support_banner_url') ? (
-                      <div>
-                        <img
-                          src={getValue('support_banner_url')}
-                          alt="Prévia"
-                          style={{ width: '100%', maxWidth: '320px', aspectRatio: '16 / 9', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd', display: 'block', marginBottom: '8px' }}
-                        />
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <button
-                            type="button"
-                            onClick={() => { setMediaPickerTarget('support_banner_url'); setMediaPickerOpen(true); }}
-                            style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fafafa', cursor: 'pointer' }}
-                          >
-                            Trocar
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleContentImageRemove('support_banner_url')}
-                            style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fff', cursor: 'pointer' }}
-                          >
-                            Remover
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => { setMediaPickerTarget('support_banner_url'); setMediaPickerOpen(true); }}
-                        style={{ padding: '8px 14px', fontSize: '0.85rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fafafa', cursor: 'pointer' }}
-                      >
-                        🖼️ Selecionar da biblioteca
-                      </button>
-                    )}
-                    {contentImageError['support_banner_url'] && (
-                      <p style={{ margin: '6px 0 0', fontSize: '0.78rem', color: '#dc2626' }}>
-                        {contentImageError['support_banner_url']}
-                      </p>
-                    )}
-                  </div>
 
                   <RichTextEditor 
                     key={`support_message-${currentLang}`}
@@ -725,10 +680,10 @@ export function AdminDevotionals() {
 
                   <div style={{ marginTop: '10px' }}>
                     <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>
-                      🔗 Link do botão "Quero apoiar" (opcional)
+                      🔗 Link "Quero apoiar" (opcional)
                     </label>
                     <p style={{ margin: '0 0 8px', fontSize: '0.78rem', color: '#888' }}>
-                      Se preenchido, um botão "Quero apoiar" aparece no final da seção, apontando para este link.
+                      Se preenchido, um link discreto "Quero apoiar" aparece no final da seção, apontando para este endereço.
                     </p>
                     <input
                       type="url"
