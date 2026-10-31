@@ -180,3 +180,15 @@
 
 /* Ritual em tela maior: coluna de leitura em voz alta mais larga. */
 @media (min-width: 768px) { .ritual__body { max-width: 40rem; } }
+
+/* ── Ler em família: momentos da mesa ── */
+.ritual__tag { justify-self: start; padding: 0.15rem 0.6rem; border-radius: 999px; background: #F4EEE4; color: var(--accent-strong); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.04em; }
+.ritual__question { padding: 1.75rem 1.4rem; border: 1px solid var(--border-subtle); border-radius: 18px; background: var(--surface); }
+.ritual__question p { margin: 0; font-family: var(--font-serif); font-size: 1.6rem; line-height: 1.35; }
+.ritual__guide { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed var(--border-subtle); }
+.ritual__guide-toggle { width: auto; min-height: 2.25rem; padding: 0 0.5rem; font-size: 0.85rem; }
+.ritual__guide-body { padding: 0.75rem 1rem; border-radius: 12px; background: #F4EEE4; font-size: 0.95rem; line-height: 1.6; }
+.ritual__guide-body p { margin: 0 0 0.5rem; }
+.ritual__streak { display: grid; justify-items: center; gap: 0.1rem; padding: 1rem; border: 1px solid var(--border-subtle); border-radius: 14px; }
+.ritual__streak strong { font-family: var(--font-serif); font-size: 2.2rem; font-weight: 400; color: var(--accent-strong); }
+.ritual__streak span { font-size: 0.85rem; color: var(--text-muted); }

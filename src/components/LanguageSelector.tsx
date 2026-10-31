@@ -40,6 +40,8 @@ export function LanguageSelector({ dropUp = false }: LanguageSelectorProps) {
   const getLangLabel = () => {
     if (i18n.language?.startsWith('en')) return 'EN';
     if (i18n.language?.startsWith('es')) return 'ES';
+    if (i18n.language?.startsWith('fr')) return 'FR';
+    if (i18n.language?.startsWith('it')) return 'IT';
     return 'PT';
   };
 
@@ -85,7 +87,9 @@ export function LanguageSelector({ dropUp = false }: LanguageSelectorProps) {
           {[
             { code: 'pt-BR', label: 'Português' },
             { code: 'en', label: 'English' },
-            { code: 'es', label: 'Español' }
+            { code: 'es', label: 'Español' },
+            { code: 'fr', label: 'Français' },
+            { code: 'it', label: 'Italiano' }
           ].map(lang => (
             <button
               key={lang.code}

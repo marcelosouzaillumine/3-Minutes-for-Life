@@ -47,12 +47,12 @@ export function AdminKids() {
   );
 }
 
-const LANGS = [['pt-BR', 'Português', 'PT'], ['en', 'English', 'EN'], ['es', 'Español', 'ES']] as const;
+const LANGS = [['pt-BR', 'Português', 'PT'], ['en', 'English', 'EN'], ['es', 'Español', 'ES'], ['fr', 'Français', 'FR'], ['it', 'Italiano', 'IT']] as const;
 type Lang = (typeof LANGS)[number][0];
 type Summary = Record<string, { draft: number; published: number }>;
 
 function KidsStudio({ rows }: { rows: Row[] }) {
-  const [summaries, setSummaries] = useState<Record<Lang, Summary>>({ 'pt-BR': {}, en: {}, es: {} });
+  const [summaries, setSummaries] = useState<Record<Lang, Summary>>({ 'pt-BR': {}, en: {}, es: {}, fr: {}, it: {} });
   const [filter, setFilter] = useState<'all' | 'missing' | 'draft' | 'done'>('all');
   const [lang, setLang] = useState<Lang>('pt-BR');
   const [current, setCurrent] = useState<Row | null>(null);
@@ -62,7 +62,7 @@ function KidsStudio({ rows }: { rows: Row[] }) {
   const [msg, setMsg] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const refresh = () => Promise.all(LANGS.map(([l]) => FamilyAdmin.kidsSummary(l))).then(([pt, en, es]) => setSummaries({ 'pt-BR': pt, en, es }));
+  const refresh = () => Promise.all(LANGS.map(([l]) => FamilyAdmin.kidsSummary(l))).then((all) => setSummaries(Object.fromEntries(LANGS.map(([l], i) => [l, all[i]])) as Record<Lang, Summary>));
   useEffect(() => { refresh(); }, []);
 
   const stateOf = (id: string): 'missing' | 'draft' | 'done' => {
@@ -102,7 +102,7 @@ function KidsStudio({ rows }: { rows: Row[] }) {
   if (!current) {
     return (
       <>
-        <p className="fam-note">Cada devocional precisa das 3 faixas de idade em português, inglês e espanhol. Nada chega às famílias enquanto a faixa estiver em rascunho.</p>
+        <p className="fam-note">Cada devocional precisa das 3 faixas de idade em português, inglês, espanhol, francês e italiano. Nada chega às famílias enquanto a faixa estiver em rascunho.</p>
         <div className="fam-people">
           {([['all', 'Todos'], ['missing', 'Sem versão'], ['draft', 'Em andamento'], ['done', 'Completos']] as const).map(([k, l]) => (
             <button key={k} type="button" className={`fam-chip${filter === k ? ' is-on' : ''}`} onClick={() => setFilter(k)}>{l}</button>

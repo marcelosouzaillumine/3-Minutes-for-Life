@@ -29,7 +29,7 @@ const AuthContext = createContext<AuthContextType>({
   signOut: async () => {},
 });
 
-const SUPPORTED_LANGUAGES = ['pt-BR', 'en', 'es'] as const;
+const SUPPORTED_LANGUAGES = ['pt-BR', 'en', 'es', 'fr', 'it'] as const;
 type SupportedLang = typeof SUPPORTED_LANGUAGES[number];
 
 function applyUserLanguage(user: IllumineUser): void {
@@ -38,7 +38,7 @@ function applyUserLanguage(user: IllumineUser): void {
 
   const normalized: SupportedLang = SUPPORTED_LANGUAGES.includes(profileLang as SupportedLang)
     ? (profileLang as SupportedLang)
-    : (profileLang.startsWith('en') ? 'en' : profileLang.startsWith('es') ? 'es' : 'pt-BR');
+    : (profileLang.startsWith('en') ? 'en' : profileLang.startsWith('es') ? 'es' : profileLang.startsWith('fr') ? 'fr' : profileLang.startsWith('it') ? 'it' : 'pt-BR');
 
   if (i18n.language !== normalized) {
     i18n.changeLanguage(normalized);

@@ -1,0 +1,177 @@
+{
+  "nav": {
+    "howItWorks": "Come funziona",
+    "about": "Chi siamo",
+    "support": "Sostieni il progetto",
+    "start": "Inizia",
+    "donate": "Sostieni"
+  },
+  "hero": {
+    "title": "Tre minuti per guardare la vita con più attenzione.",
+    "subtitle": "Una riflessione al giorno, da leggere da soli o in famiglia. Per fermarsi, pensare alla vita e accorgersi di ciò che merita la tua attenzione.",
+    "btnStart": "Il devozionale di oggi",
+    "hint": "Senza registrazione per provare.",
+    "mockupLabel": "Continua",
+    "imageAlt": "Un tavolo di legno vicino alla finestra, con una tazza di caffè, un vaso di fiori e la luce del mattino"
+  },
+  "tension": {
+    "kicker": "Perché tre minuti?",
+    "title": "La tua giornata è già<br/>piena.",
+    "p1": "Messaggi, lavoro, notizie, decisioni, preoccupazioni. E c'è sempre qualcos'altro.",
+    "p2": "In mezzo a tutto questo, è facile passare l'intera giornata a reagire a ciò che accade e fermarsi quasi mai a notare ciò che succede dentro di noi."
+  },
+  "relief": {
+    "title": "Per questo esistono tre minuti.",
+    "subtitle": "Un momento della giornata per fermarsi, pensare e guardare la vita con più chiarezza."
+  },
+  "experience": {
+    "step1": {
+      "title": "Fermati.",
+      "desc": "Respira.<br/>Rallenta.<br/>Presta attenzione."
+    },
+    "step2": {
+      "title": "Rifletti.",
+      "desc": "Un'idea.<br/>Una domanda.<br/>Uno sguardo nuovo."
+    },
+    "step3": {
+      "title": "Metti in pratica.",
+      "desc": "Porta la riflessione nella vita di ogni giorno."
+    }
+  },
+  "quote1": {
+    "top": "Una pausa può cambiare il modo in cui vedi la giornata.",
+    "statement": "La vita non ha bisogno di più velocità.<br />Ha bisogno di più attenzione."
+  },
+  "split": {
+    "title": "Come vedi la tua vita?",
+    "p1": "La vita è fatta di scelte, relazioni, sfide e domande che non sempre trovano risposte facili. Con 3 Minutes for Life, la fede cristiana ci aiuta a guardare tutto questo a partire da Dio e dalle parole di Gesù.",
+    "p2": "È un invito a rallentare, a riflettere sulla vita e a trovare una direzione per vivere ogni giorno con più senso."
+  },
+  "audience": {
+    "p1": "Ci sono momenti in cui dobbiamo prendere una decisione, rallentare, prenderci più cura di una relazione, trovare più senso in ciò che facciamo, insegnare ai nostri figli ciò che conta o semplicemente fermarci per qualche minuto.",
+    "p2": "3 Minutes for Life è nato per questi momenti."
+  },
+  "quote2": {
+    "statement": "Tre minuti.<br />Una riflessione.<br />Un piccolo passo.",
+    "bottom": "Per non perdere di vista ciò che dà senso alla tua vita."
+  },
+  "sustainability": {
+    "title": "Un progetto gratuito, sostenuto da persone",
+    "p1": "3 Minutes for Life è nato perché chiunque possa trovare, ogni giorno, qualche minuto per fermarsi, riflettere e guardare la vita con più attenzione.",
+    "p2": "Per questo l'accesso ai contenuti è gratuito.",
+    "p3": "Non vogliamo che la capacità di pagare decida chi può ricevere una riflessione.",
+    "p4": "Il progetto è sostenuto da persone che credono in questa proposta e scelgono di contribuire volontariamente perché continui a esistere, sia mantenuto e possa raggiungere più persone.",
+    "p5": "Non devi contribuire per usarlo. Il sostegno è volontario e non cambia l'accesso ai contenuti né alle funzioni essenziali di 3 Minutes for Life.",
+    "p6": "Se, a un certo punto, senti che vale la pena aiutare, potrai far parte della sostenibilità del progetto.",
+    "btn": "Sostieni il progetto",
+    "breakdownTitle": "Dove va il sostegno?",
+    "breakdownDesc": "I contributi aiutano a mantenere e sviluppare il progetto.",
+    "items": [
+      {
+        "title": "Contenuti",
+        "desc": "Produzione, revisione e sviluppo delle riflessioni."
+      },
+      {
+        "title": "Tecnologia",
+        "desc": "App, server, database e infrastruttura."
+      },
+      {
+        "title": "Diffusione",
+        "desc": "Comunicazione e iniziative perché più persone conoscano il progetto."
+      },
+      {
+        "title": "Sviluppo",
+        "desc": "Nuovi contenuti, funzioni e possibilità per ampliare l'esperienza."
+      }
+    ],
+    "note": "Man mano che il progetto crescerà, vogliamo condividere con trasparenza come vengono utilizzate le risorse."
+  },
+  "continue": {
+    "title": "Il tuo momento quotidiano.",
+    "subtitle": "Una nuova riflessione ogni mattina, per te e per la tua casa.",
+    "btnCreate": "Crea il mio account",
+    "btnLogin": "Hai già un account? Accedi"
+  },
+  "faq": {
+    "title": "Domande frequenti",
+    "q1": {
+      "q": "3 Minutes for Life è gratuito?",
+      "a": "Sì. L'accesso ai contenuti principali è gratuito. Il progetto è sostenuto da persone che scelgono di sostenerlo volontariamente."
+    },
+    "q2": {
+      "q": "Devo essere cristiano per usarlo?",
+      "a": "No. 3 Minutes for Life parte da una prospettiva cristiana, ma è stato creato per parlare a chiunque voglia fermarsi, riflettere e guardare la vita con più attenzione."
+    },
+    "q3": {
+      "q": "Quanto tempo mi serve al giorno?",
+      "a": "L'idea è dedicare circa tre minuti, da soli o in famiglia."
+    },
+    "q4": {
+      "q": "Devo installare un'app?",
+      "a": "La piattaforma funziona direttamente nel browser e può essere aggiunta alla schermata iniziale del telefono come un'app. La riflessione di domani viene salvata sul dispositivo, quindi puoi leggerla anche senza connessione."
+    },
+    "q5": {
+      "q": "I contenuti sono generati dall'intelligenza artificiale?",
+      "a": "No. I contenuti sono scritti e rivisti da persone, per mantenere una voce umana, semplice e coerente."
+    },
+    "q6": {
+      "q": "Come posso sostenere il progetto?",
+      "a": "I contenuti sono gratuiti. Se vuoi contribuire volontariamente alla continuità e alla crescita del progetto, potrai conoscere le forme di sostegno offerte da 3 Minutes for Life. Il sostegno non è necessario per accedere ai contenuti."
+    },
+    "q7": {
+      "q": "Come funziona la lettura in famiglia?",
+      "a": "Crei la tua famiglia, inviti gli adulti con un link e aggiungi i bambini solo con un soprannome e una fascia d'età. Tutti leggono lo stesso brano nello stesso giorno, e ogni bambino ha una versione pensata per la sua età, da 4 a 13 anni."
+    },
+    "q8": {
+      "q": "I miei figli hanno bisogno di un account?",
+      "a": "No. I bambini non hanno un account: conserviamo solo il soprannome e la fascia d'età, mai cognome, foto o e-mail."
+    }
+  },
+  "cta": {
+    "title": "Riserva tre minuti.",
+    "subtitle": "Fermati. Rifletti. Vivi.",
+    "btn": "Inizia oggi"
+  },
+  "footer": {
+    "tagline": "Tre minuti per guardare la vita con più attenzione.",
+    "links": {
+      "howItWorks": "Come funziona",
+      "about": "Chi siamo",
+      "support": "Sostieni il progetto",
+      "privacy": "Privacy",
+      "terms": "Termini",
+      "contact": "Contatti",
+      "donate": "Sostieni",
+      "today": "Il devozionale di oggi"
+    },
+    "copy": "{{brandName}}"
+  },
+  "showcase": {
+    "items": [
+      {
+        "id": "busca",
+        "kicker": "Per ogni momento",
+        "title": "Scrivi come stai. Noi troviamo la riflessione.",
+        "desc": "Stanchezza, ansia, una decisione difficile. Racconta in poche parole ciò che stai vivendo e trova una riflessione pensata per quel momento.",
+        "note": "Quello che scrivi resta sul tuo dispositivo.",
+        "alt": "Ricerca nell'app con la frase «non ho più forze» e tre riflessioni come risultato"
+      },
+      {
+        "id": "familia",
+        "kicker": "In famiglia",
+        "title": "Un momento per crescere in famiglia.",
+        "desc": "Lo stesso messaggio biblico, con parole adatte a ogni età. Leggete il devozionale del giorno e scoprite insieme cosa insegna per la vita.",
+        "note": "I bambini partecipano senza bisogno di un account.",
+        "alt": "Schermata Famiglia dell'app con l'invito «Leggete insieme»"
+      },
+      {
+        "id": "jornada",
+        "kicker": "Giorno dopo giorno",
+        "title": "Torna domani. Ti conserviamo il posto.",
+        "desc": "Segui i tuoi giorni consecutivi, conserva ciò che hai notato in ogni riflessione, segui un piano di 7 o 21 giorni e, se vuoi, ricevi la riflessione via e-mail alle 7.",
+        "note": "Hai perso un giorno? Nessun problema: l'importante è tornare.",
+        "alt": "Riepilogo del percorso nell'app con i giorni consecutivi e i giorni letti nel mese"
+      }
+    ]
+  }
+}

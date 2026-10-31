@@ -26,6 +26,21 @@ import esContribution from './locales/es/contribution.json';
 import esMission from './locales/es/mission.json';
 import esLanding from './locales/es/landing.json';
 
+import frCommon from './locales/fr/common.json';
+import frAuth from './locales/fr/auth.json';
+import frLibrary from './locales/fr/library.json';
+import frProfile from './locales/fr/profile.json';
+import frContribution from './locales/fr/contribution.json';
+import frMission from './locales/fr/mission.json';
+import itCommon from './locales/it/common.json';
+import itAuth from './locales/it/auth.json';
+import itLibrary from './locales/it/library.json';
+import itProfile from './locales/it/profile.json';
+import itContribution from './locales/it/contribution.json';
+import itMission from './locales/it/mission.json';
+import frLanding from './locales/fr/landing.json';
+import itLanding from './locales/it/landing.json';
+
 export const defaultNS = 'common';
 
 // Initialize i18next
@@ -62,13 +77,31 @@ i18n
         contribution: esContribution,
         mission: esMission,
         landing: esLanding
+      },
+      'fr': {
+        common: frCommon,
+        auth: frAuth,
+        library: frLibrary,
+        profile: frProfile,
+        contribution: frContribution,
+        mission: frMission,
+        landing: frLanding
+      },
+      'it': {
+        common: itCommon,
+        auth: itAuth,
+        library: itLibrary,
+        profile: itProfile,
+        contribution: itContribution,
+        mission: itMission,
+        landing: itLanding
       }
     },
     defaultNS,
-    fallbackLng: 'pt-BR',
+    fallbackLng: { fr: ['en', 'pt-BR'], it: ['en', 'pt-BR'], default: ['pt-BR'] },
     
     // Whitelist supported languages
-    supportedLngs: ['pt-BR', 'en', 'es'],
+    supportedLngs: ['pt-BR', 'en', 'es', 'fr', 'it'],
     
     // Language detection configuration
     detection: {

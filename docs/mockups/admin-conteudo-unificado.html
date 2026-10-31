@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin · Conteúdo unificado (mockups v2)</title>
+<style>
+:root{--bg:#f5f4ef;--card:#fff;--tx:#1f1e1b;--tx2:#6b6a64;--tx3:#9a988f;--bd:#e0ded6;--bd2:#c9c7be;--ok:#1D9E75;--okbg:#e1f5ee;--okt:#085041;--wa:#EF9F27;--wabg:#faeeda;--wat:#633806;--ac:#e6f1fb;--act:#0c447c;--rd:#fcebeb;--rdt:#791f1f;--gr:#f1efe8}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1c1a;--card:#262624;--tx:#f1efe8;--tx2:#b4b2a9;--tx3:#888780;--bd:#3a3a37;--bd2:#55544f;--okbg:#04342c;--okt:#9fe1cb;--wabg:#412402;--wat:#fac775;--ac:#042c53;--act:#b5d4f4;--rd:#501313;--rdt:#f7c1c1;--gr:#2c2c2a}}
+*{box-sizing:border-box}body{margin:0;padding:24px 16px;background:var(--bg);color:var(--tx);font:15px/1.5 -apple-system,system-ui,sans-serif}
+.wrap{max-width:900px;margin:0 auto}h1{font-size:20px;font-weight:500;margin:0 0 4px}.sub{color:var(--tx2);font-size:14px;margin:0 0 6px}
+h2{font-size:16px;font-weight:500;margin:32px 0 2px}.note{font-size:13px;color:var(--tx2);margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 16px}
+.nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.nav span{font-size:13px;padding:5px 10px;border-radius:8px;color:var(--tx2)}.nav span.on{border:1px solid var(--bd2);color:var(--tx);font-weight:500}
+button,select,input,textarea{font:inherit;font-size:13px;padding:6px 12px;border:1px solid var(--bd2);border-radius:8px;background:var(--card);color:var(--tx)}
+button.pri{background:var(--tx);color:var(--card);border-color:var(--tx)}button.dg{background:var(--rd);color:var(--rdt);border-color:var(--rdt);padding:2px 8px;font-size:12px}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}.bar .grow{flex:1;min-width:140px}
+.row{border:1px solid var(--bd);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.rt{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap}
+.meta{font-size:12px;color:var(--tx2);display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+.badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}.b-p{background:var(--okbg);color:var(--okt)}.b-d{background:var(--wabg);color:var(--wat)}.b-a{background:var(--ac);color:var(--act)}.b-x{background:var(--gr);color:var(--tx2)}
+.langs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:8px}
+.lc{border:1px solid var(--bd);border-radius:8px;padding:5px 6px;font-size:12px;text-align:center}.lc b{font-weight:500;display:block}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:2px}.p{background:var(--ok)}.d{background:var(--wa)}.m{border:1.5px solid var(--bd2)}
+.lg{font-size:12px;color:var(--tx2);display:flex;gap:14px;flex-wrap:wrap;margin-top:8px}
+.chip{font-size:12px;padding:3px 9px;border-radius:8px;border:1px solid var(--bd2);display:inline-block;margin-left:4px}.chip.on{background:var(--ac);color:var(--act);border-color:var(--act)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.tabs span{font-size:13px;padding:5px 10px;border-radius:8px;color:var(--tx2)}.tabs span.on{border:1px solid var(--bd2);color:var(--tx);font-weight:500}
+.lay{display:grid;grid-template-columns:220px minmax(0,1fr);gap:14px}
+.side{border:1px solid var(--bd);border-radius:10px;padding:10px;background:var(--gr)}
+.f{margin-bottom:9px}.f label{display:block;font-size:12px;font-weight:500;margin-bottom:3px}.f small{display:block;font-size:11px;color:var(--tx3);margin-top:2px}
+.f input,.f select,.f textarea{width:100%}.f textarea{min-height:54px;resize:none}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.alert{background:var(--wabg);color:var(--wat);border-radius:8px;padding:6px 10px;font-size:12px;margin-bottom:10px}
+.img{border:1px dashed var(--bd2);border-radius:8px;height:70px;width:56px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--tx3);text-align:center}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid var(--bd);font-size:12px;color:var(--tx2)}
+.g{display:grid;grid-template-columns:90px repeat(5,minmax(0,1fr));gap:6px;margin-bottom:6px;align-items:center;font-size:13px}
+.c{border:1px solid var(--bd);border-radius:8px;padding:6px;text-align:center;font-size:12px}.c.p2{background:var(--okbg);color:var(--okt);border-color:var(--ok)}.c.d2{background:var(--wabg);color:var(--wat);border-color:var(--wa)}.c.m2{color:var(--tx3);border-style:dashed}.c.s2{background:var(--rd);color:var(--rdt)}
+.gh{text-align:center;color:var(--tx2);font-size:12px}
+.right{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px}
+@media(max-width:640px){.two,.lay{grid-template-columns:1fr}.langs{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Admin · Conteúdo, Família e Traduções em uma página (v3)</h1>
+<p class="sub">Agora com tudo o que existe hoje: status e agendamento, categorias, áudio, versículo e referência, destaque, dica de conteúdo com imagem e link, ranking de leitura, excluir, faixas infantis com guia do adulto, compartilhamento e alerta de tradução desatualizada.</p>
+
+<h2>A · Lista de conteúdo com idiomas</h2>
+<p class="note">Substitui a lista atual de Conteúdo, mantendo ranking, status, categoria e Excluir. Cada card ganha a linha de idiomas.</p>
+<div class="card">
+<div class="nav"><span style="color:var(--tx3)">Menu do admin (como hoje):</span><span class="on">Conteúdo</span><span>Planos</span><span>Mídia</span><span>Usuários</span><span>Apoiadores</span></div>
+<div class="bar"><b style="font-weight:500;font-size:17px" class="grow">Conteúdo</b><button>Categorias</button><button>Traduzir faltantes</button><button>Publicar tudo (38)</button><button class="pri">+ Novo</button></div>
+<div class="bar"><input class="grow" placeholder="Buscar devocional"><select><option>Todos os status</option></select><select><option>Todas as categorias</option></select><select><option>Mais lidos</option></select><select><option>Qualquer idioma pendente</option></select></div>
+
+<div class="row">
+<div class="rt"><div><b style="font-weight:500">A paz que guarda</b><div class="meta"><span>📅 30/10/2026</span><span>🏷️ Ansiedade</span><span>🎧 áudio</span><span>Filipenses 4:6-7</span></div></div>
+<div style="display:flex;gap:6px;align-items:center"><span class="badge b-d">Agendado</span><button class="dg">Excluir</button></div></div>
+<div class="meta"><span>👁 1.240 leitores</span><span>↻ 2.310 aberturas</span><span>⤴ 186 compartilhamentos</span><span>#3 em leituras</span></div>
+<div class="langs">
+<div class="lc"><b>PT</b><i class="dot p"></i><i class="dot p"></i><i class="dot p"></i><i class="dot p"></i></div>
+<div class="lc"><b>EN</b><i class="dot p"></i><i class="dot p"></i><i class="dot p"></i><i class="dot p"></i></div>
+<div class="lc"><b>ES</b><i class="dot p"></i><i class="dot p"></i><i class="dot d"></i><i class="dot d"></i></div>
+<div class="lc"><b>FR</b><i class="dot d"></i><i class="dot m"></i><i class="dot m"></i><i class="dot m"></i></div>
+<div class="lc"><b>IT</b><i class="dot m"></i><i class="dot m"></i><i class="dot m"></i><i class="dot m"></i></div>
+</div>
+<div class="meta" style="justify-content:space-between"><span>⚠ ES adulto desatualizado: o original mudou</span><span><button>Abrir editor</button> <button>Publicar este</button></span></div>
+</div>
+
+<div class="row">
+<div class="rt"><div><b style="font-weight:500">Descanso que renova</b><div class="meta"><span>📅 27/10/2026</span><span>🏷️ Descanso</span></div></div>
+<div style="display:flex;gap:6px;align-items:center"><span class="badge b-p">Publicado</span><button class="dg">Excluir</button></div></div>
+<div class="meta"><span>👁 3.020 leitores</span><span>↻ 5.110 aberturas</span><span>⤴ 402 compartilhamentos</span><span>#1 em leituras</span></div>
+<div class="langs">
+<div class="lc"><b>PT</b><i class="dot p"></i><i class="dot p"></i><i class="dot p"></i><i class="dot p"></i></div>
+<div class="lc"><b>EN</b><i class="dot p"></i><i class="dot p"></i><i class="dot p"></i><i class="dot p"></i></div>
+<div class="lc"><b>ES</b><i class="dot p"></i><i class="dot p"></i><i class="dot p"></i><i class="dot p"></i></div>
+<div class="lc"><b>FR</b><i class="dot p"></i><i class="dot p"></i><i class="dot p"></i><i class="dot p"></i></div>
+<div class="lc"><b>IT</b><i class="dot p"></i><i class="dot p"></i><i class="dot p"></i><i class="dot p"></i></div>
+</div>
+</div>
+<div class="lg"><span><i class="dot p"></i>publicado</span><span><i class="dot d"></i>rascunho</span><span><i class="dot m"></i>falta</span><span>4 pontos por idioma: adulto, 4-6, 7-10, 11-13</span></div>
+</div>
+
+<h2>B · Editor único do devocional</h2>
+<p class="note">Os dados que não mudam entre idiomas ficam à esquerda (uma vez só). À direita, idioma e versão. Mostrando a aba Adulto em Français.</p>
+<div class="card">
+<div class="rt"><div><b style="font-weight:500">A paz que guarda</b><div class="meta"><span>Filipenses 4:6-7</span></div></div>
+<div><span class="chip">PT ✓</span><span class="chip">EN ✓</span><span class="chip">ES ⚠</span><span class="chip on">FR ●</span><span class="chip">IT ○</span></div></div>
+<div class="lay" style="margin-top:12px">
+<div class="side">
+<div style="font-size:12px;color:var(--tx2);margin-bottom:8px">Dados gerais (todos os idiomas)</div>
+<div class="f"><label>Data de publicação</label><input value="30/10/2026"></div>
+<div class="f"><label>Status</label><select><option>Agendado</option><option>Rascunho</option><option>Publicado</option><option>Arquivado</option></select></div>
+<div class="f"><label>Categoria</label><select><option>Ansiedade</option></select><small><u>Gerenciar categorias</u></small></div>
+<div class="f"><label>URL do áudio</label><input placeholder="https://..."></div>
+<div class="f"><label>Versículo base</label><input value="Filipenses 4:6"></div>
+<div class="f"><label>Referência</label><input value="Filipenses 4:6-7"></div>
+<div style="font-size:12px;color:var(--tx2);border-top:1px solid var(--bd);padding-top:8px">👁 1.240 leitores · ⤴ 186 · #3</div>
+</div>
+<div>
+<div class="tabs" style="margin-top:0"><span class="on">Adulto</span><span>4-6</span><span>7-10</span><span>11-13</span><span>Guia da família</span><span>Compartilhar</span></div>
+<div class="alert">Tradução por IA em rascunho. Original em português alterado em 28/10: revisar.</div>
+<div class="two">
+<div>
+<div class="f"><label>Título · PT</label><input disabled value="A paz que guarda"></div>
+<div class="f"><label>Destaque · PT</label><textarea disabled>Entregue a ansiedade e receba paz.</textarea></div>
+<div class="f"><label>Reflexão · PT</label><textarea disabled>Quando a mente corre…</textarea></div>
+</div>
+<div>
+<div class="f"><label>Título · FR</label><input value="La paix qui garde"></div>
+<div class="f"><label>Destaque · FR</label><textarea>Remets ton inquiétude et reçois la paix.</textarea></div>
+<div class="f"><label>Réflexion · FR</label><textarea>Quand l’esprit s’emballe…</textarea></div>
+</div>
+</div>
+<div class="two">
+<div class="f"><label>Aplicação prática</label><textarea>Aujourd’hui, note trois sujets…</textarea></div>
+<div class="f"><label>Oração</label><textarea>Seigneur, je te confie…</textarea></div>
+</div>
+<div class="f"><label>Dica de conteúdo (opcional)</label><textarea>Para aprofundar, ouça o episódio sobre descanso.</textarea>
+<div style="display:flex;gap:10px;margin-top:6px;align-items:flex-start"><div class="img">Imagem 4:5</div><div style="flex:1"><label style="font-size:12px;font-weight:500">Link externo (opcional)</label><input style="width:100%" placeholder="https://..."><small style="font-size:11px;color:var(--tx3)">A imagem fica clicável e abre em nova aba.</small></div></div></div>
+</div>
+</div>
+<div class="foot"><span>Versões deste devocional: 20 · 14 publicadas · 4 rascunhos · 2 faltam</span><span style="display:flex;gap:6px;flex-wrap:wrap"><button>Traduzir com IA</button><button>Salvar rascunho</button><button>Publicar este idioma</button><button class="pri">Publicar em todos os idiomas</button></span></div>
+</div>
+
+<h2>B2 · Abas infantis e compartilhar (mesma tela)</h2>
+<p class="note">Mesmos campos que já existem em Família: faixa 7-10 em Italiano, e a aba Compartilhar.</p>
+<div class="two">
+<div class="card">
+<div class="tabs" style="margin-top:0"><span>Adulto</span><span>4-6</span><span class="on">7-10</span><span>11-13</span><span>Guia</span><span>Compartilhar</span></div>
+<div class="f"><label>Título para esta faixa (até 80)</label><input value="La pace che protegge"></div>
+<div class="f"><label>Trecho da passagem (opcional)</label><textarea></textarea></div>
+<div class="f"><label>O que a Bíblia conta</label><textarea style="min-height:70px"></textarea></div>
+<div class="f"><label>Para pensar</label><textarea></textarea></div>
+<div class="f"><label>Para fazer hoje</label><textarea></textarea></div>
+<div class="f"><label>Oração</label><textarea></textarea></div>
+<div class="f"><label>Guia do adulto e material de apoio</label><textarea style="min-height:70px"></textarea></div>
+</div>
+<div class="card">
+<div class="tabs" style="margin-top:0"><span>Adulto</span><span>4-6</span><span>7-10</span><span>11-13</span><span>Guia</span><span class="on">Compartilhar</span></div>
+<div class="f"><label>Texto de compartilhamento · IT</label><textarea style="min-height:90px">La pace di Dio custodisce il tuo cuore. Leggi in 3 minuti.</textarea></div>
+<div class="f"><label>Imagem de compartilhamento</label><div class="img" style="width:120px;height:70px">Do banco de mídia</div><small>Compartilha a imagem cadastrada no admin (mídia), igual para todos os idiomas.</small></div>
+<div class="foot"><span>Faixa 7-10 · IT</span><button class="pri">Publicar faixa</button></div>
+</div>
+</div>
+
+<h2>C · Fila de publicação</h2>
+<p class="note">Aparece ao clicar em "Publicar tudo" ou "Publicar este" na lista: confirma o que vai ao ar, incluindo agendados e desatualizados.</p>
+<div class="card">
+<div class="bar" style="justify-content:space-between"><b style="font-weight:500">A paz que guarda</b><span style="font-size:13px;color:var(--tx2)">15 de 25 prontos · 1 desatualizado</span></div>
+<div class="g"><span></span><span class="gh">PT</span><span class="gh">EN</span><span class="gh">ES</span><span class="gh">FR</span><span class="gh">IT</span></div>
+<div class="g"><span>Adulto</span><span class="c p2">no ar</span><span class="c p2">no ar</span><span class="c s2">desatualizado</span><span class="c d2">rascunho</span><span class="c m2">falta</span></div>
+<div class="g"><span>4-6</span><span class="c p2">no ar</span><span class="c p2">no ar</span><span class="c p2">no ar</span><span class="c m2">falta</span><span class="c m2">falta</span></div>
+<div class="g"><span>7-10</span><span class="c p2">no ar</span><span class="c p2">no ar</span><span class="c d2">rascunho</span><span class="c m2">falta</span><span class="c m2">falta</span></div>
+<div class="g"><span>11-13</span><span class="c p2">no ar</span><span class="c p2">no ar</span><span class="c d2">rascunho</span><span class="c m2">falta</span><span class="c m2">falta</span></div>
+<div class="g"><span>Guia</span><span class="c p2">no ar</span><span class="c p2">no ar</span><span class="c p2">no ar</span><span class="c d2">rascunho</span><span class="c m2">falta</span></div>
+<div class="g"><span>Compartilhar</span><span class="c p2">ok</span><span class="c p2">ok</span><span class="c p2">ok</span><span class="c m2">falta</span><span class="c m2">falta</span></div>
+<div class="right"><button>Traduzir 9 faltantes</button><button>Publicar só prontos (4)</button><button class="pri">Publicar tudo (rascunhos incluídos)</button></div>
+</div>
+</div>
+</body>
+</html>

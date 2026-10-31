@@ -1,0 +1,107 @@
+{
+  "nav": {
+    "howItWorks": "Comment ça marche",
+    "about": "À propos",
+    "start": "Commencer"
+  },
+  "hero": {
+    "title": "Et si trois minutes pouvaient changer la façon dont quelqu'un vit sa journée ?",
+    "statement1": "Une pause.",
+    "statement2": "Une réflexion.",
+    "statement3": "Un regard neuf.",
+    "ctaBtn": "Rejoindre la mission",
+    "ctaSecondary": "Découvrir le projet"
+  },
+  "parallax": {
+    "title": "Trois minutes.",
+    "p1": "Avant de répondre.",
+    "p2": "Avant de décider.",
+    "p3": "Avant de renoncer.",
+    "p4": "Avant de rapporter le poids de la journée à la maison.",
+    "conclusion": "Trois minutes pour s'arrêter.\\nRéfléchir.\\nMieux choisir."
+  },
+  "tension": {
+    "title": "Et si ces trois minutes changeaient quelque chose ?",
+    "p1": "Un choix peut changer une conversation. Une conversation peut influencer une décision. Et une décision peut changer le cours d'une histoire."
+  },
+  "minimal": {
+    "id": "Une vie à la fois.",
+    "p1": "Une personne.",
+    "p2": "Un jour.",
+    "p3": "Trois minutes.",
+    "p4": "Une petite décision.",
+    "conclusion1": "Les grands changements ne commencent pas toujours par de grands événements.",
+    "conclusion2": "Parfois, ils commencent par une personne qui a décidé de s'arrêter trois minutes."
+  },
+  "monumental": {
+    "title": "Imaginez 100 000 personnes consacrant 3 minutes par jour à réfléchir à ce qui compte vraiment.",
+    "subtitle": "Cela fait 300 000 minutes de réflexion quotidienne.",
+    "intro": "Mais la mission n'a jamais été une question de chiffres.",
+    "core": "Elle concerne ce qui se passe après ces trois minutes :",
+    "card1": "un choix plus conscient",
+    "card2": "une conversation différente",
+    "card3": "une famille fortifiée",
+    "card4": "une vie qui trouve sa direction",
+    "final1": "Car nous ne voulons pas seulement toucher des personnes.",
+    "final2": "Nous voulons transformer leur façon de vivre."
+  },
+  "bridge": {
+    "title": "Rejoignez la mission",
+    "p1": "3 Minutes for Life est gratuit.",
+    "p2": "Si ce projet a du sens pour vous, il existe deux façons simples de l'aider à rester vivant et à toucher davantage de personnes."
+  },
+  "editorial": {
+    "monthlyTitle": "Soutien mensuel",
+    "monthlyPriceMain": "R$ 19,90",
+    "monthlyPriceUnit": "/mois",
+    "monthlyDesc": "Une petite contribution récurrente pour soutenir la mission.",
+    "monthlyBtn": "Soutenir chaque mois",
+    "yearlyBadge": "Plus économique",
+    "yearlyTitle": "Soutien annuel",
+    "yearlyPriceMain": "R$ 99,00",
+    "yearlyPriceUnit": "/an",
+    "yearlyDesc": "La façon la plus économique de soutenir le projet dans la durée.",
+    "yearlyBtn": "Soutenir chaque année",
+    "singleTitle": "Soutien unique",
+    "singlePriceMain": "Montant libre",
+    "singlePriceUnit": "",
+    "singleDesc": "Vous choisissez le montant. Un seul paiement, sans renouvellement automatique (minimum R$ 5,00).",
+    "singleBtn": "Soutenir une fois"
+  },
+  "closing": {
+    "p1": "Cela commence par une personne.",
+    "p2": "Puis une autre.",
+    "p3": "Puis une autre encore.",
+    "p4": "Jusqu'à atteindre 100 000.",
+    "final1": "Peut-être que la prochaine personne sera quelqu'un que vous ne connaîtrez jamais.",
+    "final2": "Quelqu'un qui avait besoin d'une pause.",
+    "final3": "D'une parole.",
+    "final4": "D'un regard neuf.",
+    "final5": "De trois minutes.",
+    "final6": "Aidez-nous à atteindre cette personne.",
+    "btn": "REJOINDRE LA MISSION"
+  },
+  "footer": {
+    "brandTitle": "3 Minutes for Life",
+    "brandDesc": "Un petit moment. Un impact pour l'éternité. Le projet est porté par des personnes qui croient en cette mission et qui aident à maintenir la plateforme gratuite pour qu'elle touche davantage de vies.",
+    "navTitle": "Navigation",
+    "navHome": "Accueil",
+    "navMission": "Notre mission",
+    "legalTitle": "Mentions légales",
+    "terms": "Conditions d'utilisation",
+    "privacy": "Politique de confidentialité",
+    "copyright": "{{brandName}}. Tous droits réservés.",
+    "navDonate": "Soutenir",
+    "contact": "Contact"
+  },
+  "about": {
+    "title1": "Un moment pour vous",
+    "p1": "Un espace créé pour ralentir, réfléchir et regarder la vie avec plus de clarté.",
+    "p2": "Chaque jour, vous trouvez une nouvelle réflexion sur des sujets qui font partie de la vie réelle : les choix, les relations, le travail, le sens de la vie et la foi.",
+    "p3": "L'idée est simple : quelques minutes par jour pour s'arrêter, réfléchir et transformer une réflexion en geste concret.",
+    "p4": "Vous n'avez pas besoin d'en faire beaucoup. Soyez simplement présent quelques minutes.",
+    "title2": "Une expérience quotidienne",
+    "p5": "Venez une fois par jour, lisez, réfléchissez et emportez avec vous ce qui a du sens pour votre journée.",
+    "p6": "L'expérience fonctionne aussi hors ligne. Pour y accéder plus facilement, ajoutez l'application à votre écran d'accueil."
+  }
+}

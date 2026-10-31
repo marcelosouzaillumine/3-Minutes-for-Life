@@ -5,6 +5,9 @@ import { AdminService, type DevotionalRanking, type DevotionalRankingItem } from
 import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { PrincipleView } from '../../components/PrincipleView';
 import { MediaLibraryPicker } from '../../components/admin/MediaLibraryPicker';
+import { DevotionalLanguages, type KidsSummaries } from '../../components/admin/DevotionalLanguages';
+import { FamilyAdmin } from '../../services/FamilyService';
+import { publishAll, publishAllForDevotional, type PublishReport } from '../../services/PublishAllService';
 import '../../styles/admin.css';
 
 export function AdminDevotionals() {
@@ -41,6 +44,11 @@ export function AdminDevotionals() {
   const [deletingCategoryId, setDeletingCategoryId] = useState<string | null>(null);
   const [deletingDevotionalId, setDeletingDevotionalId] = useState<string | null>(null);
 
+  // Idiomas na lista: faixas infantis por idioma e publicação em lote
+  const [kidsSummaries, setKidsSummaries] = useState<KidsSummaries>({});
+  const [publishing, setPublishing] = useState<string | null>(null);
+  const [publishReport, setPublishReport] = useState<PublishReport | null>(null);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -58,12 +66,41 @@ export function AdminDevotionals() {
       setCategories(cats);
       setLanguages(langs);
       setRanking(rank);
+      loadKidsSummaries(langs);
     } catch (err: any) {
       setError('Erro ao carregar dados: ' + err.message);
     } finally {
       setLoading(false);
     }
   };
+
+  const loadKidsSummaries = async (langs: any[]) => {
+    const all = await Promise.all(langs.map((l: any) => FamilyAdmin.kidsSummary(l.iso_code).catch(() => ({}))));
+    setKidsSummaries(Object.fromEntries(langs.map((l: any, i: number) => [l.iso_code, all[i]])));
+  };
+
+  const runPublish = async (key: string, targets: any[], question: string) => {
+    if (!window.confirm(question)) return;
+    setPublishing(key);
+    setPublishReport(null);
+    try {
+      const report = targets.length === 1 ? await publishAllForDevotional(targets[0], languages) : await publishAll(targets, languages);
+      setPublishReport(report);
+      await loadData();
+    } catch (err: any) {
+      alert('Erro ao publicar: ' + err.message);
+    } finally {
+      setPublishing(null);
+    }
+  };
+
+  const handlePublishDevotional = (e: React.MouseEvent, devo: any) => {
+    e.stopPropagation();
+    runPublish(devo.id, [devo], `Publicar em todos os idiomas os rascunhos de "${devo.title}" (texto adulto e faixas infantis)? O que estiver incompleto fica de fora.`);
+  };
+
+  const handlePublishEverything = () =>
+    runPublish('all', devotionals, 'Publicar os rascunhos de TODOS os devocionais em todos os idiomas (texto adulto e faixas infantis)? O que estiver incompleto fica de fora.');
 
   const handleEditClick = async (id: string) => {
     try {
@@ -663,22 +700,6 @@ export function AdminDevotionals() {
                     />
                   </div>
                 </div>
-
-                <div>
-                  <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                    Apoio ao projeto (opcional)
-                  </label>
-                  <p style={{ margin: '0 0 8px', fontSize: '0.8rem', color: '#888' }}>
-                    Aparece por último, após a Dica de conteúdo. Use para convidar o leitor a apoiar o projeto. Deixe em branco para mostrar o texto padrão sobre a missão. O botão "Quero apoiar" sempre leva à página de apoio.
-                  </p>
-
-                  <RichTextEditor 
-                    key={`support_message-${currentLang}`}
-                    value={getValue('support_message')}
-                    onChange={(html) => setValue('support_message', html)}
-                  />
-
-                </div>
               </>
             );
           })()}
@@ -837,6 +858,14 @@ export function AdminDevotionals() {
           >
             Categorias
           </button>
+          <button
+            type="button"
+            disabled={publishing !== null || devotionals.length === 0}
+            onClick={handlePublishEverything}
+            style={{ background: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid #ddd', borderRadius: '8px', padding: '8px 12px', fontWeight: 'bold', opacity: publishing ? 0.6 : 1 }}
+          >
+            {publishing === 'all' ? 'Publicando…' : 'Publicar tudo'}
+          </button>
           <button 
             onClick={handleCreateNew}
             style={{ 
@@ -866,6 +895,13 @@ export function AdminDevotionals() {
               Métricas de leitura e ranking indisponíveis no momento.
             </div>
           )}
+          {publishReport && (
+            <div role="status" style={{ background: publishReport.skipped.length ? '#fffbeb' : '#ecfdf5', borderRadius: '8px', padding: '10px 14px', fontSize: '0.85rem' }}>
+              {publishReport.published} item(ns) publicado(s){publishReport.skipped.length > 0 && <>; {publishReport.skipped.length} ficaram de fora:</>}
+              {publishReport.skipped.length > 0 && <ul style={{ margin: '6px 0 0', paddingLeft: '18px' }}>{publishReport.skipped.map((m) => <li key={m}>{m}</li>)}</ul>}
+              <button type="button" onClick={() => setPublishReport(null)} style={{ marginLeft: '8px', background: 'none', border: 'none', textDecoration: 'underline', cursor: 'pointer' }}>Fechar</button>
+            </div>
+          )}
           {devotionals.map(devo => (
             <div 
               key={devo.id} 
@@ -884,6 +920,14 @@ export function AdminDevotionals() {
                 </h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                   {getStatusBadge(devo.status || 'published')}
+                  <button
+                    type="button"
+                    disabled={publishing !== null}
+                    onClick={(e) => handlePublishDevotional(e, devo)}
+                    style={{ background: 'var(--color-surface)', border: '1px solid #ddd', borderRadius: '6px', padding: '3px 8px', fontSize: '0.78rem', cursor: publishing ? 'not-allowed' : 'pointer', opacity: publishing ? 0.6 : 1 }}
+                  >
+                    {publishing === devo.id ? '…' : 'Publicar em todos os idiomas'}
+                  </button>
                   <button
                     type="button"
                     disabled={deletingDevotionalId === devo.id}
@@ -908,6 +952,7 @@ export function AdminDevotionals() {
                 {devo.categories?.name && <span>🏷️ {devo.categories.name}</span>}
               </div>
               {ranking && renderStats(rankingById.get(devo.id))}
+              <DevotionalLanguages devo={devo} languages={languages} kids={kidsSummaries} />
             </div>
           ))}
           {devotionals.length === 0 && (

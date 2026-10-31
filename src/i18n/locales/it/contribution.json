@@ -1,0 +1,23 @@
+{
+  "modal": {
+    "title": "Entra a far parte della missione",
+    "desc": "3 Minutes for Life è gratuito. Il tuo contributo aiuta questo messaggio ad arrivare a più persone.",
+    "typeLabel": "Tipo di contributo",
+    "periodicityLabel": "Periodicità",
+    "valueLabel": "Importo (R$)",
+    "valuePlaceholder": "Es.: 50",
+    "button": "Continua",
+    "buttonLoading": "Preparazione del pagamento...",
+    "footer": "Ambiente sicuro. Potrai annullare il tuo contributo mensile in qualsiasi momento.",
+    "options": {
+      "apoio": "Sostegno (R$ 9,90/mese o R$ 59,90/anno)",
+      "livre": "Importo libero",
+      "mensal": "Mensile (R$ 9,90)",
+      "anual": "Annuale (R$ 59,90)",
+      "unicaLivre": "Una tantum",
+      "mensalLivre": "Mensile"
+    },
+    "errorNoLink": "Link di pagamento non configurato per questa opzione."
+  },
+  "paidReturn": "Pagamento ricevuto. Grazie per sostenere la missione!"
+}
