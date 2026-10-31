@@ -569,15 +569,10 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
           )}
 
           {/* 9. Apoio ao projeto */}
-          {(devotional.support_message || devotional.support_link_url) && (
+          {devotional.support_message && (
             <div>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>
                 Apoio ao projeto
-                {devotional.support_link_url && (
-                  <span style={{ marginLeft: '8px', fontWeight: 'normal', color: '#0ea5e9', fontSize: '0.75rem', textTransform: 'none' }}>
-                    🔗 com link
-                  </span>
-                )}
               </label>
               {devotional.support_message && (
                 <div
@@ -821,22 +816,6 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
               value={form.support_message}
               onChange={(html) => setForm(f => ({ ...f, support_message: html }))}
             />
-
-            <div style={{ marginTop: '10px' }}>
-              <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.8rem', fontWeight: 'bold' }}>
-                🔗 Link "Quero apoiar" (opcional)
-              </label>
-              <p style={{ margin: '0 0 8px', fontSize: '0.76rem', color: '#888' }}>
-                Se preenchido, um link discreto "Quero apoiar" aparece no final da seção.
-              </p>
-              <input
-                type="url"
-                value={form.support_link_url}
-                onChange={(e) => setForm(f => ({ ...f, support_link_url: e.target.value }))}
-                placeholder="https://..."
-                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '0.9rem' }}
-              />
-            </div>
           </div>
 
           {/* Bottom actions */}
