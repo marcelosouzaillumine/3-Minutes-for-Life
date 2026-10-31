@@ -1,9 +1,11 @@
 import { type ShareFormat, SHARE_DIMS } from './ShareImageCard'
 
-const GOLD  = '#c8994f'
-const NAVY  = '#1b2539'
-const CREAM = '#f0e8dc'
-const SERIF = '"Playfair Display", Georgia, serif'
+const GOLD      = '#c8994f'   // linhas e detalhes
+const GOLD_TEXT = '#8a6a35'   // texto dourado com contraste sobre o creme
+const NAVY      = '#1b2539'
+const PAPER     = '#faf6ef'
+const SERIF     = '"Playfair Display", Georgia, serif'
+const SANS      = 'system-ui, -apple-system, "Segoe UI", sans-serif'
 
 interface DrawData {
   title: string
@@ -12,67 +14,42 @@ interface DrawData {
   /** Rótulo de destaque acima do título — "DEVOCIONAL DO DIA" ou a categoria,
    *  já traduzido e em caixa alta, calculado pelo chamador. */
   label: string
+  /** Chamada para a ação ("Leia em 3 minutos"), já traduzida. */
+  cta?: string
+  /** Logo horizontal sobre fundo claro (Story, Feed, Facebook). */
   logoDataUrl: string
+  /** Logo vertical sobre fundo claro — usado só no WhatsApp. */
+  logoVerticalDataUrl?: string
+}
+
+/**
+ * Áreas de segurança (px no tamanho real do arquivo). Tudo que for texto ou
+ * logo fica dentro delas:
+ *  - Story: o Instagram cobre ~250px no topo (perfil) e ~340px na base
+ *    (campo de resposta e legenda).
+ *  - Feed: a grade do perfil recorta as laterais (4:5 → 3:4), então 100px.
+ *  - WhatsApp: o preview do link recorta no centro; 5% nas laterais e 10% no
+ *    topo e na base (60 × 63), com folga.
+ */
+interface Safe { x: number; top: number; bottom: number }
+
+const SAFE: Record<ShareFormat, Safe> = {
+  story:    { x: 100, top: 250, bottom: 340 },
+  feed:     { x: 100, top: 100, bottom: 100 },
+  facebook: { x: 100, top: 90,  bottom: 90  },
+  og:       { x: 80,  top: 70,  bottom: 70  },
 }
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
 function accentBar(ctx: CanvasRenderingContext2D, w: number) {
   const g = ctx.createLinearGradient(0, 0, w, 0)
-  g.addColorStop(0,    'transparent')
-  g.addColorStop(0.4,  GOLD)
-  g.addColorStop(0.7,  'rgba(200,153,79,0.4)')
-  g.addColorStop(1,    'transparent')
+  g.addColorStop(0,   'rgba(200,153,79,0)')
+  g.addColorStop(0.3, GOLD)
+  g.addColorStop(0.7, GOLD)
+  g.addColorStop(1,   'rgba(200,153,79,0)')
   ctx.fillStyle = g
-  ctx.fillRect(0, 0, w, 4)
-}
-
-function wrapText(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  x: number, y: number,
-  maxW: number, lineH: number,
-): number {
-  const words = text.split(' ')
-  let line = ''
-  let curY  = y
-  for (const word of words) {
-    const test = line ? `${line} ${word}` : word
-    if (ctx.measureText(test).width > maxW && line) {
-      ctx.fillText(line, x, curY)
-      line = word
-      curY += lineH
-    } else {
-      line = test
-    }
-  }
-  if (line) { ctx.fillText(line, x, curY); curY += lineH }
-  return curY
-}
-
-function countLines(ctx: CanvasRenderingContext2D, text: string, maxW: number): number {
-  const words = text.split(' ')
-  let line = '', count = 1
-  for (const word of words) {
-    const test = line ? `${line} ${word}` : word
-    if (ctx.measureText(test).width > maxW && line) { count++; line = word }
-    else { line = test }
-  }
-  return count
-}
-
-// canvas has no letter-spacing — draw char by char for labelled strings
-function spacedText(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  x: number, y: number,
-  spacing: number,
-) {
-  let cx = x
-  for (const ch of text) {
-    ctx.fillText(ch, cx, y)
-    cx += ctx.measureText(ch).width + spacing
-  }
+  ctx.fillRect(0, 0, w, 6)
 }
 
 function loadImg(src: string): Promise<HTMLImageElement> {
@@ -84,146 +61,303 @@ function loadImg(src: string): Promise<HTMLImageElement> {
   })
 }
 
-function alpha(ctx: CanvasRenderingContext2D, a: number, fn: () => void) {
+/** As logos têm fundo branco: "multiply" o apaga sobre o creme. */
+function drawLogo(ctx: CanvasRenderingContext2D, img: HTMLImageElement, x: number, y: number, w: number, h: number) {
   ctx.save()
-  ctx.globalAlpha = a
-  fn()
+  ctx.globalCompositeOperation = 'multiply'
+  ctx.drawImage(img, x, y, w, h)
   ctx.restore()
 }
 
-// ─── format renderers ─────────────────────────────────────────────────────────
+function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxW: number): string[] {
+  const words = text.split(/\s+/).filter(Boolean)
+  const lines: string[] = []
+  let line = ''
+  for (const word of words) {
+    const test = line ? `${line} ${word}` : word
+    if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = word }
+    else line = test
+  }
+  if (line) lines.push(line)
+  return lines
+}
 
-async function drawOg(ctx: CanvasRenderingContext2D, w: number, h: number, d: DrawData) {
-  const PAD_X      = 80
-  const IW         = w - PAD_X * 2
-  const AFTER_LOGO = Math.round(20  * 1.2)  // +20% → 24
-  const LABEL_SIZE = Math.round(13  * 1.15) // +15% → 15px
-  const LABEL_GAP  = 16
-  const TITLE_LINE = Math.round(58 * 1.06)
-  const PRINC_SIZE = Math.round(30  * 1.25) // +25% → 38px
-  const PRINC_LINE = Math.round(PRINC_SIZE * 1.4)
-  const SCRIP_SIZE = Math.round(17  * 1.2)
-  const SCRIP_GAP  = Math.round(16  * 1.1)  // +10% → 18
+// canvas não tem letter-spacing confiável: desenha letra a letra
+function spacedWidth(ctx: CanvasRenderingContext2D, text: string, spacing: number): number {
+  let w = 0
+  for (const ch of text) w += ctx.measureText(ch).width + spacing
+  return w - spacing
+}
 
-  const logo = await loadImg(d.logoDataUrl)
-  const LW   = Math.round(280 * 1.15 * 1.25)  // 322 → 403px (+25%)
-  const LH   = Math.round(LW * logo.naturalHeight / logo.naturalWidth)
-
-  // Measure total content height for vertical centering
-  ctx.font = `800 58px ${SERIF}`
-  const titleH = countLines(ctx, d.title, IW) * TITLE_LINE
-  ctx.font = `700 ${PRINC_SIZE}px ${SERIF}`
-  const princH = countLines(ctx, d.principle, IW) * PRINC_LINE
-  const scripH = d.scripture ? SCRIP_GAP + SCRIP_SIZE : 0
-  //           logo       gap   label                  title  gap  divider  gap   principle  scripture
-  const totalH = LH + AFTER_LOGO + (LABEL_SIZE + LABEL_GAP) + titleH + 18 + 2 + 18 + princH + scripH
-  let y = Math.round((h - totalH) / 2)
-
-  // Logo — centered horizontally
-  ctx.drawImage(logo, (w - LW) / 2, y, LW, LH)
-  y += LH + AFTER_LOGO
-
-  // Rótulo (DEVOCIONAL DO DIA ou categoria)
-  ctx.font = `700 ${LABEL_SIZE}px ${SERIF}`
-  ctx.fillStyle = GOLD
-  spacedText(ctx, d.label, PAD_X, y, 6)
-  y += LABEL_SIZE + LABEL_GAP
-
-  // Title
-  ctx.font = `800 58px ${SERIF}`
-  ctx.fillStyle = CREAM
-  y = wrapText(ctx, d.title, PAD_X, y, IW, TITLE_LINE)
-  y += 18
-
-  // Gold divider
-  ctx.fillStyle = GOLD
-  ctx.fillRect(PAD_X, y, 48, 2)
-  y += 2 + 18
-
-  // Principle (sem itálico)
-  ctx.font = `700 ${PRINC_SIZE}px ${SERIF}`
-  ctx.fillStyle = GOLD
-  y = wrapText(ctx, d.principle, PAD_X, y, IW, PRINC_LINE)
-
-  // Scripture
-  if (d.scripture) {
-    y += SCRIP_GAP
-    ctx.font = `400 ${SCRIP_SIZE}px ${SERIF}`
-    ctx.fillStyle = CREAM
-    spacedText(ctx, d.scripture!, PAD_X, y, 4)
+function spacedCentered(ctx: CanvasRenderingContext2D, text: string, cx: number, y: number, spacing: number) {
+  ctx.textAlign = 'left'
+  let x = cx - spacedWidth(ctx, text, spacing) / 2
+  for (const ch of text) {
+    ctx.fillText(ch, x, y)
+    x += ctx.measureText(ch).width + spacing
   }
 }
 
-async function drawInstagram(
+function roundRectPath(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath()
+  ctx.moveTo(x + r, y)
+  ctx.arcTo(x + w, y,     x + w, y + h, r)
+  ctx.arcTo(x + w, y + h, x,     y + h, r)
+  ctx.arcTo(x,     y + h, x,     y,     r)
+  ctx.arcTo(x,     y,     x + w, y,     r)
+  ctx.closePath()
+}
+
+interface Block { h: number; draw: (y: number) => void }
+
+// ─── Instagram / Facebook (centralizado) ──────────────────────────────────────
+
+async function drawCentered(
   ctx: CanvasRenderingContext2D,
-  w: number, h: number,
+  format: ShareFormat,
   d: DrawData,
-  fontSize: { logo: number; title: number; principle: number; scripture: number; site: number },
-  pad: { x: number; top: number; bot: number; afterLogo: number; afterLabel?: number; bottomReserve?: number },
+  base: { logo: number; title: number; principle: number },
 ) {
-  const { x: PX, afterLogo: AL, afterLabel: ALGAP = 40, bottomReserve: BR = 0 } = pad
-  const IW         = w - PX * 2
-  const LABEL_SIZE = Math.round(22 * 1.1)                  // +10% → 24px
-  const TITLE_LINE = Math.round(fontSize.title * 1.06)
-  const PRINC_LINE = Math.round(fontSize.principle * 1.45)
-  const SCRIP_SIZE = Math.round(fontSize.scripture * 1.3)  // +30%
-  const SITE_SIZE  = Math.round(fontSize.site      * 1.15) // +15%
+  const { w, h } = SHARE_DIMS[format]
+  const safe = SAFE[format]
+  const cx   = w / 2
+  const IW   = w - safe.x * 2
+  const availH = h - safe.top - safe.bottom
 
   const logo = await loadImg(d.logoDataUrl)
-  const LW = fontSize.logo
-  const LH = Math.round(LW * logo.naturalHeight / logo.naturalWidth)
+  const ratio = logo.naturalHeight / logo.naturalWidth
 
-  // Measure total content height for vertical centering
-  ctx.font = `800 ${fontSize.title}px ${SERIF}`
-  const titleH = countLines(ctx, d.title, IW) * TITLE_LINE
-  ctx.font = `700 ${fontSize.principle}px ${SERIF}`
-  const princH = countLines(ctx, d.principle, IW) * PRINC_LINE
-  const scripH = d.scripture ? SCRIP_SIZE + 32 : 0
-  //          logo  gap  label                  title  gap  divider  gap   principle  gap  scripture  site
-  const totalH = LH + AL + (LABEL_SIZE + ALGAP) + titleH + 56 + 3 + 56 + princH + 48 + scripH + SITE_SIZE
-  let y = Math.round(((h - BR) - totalH) / 2)
+  const build = (s: number): Block[] => {
+    const blocks: Block[] = []
+    const gap = (n: number) => blocks.push({ h: Math.round(n * s), draw: () => {} })
 
-  // Logo
-  ctx.drawImage(logo, PX, y, LW, LH)
-  y += LH + AL
+    // Logo
+    const LW = Math.round(base.logo * s)
+    const LH = Math.round(LW * ratio)
+    blocks.push({ h: LH, draw: y => drawLogo(ctx, logo, cx - LW / 2, y, LW, LH) })
+    gap(40)
 
-  // Label
-  ctx.font      = `700 ${LABEL_SIZE}px ${SERIF}`
-  ctx.fillStyle = GOLD
-  spacedText(ctx, d.label, PX, y, 8)
-  y += LABEL_SIZE + ALGAP
+    // Rótulo
+    const labelSize = Math.round(24 * s)
+    blocks.push({
+      h: labelSize,
+      draw: y => {
+        ctx.font = `700 ${labelSize}px ${SERIF}`
+        ctx.fillStyle = GOLD_TEXT
+        spacedCentered(ctx, d.label, cx, y, 7)
+      },
+    })
+    gap(26)
 
-  // Title
-  ctx.font      = `800 ${fontSize.title}px ${SERIF}`
-  ctx.fillStyle = CREAM
-  y = wrapText(ctx, d.title, PX, y, IW, TITLE_LINE)
-  y += 56
+    // Título
+    const titleSize = Math.round(base.title * s)
+    ctx.font = `800 ${titleSize}px ${SERIF}`
+    const titleLines = wrapLines(ctx, d.title, IW)
+    const titleLine = Math.round(titleSize * 1.12)
+    blocks.push({
+      h: titleLines.length * titleLine,
+      draw: y => {
+        ctx.font = `800 ${titleSize}px ${SERIF}`
+        ctx.fillStyle = NAVY
+        ctx.textAlign = 'center'
+        titleLines.forEach((l, i) => ctx.fillText(l, cx, y + i * titleLine))
+      },
+    })
+    gap(40)
 
-  // Gold divider
-  ctx.fillStyle = GOLD
-  ctx.fillRect(PX, y, 80, 3)
-  y += 3 + 56
+    // Aspas
+    const quoteH = Math.round(56 * s)
+    blocks.push({
+      h: quoteH,
+      draw: y => {
+        ctx.font = `700 ${Math.round(150 * s)}px ${SERIF}`
+        ctx.fillStyle = GOLD
+        ctx.textAlign = 'center'
+        ctx.fillText('“', cx, y - Math.round(18 * s))
+      },
+    })
+    gap(20)
 
-  // Principle (sem itálico)
-  ctx.font      = `700 ${fontSize.principle}px ${SERIF}`
-  ctx.fillStyle = GOLD
-  y = wrapText(ctx, d.principle, PX, y, IW, PRINC_LINE)
-  y += 48
+    // Princípio (destaque)
+    const princSize = Math.round(base.principle * s)
+    ctx.font = `italic 700 ${princSize}px ${SERIF}`
+    const princLines = wrapLines(ctx, d.principle, IW)
+    const princLine = Math.round(princSize * 1.38)
+    blocks.push({
+      h: princLines.length * princLine,
+      draw: y => {
+        ctx.font = `italic 700 ${princSize}px ${SERIF}`
+        ctx.fillStyle = NAVY
+        ctx.textAlign = 'center'
+        princLines.forEach((l, i) => ctx.fillText(l, cx, y + i * princLine))
+      },
+    })
 
-  // Scripture
-  if (d.scripture) {
-    ctx.font = `400 ${SCRIP_SIZE}px ${SERIF}`
-    ctx.fillStyle = CREAM
-    spacedText(ctx, d.scripture!, PX, y, 6)
-    y += SCRIP_SIZE + 32
+    // Referência bíblica em etiqueta, sempre numa linha
+    if (d.scripture) {
+      gap(44)
+      const sSize = Math.round(28 * s)
+      const sPadX = Math.round(36 * s)
+      const sPadY = Math.round(14 * s)
+      ctx.font = `400 ${sSize}px ${SERIF}`
+      const sW = Math.min(IW, spacedWidth(ctx, d.scripture, 5) + sPadX * 2)
+      const sH = sSize + sPadY * 2
+      blocks.push({
+        h: sH,
+        draw: y => {
+          ctx.strokeStyle = GOLD_TEXT
+          ctx.lineWidth = 2
+          roundRectPath(ctx, cx - sW / 2, y, sW, sH, sH / 2)
+          ctx.stroke()
+          ctx.font = `400 ${sSize}px ${SERIF}`
+          ctx.fillStyle = GOLD_TEXT
+          spacedCentered(ctx, d.scripture!, cx, y + sPadY, 5)
+        },
+      })
+    }
+
+    // Rodapé: chamada + site
+    gap(56)
+    if (d.cta) {
+      const cSize = Math.round(30 * s)
+      const cPadX = Math.round(48 * s)
+      const cPadY = Math.round(18 * s)
+      ctx.font = `600 ${cSize}px ${SANS}`
+      const cW = Math.min(IW, ctx.measureText(d.cta).width + cPadX * 2)
+      const cH = cSize + cPadY * 2
+      blocks.push({
+        h: cH,
+        draw: y => {
+          ctx.fillStyle = NAVY
+          roundRectPath(ctx, cx - cW / 2, y, cW, cH, cH / 2)
+          ctx.fill()
+          ctx.font = `600 ${cSize}px ${SANS}`
+          ctx.fillStyle = PAPER
+          ctx.textAlign = 'center'
+          ctx.fillText(d.cta!, cx, y + cPadY)
+        },
+      })
+      gap(22)
+    }
+    const siteSize = Math.round(24 * s)
+    blocks.push({
+      h: siteSize,
+      draw: y => {
+        ctx.font = `400 ${siteSize}px ${SERIF}`
+        ctx.fillStyle = GOLD_TEXT
+        spacedCentered(ctx, '3minutesforlife.com', cx, y, 4)
+      },
+    })
+    return blocks
   }
 
-  // Website
-  ctx.font = `400 ${SITE_SIZE}px ${SERIF}`
-  alpha(ctx, 0.75, () => {
-    ctx.fillStyle = GOLD
-    spacedText(ctx, '3minutesforlife.com', PX, y, 4)
-  })
+  // Reduz a escala até o conjunto caber dentro da área de segurança
+  let s = 1
+  let blocks = build(s)
+  while (blocks.reduce((a, b) => a + b.h, 0) > availH && s > 0.45) {
+    s = Math.round((s - 0.04) * 100) / 100
+    blocks = build(s)
+  }
+
+  const totalH = blocks.reduce((a, b) => a + b.h, 0)
+  let y = safe.top + Math.round((availH - totalH) / 2)
+  for (const b of blocks) { b.draw(y); y += b.h }
+}
+
+// ─── WhatsApp (1200 × 630) ────────────────────────────────────────────────────
+
+async function drawOg(ctx: CanvasRenderingContext2D, d: DrawData) {
+  const { w, h } = SHARE_DIMS.og
+  const safe  = SAFE.og
+  const IW    = w - safe.x * 2
+  const availH = h - safe.top - safe.bottom
+
+  const logo  = await loadImg(d.logoVerticalDataUrl || d.logoDataUrl)
+  const LW    = 270
+  const LH    = Math.round(LW * logo.naturalHeight / logo.naturalWidth)
+  const GAP   = 48
+  const textMaxW = IW - LW - GAP * 2 - 2 - 48
+
+  // Título: até 2 linhas, reduzindo a fonte se preciso
+  let titleSize = 62
+  let titleLines: string[] = []
+  for (; titleSize >= 40; titleSize -= 2) {
+    ctx.font = `800 ${titleSize}px ${SERIF}`
+    titleLines = wrapLines(ctx, d.title, textMaxW)
+    if (titleLines.length <= 2) break
+  }
+  ctx.font = `800 ${titleSize}px ${SERIF}`
+  const titleLine = Math.round(titleSize * 1.12)
+
+  // Referência bíblica: sempre inteira numa linha
+  let scripSize = 30
+  if (d.scripture) {
+    for (; scripSize >= 18; scripSize -= 1) {
+      ctx.font = `400 ${scripSize}px ${SERIF}`
+      if (spacedWidth(ctx, d.scripture, 5) <= textMaxW) break
+    }
+  }
+
+  const labelSize = 17
+  ctx.font = `700 ${labelSize}px ${SERIF}`
+  const labelW = spacedWidth(ctx, d.label, 6)
+  ctx.font = `800 ${titleSize}px ${SERIF}`
+  const titleW = Math.max(...titleLines.map(l => ctx.measureText(l).width))
+  ctx.font = `400 ${scripSize}px ${SERIF}`
+  const scripW = d.scripture ? spacedWidth(ctx, d.scripture, 5) : 0
+  const ctaSize = 24
+  ctx.font = `600 ${ctaSize}px ${SANS}`
+  const ctaText = d.cta ? `${d.cta} →` : ''
+  const ctaW = ctaText ? ctx.measureText(ctaText).width : 0
+
+  const textW = Math.min(textMaxW, Math.max(labelW, titleW, scripW, ctaW))
+  const groupW = LW + GAP + 2 + GAP + textW
+  const x0 = Math.round((w - groupW) / 2)
+  const textCx = x0 + LW + GAP + 2 + GAP + textW / 2
+
+  // Coluna de texto: altura total para centralizar verticalmente
+  const textH = labelSize + 22 + titleLines.length * titleLine + 22 + 3
+    + (d.scripture ? 22 + scripSize : 0) + (ctaText ? 30 + ctaSize : 0)
+  const colH = Math.max(LH, textH, 0)
+  const top = safe.top + Math.round((availH - Math.min(colH, availH)) / 2)
+
+  drawLogo(ctx, logo, x0, top + Math.round((colH - LH) / 2), LW, LH)
+
+  ctx.fillStyle = 'rgba(184,134,58,0.45)'
+  ctx.fillRect(x0 + LW + GAP, top + Math.round((colH - Math.min(colH, 300)) / 2), 2, Math.min(colH, 300))
+
+  let y = top + Math.round((colH - textH) / 2)
+
+  ctx.font = `700 ${labelSize}px ${SERIF}`
+  ctx.fillStyle = GOLD_TEXT
+  spacedCentered(ctx, d.label, textCx, y, 6)
+  y += labelSize + 22
+
+  ctx.font = `800 ${titleSize}px ${SERIF}`
+  ctx.fillStyle = NAVY
+  ctx.textAlign = 'center'
+  titleLines.forEach((l, i) => ctx.fillText(l, textCx, y + i * titleLine))
+  y += titleLines.length * titleLine + 22
+
+  ctx.fillStyle = GOLD
+  ctx.fillRect(textCx - 24, y, 48, 3)
+  y += 3
+
+  if (d.scripture) {
+    y += 22
+    ctx.font = `400 ${scripSize}px ${SERIF}`
+    ctx.fillStyle = GOLD_TEXT
+    spacedCentered(ctx, d.scripture, textCx, y, 5)
+    y += scripSize
+  }
+
+  if (ctaText) {
+    y += 30
+    ctx.font = `600 ${ctaSize}px ${SANS}`
+    ctx.fillStyle = NAVY
+    ctx.textAlign = 'center'
+    ctx.fillText(ctaText, textCx, y)
+  }
 }
 
 // ─── public API ───────────────────────────────────────────────────────────────
@@ -245,34 +379,21 @@ export async function createShareImage(
   canvas.height = h
   const ctx = canvas.getContext('2d')!
 
-  // Background
-  ctx.fillStyle = NAVY
+  ctx.fillStyle = PAPER
   ctx.fillRect(0, 0, w, h)
-
-  // Accent bar
   accentBar(ctx, w)
 
   // y = topo do texto em todos os draws (evita sobreposição com baseline default)
   ctx.textBaseline = 'top'
 
   if (format === 'og') {
-    await drawOg(ctx, w, h, data)
+    await drawOg(ctx, data)
   } else if (format === 'story') {
-    await drawInstagram(ctx, w, h, data,
-      { logo: 570, title: 108, principle: 56, scripture: 28, site: 26 },
-      { x: 110, top: 130, bot: 180, afterLogo: 150, afterLabel: 60, bottomReserve: 220 },
-    )
+    await drawCentered(ctx, format, data, { logo: 640, title: 72, principle: 78 })
   } else if (format === 'feed') {
-    await drawInstagram(ctx, w, h, data,
-      { logo: 480, title: 86, principle: 46, scripture: 26, site: 22 },
-      { x: 90, top: 100, bot: 100, afterLogo: 90 },
-    )
+    await drawCentered(ctx, format, data, { logo: 500, title: 58, principle: 60 })
   } else {
-    // facebook
-    await drawInstagram(ctx, w, h, data,
-      { logo: 480, title: 84, principle: 44, scripture: 26, site: 22 },
-      { x: 90, top: 90, bot: 90, afterLogo: 72 },
-    )
+    await drawCentered(ctx, format, data, { logo: 420, title: 48, principle: 50 })
   }
 
   return new Promise((resolve, reject) =>
