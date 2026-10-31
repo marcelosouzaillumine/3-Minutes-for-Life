@@ -71,6 +71,10 @@ export function Landing() {
     navigate('/login');
   };
 
+  const readToday = () => {
+    navigate('/hoje');
+  };
+
   const closeMenu = () => {
     setIsMenuOpen(false);
   };
@@ -94,6 +98,17 @@ export function Landing() {
   ) as Array<{
     title: string;
     desc: string;
+  }>;
+
+  const showcaseItems = t('landing:showcase.items', {
+    returnObjects: true,
+  }) as Array<{
+    id: string;
+    kicker: string;
+    title: string;
+    desc: string;
+    note: string;
+    alt: string;
   }>;
 
   return (
@@ -240,7 +255,7 @@ export function Landing() {
             <button
               type="button"
               className="btn-start"
-              onClick={startApp}
+              onClick={readToday}
             >
               {t('landing:hero.btnStart')}
             </button>
@@ -490,6 +505,51 @@ export function Landing() {
           >
             {t('landing:audience.p2')}
           </p>
+        </div>
+      </section>
+
+      {/* =========================================================
+          SHOWCASE
+      ========================================================== */}
+      <section
+        id="como-usar"
+        className="showcase-section"
+        ref={setRef}
+      >
+        {showcaseItems.map((item, index) => (
+          <div
+            key={item.id}
+            className={`showcase-row reveal ${
+              index % 2 === 1 ? 'showcase-row-reverse' : ''
+            }`}
+          >
+            <div className="showcase-text">
+              <p className="showcase-kicker">{item.kicker}</p>
+              <h2 className="showcase-title">{item.title}</h2>
+              <p className="showcase-desc">{item.desc}</p>
+              <p className="showcase-note">{item.note}</p>
+            </div>
+
+            <div className="showcase-phone">
+              <img
+                src={`/landing/${item.id}.jpg`}
+                alt={item.alt}
+                width={390}
+                height={475}
+                loading="lazy"
+              />
+            </div>
+          </div>
+        ))}
+
+        <div className="showcase-cta reveal">
+          <button
+            type="button"
+            className="btn-start"
+            onClick={startApp}
+          >
+            {t('landing:showcase.btn')}
+          </button>
         </div>
       </section>
 
@@ -818,6 +878,26 @@ export function Landing() {
               {t(
                 'landing:faq.q6.a'
               )}
+            </p>
+          </div>
+
+          <div className="faq-item reveal delay-100">
+            <h3 className="faq-question">
+              {t('landing:faq.q7.q')}
+            </h3>
+
+            <p className="faq-answer">
+              {t('landing:faq.q7.a')}
+            </p>
+          </div>
+
+          <div className="faq-item reveal delay-200">
+            <h3 className="faq-question">
+              {t('landing:faq.q8.q')}
+            </h3>
+
+            <p className="faq-answer">
+              {t('landing:faq.q8.a')}
             </p>
           </div>
 

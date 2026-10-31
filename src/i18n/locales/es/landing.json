@@ -8,8 +8,8 @@
   },
   "hero": {
     "title": "Tres minutos para mirar la vida con más atención.",
-    "subtitle": "Una reflexión diaria para detenerse, pensar en la vida y notar lo que merece tu atención.",
-    "btnStart": "Comenzar",
+    "subtitle": "Una reflexión al día, para leer a solas o en familia. Un momento para detenerse, pensar en la vida y notar lo que merece tu atención.",
+    "btnStart": "Leer la de hoy",
     "hint": "Sin registro para probar.",
     "mockupLabel": "Continuar"
   },
@@ -55,7 +55,8 @@
       "Para quienes trabajan y lideran.",
       "Para quienes buscan más sentido.",
       "Para quienes simplemente necesitan unos minutos para pensar."
-    ]
+    ],
+    "p1": "Hay momentos en que necesitamos tomar una decisión, bajar el ritmo, cuidar mejor una relación, encontrar más sentido en lo que hacemos, enseñar a nuestros hijos lo que importa o simplemente detenernos unos minutos."
   },
   "quote2": {
     "statement": "Tres minutos.<br />Una reflexión.<br />Un pequeño paso.",
@@ -94,7 +95,7 @@
   },
   "continue": {
     "title": "Continúa tu viaje",
-    "subtitle": "Si esta reflexión tuvo sentido para ti, continúa tu viaje en 3 Minutes for Life.",
+    "subtitle": "Una nueva reflexión cada mañana, para ti y para tu casa.",
     "btnCreate": "Crear mi cuenta",
     "btnLogin": "¿Ya tienes una cuenta? Entrar"
   },
@@ -110,11 +111,11 @@
     },
     "q3": {
       "q": "¿Cuánto tiempo necesito por día?",
-      "a": "La propuesta es tomar aproximadamente tres minutos."
+      "a": "La propuesta es que lleve aproximadamente tres minutos, a solas o en familia."
     },
     "q4": {
       "q": "¿Necesito instalar una aplicación?",
-      "a": "La plataforma funciona directamente en el navegador y se puede añadir a la pantalla de inicio del móvil como una aplicación."
+      "a": "La plataforma funciona directamente en el navegador y se puede agregar a la pantalla de inicio del celular como una aplicación. La reflexión de mañana queda guardada en tu dispositivo, así que puedes leerla incluso sin internet."
     },
     "q5": {
       "q": "¿El contenido está generado por inteligencia artificial?",
@@ -123,6 +124,14 @@
     "q6": {
       "q": "¿Cómo puedo apoyar el proyecto?",
       "a": "El contenido es gratuito. Si quieres contribuir voluntariamente a la continuidad y expansión del proyecto, puedes conocer las formas de apoyo que ofrece 3 Minutes for Life. No es necesario el apoyo para acceder al contenido."
+    },
+    "q7": {
+      "q": "¿Cómo funciona leer en familia?",
+      "a": "Creas tu familia, invitas a los adultos con un enlace y registras a los niños solo con un apodo y un rango de edad. Todos leen el mismo pasaje el mismo día y cada niño tiene una versión hecha para su edad, de 4 a 13 años."
+    },
+    "q8": {
+      "q": "¿Mis hijos necesitan una cuenta?",
+      "a": "No. Los niños no tienen cuenta: solo guardamos el apodo y el rango de edad, nunca apellido, foto ni correo."
     }
   },
   "cta": {
@@ -143,5 +152,34 @@
       "today": "Devocional de hoy"
     },
     "copy": "{{brandName}}"
+  },
+  "showcase": {
+    "items": [
+      {
+        "id": "busca",
+        "kicker": "Para cada momento",
+        "title": "Escribe cómo estás. Nosotros encontramos la reflexión.",
+        "desc": "Cansancio, ansiedad, una decisión difícil. Cuenta en pocas palabras lo que estás viviendo y encuentra una reflexión hecha para ese momento.",
+        "note": "Lo que escribes se queda en tu dispositivo.",
+        "alt": "Búsqueda en la app con la frase «no tengo fuerzas» y tres reflexiones como resultado"
+      },
+      {
+        "id": "familia",
+        "kicker": "En familia",
+        "title": "Un momento solo de ustedes.",
+        "desc": "Lean la misma reflexión, el mismo día. Los adultos con el texto, los niños con una versión hecha para su edad. Después, conversen.",
+        "note": "Los niños no necesitan cuenta. Solo guardamos el apodo y el rango de edad.",
+        "alt": "Pantalla Familia de la app con la invitación «Lean juntos»"
+      },
+      {
+        "id": "jornada",
+        "kicker": "Día tras día",
+        "title": "Vuelve mañana. Guardamos tu lugar.",
+        "desc": "Sigue tus días seguidos, guarda lo que notaste en cada reflexión, recorre un plan de 7 o 21 días y, si quieres, recibe la reflexión por correo a las 7 h.",
+        "note": "¿Perdiste un día? No pasa nada: lo importante es volver.",
+        "alt": "Resumen de la jornada en la app con días seguidos y días leídos en el mes"
+      }
+    ],
+    "btn": "Crear mi cuenta"
   }
 }
