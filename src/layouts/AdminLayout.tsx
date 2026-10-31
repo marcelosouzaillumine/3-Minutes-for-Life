@@ -9,7 +9,6 @@ import { AdminService } from '../services/AdminService';
 // app light for everyone else.
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
 const AdminDevotionals = lazy(() => import('../pages/admin/AdminDevotionals').then(m => ({ default: m.AdminDevotionals })));
-const AdminTranslations = lazy(() => import('../pages/admin/AdminTranslations').then(m => ({ default: m.AdminTranslations })));
 const AdminUsers = lazy(() => import('../pages/admin/AdminUsers').then(m => ({ default: m.AdminUsers })));
 const AdminKids = lazy(() => import('../pages/admin/AdminKids').then(m => ({ default: m.AdminKids })));
 const AdminMedia = lazy(() => import('../pages/admin/AdminMedia').then(m => ({ default: m.AdminMedia })));
@@ -142,18 +141,6 @@ export function AdminLayout() {
     }
 
     // -----------------------------------------------------
-    // TRANSLATIONS
-    // -----------------------------------------------------
-
-    if (
-      pathname === '/admin/translations'
-    ) {
-
-      return <AdminTranslations />;
-
-    }
-
-    // -----------------------------------------------------
     // COMMUNICATION
     // -----------------------------------------------------
 
@@ -253,7 +240,7 @@ export function AdminLayout() {
     }
 
     // -----------------------------------------------------
-    // KIDS (versões infantis dos devocionais)
+    // PLANOS (as versões infantis ficam no editor de Conteúdo)
     // -----------------------------------------------------
 
     if (pathname === '/admin/kids') {
