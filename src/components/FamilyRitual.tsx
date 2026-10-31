@@ -9,7 +9,6 @@ import { htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks,
 import type { Devotional } from '../types/Devotional';
 import '../styles/family.css';
 import { Paragraphs } from './Paragraphs';
-import { SectionLabel } from './SectionLabel';
 
 /** Ler juntos: um roteiro de tela cheia, uma coisa por vez, feito para ser lido em voz alta. */
 const bandArt = (band: string) => (band === '4-6' ? 'young' : 'older');
@@ -147,7 +146,6 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
     + (devotional && (devotional.scripture_reference || devotional.scripture_text)
       ? `<blockquote class="principle-scripture principle-scripture--ritual">${devotional.scripture_reference ? `<cite class="principle-scripture-reference">${esc(devotional.scripture_reference)}</cite>` : ''}${devotional.scripture_text ? `<p class="principle-scripture-text">“${esc(devotional.scripture_text)}”</p>` : ''}</blockquote>`
       : '');
-  const label = '<div style="height:28px"></div>';
   const plainHtml = (blocks: string[]) => blocks.map((x) => `<p>${esc(x)}</p>`).join('');
   type Fit = (page: string[], i: number) => boolean;
   const screenFits = (head: (first: boolean) => string, body: (page: string[]) => string): Fit | null =>
@@ -168,7 +166,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   const readAdult = useMemo(() => run(htmlBlocks(devotional?.reflection), screenFits((f) => tagHtml(tt('stepRead', '1 · Ler'), 'read') + (f ? verseHtml() : ''), (pg) => `<div class="ritual__text">${pg.join('')}</div>`), true), [devotional, budget, fitCfg, reader]); // eslint-disable-line react-hooks/exhaustive-deps
   const readCount = Math.max(1, kidsView ? Math.max(...readKids.map((k) => k.pages.length)) : readAdult.length);
 
-  const doHead = (f: boolean) => tagHtml(tt('stepDo', '3 · Fazer'), 'do') + (f ? label : '');
+  const doHead = (_f: boolean) => tagHtml(tt('stepDo', '3 · Fazer'), 'do');
   const doGuide = useMemo(() => run(plainBlocks(guide?.activity), screenFits(doHead, (pg) => `<div class="sec-card">${plainHtml(pg)}</div>`)), [guide, budget, fitCfg]); // eslint-disable-line react-hooks/exhaustive-deps
   const doAdult = useMemo(() => run(htmlBlocks(devotional?.practical_application), screenFits(doHead, (pg) => `<div class="ritual__text">${pg.join('')}</div>`)), [devotional, budget, fitCfg]); // eslint-disable-line react-hooks/exhaustive-deps
   const doCount = Math.max(1, guide ? doGuide.length : kidsView ? 1 : doAdult.length);
@@ -401,7 +399,6 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
             <span className="ritual__tag ritual__tag--do">{tt('stepDo', '3 · Fazer')}</span>
             {guide ? (
               <>
-                {screen.part === 0 && <SectionLabel icon="practice">{tt('activity', 'Atividade em família')}</SectionLabel>}
                 <div className="sec-card"><Paragraphs text={(doGuide[screen.part ?? 0] ?? []).join('\n\n')} /></div>
               </>
             ) : kidsView ? (
@@ -410,7 +407,6 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
               ))
             ) : (
               <>
-                {screen.part === 0 && <SectionLabel icon="practice">{tt('doToday', 'Para viver hoje')}</SectionLabel>}
                 <HtmlRenderer html={(doAdult[screen.part ?? 0] ?? []).join('\n')} className="ritual__text" />
               </>
             )}
