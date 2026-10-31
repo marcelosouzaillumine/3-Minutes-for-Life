@@ -464,6 +464,91 @@
   margin-bottom: 1.5rem;
 }
 
+/* Showcase (telas reais do app) */
+.showcase-section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 8rem var(--spacing-lg) 6rem;
+}
+
+.showcase-row {
+  display: flex;
+  align-items: center;
+  gap: 5rem;
+  margin-bottom: 8rem;
+}
+
+.showcase-row-reverse {
+  flex-direction: row-reverse;
+}
+
+.showcase-text {
+  flex: 1;
+}
+
+.showcase-kicker {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--landing-accent);
+  margin-bottom: 1rem;
+}
+
+.showcase-title {
+  font-family: var(--font-serif);
+  font-size: var(--marketing-h2);
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+
+.showcase-desc {
+  font-size: var(--marketing-body-lg);
+  color: var(--landing-text-light);
+  line-height: 1.8;
+  margin-bottom: 1.25rem;
+}
+
+.showcase-note {
+  font-size: 0.95rem;
+  color: var(--landing-text-light);
+  padding-top: 1rem;
+  border-top: 1px solid var(--landing-border);
+}
+
+.showcase-phone {
+  flex: 0 0 min(340px, 42%);
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid var(--landing-border);
+  background: #fff;
+}
+
+.showcase-phone img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.showcase-cta {
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .showcase-section {
+    padding: 4rem var(--spacing-md) 3rem;
+  }
+  .showcase-row,
+  .showcase-row-reverse {
+    flex-direction: column;
+    gap: 2rem;
+    margin-bottom: 4rem;
+  }
+  .showcase-phone {
+    flex: none;
+    width: min(300px, 80%);
+  }
+}
+
 /* Target Audience (Manifesto) */
 .audience-section {
   padding: 12rem var(--spacing-lg);
