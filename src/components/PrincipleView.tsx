@@ -617,18 +617,14 @@ export function PrincipleView({
               <p>
                 {t(
                   'home.supportDefault',
-                  'O 3 Minutes for Life existe para levar a Palavra a quem tem poucos minutos e muita sede. Cada contribuição amplia o nosso alcance: mais devocionais, mais idiomas e mais famílias lendo juntas.'
+                  'Em poucos minutos, a Palavra de Deus pode encontrar espaço no dia de alguém. Sua contribuição ajuda o 3 Minutes for Life a levar devocionais a mais pessoas, em mais idiomas, e a reunir famílias em torno da Bíblia.'
                 )}
               </p>
             )}
           </div>
 
-          {/* Link discreto; sem endereço próprio, vai para a página de apoio do projeto. */}
-          <a
-            href={devotional.support_link_url || '/apoiar'}
-            {...(devotional.support_link_url ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-            className="principle-support-link"
-          >
+          {/* Sempre leva à página de apoio do projeto. */}
+          <a href="/apoiar" className="principle-support-link">
             {t(
               'home.supportLinkLabel',
               'Quero apoiar'
