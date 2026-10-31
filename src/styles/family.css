@@ -228,3 +228,5 @@
 .ritual__kids-box .fam-inline { display: grid; grid-template-columns: minmax(0, 1fr); margin: 0; }
 .ritual__kids-box .fam-inline input, .ritual__kids-box .fam-inline select, .ritual__kids-box .fam-inline .fam-btn { width: 100%; min-height: 2.9rem; }
 .ritual__kids-box .fam-note { margin: 0; }
+.ritual__kids-box .fam-person[aria-pressed="false"] { opacity: 0.4; }
+.ritual__kids-box .fam-person[aria-pressed="true"] .fam-avatar { box-shadow: 0 0 0 2px var(--accent-strong); }
