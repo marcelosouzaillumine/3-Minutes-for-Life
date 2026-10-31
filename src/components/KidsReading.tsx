@@ -69,8 +69,8 @@ export function KidsReading({ devotionalId, scriptureReference }: { devotionalId
             <div className="sec-prayer"><Paragraphs text={current.prayer} /></div>
           </div>
           <aside className="kids__guide">
-            <p className="fam-note">{t('ritual.guideNote', 'O guia e o material de apoio ficam no modo Ler em família.')}</p>
-            <button type="button" className="fam-btn fam-btn--secondary" onClick={() => openRitual('daily')}>{t('fam.ritual', 'Ler em família')}</button>
+            <p className="fam-note">{t('ritual.guideNote', 'O guia e o material de apoio ficam no modo Ler juntos.')}</p>
+            <button type="button" className="fam-btn fam-btn--secondary" onClick={() => openRitual('daily')}>{t('fam.ritual', 'Ler juntos')}</button>
           </aside>
         </div>
       )}

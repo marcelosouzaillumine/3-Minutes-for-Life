@@ -64,7 +64,7 @@ function AppShell() {
   const [currentTab, setCurrentTab] = useState<Tab>(() => (pendingFamilyCode.get() ? 'family' : 'home'));
   // Tocar na aba já ativa remonta a tela dela (volta ao início, ex.: sai do devocional aberto na Biblioteca)
   const [tabResetKey, setTabResetKey] = useState(0);
-  // Ler em família abre por cima de qualquer aba (cartão da Home, aba Família).
+  // Ler juntos abre por cima de qualquer aba (cartão da Home, aba Família).
   const [ritual, setRitual] = useState<'daily' | 'plan' | null>(null);
   useEffect(() => {
     const onRitual = (e: Event) => setRitual(((e as CustomEvent).detail as 'daily' | 'plan') ?? 'daily');
