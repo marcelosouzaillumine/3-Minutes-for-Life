@@ -465,7 +465,8 @@
     "setupAdultsNote": "On your own, as a couple or in a group",
     "setupWithKids": "With children",
     "setupWithKidsNote": "Each one gets the reading for their age",
-    "setupDefaultName": "Our reading"
+    "setupDefaultName": "Our reading",
+    "addOnceNote": "Just one reading, at church for example? Add the child here and remove them later under Group."
   },
   "familyNav": "Group",
   "plansx": {

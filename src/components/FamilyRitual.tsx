@@ -21,6 +21,10 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   const [kids, setKids] = useState<KidsVersion[]>([]);
   const [chosen, setChosen] = useState<'daily' | 'plan'>(source);
   const [present, setPresent] = useState<Set<string>>(new Set());
+  const [kidNick, setKidNick] = useState('');
+  const [kidBand, setKidBand] = useState<Band>('7-10');
+  const [kidBusy, setKidBusy] = useState(false);
+  const [kidError, setKidError] = useState('');
   const [step, setStep] = useState(0);
   const [failed, setFailed] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -28,9 +32,11 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   const [loaded, setLoaded] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
-  const [audience, setAudience] = useState<'adults' | 'kids'>(() => {
-    try { return localStorage.getItem('ritual.audience') === 'adults' ? 'adults' : 'kids'; } catch { return 'kids'; }
+  // Escolha guardada; sem escolha, abre em "Com crianças" só se já houver crianças cadastradas.
+  const [picked, setAudience] = useState<'adults' | 'kids' | null>(() => {
+    try { const v = localStorage.getItem('ritual.audience'); return v === 'adults' || v === 'kids' ? v : null; } catch { return null; }
   });
+  const audience: 'adults' | 'kids' = picked ?? ((family?.children.length ?? 0) > 0 ? 'kids' : 'adults');
 
   useEffect(() => { FamilyService.get().then((f) => {
     setFamily(f);
@@ -206,11 +212,31 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
             <p className="ritual__lead">{tt('withWhom', 'Com quem você vai ler hoje?')}</p>
             <div className="fam-people" role="group" aria-label={tt('withWhom', 'Com quem você vai ler hoje?')}>
               <button type="button" className={`fam-chip${!withKids ? ' is-on' : ''}`} aria-pressed={!withKids} onClick={() => pickAudience('adults')}>{tt('onlyAdults', 'Só adultos')}</button>
-              {family.children.length > 0 && (
-                <button type="button" className={`fam-chip${withKids ? ' is-on' : ''}`} aria-pressed={withKids} onClick={() => pickAudience('kids')}>{tt('withKids', 'Com crianças')}</button>
-              )}
+              <button type="button" className={`fam-chip${audience === 'kids' ? ' is-on' : ''}`} aria-pressed={audience === 'kids'} onClick={() => pickAudience('kids')}>{tt('withKids', 'Com crianças')}</button>
             </div>
-            {family.children.length === 0 && <p className="fam-note">{tt('noKidsHint', 'Casal, grupo ou sozinho: a leitura funciona do mesmo jeito. Para ler com crianças, cadastre-as em Família.')}</p>}
+            {audience === 'kids' && (
+              <form className="fam-inline" onSubmit={async (e) => {
+                e.preventDefault();
+                if (!kidNick.trim() || kidBusy) return;
+                setKidBusy(true); setKidError('');
+                try {
+                  const before = new Set(family.children.map((c) => c.id));
+                  const f = await FamilyService.addChild(kidNick.trim(), kidBand);
+                  setFamily(f);
+                  setPresent((p) => { const n = new Set(p); f.children.filter((c) => !before.has(c.id)).forEach((c) => n.add(c.id)); return n; });
+                  setKidNick('');
+                } catch { setKidError(tt('setupError', 'Não foi possível salvar agora. Tente de novo.')); }
+                setKidBusy(false);
+              }}>
+                <input value={kidNick} onChange={(e) => setKidNick(e.target.value)} placeholder={tt('nickname', 'Apelido')} maxLength={20} aria-label={tt('nickname', 'Apelido')} />
+                <select value={kidBand} onChange={(e) => setKidBand(e.target.value as Band)} aria-label={tt('band', 'Faixa de idade')}>
+                  {(['4-6', '7-10', '11-13'] as Band[]).map((b) => <option key={b} value={b}>{b.replace('-', ' a ')} {tt('years', 'anos')}</option>)}
+                </select>
+                <button type="submit" className="fam-btn fam-btn--secondary" disabled={kidBusy || !kidNick.trim()}>{tt('addChild', 'Adicionar criança')}</button>
+              </form>
+            )}
+            {audience === 'kids' && <p className="fam-note">{tt('addOnceNote', 'Leitura de um dia só, na igreja por exemplo? Cadastre a criança aqui e remova depois em Grupo.')}</p>}
+            {kidError && <p className="fam-error">{kidError}</p>}
             {withKids && (
               <>
                 <p className="ritual__lead">{tt('whoIsHere', 'Quem está à mesa?')}</p>
