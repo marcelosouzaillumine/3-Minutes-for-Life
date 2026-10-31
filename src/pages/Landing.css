@@ -506,10 +506,6 @@
   height: auto;
 }
 
-.showcase-cta {
-  text-align: center;
-}
-
 @media (max-width: 900px) {
   .showcase-section {
     padding: 4rem var(--spacing-md) 3rem;

@@ -9,7 +9,7 @@
   "hero": {
     "title": "Three minutes to look at life with more attention.",
     "subtitle": "One reflection a day, to read on your own or with your family. A moment to pause, think about life, and notice what deserves your attention.",
-    "btnStart": "Read today's",
+    "btnStart": "Today's Devotional",
     "hint": "No signup required to try.",
     "mockupLabel": "Continue",
     "imageAlt": "A wooden table by the window with a cup of coffee, a vase of flowers and morning light"
@@ -167,9 +167,9 @@
       {
         "id": "familia",
         "kicker": "As a family",
-        "title": "A moment that's only yours.",
-        "desc": "Read the same reflection, on the same day. Adults with the text, children with a version made for their age. Then talk about it.",
-        "note": "Children don't need an account. We only keep a nickname and an age range.",
+        "title": "A moment to grow as a family.",
+        "desc": "The same Bible message, with words for every age. Read the day's devotional and discover together what it teaches for life.",
+        "note": "Children take part without needing an account.",
         "alt": "Family screen of the app with the invitation “Read together”"
       },
       {
@@ -180,7 +180,6 @@
         "note": "Missed a day? No problem: what matters is coming back.",
         "alt": "Journey summary in the app with streak days and days read this month"
       }
-    ],
-    "btn": "Create my account"
+    ]
   }
 }

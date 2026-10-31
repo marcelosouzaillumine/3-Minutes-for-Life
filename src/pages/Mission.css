@@ -243,9 +243,10 @@
 
 
 .mission-hero-title {
-  font-size: var(--marketing-h1);
+  font-size: clamp(2.25rem, 1rem + 2.8vw, 3.5rem);
 
-  line-height: 1.1;
+  line-height: 1.12;
+  text-wrap: balance;
 
   margin-top: 0;
   margin-bottom: 4rem;
@@ -274,20 +275,26 @@
    --------------------------------------------------------- */
 
 .mission-hero-visual {
-  background-image: url('/images/dawn_walk.png');
+  background-image: url('/images/familia_leitura.jpg');
 
   background-size: cover;
-  background-position: center;
+  background-position: 38% 40%;
 
   width: calc(100% - var(--mission-side-padding));
 
-  height: calc(100% - 2rem);
+  /* Proporção própria: com height:100% o bloco herdava a altura do
+     texto (mais de 1100px) e a foto horizontal era ampliada até
+     mostrar só um rosto. */
+  height: auto;
+  aspect-ratio: 4 / 5;
+  max-height: 680px;
+  align-self: center;
 
   margin-top: 1rem;
   margin-bottom: 1rem;
   margin-right: var(--mission-side-padding);
 
-  border-radius: 2px;
+  border-radius: 12px;
 
   min-width: 0;
 }
@@ -531,6 +538,46 @@
 
 .mission-invite .editorial-tiers {
   margin-bottom: 0;
+}
+
+/* Cards de apoio: nome, preço com descrição e botão em linhas
+   compartilhadas, para ficarem na mesma altura nos três cards
+   mesmo quando a descrição ou o idioma mudam o número de linhas. */
+.mission-invite .editorial-tier-name {
+  margin-bottom: 1.25rem;
+}
+
+.mission-invite .editorial-tier-price {
+  margin-bottom: 2rem;
+}
+
+.mission-invite .editorial-price-sub {
+  display: block;
+  margin: 0.75rem auto 0;
+  max-width: 24ch;
+  line-height: 1.6;
+}
+
+@media (min-width: 900px) {
+  .mission-invite .three-tiers {
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .mission-invite .three-tiers .editorial-tier {
+    display: grid;
+    grid-template-rows: subgrid;
+    grid-row: span 3;
+    row-gap: 0;
+  }
+
+  .mission-invite .three-tiers .editorial-tier-name {
+    align-self: end;
+  }
+
+  .mission-invite .three-tiers .editorial-btn {
+    align-self: end;
+    justify-self: center;
+  }
 }
 
 
@@ -1342,6 +1389,11 @@
 
   .mission-hero-visual {
     order: -1;
+
+    aspect-ratio: auto;
+    height: 100%;
+    max-height: none;
+    align-self: stretch;
 
     width:
       calc(100% - (2 * var(--mission-side-padding)));
