@@ -35,11 +35,19 @@ import { DevotionalService } from '../../services/DevotionalService';
 let root: Root;
 let host: HTMLDivElement;
 const flush = () => act(async () => { await new Promise((r) => setTimeout(r, 0)); });
-const click = (label: string) => act(async () => {
-  const names = label === 'Continuar' ? ['Continuar', 'Começar'] : [label];
+const press = (names: string[]) => {
   const b = [...host.querySelectorAll('button')].find((x) => names.some((n) => x.textContent?.includes(n) || x.getAttribute('aria-label')?.includes(n)));
-  if (!b) throw new Error(`botão não encontrado: ${label}`);
+  if (!b) throw new Error(`botão não encontrado: ${names[0]}`);
   b.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+};
+// 'Continuar' avança até sair das duas telas de entrada (público e quem está à mesa).
+const click = (label: string) => act(async () => {
+  press(label === 'Continuar' ? ['Continuar', 'Começar'] : [label]);
+  if (label !== 'Continuar') return;
+  for (let i = 0; i < 2; i++) {
+    await new Promise((r) => setTimeout(r, 0));
+    if (/Com quem você vai ler hoje\?|Quem vai ler\?/.test(host.textContent ?? '')) press(['Continuar', 'Começar']);
+  }
 });
 
 beforeEach(() => {

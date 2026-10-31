@@ -469,7 +469,9 @@
     "addOnceNote": "Just one reading, at church for example? Add the child here and remove them later under Group.",
     "addAnother": "Add another child",
     "addFirst": "Who is reading with you?",
-    "sharedVersion": "Everyone hears the same reading. Which version?"
+    "sharedVersion": "Everyone hears the same reading. Which version?",
+    "tableTitle": "Who is reading?",
+    "continue": "Continue"
   },
   "familyNav": "Group",
   "plansx": {
