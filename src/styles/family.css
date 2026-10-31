@@ -97,7 +97,7 @@
 .ritual__progress { flex: 1; display: flex; gap: 0.3rem; }
 .ritual__progress i { flex: 1; height: 3px; border-radius: 2px; background: #E7E0D3; }
 .ritual__progress i.is-on { background: var(--accent-strong); }
-.ritual__body { flex: 1; overflow-y: auto; width: 100%; max-width: 32rem; margin: 0 auto; padding: 1rem 1.5rem 1.5rem; display: grid; align-content: start; gap: 1rem; }
+.ritual__body { flex: 1; overflow-y: auto; width: 100%; max-width: 32rem; margin: 0 auto; padding: 1rem 1.5rem 1.5rem; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 1rem; }
 .ritual__title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 2rem; line-height: 1.15; }
 .ritual__verse { margin: 0; font-size: 0.95rem; font-weight: 600; letter-spacing: 0.04em; color: var(--accent, currentColor); }
 .ritual__lead { margin: 0; font-size: 1.05rem; line-height: 1.6; color: var(--text-muted); }
@@ -218,3 +218,15 @@
 .ritual__streak { display: grid; justify-items: center; gap: 0.1rem; padding: 1rem; border: 1px solid var(--border-subtle); border-radius: 14px; }
 .ritual__streak strong { font-family: var(--font-serif); font-size: 2.2rem; font-weight: 400; color: var(--accent-strong); }
 .ritual__streak span { font-size: 0.85rem; color: var(--text-muted); }
+
+/* Boas-vindas: escolha de público em cartões e cadastro de criança empilhado (nada passa da largura da tela) */
+.ritual__who { display: grid; gap: 0.75rem; }
+.ritual__who-title { margin: 0.5rem 0 0; font-family: var(--font-serif); font-weight: 400; font-size: 1.3rem; color: var(--text-strong); }
+.ritual__who-sub { margin: 0; font-size: 0.85rem; font-weight: 500; color: var(--text-strong); }
+.ritual__choice.is-on { border-color: var(--accent-strong); background: color-mix(in srgb, var(--accent-strong) 8%, var(--surface)); }
+.ritual__kids-box { display: grid; gap: 0.75rem; padding: 1rem; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); min-width: 0; }
+.ritual__kids-box .fam-inline { display: grid; grid-template-columns: minmax(0, 1fr); margin: 0; }
+.ritual__kids-box .fam-inline input, .ritual__kids-box .fam-inline select, .ritual__kids-box .fam-inline .fam-btn { width: 100%; min-height: 2.9rem; }
+.ritual__kids-box .fam-note { margin: 0; }
+.ritual__kids-box .fam-person[aria-pressed="false"] { opacity: 0.4; }
+.ritual__kids-box .fam-person[aria-pressed="true"] .fam-avatar { box-shadow: 0 0 0 2px var(--accent-strong); }
