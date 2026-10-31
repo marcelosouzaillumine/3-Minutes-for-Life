@@ -209,47 +209,58 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
             {devotional.scripture_reference && <p className="ritual__verse">{devotional.scripture_reference}</p>}
             {devotional.principle_statement && <p className="ritual__lead">{devotional.principle_statement}</p>}
             <p className="fam-note">{tt('promise', '3 minutos · ler, conversar, fazer e orar juntos')}</p>
-            <p className="ritual__lead">{tt('withWhom', 'Com quem você vai ler hoje?')}</p>
-            <div className="fam-people" role="group" aria-label={tt('withWhom', 'Com quem você vai ler hoje?')}>
-              <button type="button" className={`fam-chip${!withKids ? ' is-on' : ''}`} aria-pressed={!withKids} onClick={() => pickAudience('adults')}>{tt('onlyAdults', 'Só adultos')}</button>
-              <button type="button" className={`fam-chip${audience === 'kids' ? ' is-on' : ''}`} aria-pressed={audience === 'kids'} onClick={() => pickAudience('kids')}>{tt('withKids', 'Com crianças')}</button>
-            </div>
+            <section className="ritual__who" aria-label={tt('withWhom', 'Com quem você vai ler hoje?')}>
+              <h2 className="ritual__who-title">{tt('withWhom', 'Com quem você vai ler hoje?')}</h2>
+              <div className="ritual__choices">
+                <button type="button" className={`ritual__choice${audience === 'adults' ? ' is-on' : ''}`} aria-pressed={audience === 'adults'} onClick={() => pickAudience('adults')}>
+                  <strong>{tt('onlyAdults', 'Só adultos')}</strong>
+                  <span>{tt('setupAdultsNote', 'Sozinho, em casal ou em grupo')}</span>
+                </button>
+                <button type="button" className={`ritual__choice${audience === 'kids' ? ' is-on' : ''}`} aria-pressed={audience === 'kids'} onClick={() => pickAudience('kids')}>
+                  <strong>{tt('withKids', 'Com crianças')}</strong>
+                  <span>{tt('setupWithKidsNote', 'Cada uma com a leitura da sua idade')}</span>
+                </button>
+              </div>
+            </section>
             {audience === 'kids' && (
-              <form className="fam-inline" onSubmit={async (e) => {
-                e.preventDefault();
-                if (!kidNick.trim() || kidBusy) return;
-                setKidBusy(true); setKidError('');
-                try {
-                  const before = new Set(family.children.map((c) => c.id));
-                  const f = await FamilyService.addChild(kidNick.trim(), kidBand);
-                  setFamily(f);
-                  setPresent((p) => { const n = new Set(p); f.children.filter((c) => !before.has(c.id)).forEach((c) => n.add(c.id)); return n; });
-                  setKidNick('');
-                } catch { setKidError(tt('setupError', 'Não foi possível salvar agora. Tente de novo.')); }
-                setKidBusy(false);
-              }}>
-                <input value={kidNick} onChange={(e) => setKidNick(e.target.value)} placeholder={tt('nickname', 'Apelido')} maxLength={20} aria-label={tt('nickname', 'Apelido')} />
-                <select value={kidBand} onChange={(e) => setKidBand(e.target.value as Band)} aria-label={tt('band', 'Faixa de idade')}>
-                  {(['4-6', '7-10', '11-13'] as Band[]).map((b) => <option key={b} value={b}>{b.replace('-', ' a ')} {tt('years', 'anos')}</option>)}
-                </select>
-                <button type="submit" className="fam-btn fam-btn--secondary" disabled={kidBusy || !kidNick.trim()}>{tt('addChild', 'Adicionar criança')}</button>
-              </form>
-            )}
-            {audience === 'kids' && <p className="fam-note">{tt('addOnceNote', 'Leitura de um dia só, na igreja por exemplo? Cadastre a criança aqui e remova depois em Grupo.')}</p>}
-            {kidError && <p className="fam-error">{kidError}</p>}
-            {withKids && (
-              <>
-                <p className="ritual__lead">{tt('whoIsHere', 'Quem está à mesa?')}</p>
-                <div className="fam-people">
-                  {family.children.map((c) => (
-                    <button key={c.id} type="button" className="fam-person" aria-pressed={present.has(c.id)}
-                      onClick={() => setPresent((p) => { const n = new Set(p); if (n.has(c.id)) n.delete(c.id); else n.add(c.id); return n; })}>
-                      <span className={`fam-avatar fam-avatar--child${present.has(c.id) ? ' is-read' : ''}`}>{c.nickname.slice(0, 2)}</span>
-                      <span className="fam-person__label">{c.nickname}</span>
-                    </button>
-                  ))}
-                </div>
-              </>
+              <section className="ritual__kids-box">
+                {family.children.length > 0 && (
+                  <>
+                    <h3 className="ritual__who-sub">{tt('whoIsHere', 'Quem está à mesa?')}</h3>
+                    <div className="fam-people">
+                      {family.children.map((c) => (
+                        <button key={c.id} type="button" className="fam-person" aria-pressed={present.has(c.id)}
+                          onClick={() => setPresent((p) => { const n = new Set(p); if (n.has(c.id)) n.delete(c.id); else n.add(c.id); return n; })}>
+                          <span className={`fam-avatar fam-avatar--child${present.has(c.id) ? ' is-read' : ''}`}>{c.nickname.slice(0, 2)}</span>
+                          <span className="fam-person__label">{c.nickname}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+                <h3 className="ritual__who-sub">{family.children.length > 0 ? tt('addAnother', 'Adicionar outra criança') : tt('addFirst', 'Quem vai ler com você?')}</h3>
+                <form className="fam-inline" onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!kidNick.trim() || kidBusy) return;
+                  setKidBusy(true); setKidError('');
+                  try {
+                    const before = new Set(family.children.map((c) => c.id));
+                    const f = await FamilyService.addChild(kidNick.trim(), kidBand);
+                    setFamily(f);
+                    setPresent((p) => { const n = new Set(p); f.children.filter((c) => !before.has(c.id)).forEach((c) => n.add(c.id)); return n; });
+                    setKidNick('');
+                  } catch { setKidError(tt('setupError', 'Não foi possível salvar agora. Tente de novo.')); }
+                  setKidBusy(false);
+                }}>
+                  <input value={kidNick} onChange={(e) => setKidNick(e.target.value)} placeholder={tt('nickname', 'Apelido')} maxLength={20} aria-label={tt('nickname', 'Apelido')} />
+                  <select value={kidBand} onChange={(e) => setKidBand(e.target.value as Band)} aria-label={tt('band', 'Faixa de idade')}>
+                    {(['4-6', '7-10', '11-13'] as Band[]).map((b) => <option key={b} value={b}>{b.replace('-', ' a ')} {tt('years', 'anos')}</option>)}
+                  </select>
+                  <button type="submit" className="fam-btn fam-btn--secondary" disabled={kidBusy || !kidNick.trim()}>{tt('addChild', 'Adicionar criança')}</button>
+                </form>
+                {kidError && <p className="fam-error">{kidError}</p>}
+                <p className="fam-note">{tt('addOnceNote', 'Leitura de um dia só, na igreja por exemplo? Cadastre a criança aqui e remova depois em Grupo.')}</p>
+              </section>
             )}
             {family.meetingTime && <p className="fam-note">{tt('meeting', 'Hora combinada: {{time}}', { time: family.meetingTime })}</p>}
           </>
