@@ -246,7 +246,7 @@ export function Mission() {
             <h3 className="editorial-tier-name">{t('editorial.monthlyTitle')}</h3>
             <div className="editorial-tier-price">
               <span className="editorial-price-main">
-                {isPortuguese ? t('editorial.monthlyPriceMain') : (formatUsdFromBrl(9.90, usdRate) ?? '…')}
+                {isPortuguese ? t('editorial.monthlyPriceMain') : (formatUsdFromBrl(19.90, usdRate) ?? '…')}
                 <small>{t('editorial.monthlyPriceUnit')}</small>
               </span>
               <span className="editorial-price-sub">{t('editorial.monthlyDesc')}</span>
@@ -261,7 +261,7 @@ export function Mission() {
             <h3 className="editorial-tier-name">{t('editorial.yearlyTitle')}</h3>
             <div className="editorial-tier-price">
               <span className="editorial-price-main">
-                {isPortuguese ? t('editorial.yearlyPriceMain') : (formatUsdFromBrl(59.90, usdRate) ?? '…')}
+                {isPortuguese ? t('editorial.yearlyPriceMain') : (formatUsdFromBrl(99.00, usdRate) ?? '…')}
                 <small>{t('editorial.yearlyPriceUnit')}</small>
               </span>
               <span className="editorial-price-sub">{t('editorial.yearlyDesc')}</span>
@@ -275,7 +275,7 @@ export function Mission() {
             <h3 className="editorial-tier-name">{t('editorial.singleTitle')}</h3>
             <div className="editorial-tier-price">
               <span className="editorial-price-main">
-                {isPortuguese ? t('editorial.singlePriceMain') : (formatUsdFromBrl(79.90, usdRate) ?? '…')}
+                {t('editorial.singlePriceMain')}
                 <small>{t('editorial.singlePriceUnit')}</small>
               </span>
               <span className="editorial-price-sub">{t('editorial.singleDesc')}</span>

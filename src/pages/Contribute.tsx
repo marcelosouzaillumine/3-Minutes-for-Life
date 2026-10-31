@@ -14,11 +14,12 @@ type ContributionPlan = {
   frequency: 'one_time' | 'monthly' | 'yearly';
 };
 
-// Planos de valor fixo; ?tier=&periodicity= (vindo do /missao) escolhe um deles.
+// Planos recorrentes de valor fixo; ?tier=&periodicity= (vindo do /missao) escolhe um deles.
+// O apoio único tem valor livre (digitado), com o mínimo aceito pelo Asaas.
+const MIN_ONE_TIME_CENTS = 500;
 const PLAN_MAP: Record<string, ContributionPlan> = {
-  apoio_mensal: { key: 'apoio_mensal', amountCents: 990, frequency: 'monthly' },
-  apoio_anual: { key: 'apoio_anual', amountCents: 5990, frequency: 'yearly' },
-  apoio_unico: { key: 'apoio_unico', amountCents: 7990, frequency: 'one_time' },
+  apoio_mensal: { key: 'apoio_mensal', amountCents: 1990, frequency: 'monthly' },
+  apoio_anual: { key: 'apoio_anual', amountCents: 9900, frequency: 'yearly' },
 };
 
 export function Contribute() {
@@ -28,6 +29,7 @@ export function Contribute() {
 
   const [pendingKey, setPendingKey] = useState<string | null>(null);
   const [formError, setFormError] = useState('');
+  const [customAmount, setCustomAmount] = useState(() => new URLSearchParams(window.location.search).get('amount') ?? '');
   const [usdRate, setUsdRate] = useState<number | null>(null);
   // Volta da página de pagamento do OS (?status=paid&session=…&ref=…).
   const [paidReturn] = useState(() => new URLSearchParams(window.location.search).get('status') === 'paid');
@@ -37,12 +39,29 @@ export function Contribute() {
     fetchBrlToUsdRate().then(setUsdRate);
   }, []);
 
+  // Aceita "25", "25,50" ou "25.50"; devolve centavos ou null se inválido.
+  const parseAmountCents = (raw: string): number | null => {
+    const n = Number(raw.replace(/[^\d,.]/g, '').replace(',', '.'));
+    if (!Number.isFinite(n) || n <= 0) return null;
+    return Math.round(n * 100);
+  };
+
+  const startOneTime = () => {
+    const cents = parseAmountCents(customAmount);
+    if (cents === null || cents < MIN_ONE_TIME_CENTS) {
+      setFormError(t('contribution:oneTime.amountMin', 'Informe um valor de pelo menos R$ 5,00.'));
+      return;
+    }
+    void startCheckout({ key: 'apoio_unico', amountCents: cents, frequency: 'one_time' });
+  };
+
   // Vai direto para a página de pagamento (o CPF/CNPJ é pedido lá). Sem login, entra e volta já no plano escolhido.
   const startCheckout = async (plan: ContributionPlan) => {
     if (pendingKey) return;
     setFormError('');
     if (!user) {
-      const back = `/apoiar?tier=${plan.key.split('_')[0]}&periodicity=${plan.key.split('_')[1]}`;
+      const back = `/apoiar?tier=${plan.key.split('_')[0]}&periodicity=${plan.key.split('_')[1]}`
+        + (plan.frequency === 'one_time' ? `&amount=${plan.amountCents / 100}` : '');
       window.location.href = `/login?redirectTo=${encodeURIComponent(back)}`;
       return;
     }
@@ -63,7 +82,11 @@ export function Contribute() {
     const params = new URLSearchParams(window.location.search);
     const tier = params.get('tier');
     const periodicity = params.get('periodicity');
-    const plan = tier && periodicity ? PLAN_MAP[`${tier}_${periodicity}`] : undefined;
+    let plan: ContributionPlan | undefined = tier && periodicity ? PLAN_MAP[`${tier}_${periodicity}`] : undefined;
+    if (!plan && periodicity === 'unico') {
+      const cents = parseAmountCents(params.get('amount') ?? '');
+      if (cents !== null && cents >= MIN_ONE_TIME_CENTS) plan = { key: 'apoio_unico', amountCents: cents, frequency: 'one_time' };
+    }
     if (plan) {
       autoStarted.current = true;
       void startCheckout(plan);
@@ -148,8 +171,8 @@ export function Contribute() {
             <div className="editorial-tier-price">
               <span className="editorial-price-main">
                 {isPortuguese
-                  ? t('mission:editorial.monthlyPriceMain', 'R$ 9,90')
-                  : (formatUsdFromBrl(9.90, usdRate) ?? '…')}
+                  ? t('mission:editorial.monthlyPriceMain', 'R$ 19,90')
+                  : (formatUsdFromBrl(19.90, usdRate) ?? '…')}
                 <small>{t('mission:editorial.monthlyPriceUnit', '/mês')}</small>
               </span>
               <span className="editorial-price-sub">
@@ -163,6 +186,7 @@ export function Contribute() {
             <button
               type="button"
               className="editorial-btn"
+              style={{ minHeight: 78, marginTop: 'auto' }}
               disabled={!!pendingKey}
               onClick={() => startCheckout(PLAN_MAP.apoio_mensal)}
             >
@@ -183,8 +207,8 @@ export function Contribute() {
             <div className="editorial-tier-price">
               <span className="editorial-price-main">
                 {isPortuguese
-                  ? t('mission:editorial.yearlyPriceMain', 'R$ 59,90')
-                  : (formatUsdFromBrl(59.90, usdRate) ?? '…')}
+                  ? t('mission:editorial.yearlyPriceMain', 'R$ 99,00')
+                  : (formatUsdFromBrl(99.00, usdRate) ?? '…')}
                 <small>{t('mission:editorial.yearlyPriceUnit', '/ano')}</small>
               </span>
               <span className="editorial-price-sub">
@@ -198,6 +222,7 @@ export function Contribute() {
             <button
               type="button"
               className="editorial-btn primary"
+              style={{ minHeight: 78, marginTop: 'auto' }}
               disabled={!!pendingKey}
               onClick={() => startCheckout(PLAN_MAP.apoio_anual)}
             >
@@ -213,9 +238,7 @@ export function Contribute() {
 
             <div className="editorial-tier-price">
               <span className="editorial-price-main">
-                {isPortuguese
-                  ? t('mission:editorial.singlePriceMain', 'R$ 79,90')
-                  : (formatUsdFromBrl(79.90, usdRate) ?? '…')}
+                {t('mission:editorial.singlePriceMain', 'Valor livre')}
                 <small>{t('mission:editorial.singlePriceUnit', ' único')}</small>
               </span>
               <span className="editorial-price-sub">
@@ -223,11 +246,49 @@ export function Contribute() {
               </span>
             </div>
 
+            <div style={{ marginTop: 'auto', marginBottom: '1.25rem', paddingTop: '1rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginBottom: '0.75rem' }}>
+                {[20, 50, 100].map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    onClick={() => setCustomAmount(String(v))}
+                    style={{
+                      padding: '0.4rem 0.9rem',
+                      whiteSpace: 'nowrap',
+                      lineHeight: 1.2,
+                      minWidth: 0,
+                      textTransform: 'none',
+                      letterSpacing: 0,
+                      borderRadius: 999,
+                      border: '1px solid var(--landing-border, #d5d0cb)',
+                      background: customAmount === String(v) ? '#8a6f4d' : 'transparent',
+                      color: customAmount === String(v) ? '#fff' : 'inherit',
+                      fontSize: '0.9rem',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {`R$ ${v}`}
+                  </button>
+                ))}
+              </div>
+              <input
+                type="text"
+                inputMode="decimal"
+                aria-label={t('contribution:oneTime.amountLabel', 'Valor da contribuição em reais')}
+                placeholder={t('contribution:oneTime.amountPlaceholder', 'Outro valor, ex.: 35,00')}
+                value={customAmount}
+                onChange={(e) => setCustomAmount(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') startOneTime(); }}
+                style={{ width: '100%', boxSizing: 'border-box', padding: '0.8rem 0.9rem', borderRadius: 10, border: '1px solid #d5d0cb', fontSize: '1.05rem', textAlign: 'center' }}
+              />
+            </div>
             <button
               type="button"
               className="editorial-btn"
+              style={{ minHeight: 78, marginTop: 'auto' }}
               disabled={!!pendingKey}
-              onClick={() => startCheckout(PLAN_MAP.apoio_unico)}
+              onClick={startOneTime}
             >
               {pendingKey === 'apoio_unico' ? t('contribution:oneTime.submitting', 'Abrindo o pagamento…') : t('mission:editorial.singleBtn', 'Apoiar uma vez')}
             </button>
