@@ -142,4 +142,18 @@ describe('FamilyRitual', () => {
     await click('Continuar');
     expect(host.textContent).toContain('O que a gratidão muda?');
   });
+
+  it('texto longo vira várias telas de leitura, com o versículo só na primeira', async () => {
+    const long = Array.from({ length: 5 }, (_, i) => `<p>${String(i).repeat(300)}</p>`).join('');
+    vi.mocked(DevotionalService.getDailyDevotional).mockResolvedValueOnce({ id: 'd1', title: 'Longo', reflection: long, scripture_reference: 'Fp 4:6' } as never);
+    mocks.get.mockResolvedValue({ ...family, children: [] });
+    await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
+    await flush(); await flush();
+    await click('Continuar');
+    expect(host.textContent).toContain('Parte 1 de 5');
+    expect(host.textContent).toContain('Fp 4:6');
+    await click('Continuar');
+    expect(host.textContent).toContain('Parte 2 de 5');
+    expect(host.textContent).not.toContain('Fp 4:6');
+  });
 });

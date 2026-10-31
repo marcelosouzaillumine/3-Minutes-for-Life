@@ -450,7 +450,11 @@
     "noKidsHint": "Couple, group or on your own: it works the same way. To read with children, add them under Family.",
     "adultQ1": "What stood out to you most in today's text?",
     "adultQ2": "Where does this touch your week, honestly?",
-    "adultQ3": "What are you taking from this reading into today?"
+    "adultQ3": "What are you taking from this reading into today?",
+    "part": "Part {{n}} of {{total}}",
+    "doToday": "To live out today",
+    "prayHint": "Take a deep breath, share a moment of silence and pray together.",
+    "tomorrow": "Tomorrow a new devotional is waiting for you."
   },
   "familyNav": "Family",
   "plansx": {

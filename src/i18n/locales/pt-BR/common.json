@@ -456,7 +456,11 @@
     "noKidsHint": "Casal, grupo ou sozinho: a leitura funciona do mesmo jeito. Para ler com crianças, cadastre-as em Família.",
     "adultQ1": "O que mais chamou a sua atenção no texto de hoje?",
     "adultQ2": "Onde isso toca a sua semana, de verdade?",
-    "adultQ3": "O que você leva dessa leitura para hoje?"
+    "adultQ3": "O que você leva dessa leitura para hoje?",
+    "part": "Parte {{n}} de {{total}}",
+    "doToday": "Para viver hoje",
+    "prayHint": "Respirem fundo, façam silêncio por um instante e orem juntos.",
+    "tomorrow": "Amanhã tem um novo devocional esperando por vocês."
   },
   "familyNav": "Família",
   "plansx": {
