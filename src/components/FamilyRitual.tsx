@@ -68,14 +68,21 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   }, [perChild, kids]);
   const rawGuide = guideVersion(perChild, kids)?.adultGuide ?? '';
 
-  // Telas: uma por pergunta quando o guia segue o formato; senão uma só tela de conversa.
+  // Perguntas da mesa: as do guia; sem guia no formato, as do "Para pensar" da faixa que conduz a mesa.
+  const questions = useMemo(() => {
+    if (guide) return guide.questions;
+    const v = guideVersion(perChild, kids);
+    return (v?.thinkAbout ?? '').split(/\r?\n/).map((l) => l.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, '').trim()).filter((l) => l.endsWith('?'));
+  }, [guide, perChild, kids]);
+
+  // Telas: uma por pergunta; sem perguntas, uma só tela de conversa.
   const screens = useMemo(() => {
     const out: { id: string; kind: (typeof RITUAL_STEPS)[number]; q?: number }[] = [{ id: 'welcome', kind: 'welcome' }, { id: 'read', kind: 'read' }];
-    if (guide) guide.questions.forEach((_, q) => out.push({ id: `talk-${q}`, kind: 'talk', q }));
+    if (questions.length) questions.forEach((_, q) => out.push({ id: `talk-${q}`, kind: 'talk', q }));
     else out.push({ id: 'talk', kind: 'talk' });
     out.push({ id: 'do', kind: 'do' }, { id: 'pray', kind: 'pray' }, { id: 'done', kind: 'done' });
     return out;
-  }, [guide]);
+  }, [questions]);
 
   const screen = screens[Math.min(step, screens.length - 1)];
   const last = step >= screens.length - 1;
@@ -178,10 +185,10 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
         {screen.kind === 'talk' && (
           <>
             <span className="ritual__tag">{tt('stepTalk', '2 · Conversar')}</span>
-            {guide && screen.q !== undefined ? (
+            {screen.q !== undefined ? (
               <>
-                <p className="fam-eyebrow">{tt('question', 'Pergunta {{n}} de {{total}}', { n: screen.q + 1, total: guide.questions.length })}</p>
-                <div className="ritual__question"><p>{guide.questions[screen.q]}</p></div>
+                <p className="fam-eyebrow">{tt('question', 'Pergunta {{n}} de {{total}}', { n: screen.q + 1, total: questions.length })}</p>
+                <div className="ritual__question"><p>{questions[screen.q]}</p></div>
                 <p className="fam-note">{tt('questionHint', 'Deixe cada um responder, sem pressa. Quem quiser pode passar.')}</p>
               </>
             ) : (
