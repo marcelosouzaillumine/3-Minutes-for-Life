@@ -669,7 +669,7 @@ export function AdminDevotionals() {
                     Apoio ao projeto (opcional)
                   </label>
                   <p style={{ margin: '0 0 8px', fontSize: '0.8rem', color: '#888' }}>
-                    Aparece por último, após a Dica de conteúdo. Use para convidar o leitor a apoiar o projeto. Pode usar só texto, só o link, ou os dois — deixe ambos em branco para não exibir.
+                    Aparece por último, após a Dica de conteúdo. Use para convidar o leitor a apoiar o projeto. Deixe em branco para mostrar o texto padrão sobre a missão. O botão "Quero apoiar" sempre leva à página de apoio.
                   </p>
 
                   <RichTextEditor 
@@ -678,21 +678,6 @@ export function AdminDevotionals() {
                     onChange={(html) => setValue('support_message', html)}
                   />
 
-                  <div style={{ marginTop: '10px' }}>
-                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.85rem', fontWeight: 'bold' }}>
-                      🔗 Link "Quero apoiar" (opcional)
-                    </label>
-                    <p style={{ margin: '0 0 8px', fontSize: '0.78rem', color: '#888' }}>
-                      Se preenchido, um link discreto "Quero apoiar" aparece no final da seção, apontando para este endereço.
-                    </p>
-                    <input
-                      type="url"
-                      value={getValue('support_link_url')}
-                      onChange={(e) => setValue('support_link_url', e.target.value)}
-                      placeholder="https://..."
-                      style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '0.9rem' }}
-                    />
-                  </div>
                 </div>
               </>
             );
