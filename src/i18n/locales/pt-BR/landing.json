@@ -11,7 +11,8 @@
     "subtitle": "Uma reflexão por dia, para ler sozinho ou em família. Para parar, pensar sobre a vida e perceber o que merece sua atenção.",
     "btnStart": "Ler o de hoje",
     "hint": "Sem cadastro para experimentar.",
-    "mockupLabel": "Continuar"
+    "mockupLabel": "Continuar",
+    "imageAlt": "Uma mesa de madeira junto à janela, com uma xícara de café, um vaso com flores e a luz da manhã"
   },
   "tension": {
     "kicker": "Por que três minutos?",
