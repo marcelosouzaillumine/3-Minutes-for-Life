@@ -30,6 +30,7 @@ vi.mock('../../services/DevotionalService', () => ({
 vi.mock('../../services/JourneyService', () => ({ JourneyService: { complete: vi.fn() } }));
 
 import { FamilyRitual } from '../FamilyRitual';
+import { DevotionalService } from '../../services/DevotionalService';
 
 let root: Root;
 let host: HTMLDivElement;
@@ -104,5 +105,41 @@ describe('FamilyRitual', () => {
     expect(host.textContent).toContain('Pergunta 2 de 2');
     await click('Ver como conduzir');
     expect(host.textContent).toContain('Só um texto solto.');
+  });
+
+  it('só adultos: não mistura pergunta de faixa infantil com o texto adulto', async () => {
+    mocks.get.mockResolvedValue({ ...family, children: [] });
+    await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
+    await flush(); await flush();
+    expect(host.textContent).toContain('Com quem você vai ler hoje?');
+    expect(host.textContent).toContain('Só adultos');
+    expect(host.textContent).not.toContain('Com crianças');
+
+    await click('Continuar'); // ler
+    await click('Continuar'); // pergunta 1
+    expect(host.textContent).toContain('Pergunta 1 de 3');
+    expect(host.textContent).not.toContain('O que aperta o coração?');
+  });
+
+  it('com crianças, escolher só adultos troca todas as telas para o texto adulto', async () => {
+    mocks.get.mockResolvedValue(family);
+    await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
+    await flush(); await flush();
+    await click('Só adultos');
+    await click('Continuar'); await click('Continuar');
+    expect(host.textContent).toContain('Pergunta 1 de 3');
+    expect(host.textContent).not.toContain('O que aperta o coração?');
+  });
+
+  it('só adultos: usa as perguntas escritas pelo editor, uma por tela', async () => {
+    vi.mocked(DevotionalService.getDailyDevotional).mockResolvedValueOnce({ id: 'd1', title: 'A paz que guarda', reflection: '<p>x</p>', discussion_questions: 'Onde falta paz em casa?\n- O que a gratidão muda?' } as never);
+    mocks.get.mockResolvedValue({ ...family, children: [] });
+    await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
+    await flush(); await flush();
+    await click('Continuar'); await click('Continuar');
+    expect(host.textContent).toContain('Pergunta 1 de 2');
+    expect(host.textContent).toContain('Onde falta paz em casa?');
+    await click('Continuar');
+    expect(host.textContent).toContain('O que a gratidão muda?');
   });
 });

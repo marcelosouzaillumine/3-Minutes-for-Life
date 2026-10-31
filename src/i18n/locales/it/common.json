@@ -448,7 +448,15 @@
     "inviteTitle": "Leggere in famiglia",
     "inviteText": "Una lettura per la tavola, con domande, un'attività e una preghiera.",
     "inviteCta": "Inizia",
-    "guideNote": "La guida e il materiale di supporto sono nella modalità Leggere in famiglia."
+    "guideNote": "La guida e il materiale di supporto sono nella modalità Leggere in famiglia.",
+    "promise": "3 minuti · leggere, parlare, fare e pregare insieme",
+    "withWhom": "Con chi leggi oggi?",
+    "onlyAdults": "Solo adulti",
+    "withKids": "Con i bambini",
+    "noKidsHint": "In coppia, in gruppo o da soli: funziona allo stesso modo. Per leggere con i bambini, aggiungili in Famiglia.",
+    "adultQ1": "Che cosa ti ha colpito di più nel testo di oggi?",
+    "adultQ2": "Dove tocca davvero la tua settimana?",
+    "adultQ3": "Che cosa porti con te da questa lettura per oggi?"
   },
   "familyNav": "Famiglia",
   "plansx": {

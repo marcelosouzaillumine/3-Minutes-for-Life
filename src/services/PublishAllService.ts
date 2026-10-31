@@ -35,6 +35,7 @@ export async function publishAllForDevotional(devo: any, languages: any[]): Prom
         reflection: t.reflection,
         practical_application: t.practical_application,
         prayer: t.prayer,
+        discussion_questions: t.discussion_questions,
         content_tip: t.content_tip,
         content_tip_image_url: t.content_tip_image_url,
         content_tip_url: t.content_tip_url,

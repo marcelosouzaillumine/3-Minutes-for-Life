@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HtmlRenderer } from './HtmlRenderer';
 import { DevotionalService } from '../services/DevotionalService';
@@ -27,6 +27,10 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   const [saved, setSaved] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const [audience, setAudience] = useState<'adults' | 'kids'>(() => {
+    try { return localStorage.getItem('ritual.audience') === 'adults' ? 'adults' : 'kids'; } catch { return 'kids'; }
+  });
 
   useEffect(() => { FamilyService.get().then((f) => {
     setFamily(f);
@@ -57,23 +61,34 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   const adults = useMemo(() => (family?.members ?? []).map((m) => m.displayName ?? '').filter(Boolean), [family]);
   const dayKey = Math.floor(Date.now() / 86_400_000);
   const reader = readerForDay(adults, dayKey);
+  // Uma só escolha de público conduz todas as telas: com crianças, tudo vem da faixa delas; só adultos, do texto adulto.
+  const withKids = audience === 'kids' && (family?.children.length ?? 0) > 0;
   const perChild = useMemo(
-    () => (family ? versionsForChildren(family.children, present, kids) : []),
-    [family, present, kids],
+    () => (family && withKids ? versionsForChildren(family.children, present, kids) : []),
+    [family, withKids, present, kids],
   );
+  const leadVersion = useMemo(() => (withKids ? guideVersion(perChild, []) : null), [withKids, perChild]);
 
-  const guide = useMemo(() => {
-    const v = guideVersion(perChild, kids);
-    return v ? parseGuide(v.adultGuide) : null;
-  }, [perChild, kids]);
-  const rawGuide = guideVersion(perChild, kids)?.adultGuide ?? '';
+  const guide = useMemo(() => (leadVersion ? parseGuide(leadVersion.adultGuide) : null), [leadVersion]);
+  const rawGuide = leadVersion?.adultGuide ?? '';
 
-  // Perguntas da mesa: as do guia; sem guia no formato, as do "Para pensar" da faixa que conduz a mesa.
+  // Perguntas da mesa: as do guia; sem guia, as do "Para pensar" da faixa; sem nada disso (ou só adultos), perguntas gerais.
   const questions = useMemo(() => {
     if (guide) return guide.questions;
-    const v = guideVersion(perChild, kids);
-    return (v?.thinkAbout ?? '').split(/\r?\n/).map((l) => l.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, '').trim()).filter((l) => l.endsWith('?'));
-  }, [guide, perChild, kids]);
+    const own = (leadVersion?.thinkAbout ?? '').split(/\r?\n/).map((l) => l.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, '').trim()).filter((l) => l.endsWith('?'));
+    if (own.length) return own;
+    const edited = (devotional?.discussion_questions ?? '').split(/\r?\n/).map((l) => l.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, '').trim()).filter(Boolean);
+    return edited.length ? edited : [
+      tt('adultQ1', 'O que mais chamou a sua atenção no texto de hoje?'),
+      tt('adultQ2', 'Onde isso toca a sua semana, de verdade?'),
+      tt('adultQ3', 'O que você leva dessa leitura para hoje?'),
+    ];
+  }, [guide, leadVersion, devotional, i18n.language]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const pickAudience = (a: 'adults' | 'kids') => {
+    setAudience(a);
+    try { localStorage.setItem('ritual.audience', a); } catch { /* sem armazenamento */ }
+  };
 
   // Telas: uma por pergunta; sem perguntas, uma só tela de conversa.
   const screens = useMemo(() => {
@@ -83,6 +98,9 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
     out.push({ id: 'do', kind: 'do' }, { id: 'pray', kind: 'pray' }, { id: 'done', kind: 'done' });
     return out;
   }, [questions]);
+
+  // Cada tela começa no topo, mesmo que a anterior tenha sido rolada.
+  useEffect(() => { bodyRef.current?.scrollTo?.({ top: 0 }); window.scrollTo?.({ top: 0 }); }, [step]);
 
   const screen = screens[Math.min(step, screens.length - 1)];
   const last = step >= screens.length - 1;
@@ -129,7 +147,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
         <button type="button" className="fam-icon-btn" aria-label={tt('close', 'Fechar')} onClick={onClose}>×</button>
       </header>
 
-      <div className="ritual__body">
+      <div className="ritual__body" ref={bodyRef}>
         {screen.kind === 'welcome' && (
           <>
             <p className="fam-eyebrow fam-eyebrow--accent">{useSource === 'plan' && family.plan ? tt('planDay', 'Plano · dia {{n}}', { n: family.plan.currentDay }) : tt('today', 'Devocional de hoje')}</p>
@@ -140,7 +158,18 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
                 <button type="button" className={`fam-chip${useSource === 'plan' ? ' is-on' : ''}`} onClick={() => setChosen('plan')}>{tt('pickPlan', 'Do plano · dia {{n}}', { n: family.plan?.currentDay })}</button>
               </div>
             )}
-            {family.children.length > 0 && (
+            {devotional.scripture_reference && <p className="ritual__verse">{devotional.scripture_reference}</p>}
+            {devotional.principle_statement && <p className="ritual__lead">{devotional.principle_statement}</p>}
+            <p className="fam-note">{tt('promise', '3 minutos · ler, conversar, fazer e orar juntos')}</p>
+            <p className="ritual__lead">{tt('withWhom', 'Com quem você vai ler hoje?')}</p>
+            <div className="fam-people" role="group" aria-label={tt('withWhom', 'Com quem você vai ler hoje?')}>
+              <button type="button" className={`fam-chip${!withKids ? ' is-on' : ''}`} aria-pressed={!withKids} onClick={() => pickAudience('adults')}>{tt('onlyAdults', 'Só adultos')}</button>
+              {family.children.length > 0 && (
+                <button type="button" className={`fam-chip${withKids ? ' is-on' : ''}`} aria-pressed={withKids} onClick={() => pickAudience('kids')}>{tt('withKids', 'Com crianças')}</button>
+              )}
+            </div>
+            {family.children.length === 0 && <p className="fam-note">{tt('noKidsHint', 'Casal, grupo ou sozinho: a leitura funciona do mesmo jeito. Para ler com crianças, cadastre-as em Família.')}</p>}
+            {withKids && (
               <>
                 <p className="ritual__lead">{tt('whoIsHere', 'Quem está à mesa?')}</p>
                 <div className="fam-people">

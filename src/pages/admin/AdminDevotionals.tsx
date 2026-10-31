@@ -162,6 +162,7 @@ export function AdminDevotionals() {
       reflection: '',
       practical_application: '',
       prayer: '',
+      discussion_questions: '',
       content_tip: '',
       content_tip_image_url: '',
       content_tip_url: '',
@@ -237,6 +238,7 @@ export function AdminDevotionals() {
     if (!payload.category_id) payload.category_id = null;
     if (!payload.principle_statement) payload.principle_statement = null;
     if (!payload.prayer) payload.prayer = null;
+    if (!payload.discussion_questions?.trim()) payload.discussion_questions = null;
     if (!payload.content_tip) payload.content_tip = null;
     if (!payload.content_tip_image_url) payload.content_tip_image_url = null;
     if (!payload.content_tip_url) payload.content_tip_url = null;
@@ -728,6 +730,22 @@ export function AdminDevotionals() {
                     onChange={(html) => setValue('prayer', html)}
                   />
                 </div>
+
+                {isSource && (
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>Perguntas para conversar (adultos)</label>
+                    <p style={{ margin: '0 0 8px', fontSize: '0.8rem', color: '#888' }}>
+                      De 3 a 5 perguntas, uma por linha, para casal ou grupo conversarem no Ler juntos. Se ficar em branco, o app usa perguntas gerais. Depois, traduza para os outros idiomas.
+                    </p>
+                    <textarea
+                      rows={5}
+                      value={getValue('discussion_questions')}
+                      onChange={(e) => setValue('discussion_questions', e.target.value)}
+                      placeholder={'O que mais chamou a sua atenção?\nOnde isso toca a sua semana?'}
+                      style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', resize: 'vertical' }}
+                    />
+                  </div>
+                )}
 
                 <div>
                   <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.9rem', fontWeight: 'bold' }}>
