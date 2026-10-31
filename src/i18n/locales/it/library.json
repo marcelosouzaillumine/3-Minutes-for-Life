@@ -1,0 +1,25 @@
+{
+  "title": "Biblioteca",
+  "loading": "Caricamento della biblioteca...",
+  "error": "Non è stato possibile caricare la biblioteca dei devozionali.",
+  "categories": "Categorie",
+  "count_one": "{{count}} devozionale",
+  "count_other": "{{count}} devozionali",
+  "search_placeholder": "Come stai oggi? Scrivilo in poche parole",
+  "search_no_results": "Non abbiamo trovato devozionali per \"{{query}}\". Prova con altre parole.",
+  "plans": {
+    "heading": "Percorsi per una sequenza",
+    "back": "Percorsi",
+    "progress": "{{done}} di {{total}} giorni completati",
+    "days_one": "{{count}} giorno",
+    "days_other": "{{count}} giorni",
+    "descanso-7": {
+      "title": "Sette giorni per riprendere fiato",
+      "desc": "Per chi è stanco o in ansia: un devozionale al giorno, con i tuoi ritmi."
+    },
+    "confianca-21": {
+      "title": "Ventuno giorni per fidarsi",
+      "desc": "Fede, preghiera, pazienza e gratitudine in una sequenza, un giorno alla volta."
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "title": "Bibliothèque",
+  "loading": "Chargement de la bibliothèque...",
+  "error": "Impossible de charger la bibliothèque de méditations.",
+  "categories": "Catégories",
+  "count_one": "{{count}} méditation",
+  "count_other": "{{count}} méditations",
+  "search_placeholder": "Comment allez-vous aujourd'hui ? Écrivez en quelques mots",
+  "search_no_results": "Nous n'avons trouvé aucune méditation pour \"{{query}}\". Essayez d'autres mots.",
+  "plans": {
+    "heading": "Parcours pour une série",
+    "back": "Parcours",
+    "progress": "{{done}} jours sur {{total}} terminés",
+    "days_one": "{{count}} jour",
+    "days_other": "{{count}} jours",
+    "descanso-7": {
+      "title": "Sept jours pour reprendre son souffle",
+      "desc": "Pour celles et ceux qui sont fatigués ou anxieux : une méditation par jour, à votre rythme."
+    },
+    "confianca-21": {
+      "title": "Vingt et un jours pour faire confiance",
+      "desc": "Foi, prière, patience et gratitude en une série, un jour à la fois."
+    }
+  }
+}
