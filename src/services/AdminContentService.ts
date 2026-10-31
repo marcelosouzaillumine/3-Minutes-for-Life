@@ -227,6 +227,25 @@ export const AdminContentService = {
     return (data?.devotionals ?? []).map(l1DevToSnake)
   },
 
+  /** Enfileira e executa a tradução por IA (do português) nos idiomas pedidos. Devolve a mensagem de erro, se houver. */
+  async translateWithAi(devotionalId: string, targetLanguages: string[]): Promise<{ ok: true } | { ok: false; error: string }> {
+    if (!targetLanguages.length) return { ok: true }
+    try {
+      const queueRes = await illumineFetch(`/devotionals/${encodeURIComponent(devotionalId)}/translations/queue`, {
+        method: 'POST',
+        body: JSON.stringify({ languages: targetLanguages.map((l) => ({ targetLanguage: l, sourceLanguage: 'pt-BR' })) }),
+      })
+      if (!queueRes.ok) return { ok: false, error: `Não foi possível enfileirar a tradução (HTTP ${queueRes.status}).` }
+      const processRes = await illumineFetch('/devotionals/translations/process', { method: 'POST' })
+      const result = await processRes.json().catch(() => ({}))
+      if (!processRes.ok) return { ok: false, error: result?.error || `HTTP ${processRes.status}` }
+      const failed = (result?.results || []).find((r: any) => r.status !== 'completed')
+      return failed ? { ok: false, error: failed.error || 'Tradução falhou.' } : { ok: true }
+    } catch (e: any) {
+      return { ok: false, error: e?.message ?? 'Erro ao traduzir.' }
+    }
+  },
+
   async getDevotional(id: string): Promise<any> {
     const d = await l1Get(`/devotionals/${encodeURIComponent(id)}`)
     return l1DevToSnake(d)

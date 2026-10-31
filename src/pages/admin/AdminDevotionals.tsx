@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { AdminContentService } from '../../services/AdminContentService';
+import { AdminContentService, buildLangMap } from '../../services/AdminContentService';
 import { AdminService, type DevotionalRanking, type DevotionalRankingItem } from '../../services/AdminService';
 import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { PrincipleView } from '../../components/PrincipleView';
 import { MediaLibraryPicker } from '../../components/admin/MediaLibraryPicker';
 import { DevotionalLanguages, type KidsSummaries } from '../../components/admin/DevotionalLanguages';
-import { FamilyAdmin } from '../../services/FamilyService';
+import { BANDS, FamilyAdmin, type Band } from '../../services/FamilyService';
+import { KidsBandEditor, bandLabel } from '../../components/admin/KidsBandEditor';
+import { ManualTranslationEditor } from '../../components/admin/ManualTranslationEditor';
 import { publishAll, publishAllForDevotional, type PublishReport } from '../../services/PublishAllService';
 import '../../styles/admin.css';
 
@@ -24,6 +26,9 @@ export function AdminDevotionals() {
   const [editForm, setEditForm] = useState<any>(null);
   const [languages, setLanguages] = useState<any[]>([]);
   const [currentLang, setCurrentLang] = useState<string>('pt-BR');
+  // Versão em edição dentro do idioma: o texto adulto ou uma das faixas infantis.
+  const [version, setVersion] = useState<'adult' | Band>('adult');
+  const [studioMsg, setStudioMsg] = useState('');
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -102,7 +107,7 @@ export function AdminDevotionals() {
   const handlePublishEverything = () =>
     runPublish('all', devotionals, 'Publicar os rascunhos de TODOS os devocionais em todos os idiomas (texto adulto e faixas infantis)? O que estiver incompleto fica de fora.');
 
-  const handleEditClick = async (id: string) => {
+  const handleEditClick = async (id: string, lang?: string) => {
     try {
       setLoading(true);
       const fullDevotional = await AdminContentService.getDevotional(id);
@@ -133,7 +138,9 @@ export function AdminDevotionals() {
       setEditForm({ ...fullDevotional, translations: translationsMap });
       setEditingId(id);
       const sourceLang = languages.find(l => l.is_source)?.iso_code || 'pt-BR';
-      setCurrentLang(sourceLang);
+      setCurrentLang(lang ?? sourceLang);
+      setVersion('adult');
+      setStudioMsg('');
     } catch (err: any) {
       alert('Erro ao carregar devocional: ' + err.message);
     } finally {
@@ -176,10 +183,49 @@ export function AdminDevotionals() {
 
   const handleCancelEdit = () => {
     setEditingId(null);
+    loadData();
     setEditForm(null);
     setShowPreview(false);
     const sourceLang = languages.find(l => l.is_source)?.iso_code || 'pt-BR';
     setCurrentLang(sourceLang);
+  };
+
+  /** Recarrega só as traduções e as faixas do devocional aberto, sem perder o que está sendo digitado no texto original. */
+  const refreshStudio = async () => {
+    if (!editingId || editingId === 'new') return;
+    const fresh = await AdminContentService.getDevotional(editingId);
+    setEditForm((prev: any) => ({ ...prev, devotional_translations: fresh.devotional_translations }));
+    loadKidsSummaries(languages);
+  };
+
+  const langName = (iso: string) => languages.find((l) => l.iso_code === iso)?.name ?? iso;
+
+  const handleTranslate = async (isoCodes: string[]) => {
+    if (!editingId || editingId === 'new' || isoCodes.length === 0) return;
+    setPublishing('translate');
+    setStudioMsg('Traduzindo com IA…');
+    const r = await AdminContentService.translateWithAi(editingId, isoCodes);
+    setStudioMsg(r.ok ? `Tradução em rascunho: ${isoCodes.map(langName).join(', ')}. Revise antes de publicar.` : `Tradução falhou: ${r.error}`);
+    await refreshStudio();
+    setPublishing(null);
+  };
+
+  const handlePublishFromEditor = async (only?: string) => {
+    if (!editingId || editingId === 'new' || !editForm) return;
+    const targets = only ? languages.filter((l) => l.iso_code === only) : languages;
+    if (!window.confirm(only ? `Publicar os rascunhos de ${langName(only)} deste devocional (texto adulto e faixas infantis)?` : 'Publicar os rascunhos de todos os idiomas deste devocional (texto adulto e faixas infantis)? O que estiver incompleto fica de fora.')) return;
+    setPublishing(only ?? 'editor');
+    try {
+      const fresh = await AdminContentService.getDevotional(editingId);
+      const report = await publishAllForDevotional(fresh, targets);
+      setPublishReport(report);
+      setStudioMsg(`${report.published} item(ns) publicado(s)${report.skipped.length ? `; ${report.skipped.length} ficaram de fora (veja abaixo)` : ''}.`);
+      await refreshStudio();
+    } catch (err: any) {
+      setStudioMsg('Erro ao publicar: ' + err.message);
+    } finally {
+      setPublishing(null);
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -454,6 +500,64 @@ export function AdminDevotionals() {
           {editingId === 'new' ? 'Novo Devocional' : 'Editar Devocional'}
         </h2>
 
+        {editingId !== 'new' && (() => {
+          const langMap = buildLangMap(editForm);
+          const kidsFor = (iso: string) => kidsSummaries[iso]?.[editingId!];
+          const missing = languages.filter((l) => !l.is_source && !langMap[l.iso_code]).map((l) => l.iso_code);
+          const chip = (active: boolean) => ({ padding: '6px 12px', borderRadius: '999px', border: `1px solid ${active ? 'var(--color-primary)' : '#ddd'}`, background: active ? 'var(--color-primary)' : 'white', color: active ? 'white' : 'var(--color-text)', fontSize: '0.85rem', cursor: 'pointer' } as const);
+          return (
+            <div style={{ marginBottom: '16px', display: 'grid', gap: '10px' }}>
+              <div role="tablist" aria-label="Idioma" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {languages.map((l) => {
+                  const e = langMap[l.iso_code];
+                  const mark = l.is_source ? '' : !e ? ' ○' : e.state === 'draft' ? ' ●' : e.isStale || e.isPossiblyStale ? ' ⚠' : ' ✓';
+                  return <button key={l.iso_code} type="button" role="tab" aria-selected={l.iso_code === currentLang} style={chip(l.iso_code === currentLang)} onClick={() => { setCurrentLang(l.iso_code); setStudioMsg(''); }}>{l.iso_code === 'pt-BR' ? 'PT' : l.iso_code.toUpperCase()}{mark}</button>;
+                })}
+              </div>
+              <div role="tablist" aria-label="Versão" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                <button type="button" role="tab" aria-selected={version === 'adult'} style={chip(version === 'adult')} onClick={() => setVersion('adult')}>Texto adulto</button>
+                {BANDS.map((b) => (
+                  <button key={b} type="button" role="tab" aria-selected={version === b} style={chip(version === b)} onClick={() => { setVersion(b); setStudioMsg(''); }}>
+                    {bandLabel(b)}
+                  </button>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.8rem', color: 'var(--color-text-light)' }}>
+                  {langName(currentLang)} · faixas infantis no ar: {kidsFor(currentLang)?.published ?? 0}/{BANDS.length}
+                </span>
+                <span style={{ flex: 1 }} />
+                {missing.length > 0 && <button type="button" disabled={publishing !== null} style={chip(false)} onClick={() => handleTranslate(missing)}>Traduzir com IA ({missing.map((m) => m.toUpperCase()).join(', ')})</button>}
+                <button type="button" disabled={publishing !== null} style={chip(false)} onClick={() => handlePublishFromEditor(currentLang)}>Publicar este idioma</button>
+                <button type="button" disabled={publishing !== null} style={{ ...chip(true), fontWeight: 'bold' }} onClick={() => handlePublishFromEditor()}>Publicar em todos os idiomas</button>
+              </div>
+              {studioMsg && <p role="status" style={{ margin: 0, fontSize: '0.85rem' }}>{studioMsg}</p>}
+              {publishReport && publishReport.skipped.length > 0 && (
+                <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.8rem', color: '#b45309' }}>{publishReport.skipped.map((m) => <li key={m}>{m}</li>)}</ul>
+              )}
+            </div>
+          );
+        })()}
+
+        {editingId !== 'new' && version !== 'adult' && (
+          <KidsBandEditor devotional={editForm} language={currentLang} languageName={langName(currentLang)} band={version} onChanged={refreshStudio} />
+        )}
+
+        {editingId !== 'new' && version === 'adult' && !languages.find((l) => l.iso_code === currentLang)?.is_source && (() => {
+          const lang = languages.find((l) => l.iso_code === currentLang)!;
+          const entry = buildLangMap(editForm)[currentLang];
+          return (
+            <ManualTranslationEditor
+              key={`${currentLang}-${entry?.manual?.updated_at ?? ''}-${entry?.ai?.updated_at ?? ''}`}
+              devotional={{ ...editForm, manualTranslation: entry?.manual ?? null, aiTranslation: entry?.ai ?? null }}
+              language={{ ...lang, native_name: lang.native_name ?? lang.name }}
+              onBack={() => { setCurrentLang(languages.find((l) => l.is_source)?.iso_code ?? 'pt-BR'); }}
+              onSaved={refreshStudio}
+            />
+          );
+        })()}
+
+        {(editingId === 'new' || (version === 'adult' && languages.find((l) => l.iso_code === currentLang)?.is_source)) && (
         <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           
           <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', borderBottom: '1px solid #ddd', paddingBottom: '8px' }}>
@@ -712,6 +816,7 @@ export function AdminDevotionals() {
             {saving ? 'Salvando...' : 'Salvar Devocional'}
           </button>
         </form>
+        )}
       {mediaPickerOpen && mediaPickerTarget && (
         <MediaLibraryPicker
           onSelect={(url) => {
@@ -952,7 +1057,7 @@ export function AdminDevotionals() {
                 {devo.categories?.name && <span>🏷️ {devo.categories.name}</span>}
               </div>
               {ranking && renderStats(rankingById.get(devo.id))}
-              <DevotionalLanguages devo={devo} languages={languages} kids={kidsSummaries} />
+              <DevotionalLanguages devo={devo} languages={languages} kids={kidsSummaries} onOpen={(iso) => handleEditClick(devo.id, iso)} />
             </div>
           ))}
           {devotionals.length === 0 && (

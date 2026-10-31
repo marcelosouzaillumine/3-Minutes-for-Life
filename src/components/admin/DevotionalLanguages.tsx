@@ -16,7 +16,7 @@ function Dot({ tone, title }: { tone: Tone; title: string }) {
 }
 
 /** Uma linha por devocional: para cada idioma, o ponto do texto adulto e quantas faixas infantis estão no ar. */
-export function DevotionalLanguages({ devo, languages, kids }: { devo: any; languages: any[]; kids: KidsSummaries }) {
+export function DevotionalLanguages({ devo, languages, kids, onOpen }: { devo: any; languages: any[]; kids: KidsSummaries; onOpen?: (iso: string) => void }) {
   const langMap = buildLangMap(devo);
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(92px, 1fr))', gap: '6px', marginTop: '10px' }}>
@@ -32,7 +32,7 @@ export function DevotionalLanguages({ devo, languages, kids }: { devo: any; lang
         const kidsTone: Tone = kidsPub >= BANDS.length ? 'done' : kidsPub > 0 || (k?.draft ?? 0) > 0 ? 'draft' : 'none';
         const t = TONE[adultTone === 'done' && kidsTone === 'done' ? 'done' : adultTone === 'none' && kidsTone === 'none' ? 'none' : 'draft'];
         return (
-          <div key={iso} style={{ border: `1px solid ${t.bd}`, background: t.bg, borderRadius: '8px', padding: '4px 8px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'space-between' }}>
+          <div key={iso} role={onOpen ? 'button' : undefined} tabIndex={onOpen ? 0 : undefined} onClick={onOpen ? (e) => { e.stopPropagation(); onOpen(iso); } : undefined} onKeyDown={onOpen ? (e) => { if (e.key === 'Enter') { e.stopPropagation(); onOpen(iso); } } : undefined} style={{ cursor: onOpen ? 'pointer' : undefined, border: `1px solid ${t.bd}`, background: t.bg, borderRadius: '8px', padding: '4px 8px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'space-between' }}>
             <strong style={{ color: t.fg }}>{iso === 'pt-BR' ? 'PT' : iso.toUpperCase()}</strong>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
               <Dot tone={adultTone} title={`Texto adulto: ${adultTone === 'done' ? 'publicado' : adultTone === 'draft' ? 'rascunho' : 'falta'}`} />
