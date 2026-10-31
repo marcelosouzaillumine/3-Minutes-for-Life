@@ -56,10 +56,23 @@ describe('ritual', () => {
     expect(htmlBlocks(null)).toEqual([]);
   });
 
-  it('a tela termina em parágrafo completo: o que não cabe vai inteiro para a seguinte', () => {
-    const pages = paginate(['<p>' + 'a'.repeat(300) + '</p>', '<p>' + 'b. '.repeat(100).trim() + '</p>'], 520);
-    expect(pages.map((p) => p.length)).toEqual([1, 1]);
-    expect(pages[1][0]).toContain('b. b.');
+  it('a tela enche até o limite e continua o parágrafo na frase seguinte', () => {
+    const pages = paginate(['<p>' + 'a'.repeat(300) + '.</p>', '<p>' + 'b. '.repeat(100).trim() + '</p>'], 520);
+    expect(pages.length).toBeGreaterThan(1);
+    expect(pages[0].length).toBe(2);
+    expect(pages[0][1].replace(/<[^>]+>/g, '').length).toBeGreaterThan(100);
+  });
+  it('parágrafo com atributos e marcas inline também é dividido por frases, sem abrir marca sem fechar', () => {
+    const fits = (page: string[]) => page.join('').replace(/<[^>]+>/g, '').length <= 120;
+    const para = '<p style="text-align:left">Primeira frase aqui. <strong>Segunda frase em destaque. Terceira dentro.</strong> Quarta frase final. Quinta frase de fecho.</p>';
+    const pages = paginateFit([para, para], fits);
+    expect(pages.length).toBeGreaterThan(1);
+    for (const pg of pages) {
+      const html = pg.join('');
+      expect((html.match(/<strong>/g) ?? []).length).toBe((html.match(/<\/strong>/g) ?? []).length);
+      expect(html.startsWith('<p style="text-align:left">')).toBe(true);
+    }
+    expect(pages[0].join('').replace(/<[^>]+>/g, '').length).toBeGreaterThan(60);
   });
   it('texto com quebra de linha só do editor não vira linha nova', () => {
     expect(htmlBlocks('questionavam práticas\nde seu tempo')).toEqual(['<p>questionavam práticas de seu tempo</p>']);

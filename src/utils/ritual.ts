@@ -102,10 +102,25 @@ export function htmlBlocks(html: string | null | undefined): string[] {
 
 const textLength = (block: string) => block.replace(/<[^>]+>/g, '').length;
 
+/** Parágrafo simples (`<p>` com ou sem atributos) que pode ser dividido por frases; null para listas, citações etc. */
+function paragraphParts(block: string): { inner: string; wrap: (t: string) => string } | null {
+  const m = /^(<p(?:\s[^>]*)?>)([\s\S]*)<\/p>$/i.exec(block);
+  const inner = m ? m[2] : block;
+  if (/<\/?(?:p|ul|ol|li|blockquote|div|h[1-6]|table)\b/i.test(inner)) return null;
+  return { inner, wrap: (t) => (m ? `${m[1]}${t}</p>` : t) };
+}
+
 /** Frases de um parágrafo; uma frase maior que `max` (rara) cai em grupos de palavras. */
 function sentencesOf(inner: string, max: number): string[] {
   const out: string[] = [];
-  for (const sentence of inner.split(/(?<=[.!?…])\s+/)) {
+  // Não corta dentro de <strong>, <em>, <a>…: junta as partes até as marcas fecharem.
+  const balanced: string[] = [];
+  for (const piece of inner.split(/(?<=[.!?…])\s+/)) {
+    const prev = balanced[balanced.length - 1];
+    const opens = (t: string) => (t.match(/<(?:strong|em|b|i|u|a|span|mark|s)\b[^>]*>/gi) ?? []).length - (t.match(/<\/(?:strong|em|b|i|u|a|span|mark|s)>/gi) ?? []).length;
+    if (prev !== undefined && opens(prev) > 0) balanced[balanced.length - 1] = `${prev} ${piece}`; else balanced.push(piece);
+  }
+  for (const sentence of balanced) {
     if (sentence.length <= max) { out.push(sentence); continue; }
     let cur = '';
     for (const w of sentence.split(/\s+/)) {
@@ -127,10 +142,9 @@ export function paginateFit(blocks: string[], fits: (page: string[], index: numb
   const flush = () => { if (cur.length) pages.push(cur); cur = []; };
   for (const b of blocks) {
     if (fits([...cur, b], pages.length)) { cur.push(b); continue; }
-    const wrapped = /^<p>([\s\S]*)<\/p>$/i.exec(b);
-    const inner = wrapped ? wrapped[1] : b;
-    if (/<\/?(?:p|ul|ol|li|blockquote|div|h[1-6])\b/i.test(inner)) { flush(); cur.push(b); continue; }
-    const wrap = (t: string) => (wrapped ? `<p>${t}</p>` : t);
+    const parts = paragraphParts(b);
+    if (!parts) { flush(); cur.push(b); continue; }
+    const { inner, wrap } = parts;
     let chunk = '';
     for (const sentence of sentencesOf(inner, Infinity)) {
       const trial = chunk ? `${chunk} ${sentence}` : sentence;
@@ -147,8 +161,7 @@ export function paginateFit(blocks: string[], fits: (page: string[], index: numb
 
 /**
  * Agrupa blocos em telas de até `max` caracteres (a primeira, que leva o versículo, até `firstMax`).
- * Cada tela termina em parágrafo completo: um parágrafo que não cabe no que sobra vai inteiro para a tela
- * seguinte. Só um parágrafo maior que uma tela inteira é dividido, sempre no fim de uma frase.
+ * Cada tela enche até o limite e termina em frase completa; listas e citações não são divididas.
  */
 export function paginate(blocks: string[], max = PAGE_CHARS, firstMax = max): string[][] {
   const pages: string[][] = [];
@@ -159,12 +172,9 @@ export function paginate(blocks: string[], max = PAGE_CHARS, firstMax = max): st
   for (const b of blocks) {
     const l = textLength(b);
     if (len + l <= limit()) { cur.push(b); len += l; continue; }
-    const wrapped = /^<p>([\s\S]*)<\/p>$/i.exec(b);
-    const inner = wrapped ? wrapped[1] : b;
-    const splittable = !/<\/?(?:p|ul|ol|li|blockquote|div|h[1-6])\b/i.test(inner);
-    if (cur.length && (l <= max || !splittable)) { flush(); cur.push(b); len = l; continue; }
-    if (!splittable) { cur.push(b); len += l; continue; }
-    const wrap = (t: string) => (wrapped ? `<p>${t}</p>` : t);
+    const parts = paragraphParts(b);
+    if (!parts) { if (cur.length) flush(); cur.push(b); len = l; continue; }
+    const { inner, wrap } = parts;
     let chunk = '';
     for (const sentence of sentencesOf(inner, Math.min(max, firstMax))) {
       const room = limit() - len;
