@@ -42,6 +42,10 @@ if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
     reloaded = true
     window.location.reload()
   })
+  // App instalado fica aberto em segundo plano e não navega: ao voltar para ele, procura versão nova.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') navigator.serviceWorker.getRegistration().then((r) => r?.update()).catch(() => {})
+  })
 }
 
 createRoot(document.getElementById('root')!).render(
