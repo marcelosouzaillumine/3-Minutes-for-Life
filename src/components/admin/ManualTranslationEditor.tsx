@@ -569,7 +569,7 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
           )}
 
           {/* 9. Apoio ao projeto */}
-          {(devotional.support_message || devotional.support_banner_url) && (
+          {(devotional.support_message || devotional.support_link_url) && (
             <div>
               <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 'bold', color: '#64748b', marginBottom: '4px', textTransform: 'uppercase' }}>
                 Apoio ao projeto
@@ -579,13 +579,6 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
                   </span>
                 )}
               </label>
-              {devotional.support_banner_url && (
-                <img
-                  src={devotional.support_banner_url}
-                  alt=""
-                  style={{ width: '100%', maxWidth: '260px', aspectRatio: '16 / 9', objectFit: 'cover', borderRadius: '8px', border: '1px solid #cbd5e1', display: 'block', marginBottom: '8px' }}
-                />
-              )}
               {devotional.support_message && (
                 <div
                   style={{
@@ -823,46 +816,6 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
               Apoio ao projeto (opcional)
             </label>
 
-            <div style={{ marginBottom: '10px' }}>
-              <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.8rem', fontWeight: 'bold' }}>
-                🖼️ Banner opcional (imagem larga)
-              </label>
-
-              {form.support_banner_url ? (
-                <div>
-                  <img
-                    src={form.support_banner_url}
-                    alt="Prévia"
-                    style={{ width: '100%', maxWidth: '260px', aspectRatio: '16 / 9', objectFit: 'cover', borderRadius: '8px', border: '1px solid #ddd', display: 'block', marginBottom: '8px' }}
-                  />
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button
-                      type="button"
-                      onClick={() => { setMediaPickerTarget('support_banner_url'); setMediaPickerOpen(true); }}
-                      style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fafafa', cursor: 'pointer' }}
-                    >
-                      Trocar
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleContentImageRemove('support_banner_url')}
-                      style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fff', cursor: 'pointer' }}
-                    >
-                      Remover
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => { setMediaPickerTarget('support_banner_url'); setMediaPickerOpen(true); }}
-                  style={{ padding: '8px 14px', fontSize: '0.85rem', borderRadius: '6px', border: '1px solid #ddd', background: '#fafafa', cursor: 'pointer' }}
-                >
-                  🖼️ Selecionar da biblioteca
-                </button>
-              )}
-            </div>
-
             <RichTextEditor
               key={`manual-support_message-${language.iso_code}-${devotional.id}`}
               value={form.support_message}
@@ -871,10 +824,10 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
 
             <div style={{ marginTop: '10px' }}>
               <label style={{ display: 'block', marginBottom: '4px', fontSize: '0.8rem', fontWeight: 'bold' }}>
-                🔗 Link do botão "Quero apoiar" (opcional)
+                🔗 Link "Quero apoiar" (opcional)
               </label>
               <p style={{ margin: '0 0 8px', fontSize: '0.76rem', color: '#888' }}>
-                Se preenchido, um botão "Quero apoiar" aparece no final da seção, apontando para este link.
+                Se preenchido, um link discreto "Quero apoiar" aparece no final da seção.
               </p>
               <input
                 type="url"

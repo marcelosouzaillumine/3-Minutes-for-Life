@@ -9,6 +9,7 @@ import { RITUAL_STEPS, readerForDay, versionsForChildren } from '../utils/ritual
 import type { Devotional } from '../types/Devotional';
 import '../styles/family.css';
 import { Paragraphs } from './Paragraphs';
+import { SectionLabel } from './SectionLabel';
 
 /** Ler em família: um roteiro de tela cheia, uma coisa por vez, feito para ser lido em voz alta. */
 export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; onClose: () => void }) {
@@ -118,7 +119,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
 
         {key === 'scripture' && (
           <>
-            <p className="fam-eyebrow fam-eyebrow--accent">{tt('scripture', 'A passagem')}</p>
+            <SectionLabel icon="story">{tt('scripture', 'A passagem')}</SectionLabel>
             {reader && <p className="fam-note">{tt('reader', '{{name}} lê em voz alta', { name: reader })}</p>}
             {(devotional.scripture_reference || devotional.scripture_text) && (
               <blockquote className="principle-scripture principle-scripture--ritual">
@@ -131,7 +132,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
 
         {key === 'story' && (
           <>
-            <p className="fam-eyebrow fam-eyebrow--accent">{tt('story', 'O que o texto diz')}</p>
+            <SectionLabel icon="story">{tt('story', 'O que o texto diz')}</SectionLabel>
             {perChild.length > 0 && perChild.some((p) => p.version) ? (
               perChild.map(({ child, version }) => (
                 <section key={child.id} className="ritual__kid">
@@ -148,12 +149,12 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
 
         {key === 'practice' && (
           <>
-            <p className="fam-eyebrow fam-eyebrow--accent">{tt('practice', 'Para conversar e praticar')}</p>
+            <SectionLabel icon="practice">{tt('practice', 'Para conversar e praticar')}</SectionLabel>
             {perChild.some((p) => p.version) && perChild.filter((p) => p.version).map(({ child, version }) => (
               <section key={child.id} className="ritual__kid">
                 <h3>{child.nickname}</h3>
-                <Paragraphs text={version!.thinkAbout} />
-                <Paragraphs text={version!.practice} strong />
+                <Paragraphs text={version!.thinkAbout} question />
+                <div className="sec-card"><Paragraphs text={version!.practice} strong /></div>
                 {version!.adultGuide && <Paragraphs text={version!.adultGuide} className="fam-note" />}
               </section>
             ))}
@@ -163,10 +164,10 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
 
         {key === 'prayer' && (
           <>
-            <p className="fam-eyebrow fam-eyebrow--accent">{tt('prayer', 'Oração')}</p>
-            {devotional.prayer && <HtmlRenderer html={devotional.prayer} className="ritual__text ritual__prayer" />}
+            <SectionLabel icon="prayer">{tt('prayer', 'Oração')}</SectionLabel>
+            {devotional.prayer && <HtmlRenderer html={devotional.prayer} className="ritual__text ritual__prayer sec-prayer" />}
             {perChild.filter((p) => p.version?.prayer).map(({ child, version }) => (
-              <section key={child.id} className="ritual__kid"><h3>{child.nickname}</h3><p>{version!.prayer}</p></section>
+              <section key={child.id} className="ritual__kid"><h3>{child.nickname}</h3><div className="sec-prayer"><Paragraphs text={version!.prayer} /></div></section>
             ))}
           </>
         )}
