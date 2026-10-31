@@ -471,7 +471,8 @@
     "setupAdultsNote": "Da solo, in coppia o in gruppo",
     "setupWithKids": "Con i bambini",
     "setupWithKidsNote": "Ognuno con la lettura della sua età",
-    "setupDefaultName": "La nostra lettura"
+    "setupDefaultName": "La nostra lettura",
+    "addOnceNote": "Una lettura di un solo giorno, in chiesa per esempio? Aggiungi il bambino qui e rimuovilo poi in Gruppo."
   },
   "familyNav": "Gruppo",
   "plansx": {

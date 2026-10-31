@@ -146,13 +146,23 @@ describe('FamilyRitual', () => {
     expect(host.textContent).toContain('Só um texto solto.');
   });
 
+  it('sem crianças cadastradas, Com crianças abre o cadastro na própria tela', async () => {
+    mocks.get.mockResolvedValue({ ...family, children: [] });
+    await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
+    await flush(); await flush();
+    await click('Com crianças');
+    expect(host.textContent).toContain('Adicionar criança');
+    expect(host.textContent).toContain('Leitura de um dia só');
+  });
+
   it('só adultos: não mistura pergunta de faixa infantil com o texto adulto', async () => {
     mocks.get.mockResolvedValue({ ...family, children: [] });
     await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
     await flush(); await flush();
     expect(host.textContent).toContain('Com quem você vai ler hoje?');
     expect(host.textContent).toContain('Só adultos');
-    expect(host.textContent).not.toContain('Com crianças');
+    expect(host.textContent).toContain('Com crianças');
+    expect(host.textContent).not.toContain('Adicionar criança');
 
     await click('Continuar'); // ler
     await click('Continuar'); // pergunta 1
