@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" role="img" aria-label="Uma criança lendo uma Bíblia grande cheia de luz">
+<rect width="400" height="200" fill="#FDF1D6"/>
+<g stroke="#F7D77A" stroke-width="10" stroke-linecap="round" opacity=".7"><path d="M200 70V22M150 84L122 46M250 84L278 46M118 104L72 88M282 104L328 88"/></g>
+<circle cx="200" cy="96" r="30" fill="#F5C04A"/>
+<path d="M0 160Q100 132 200 156T400 148V200H0Z" fill="#CFE3BD"/>
+<path d="M120 168q80-22 160 0v-34q-80-22-160 0z" fill="#8A7048"/>
+<path d="M126 164q74-18 74 0V128q-8-14-74-6zM274 164q-74-18-74 0V128q8-14 74-6z" fill="#FFF7E6"/>
+<path d="M140 138q30-6 46 2M140 148q30-6 46 2M214 140q16-8 46-2M214 150q16-8 46-2" stroke="#D8C9A6" stroke-width="3" fill="none" stroke-linecap="round"/>
+<circle cx="70" cy="132" r="22" fill="#F2C7A1"/><path d="M50 128q20-26 40 0z" fill="#6B4F2F"/>
+<circle cx="63" cy="134" r="2.6" fill="#3A3F4F"/><circle cx="77" cy="134" r="2.6" fill="#3A3F4F"/><path d="M63 142q7 6 14 0" stroke="#3A3F4F" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+<rect x="50" y="154" width="40" height="34" rx="14" fill="#7AA6C9"/>
+<circle cx="334" cy="134" r="22" fill="#F2C7A1"/><path d="M312 130q22-30 44 0z" fill="#C9743A"/>
+<circle cx="327" cy="136" r="2.6" fill="#3A3F4F"/><circle cx="341" cy="136" r="2.6" fill="#3A3F4F"/><path d="M327 144q7 6 14 0" stroke="#3A3F4F" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+<rect x="314" y="156" width="40" height="32" rx="14" fill="#E58E8E"/>
+</svg>
