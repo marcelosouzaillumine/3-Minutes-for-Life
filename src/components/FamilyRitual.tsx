@@ -5,7 +5,7 @@ import { DevotionalService } from '../services/DevotionalService';
 import { JourneyService } from '../services/JourneyService';
 import { FamilyService, type Band, type Family, type KidsVersion } from '../services/FamilyService';
 import { getTodayInSaoPaulo } from '../utils/date';
-import { guideVersion, htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks, readerForDay, versionsForChildren } from '../utils/ritual';
+import { htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks, readerForDay, versionsForChildren } from '../utils/ritual';
 import type { Devotional } from '../types/Devotional';
 import '../styles/family.css';
 import { Paragraphs } from './Paragraphs';
@@ -75,7 +75,21 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
     () => (family && withKids ? versionsForChildren(family.children, present, kids) : []),
     [family, withKids, present, kids],
   );
-  const leadVersion = useMemo(() => (withKids ? guideVersion(perChild, []) : null), [withKids, perChild]);
+  // Uma só leitura para a mesa: todos ouvem o mesmo texto, na faixa da criança mais nova presente (ou a que o adulto escolher).
+  const order = ['4-6', '7-10', '11-13'];
+  const [leadBand, setLeadBand] = useState<Band | null>(null);
+  const bandsHere = useMemo(
+    () => [...new Set(perChild.filter((p) => p.version).map((p) => p.version!.band))].sort((a, b) => order.indexOf(a) - order.indexOf(b)),
+    [perChild], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  const sharedBand = leadBand && bandsHere.includes(leadBand) ? leadBand : bandsHere[0] ?? null;
+  const shared = useMemo(() => {
+    const v = perChild.find((p) => p.version?.band === sharedBand)?.version;
+    if (!v) return [];
+    const names = perChild.filter((p) => p.version).map((p) => p.child.nickname).join(', ');
+    return [{ child: { id: 'shared', nickname: names, band: v.band as Band }, version: v }];
+  }, [perChild, sharedBand]);
+  const leadVersion = shared[0]?.version ?? null;
 
   const guide = useMemo(() => (leadVersion ? parseGuide(leadVersion.adultGuide) : null), [leadVersion]);
   const rawGuide = leadVersion?.adultGuide ?? '';
@@ -98,7 +112,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
     try { localStorage.setItem('ritual.audience', a); } catch { /* sem armazenamento */ }
   };
 
-  const kidsView = perChild.some((p) => p.version);
+  const kidsView = shared.length > 0;
   const budget = useMemo(() => pageBudget(window.innerWidth, window.innerHeight), []);
 
   // Mede o espaço real da tela: cada parte leva o que cabe, sem sobrar um vazio enorme nem passar do limite.
@@ -133,8 +147,8 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   const run = (blocks: string[], fits: Fit | null, first = false) => (fits ? paginateFit(blocks, fits) : paginate(blocks, budget.max, first ? budget.first : budget.max));
 
   // Textos longos se dividem em partes, uma ideia por tela.
-  const nKids = Math.max(1, perChild.filter((p) => p.version).length);
-  const readKids = useMemo(() => perChild.map(({ child, version }) => {
+  const nKids = 1;
+  const readKids = useMemo(() => shared.map(({ child, version }) => {
     const head = (first: boolean) => tagHtml(tt('stepRead', '1 · Ler')) + (first ? verseHtml() : '');
     const fits: Fit | null = fitCfg ? (page, i) => {
       const base = fitCfg.measure(`<div class="ritual__screen">${head(i === 0)}</div>`);
@@ -142,7 +156,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
       return fitCfg.measure(`<div class="ritual__screen">${head(i === 0)}${sec}</div>`) <= base + (fitCfg.h - base) / nKids - slack;
     } : null;
     return { child, version, pages: run(plainBlocks(version?.whatItSays), fits, true) };
-  }), [perChild, budget, fitCfg, reader, devotional, nKids]); // eslint-disable-line react-hooks/exhaustive-deps
+  }), [shared, budget, fitCfg, reader, devotional, nKids]); // eslint-disable-line react-hooks/exhaustive-deps
   const readAdult = useMemo(() => run(htmlBlocks(devotional?.reflection), screenFits((f) => tagHtml(tt('stepRead', '1 · Ler')) + (f ? verseHtml() : ''), (pg) => `<div class="ritual__text">${pg.join('')}</div>`), true), [devotional, budget, fitCfg, reader]); // eslint-disable-line react-hooks/exhaustive-deps
   const readCount = Math.max(1, kidsView ? Math.max(...readKids.map((k) => k.pages.length)) : readAdult.length);
 
@@ -285,6 +299,16 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
                 ))}
               </div>
               {reader && <p className="fam-note">{tt('reader', '{{name}} lê em voz alta', { name: reader })}</p>}
+              {audience === 'kids' && bandsHere.length > 1 && (
+                <>
+                  <h3 className="ritual__who-sub">{tt('sharedVersion', 'Todos ouvem a mesma leitura. Qual versão?')}</h3>
+                  <div className="fam-people">
+                    {bandsHere.map((b) => (
+                      <button key={b} type="button" className={`fam-chip${b === sharedBand ? ' is-on' : ''}`} aria-pressed={b === sharedBand} onClick={() => setLeadBand(b)}>{b.replace('-', ' a ')} {tt('years', 'anos')}</button>
+                    ))}
+                  </div>
+                </>
+              )}
               {audience === 'kids' && (
                 <>
                   <h3 className="ritual__who-sub">{family.children.length > 0 ? tt('addAnother', 'Adicionar outra criança') : tt('addFirst', 'Quem vai ler com você?')}</h3>
@@ -363,7 +387,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
                 <div className="sec-card"><Paragraphs text={(doGuide[screen.part ?? 0] ?? []).join('\n\n')} /></div>
               </>
             ) : kidsView ? (
-              perChild.filter((p) => p.version).map(({ child, version }) => (
+              shared.map(({ child, version }) => (
                 <section key={child.id} className="ritual__kid"><h3>{child.nickname}</h3><div className="sec-card"><Paragraphs text={version!.practice} strong /></div></section>
               ))
             ) : (
@@ -386,7 +410,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
             ) : kidsView ? (
               <>
                 <SectionLabel icon="prayer">{tt('prayer', 'Oração')}</SectionLabel>
-                {perChild.filter((p) => p.version?.prayer).map(({ child, version }) => (
+                {shared.filter((p) => p.version?.prayer).map(({ child, version }) => (
                   <section key={child.id} className="ritual__kid"><h3>{child.nickname}</h3><div className="sec-prayer"><Paragraphs text={version!.prayer} /></div></section>
                 ))}
               </>
