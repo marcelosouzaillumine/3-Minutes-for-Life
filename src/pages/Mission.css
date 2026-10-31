@@ -1490,3 +1490,81 @@
     padding: 2rem 1.5rem;
   }
 }
+
+/* ===== /apoiar: seções alinhadas entre os 3 cartões (nome, preço, extra, botão) ===== */
+.apoiar-tiers .editorial-tier-name {
+  font-size: clamp(1.4rem, 1.9vw, 1.9rem);
+  white-space: nowrap;
+  margin-bottom: 1.25rem;
+}
+
+.apoiar-tiers .editorial-tier-price {
+  margin-bottom: 1.5rem;
+}
+
+.apoiar-extra {
+  margin-bottom: 1.5rem;
+}
+
+.apoiar-chips {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.apoiar-chip {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0.55rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--landing-border);
+  background: transparent;
+  color: var(--landing-text);
+  font-size: 0.95rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.apoiar-chip:hover { border-color: var(--landing-accent); }
+
+.apoiar-chip.is-active {
+  background: var(--landing-accent);
+  border-color: var(--landing-accent);
+  color: #fff;
+}
+
+.apoiar-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--landing-border);
+  background: #fff;
+  color: var(--landing-text);
+  font-size: 1rem;
+  text-align: center;
+}
+
+.apoiar-input:focus {
+  outline: none;
+  border-color: var(--landing-accent);
+}
+
+@media (min-width: 900px) {
+  .apoiar-tiers {
+    grid-template-rows: auto auto auto auto;
+  }
+
+  .apoiar-tiers .editorial-tier {
+    display: grid;
+    grid-template-rows: subgrid;
+    grid-row: span 4;
+    row-gap: 0;
+    padding: 3rem 1.75rem;
+  }
+
+  .apoiar-tiers .editorial-tier-name { align-self: end; }
+  .apoiar-tiers .editorial-btn { align-self: end; justify-self: center; }
+}

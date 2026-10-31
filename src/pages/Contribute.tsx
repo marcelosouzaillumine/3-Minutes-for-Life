@@ -160,7 +160,7 @@ export function Contribute() {
           )}
         </p>
 
-        <div className="editorial-tiers three-tiers">
+        <div className="editorial-tiers three-tiers apoiar-tiers">
 
           {/* Plano Mensal */}
           <div className="editorial-tier">
@@ -183,10 +183,12 @@ export function Contribute() {
               </span>
             </div>
 
+            <div className="apoiar-extra" aria-hidden="true" />
+
             <button
               type="button"
               className="editorial-btn"
-              style={{ minHeight: 78, marginTop: 'auto' }}
+              style={{ minHeight: 78 }}
               disabled={!!pendingKey}
               onClick={() => startCheckout(PLAN_MAP.apoio_mensal)}
             >
@@ -219,10 +221,12 @@ export function Contribute() {
               </span>
             </div>
 
+            <div className="apoiar-extra" aria-hidden="true" />
+
             <button
               type="button"
               className="editorial-btn primary"
-              style={{ minHeight: 78, marginTop: 'auto' }}
+              style={{ minHeight: 78 }}
               disabled={!!pendingKey}
               onClick={() => startCheckout(PLAN_MAP.apoio_anual)}
             >
@@ -246,27 +250,14 @@ export function Contribute() {
               </span>
             </div>
 
-            <div style={{ marginTop: 'auto', marginBottom: '1.25rem', paddingTop: '1rem' }}>
-              <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginBottom: '0.75rem' }}>
+            <div className="apoiar-extra">
+              <div className="apoiar-chips">
                 {[20, 50, 100].map((v) => (
                   <button
                     key={v}
                     type="button"
+                    className={`apoiar-chip${customAmount === String(v) ? ' is-active' : ''}`}
                     onClick={() => setCustomAmount(String(v))}
-                    style={{
-                      padding: '0.4rem 0.9rem',
-                      whiteSpace: 'nowrap',
-                      lineHeight: 1.2,
-                      minWidth: 0,
-                      textTransform: 'none',
-                      letterSpacing: 0,
-                      borderRadius: 999,
-                      border: '1px solid var(--landing-border, #d5d0cb)',
-                      background: customAmount === String(v) ? '#8a6f4d' : 'transparent',
-                      color: customAmount === String(v) ? '#fff' : 'inherit',
-                      fontSize: '0.9rem',
-                      cursor: 'pointer',
-                    }}
                   >
                     {`R$ ${v}`}
                   </button>
@@ -276,17 +267,17 @@ export function Contribute() {
                 type="text"
                 inputMode="decimal"
                 aria-label={t('contribution:oneTime.amountLabel', 'Valor da contribuição em reais')}
-                placeholder={t('contribution:oneTime.amountPlaceholder', 'Outro valor, ex.: 35,00')}
+                placeholder={t('contribution:oneTime.amountPlaceholder', 'Outro valor (R$)')}
                 value={customAmount}
                 onChange={(e) => setCustomAmount(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') startOneTime(); }}
-                style={{ width: '100%', boxSizing: 'border-box', padding: '0.8rem 0.9rem', borderRadius: 10, border: '1px solid #d5d0cb', fontSize: '1.05rem', textAlign: 'center' }}
+                className="apoiar-input"
               />
             </div>
             <button
               type="button"
               className="editorial-btn"
-              style={{ minHeight: 78, marginTop: 'auto' }}
+              style={{ minHeight: 78 }}
               disabled={!!pendingKey}
               onClick={startOneTime}
             >
