@@ -442,7 +442,15 @@
     "inviteTitle": "Read as a family",
     "inviteText": "A reading for the table, with questions, an activity and a prayer.",
     "inviteCta": "Start",
-    "guideNote": "The guide and support material are in Read as a family."
+    "guideNote": "The guide and support material are in Read as a family.",
+    "promise": "3 minutes · read, talk, do and pray together",
+    "withWhom": "Who are you reading with today?",
+    "onlyAdults": "Adults only",
+    "withKids": "With children",
+    "noKidsHint": "Couple, group or on your own: it works the same way. To read with children, add them under Family.",
+    "adultQ1": "What stood out to you most in today's text?",
+    "adultQ2": "Where does this touch your week, honestly?",
+    "adultQ3": "What are you taking from this reading into today?"
   },
   "familyNav": "Family",
   "plansx": {

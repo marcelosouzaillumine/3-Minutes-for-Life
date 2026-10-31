@@ -34,6 +34,7 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
     reflection: initialSource.reflection || '',
     practical_application: initialSource.practical_application || '',
     prayer: initialSource.prayer || '',
+    discussion_questions: initialSource.discussion_questions || '',
     content_tip: initialSource.content_tip || '',
     content_tip_image_url: initialSource.content_tip_image_url || '',
     content_tip_url: initialSource.content_tip_url || '',
@@ -73,6 +74,7 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
         reflection: form.reflection,
         practical_application: form.practical_application || null,
         prayer: form.prayer || null,
+        discussion_questions: form.discussion_questions || null,
         content_tip: form.content_tip || null,
         content_tip_image_url: form.content_tip_image_url || null,
         content_tip_url: form.content_tip_url || null,
@@ -121,6 +123,7 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
         reflection: form.reflection,
         practical_application: form.practical_application || null,
         prayer: form.prayer || null,
+        discussion_questions: form.discussion_questions || null,
         content_tip: form.content_tip || null,
         content_tip_image_url: form.content_tip_image_url || null,
         content_tip_url: form.content_tip_url || null,
@@ -152,6 +155,7 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
     reflection: form.reflection || devotional.reflection,
     practical_application: form.practical_application || devotional.practical_application,
     prayer: form.prayer || devotional.prayer,
+    discussion_questions: form.discussion_questions || devotional.discussion_questions,
     content_tip: form.content_tip || devotional.content_tip,
     content_tip_image_url: form.content_tip_image_url || devotional.content_tip_image_url,
     content_tip_url: form.content_tip_url || devotional.content_tip_url,
@@ -528,6 +532,22 @@ export const ManualTranslationEditor: React.FC<ManualTranslationEditorProps> = (
               </div>
             </div>
           )}
+
+          {/* 7b. Perguntas para conversar */}
+          <div>
+            <label style={{ display: 'block', marginBottom: '6px', fontSize: '0.85rem', fontWeight: 'bold' }}>
+              Perguntas para conversar (adultos, uma por linha)
+            </label>
+            {devotional.discussion_questions && (
+              <p style={{ margin: '0 0 8px', fontSize: '0.8rem', color: '#888', whiteSpace: 'pre-line' }}>{devotional.discussion_questions}</p>
+            )}
+            <textarea
+              rows={5}
+              value={form.discussion_questions}
+              onChange={(e) => setForm(f => ({ ...f, discussion_questions: e.target.value }))}
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', resize: 'vertical' }}
+            />
+          </div>
 
           {/* 8. Dica de conteúdo */}
           {(devotional.content_tip || devotional.content_tip_image_url) && (

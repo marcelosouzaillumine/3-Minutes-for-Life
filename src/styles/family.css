@@ -99,6 +99,7 @@
 .ritual__progress i.is-on { background: var(--accent-strong); }
 .ritual__body { flex: 1; overflow-y: auto; width: 100%; max-width: 32rem; margin: 0 auto; padding: 1.5rem 1.5rem 2rem; display: grid; align-content: start; gap: 1rem; }
 .ritual__title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 2rem; line-height: 1.15; }
+.ritual__verse { margin: 0; font-size: 0.95rem; font-weight: 600; letter-spacing: 0.04em; color: var(--accent, currentColor); }
 .ritual__lead { margin: 0; font-size: 1.05rem; line-height: 1.6; color: var(--text-muted); }
 /* Mesmo cartão do devocional principal (.principle-scripture), com letra maior por ser leitura em voz alta. */
 .ritual__body .principle-scripture--ritual { margin-bottom: 0; padding: 1.25rem 1.3rem; }

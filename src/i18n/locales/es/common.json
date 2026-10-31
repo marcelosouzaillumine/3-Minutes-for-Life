@@ -448,7 +448,15 @@
     "inviteTitle": "Leer en familia",
     "inviteText": "Una lectura para la mesa, con preguntas, una actividad y una oración.",
     "inviteCta": "Empezar",
-    "guideNote": "La guía y el material de apoyo están en el modo Leer en familia."
+    "guideNote": "La guía y el material de apoyo están en el modo Leer en familia.",
+    "promise": "3 minutos · leer, conversar, hacer y orar juntos",
+    "withWhom": "¿Con quién vas a leer hoy?",
+    "onlyAdults": "Solo adultos",
+    "withKids": "Con niños",
+    "noKidsHint": "En pareja, en grupo o a solas: funciona igual. Para leer con niños, agrégalos en Familia.",
+    "adultQ1": "¿Qué fue lo que más te llamó la atención del texto de hoy?",
+    "adultQ2": "¿Dónde toca esto tu semana, de verdad?",
+    "adultQ3": "¿Qué te llevas de esta lectura para hoy?"
   },
   "familyNav": "Familia",
   "plansx": {

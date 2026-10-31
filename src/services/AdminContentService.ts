@@ -29,6 +29,7 @@ function l1TransToSnake(t: any): any {
     reflection: t.reflection,
     practical_application: t.practicalApplication ?? null,
     prayer: t.prayer ?? null,
+    discussion_questions: t.discussionQuestions ?? null,
     content_tip: t.contentTip ?? null,
     content_tip_image_url: t.contentTipImageUrl ?? null,
     content_tip_url: t.contentTipUrl ?? null,
@@ -59,6 +60,7 @@ function l1DevToSnake(d: any): any {
     reflection: d.reflection,
     practical_application: d.practicalApplication ?? null,
     prayer: d.prayer ?? null,
+    discussion_questions: d.discussionQuestions ?? null,
     content_tip: d.contentTip ?? null,
     content_tip_image_url: d.contentTipImageUrl ?? null,
     content_tip_url: d.contentTipUrl ?? null,
@@ -82,7 +84,7 @@ function snakeDevToL1Camel(devotional: Partial<any>): Record<string, any> {
   const {
     translations, devotional_translations, categories,
     publication_date, principle_statement, scripture_reference, scripture_text,
-    practical_application, content_tip, content_tip_image_url, content_tip_url,
+    practical_application, discussion_questions, content_tip, content_tip_image_url, content_tip_url,
     support_message, support_banner_url, support_link_url, audio_url,
     category_id, theme_id, legacy_id, content_hash,
     created_at, updated_at, ...rest
@@ -94,6 +96,7 @@ function snakeDevToL1Camel(devotional: Partial<any>): Record<string, any> {
     ...(scripture_reference !== undefined && { scriptureReference: scripture_reference }),
     ...(scripture_text !== undefined      && { scriptureText: scripture_text }),
     ...(practical_application !== undefined && { practicalApplication: practical_application }),
+    ...(discussion_questions !== undefined && { discussionQuestions: discussion_questions }),
     ...(content_tip !== undefined          && { contentTip: content_tip }),
     ...(content_tip_image_url !== undefined && { contentTipImageUrl: content_tip_image_url }),
     ...(content_tip_url !== undefined      && { contentTipUrl: content_tip_url }),
@@ -335,6 +338,7 @@ export const AdminContentService = {
     reflection: string
     practical_application?: string | null
     prayer?: string | null
+    discussion_questions?: string | null
     content_tip?: string | null
     content_tip_image_url?: string | null
     content_tip_url?: string | null
@@ -360,6 +364,7 @@ export const AdminContentService = {
       reflection: params.reflection ? sanitizeHtml(params.reflection) : '',
       practicalApplication: params.practical_application ? sanitizeHtml(params.practical_application) : undefined,
       prayer: params.prayer ? sanitizeHtml(params.prayer) : undefined,
+      discussionQuestions: params.discussion_questions?.trim() || undefined,
       contentTip: params.content_tip ? sanitizeHtml(params.content_tip) : undefined,
       contentTipImageUrl: params.content_tip_image_url || undefined,
       contentTipUrl: params.content_tip_url || undefined,
