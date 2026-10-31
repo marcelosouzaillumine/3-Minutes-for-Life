@@ -1,0 +1,177 @@
+{
+  "nav": {
+    "howItWorks": "Comment ça marche",
+    "about": "À propos",
+    "support": "Soutenir le projet",
+    "start": "Commencer",
+    "donate": "Soutenir"
+  },
+  "hero": {
+    "title": "Trois minutes pour regarder la vie avec plus d'attention.",
+    "subtitle": "Une réflexion par jour, à lire seul ou en famille. Pour s'arrêter, penser à sa vie et remarquer ce qui mérite votre attention.",
+    "btnStart": "Méditation du jour",
+    "hint": "Sans inscription pour essayer.",
+    "mockupLabel": "Continuer",
+    "imageAlt": "Une table en bois près de la fenêtre, avec une tasse de café, un vase de fleurs et la lumière du matin"
+  },
+  "tension": {
+    "kicker": "Pourquoi trois minutes ?",
+    "title": "Votre journée est déjà<br/>bien remplie.",
+    "p1": "Messages, travail, actualités, décisions, soucis. Et il y a toujours une chose de plus.",
+    "p2": "Au milieu de tout cela, il est facile de passer la journée à réagir à ce qui arrive et de s'arrêter presque jamais pour remarquer ce qui se passe en nous."
+  },
+  "relief": {
+    "title": "C'est pour cela que les trois minutes existent.",
+    "subtitle": "Un moment dans la journée pour s'arrêter, réfléchir et regarder la vie avec plus de clarté."
+  },
+  "experience": {
+    "step1": {
+      "title": "Arrêtez-vous.",
+      "desc": "Respirez.<br/>Ralentissez.<br/>Soyez attentif."
+    },
+    "step2": {
+      "title": "Réfléchissez.",
+      "desc": "Une idée.<br/>Une question.<br/>Un regard neuf."
+    },
+    "step3": {
+      "title": "Mettez en pratique.",
+      "desc": "Portez la réflexion dans la vie de tous les jours."
+    }
+  },
+  "quote1": {
+    "top": "Une pause peut changer la façon dont vous voyez la journée.",
+    "statement": "La vie n'a pas besoin de plus de vitesse.<br />Elle a besoin de plus d'attention."
+  },
+  "split": {
+    "title": "Comment voyez-vous votre vie ?",
+    "p1": "La vie est faite de choix, de relations, de défis et de questions qui n'ont pas toujours de réponses faciles. Avec 3 Minutes for Life, la foi chrétienne nous aide à tout regarder à partir de Dieu et des paroles de Jésus.",
+    "p2": "C'est une invitation à ralentir, à réfléchir à la vie et à trouver une direction pour vivre chaque jour avec plus de sens."
+  },
+  "audience": {
+    "p1": "Il y a des moments où nous devons prendre une décision, ralentir, mieux prendre soin d'une relation, trouver plus de sens dans ce que nous faisons, transmettre à nos enfants ce qui compte, ou simplement nous arrêter quelques minutes.",
+    "p2": "3 Minutes for Life a été créé pour ces moments."
+  },
+  "quote2": {
+    "statement": "Trois minutes.<br />Une réflexion.<br />Un petit pas.",
+    "bottom": "Pour ne pas perdre de vue ce qui donne du sens à votre vie."
+  },
+  "sustainability": {
+    "title": "Un projet gratuit, soutenu par des personnes",
+    "p1": "3 Minutes for Life est né pour que chacun puisse trouver, chaque jour, quelques minutes pour s'arrêter, réfléchir et regarder la vie avec plus d'attention.",
+    "p2": "C'est pourquoi l'accès au contenu est gratuit.",
+    "p3": "Nous ne voulons pas que la capacité de payer détermine qui peut recevoir une réflexion.",
+    "p4": "Le projet est soutenu par des personnes qui croient en cette proposition et choisissent de contribuer volontairement pour qu'il continue d'exister, soit entretenu et puisse toucher davantage de monde.",
+    "p5": "Vous n'avez pas besoin de contribuer pour l'utiliser. Le soutien est volontaire et ne change ni l'accès au contenu ni les fonctionnalités essentielles de 3 Minutes for Life.",
+    "p6": "Si, à un moment donné, vous sentez que cela vaut la peine d'aider, vous pourrez faire partie de la pérennité du projet.",
+    "btn": "Soutenir le projet",
+    "breakdownTitle": "Où va le soutien ?",
+    "breakdownDesc": "Les contributions aident à maintenir et à développer le projet.",
+    "items": [
+      {
+        "title": "Contenu",
+        "desc": "Production, relecture et développement des réflexions."
+      },
+      {
+        "title": "Technologie",
+        "desc": "Applications, serveurs, bases de données et infrastructure."
+      },
+      {
+        "title": "Portée",
+        "desc": "Communication et initiatives pour que plus de personnes découvrent le projet."
+      },
+      {
+        "title": "Développement",
+        "desc": "Nouveaux contenus, fonctionnalités et possibilités pour enrichir l'expérience."
+      }
+    ],
+    "note": "À mesure que le projet grandira, nous voulons expliquer en toute transparence comment les ressources sont utilisées."
+  },
+  "continue": {
+    "title": "Votre moment quotidien.",
+    "subtitle": "Une nouvelle réflexion chaque matin, pour vous et pour votre maison.",
+    "btnCreate": "Créer mon compte",
+    "btnLogin": "Vous avez déjà un compte ? Se connecter"
+  },
+  "faq": {
+    "title": "Questions fréquentes",
+    "q1": {
+      "q": "3 Minutes for Life est-il gratuit ?",
+      "a": "Oui. L'accès au contenu principal est gratuit. Le projet est soutenu par des personnes qui choisissent de le soutenir volontairement."
+    },
+    "q2": {
+      "q": "Faut-il être chrétien pour l'utiliser ?",
+      "a": "Non. 3 Minutes for Life part d'une perspective chrétienne, mais il a été conçu pour parler à toute personne qui veut s'arrêter, réfléchir et regarder la vie avec plus d'attention."
+    },
+    "q3": {
+      "q": "Combien de temps faut-il par jour ?",
+      "a": "L'idée est de prendre environ trois minutes, seul ou en famille."
+    },
+    "q4": {
+      "q": "Faut-il installer une application ?",
+      "a": "La plateforme fonctionne directement dans le navigateur et peut être ajoutée à l'écran d'accueil du téléphone comme une application. La réflexion de demain est enregistrée sur l'appareil, vous pouvez donc la lire même sans connexion."
+    },
+    "q5": {
+      "q": "Le contenu est-il généré par intelligence artificielle ?",
+      "a": "Non. Le contenu est écrit et relu par des personnes, pour préserver une voix humaine, simple et cohérente."
+    },
+    "q6": {
+      "q": "Comment puis-je soutenir le projet ?",
+      "a": "Le contenu est gratuit. Si vous souhaitez contribuer volontairement à la continuité et à l'expansion du projet, vous pourrez découvrir les formes de soutien proposées par 3 Minutes for Life. Le soutien n'est pas nécessaire pour accéder au contenu."
+    },
+    "q7": {
+      "q": "Comment fonctionne la lecture en famille ?",
+      "a": "Vous créez votre famille, vous invitez les adultes par un lien et vous ajoutez les enfants avec seulement un surnom et une tranche d'âge. Tous lisent le même passage le même jour, et chaque enfant a une version adaptée à son âge, de 4 à 13 ans."
+    },
+    "q8": {
+      "q": "Mes enfants ont-ils besoin d'un compte ?",
+      "a": "Non. Les enfants n'ont pas de compte : nous gardons seulement le surnom et la tranche d'âge, jamais le nom de famille, la photo ou l'e-mail."
+    }
+  },
+  "cta": {
+    "title": "Réservez trois minutes.",
+    "subtitle": "Arrêtez-vous. Réfléchissez. Vivez.",
+    "btn": "Commencer aujourd'hui"
+  },
+  "footer": {
+    "tagline": "Trois minutes pour regarder la vie avec plus d'attention.",
+    "links": {
+      "howItWorks": "Comment ça marche",
+      "about": "À propos",
+      "support": "Soutenir le projet",
+      "privacy": "Confidentialité",
+      "terms": "Conditions",
+      "contact": "Contact",
+      "donate": "Soutenir",
+      "today": "Méditation du jour"
+    },
+    "copy": "{{brandName}}"
+  },
+  "showcase": {
+    "items": [
+      {
+        "id": "busca",
+        "kicker": "Pour chaque moment",
+        "title": "Écrivez comment vous allez. Nous trouvons la réflexion.",
+        "desc": "Fatigue, anxiété, une décision difficile. Dites en quelques mots ce que vous vivez et trouvez une réflexion faite pour ce moment.",
+        "note": "Ce que vous écrivez reste sur votre appareil.",
+        "alt": "Recherche dans l'application avec la phrase « je n'ai plus de force » et trois réflexions en résultat"
+      },
+      {
+        "id": "familia",
+        "kicker": "En famille",
+        "title": "Un moment pour grandir en famille.",
+        "desc": "Le même message biblique, avec des mots pour chaque âge. Lisez la méditation du jour et découvrez ensemble ce qu'elle enseigne pour la vie.",
+        "note": "Les enfants participent sans avoir besoin de compte.",
+        "alt": "Écran Famille de l'application avec l'invitation « Lisez ensemble »"
+      },
+      {
+        "id": "jornada",
+        "kicker": "Jour après jour",
+        "title": "Revenez demain. Nous gardons votre place.",
+        "desc": "Suivez vos jours consécutifs, gardez ce que vous avez remarqué dans chaque réflexion, suivez un plan de 7 ou 21 jours et, si vous le souhaitez, recevez la réflexion par e-mail à 7 h.",
+        "note": "Vous avez manqué un jour ? Pas de souci : l'important est de revenir.",
+        "alt": "Résumé du parcours dans l'application avec les jours consécutifs et les jours lus dans le mois"
+      }
+    ]
+  }
+}

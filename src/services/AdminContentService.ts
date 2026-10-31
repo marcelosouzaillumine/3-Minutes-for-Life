@@ -8,6 +8,8 @@ const LANGUAGES = [
   { iso_code: 'pt-BR', name: 'Português (Brasil)', flag_emoji: '🇧🇷', is_source: true,  is_active: true, display_order: 1 },
   { iso_code: 'en',    name: 'English',             flag_emoji: '🇺🇸', is_source: false, is_active: true, display_order: 2 },
   { iso_code: 'es',    name: 'Spanish',             flag_emoji: '🇪🇸', is_source: false, is_active: true, display_order: 3 },
+  { iso_code: 'fr',    name: 'French',              flag_emoji: '🇫🇷', is_source: false, is_active: true, display_order: 4 },
+  { iso_code: 'it',    name: 'Italian',             flag_emoji: '🇮🇹', is_source: false, is_active: true, display_order: 5 },
 ]
 
 // ─── Field-name converters ────────────────────────────────────────────────────
@@ -152,6 +154,53 @@ async function l1Delete(path: string): Promise<void> {
 
 // ─── Service ──────────────────────────────────────────────────────────────────
 
+export type LangState = { manual: any; ai: any; state: string; isStale: boolean; isPossiblyStale: boolean }
+
+/** Estado de cada tradução do devocional (manual vence IA; detecta desatualizada). */
+export function buildLangMap(devotional: any): Record<string, LangState> {
+  const langMap: Record<string, LangState> = {}
+
+  for (const t of devotional.devotional_translations || []) {
+    const lang = t.language
+    if (!langMap[lang]) langMap[lang] = { manual: null, ai: null, state: 'none', isStale: false, isPossiblyStale: false }
+    if (t.translation_source === 'manual') langMap[lang].manual = t
+    else langMap[lang].ai = t
+  }
+
+  for (const lang of Object.keys(langMap)) {
+    const { manual, ai } = langMap[lang]
+    let active: any = null
+    if (manual?.status === 'published') { langMap[lang].state = 'manual_published'; active = manual }
+    else if (manual?.status === 'draft') { langMap[lang].state = 'draft'; active = manual }
+    else if (ai?.status === 'published') { langMap[lang].state = 'ai_published'; active = ai }
+    else { langMap[lang].state = 'draft'; active = ai }
+
+    // Desatualizada (confirmado): a tradução tem hash de origem gravado e
+    // ele não bate mais com o hash atual do devocional.
+    langMap[lang].isStale = !!(
+      active?.source_content_hash &&
+      devotional.content_hash &&
+      active.source_content_hash !== devotional.content_hash
+    )
+
+    // Desatualizada (possível, não confirmada): tradução antiga, de antes
+    // do hash de origem existir (source_content_hash nulo), então não dá
+    // pra comparar com precisão. Usa data como indício: se o devocional
+    // foi editado depois da última vez que a tradução foi salva, pode ter
+    // ficado pra trás — mas qualquer edição (até de campo não traduzível)
+    // bate esse sinal, então é heurística, não confirmação.
+    langMap[lang].isPossiblyStale = !!(
+      !langMap[lang].isStale &&
+      active &&
+      !active.source_content_hash &&
+      devotional.updated_at &&
+      active.updated_at &&
+      new Date(devotional.updated_at).getTime() > new Date(active.updated_at).getTime()
+    )
+  }
+  return langMap
+}
+
 export const AdminContentService = {
   async getLanguages(): Promise<any[]> {
     return LANGUAGES
@@ -232,50 +281,7 @@ export const AdminContentService = {
     const data = await l1Get('/devotionals?status=published&perPage=500')
     const devotionals = (data?.devotionals ?? []).map(l1DevToSnake)
 
-    return devotionals.map((devotional: any) => {
-      const langMap: Record<string, { manual: any; ai: any; state: string; isStale: boolean; isPossiblyStale: boolean }> = {}
-
-      for (const t of devotional.devotional_translations || []) {
-        const lang = t.language
-        if (!langMap[lang]) langMap[lang] = { manual: null, ai: null, state: 'none', isStale: false, isPossiblyStale: false }
-        if (t.translation_source === 'manual') langMap[lang].manual = t
-        else langMap[lang].ai = t
-      }
-
-      for (const lang of Object.keys(langMap)) {
-        const { manual, ai } = langMap[lang]
-        let active: any = null
-        if (manual?.status === 'published') { langMap[lang].state = 'manual_published'; active = manual }
-        else if (manual?.status === 'draft') { langMap[lang].state = 'draft'; active = manual }
-        else if (ai?.status === 'published') { langMap[lang].state = 'ai_published'; active = ai }
-        else { langMap[lang].state = 'draft'; active = ai }
-
-        // Desatualizada (confirmado): a tradução tem hash de origem gravado e
-        // ele não bate mais com o hash atual do devocional.
-        langMap[lang].isStale = !!(
-          active?.source_content_hash &&
-          devotional.content_hash &&
-          active.source_content_hash !== devotional.content_hash
-        )
-
-        // Desatualizada (possível, não confirmada): tradução antiga, de antes
-        // do hash de origem existir (source_content_hash nulo), então não dá
-        // pra comparar com precisão. Usa data como indício: se o devocional
-        // foi editado depois da última vez que a tradução foi salva, pode ter
-        // ficado pra trás — mas qualquer edição (até de campo não traduzível)
-        // bate esse sinal, então é heurística, não confirmação.
-        langMap[lang].isPossiblyStale = !!(
-          !langMap[lang].isStale &&
-          active &&
-          !active.source_content_hash &&
-          devotional.updated_at &&
-          active.updated_at &&
-          new Date(devotional.updated_at).getTime() > new Date(active.updated_at).getTime()
-        )
-      }
-
-      return { ...devotional, langMap }
-    })
+    return devotionals.map((devotional: any) => ({ ...devotional, langMap: buildLangMap(devotional) }))
   },
 
   async getDevotionalsForManualTranslation(targetLanguage: string): Promise<any[]> {

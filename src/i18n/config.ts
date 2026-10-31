@@ -26,6 +26,10 @@ import esContribution from './locales/es/contribution.json';
 import esMission from './locales/es/mission.json';
 import esLanding from './locales/es/landing.json';
 
+// FR e IT: por enquanto só a landing; o resto cai no inglês e depois no português.
+import frLanding from './locales/fr/landing.json';
+import itLanding from './locales/it/landing.json';
+
 export const defaultNS = 'common';
 
 // Initialize i18next
@@ -62,13 +66,15 @@ i18n
         contribution: esContribution,
         mission: esMission,
         landing: esLanding
-      }
+      },
+      'fr': { landing: frLanding },
+      'it': { landing: itLanding }
     },
     defaultNS,
-    fallbackLng: 'pt-BR',
+    fallbackLng: { fr: ['en', 'pt-BR'], it: ['en', 'pt-BR'], default: ['pt-BR'] },
     
     // Whitelist supported languages
-    supportedLngs: ['pt-BR', 'en', 'es'],
+    supportedLngs: ['pt-BR', 'en', 'es', 'fr', 'it'],
     
     // Language detection configuration
     detection: {
