@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { guideVersion, htmlBlocks, pageBudget, paginate, parseGuide, plainBlocks, readerForDay, versionsForChildren } from './ritual';
+import { guideVersion, htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks, readerForDay, versionsForChildren } from './ritual';
 import type { KidsVersion } from '../services/FamilyService';
 
 const v = (band: KidsVersion['band']): KidsVersion => ({
@@ -92,5 +92,17 @@ describe('ritual', () => {
     expect(phone.first).toBeLessThan(phone.max);
     expect(phone.max).toBeLessThanOrEqual(tall.max);
     expect(phone.max).toBeGreaterThan(200);
+  });
+
+  it('paginateFit usa a medida real: tela termina em parágrafo e só divide o que não cabe sozinho', () => {
+    const size = (page: string[]) => page.join('').replace(/<[^>]+>/g, '').length;
+    const fits = (page: string[]) => size(page) <= 400;
+    const blocks = [`<p>${'a'.repeat(150)}</p>`, `<p>${'b'.repeat(150)}</p>`, `<p>${'c'.repeat(150)}</p>`];
+    expect(paginateFit(blocks, fits).map((p) => p.length)).toEqual([2, 1]);
+    const long = `<p>${'Frase completa de teste. '.repeat(40).trim()}</p>`;
+    const pages = paginateFit([long], fits);
+    expect(pages.length).toBeGreaterThan(2);
+    for (const p of pages) { expect(size(p)).toBeLessThanOrEqual(400); expect(p.join('').replace(/<[^>]+>/g, '').trim().endsWith('.')).toBe(true); }
+    expect(paginateFit([], fits)).toEqual([]);
   });
 });

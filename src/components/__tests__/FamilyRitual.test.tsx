@@ -199,10 +199,10 @@ describe('FamilyRitual', () => {
     await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
     await flush(); await flush();
     await click('Continuar');
-    expect(host.textContent).toContain('Parte 1 de 5');
+    expect(host.textContent).toContain('1 de ');
     expect(host.textContent).toContain('Fp 4:6');
     await click('Continuar');
-    expect(host.textContent).toContain('Parte 2 de 5');
+    expect(host.textContent).toContain('2 de ');
     expect(host.textContent).not.toContain('Fp 4:6');
   });
 });
