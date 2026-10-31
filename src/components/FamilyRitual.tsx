@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { HtmlRenderer } from './HtmlRenderer';
 import { DevotionalService } from '../services/DevotionalService';
 import { JourneyService } from '../services/JourneyService';
 import { FamilyService, type Band, type Family, type KidsVersion } from '../services/FamilyService';
 import { getTodayInSaoPaulo } from '../utils/date';
-import { guideVersion, htmlBlocks, pageBudget, paginate, parseGuide, plainBlocks, readerForDay, versionsForChildren } from '../utils/ritual';
+import { guideVersion, htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks, readerForDay, versionsForChildren } from '../utils/ritual';
 import type { Devotional } from '../types/Devotional';
 import '../styles/family.css';
 import { Paragraphs } from './Paragraphs';
@@ -21,6 +21,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   const [kids, setKids] = useState<KidsVersion[]>([]);
   const [chosen, setChosen] = useState<'daily' | 'plan'>(source);
   const [present, setPresent] = useState<Set<string>>(new Set());
+  const [presentAdults, setPresentAdults] = useState<Set<number>>(new Set());
   const [kidNick, setKidNick] = useState('');
   const [kidBand, setKidBand] = useState<Band>('7-10');
   const [kidBusy, setKidBusy] = useState(false);
@@ -41,6 +42,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   useEffect(() => { FamilyService.get().then((f) => {
     setFamily(f);
     setPresent(new Set((f?.children ?? []).map((c) => c.id)));
+    setPresentAdults(new Set((f?.members ?? []).map((_, i) => i)));
     setLoaded(true);
   }).catch(() => setFailed(true)); }, []);
 
@@ -64,7 +66,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
     return () => { alive = false; };
   }, [family, useSource, planDay?.devotionalId, i18n.language]);
 
-  const adults = useMemo(() => (family?.members ?? []).map((m) => m.displayName ?? '').filter(Boolean), [family]);
+  const adults = useMemo(() => (family?.members ?? []).filter((_, i) => presentAdults.has(i)).map((m) => m.displayName ?? '').filter(Boolean), [family, presentAdults]);
   const dayKey = Math.floor(Date.now() / 86_400_000);
   const reader = readerForDay(adults, dayKey);
   // Uma só escolha de público conduz todas as telas: com crianças, tudo vem da faixa delas; só adultos, do texto adulto.
@@ -99,17 +101,59 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   const kidsView = perChild.some((p) => p.version);
   const budget = useMemo(() => pageBudget(window.innerWidth, window.innerHeight), []);
 
-  // Textos longos se dividem em partes curtas, uma ideia por tela.
-  const readKids = useMemo(() => perChild.map(({ child, version }) => ({ child, version, pages: paginate(plainBlocks(version?.whatItSays), budget.max, budget.first) })), [perChild, budget]);
-  const readAdult = useMemo(() => paginate(htmlBlocks(devotional?.reflection), budget.max, budget.first), [devotional, budget]);
+  // Mede o espaço real da tela: cada parte leva o que cabe, sem sobrar um vazio enorme nem passar do limite.
+  const [fitCfg, setFitCfg] = useState<{ h: number; measure: (html: string) => number } | null>(null);
+  useLayoutEffect(() => {
+    const host = bodyRef.current;
+    if (!host?.parentElement || host.clientHeight === 0) return;
+    const m = document.createElement('div');
+    m.className = 'ritual__body';
+    m.setAttribute('aria-hidden', 'true');
+    host.parentElement.appendChild(m);
+    const update = () => {
+      m.style.cssText = `position:absolute;left:0;top:0;visibility:hidden;pointer-events:none;width:${host.clientWidth}px;height:auto;flex:none;overflow:visible;`;
+      setFitCfg({ h: host.clientHeight, measure: (html) => { m.innerHTML = html; return m.scrollHeight; } });
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => { window.removeEventListener('resize', update); m.remove(); };
+  }, [loaded, family]);
+
+  const slack = 12;
+  const tagHtml = (n: string) => `<span class="ritual__tag">${esc(n)}</span>`;
+  const verseHtml = () => (reader ? `<p class="fam-note">${esc(tt('reader', '{{name}} lê em voz alta', { name: reader }))}</p>` : '')
+    + (devotional && (devotional.scripture_reference || devotional.scripture_text)
+      ? `<blockquote class="principle-scripture principle-scripture--ritual">${devotional.scripture_reference ? `<cite class="principle-scripture-reference">${esc(devotional.scripture_reference)}</cite>` : ''}${devotional.scripture_text ? `<p class="principle-scripture-text">“${esc(devotional.scripture_text)}”</p>` : ''}</blockquote>`
+      : '');
+  const label = '<div style="height:28px"></div>';
+  const plainHtml = (blocks: string[]) => blocks.map((x) => `<p>${esc(x)}</p>`).join('');
+  type Fit = (page: string[], i: number) => boolean;
+  const screenFits = (head: (first: boolean) => string, body: (page: string[]) => string): Fit | null =>
+    fitCfg ? (page, i) => fitCfg.measure(`<div class="ritual__screen">${head(i === 0)}${body(page)}</div>`) <= fitCfg.h - slack : null;
+  const run = (blocks: string[], fits: Fit | null, first = false) => (fits ? paginateFit(blocks, fits) : paginate(blocks, budget.max, first ? budget.first : budget.max));
+
+  // Textos longos se dividem em partes, uma ideia por tela.
+  const nKids = Math.max(1, perChild.filter((p) => p.version).length);
+  const readKids = useMemo(() => perChild.map(({ child, version }) => {
+    const head = (first: boolean) => tagHtml(tt('stepRead', '1 · Ler')) + (first ? verseHtml() : '');
+    const fits: Fit | null = fitCfg ? (page, i) => {
+      const base = fitCfg.measure(`<div class="ritual__screen">${head(i === 0)}</div>`);
+      const sec = `<section class="ritual__kid"><h3>${esc(child.nickname)} · ${esc(child.band)} anos</h3>${i === 0 && version?.title ? `<p class="ritual__kid-title">${esc(version.title)}</p>` : ''}${plainHtml(page)}</section>`;
+      return fitCfg.measure(`<div class="ritual__screen">${head(i === 0)}${sec}</div>`) <= base + (fitCfg.h - base) / nKids - slack;
+    } : null;
+    return { child, version, pages: run(plainBlocks(version?.whatItSays), fits, true) };
+  }), [perChild, budget, fitCfg, reader, devotional, nKids]); // eslint-disable-line react-hooks/exhaustive-deps
+  const readAdult = useMemo(() => run(htmlBlocks(devotional?.reflection), screenFits((f) => tagHtml(tt('stepRead', '1 · Ler')) + (f ? verseHtml() : ''), (pg) => `<div class="ritual__text">${pg.join('')}</div>`), true), [devotional, budget, fitCfg, reader]); // eslint-disable-line react-hooks/exhaustive-deps
   const readCount = Math.max(1, kidsView ? Math.max(...readKids.map((k) => k.pages.length)) : readAdult.length);
 
-  const doGuide = useMemo(() => paginate(plainBlocks(guide?.activity), budget.max), [guide, budget]);
-  const doAdult = useMemo(() => paginate(htmlBlocks(devotional?.practical_application), budget.max), [devotional, budget]);
+  const doHead = (f: boolean) => tagHtml(tt('stepDo', '3 · Fazer')) + (f ? label : '');
+  const doGuide = useMemo(() => run(plainBlocks(guide?.activity), screenFits(doHead, (pg) => `<div class="sec-card">${plainHtml(pg)}</div>`)), [guide, budget, fitCfg]); // eslint-disable-line react-hooks/exhaustive-deps
+  const doAdult = useMemo(() => run(htmlBlocks(devotional?.practical_application), screenFits(doHead, (pg) => `<div class="ritual__text">${pg.join('')}</div>`)), [devotional, budget, fitCfg]); // eslint-disable-line react-hooks/exhaustive-deps
   const doCount = Math.max(1, guide ? doGuide.length : kidsView ? 1 : doAdult.length);
 
-  const prayGuide = useMemo(() => paginate(plainBlocks(guide?.prayer), budget.max), [guide, budget]);
-  const prayAdult = useMemo(() => paginate(htmlBlocks(devotional?.prayer), budget.max), [devotional, budget]);
+  const prayHead = (f: boolean) => tagHtml(tt('stepPray', '4 · Orar')) + (f ? label : '');
+  const prayGuide = useMemo(() => run(plainBlocks(guide?.prayer), screenFits(prayHead, (pg) => `<div class="ritual--pray"><div class="sec-prayer">${plainHtml(pg)}</div></div>`)), [guide, budget, fitCfg]); // eslint-disable-line react-hooks/exhaustive-deps
+  const prayAdult = useMemo(() => run(htmlBlocks(devotional?.prayer), screenFits(prayHead, (pg) => `<div class="ritual--pray"><div class="ritual__text ritual__prayer sec-prayer">${pg.join('')}</div></div>`)), [devotional, budget, fitCfg]); // eslint-disable-line react-hooks/exhaustive-deps
   const prayCount = Math.max(1, guide ? prayGuide.length : kidsView ? 1 : prayAdult.length);
 
   // Telas: ler (em partes), uma por pergunta, fazer (em partes), orar.
@@ -222,46 +266,52 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
                 </button>
               </div>
             </section>
-            {audience === 'kids' && (
-              <section className="ritual__kids-box">
-                {family.children.length > 0 && (
-                  <>
-                    <h3 className="ritual__who-sub">{tt('whoIsHere', 'Quem está à mesa?')}</h3>
-                    <div className="fam-people">
-                      {family.children.map((c) => (
-                        <button key={c.id} type="button" className="fam-person" aria-pressed={present.has(c.id)}
-                          onClick={() => setPresent((p) => { const n = new Set(p); if (n.has(c.id)) n.delete(c.id); else n.add(c.id); return n; })}>
-                          <span className={`fam-avatar fam-avatar--child${present.has(c.id) ? ' is-read' : ''}`}>{c.nickname.slice(0, 2)}</span>
-                          <span className="fam-person__label">{c.nickname}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
-                <h3 className="ritual__who-sub">{family.children.length > 0 ? tt('addAnother', 'Adicionar outra criança') : tt('addFirst', 'Quem vai ler com você?')}</h3>
-                <form className="fam-inline" onSubmit={async (e) => {
-                  e.preventDefault();
-                  if (!kidNick.trim() || kidBusy) return;
-                  setKidBusy(true); setKidError('');
-                  try {
-                    const before = new Set(family.children.map((c) => c.id));
-                    const f = await FamilyService.addChild(kidNick.trim(), kidBand);
-                    setFamily(f);
-                    setPresent((p) => { const n = new Set(p); f.children.filter((c) => !before.has(c.id)).forEach((c) => n.add(c.id)); return n; });
-                    setKidNick('');
-                  } catch { setKidError(tt('setupError', 'Não foi possível salvar agora. Tente de novo.')); }
-                  setKidBusy(false);
-                }}>
-                  <input value={kidNick} onChange={(e) => setKidNick(e.target.value)} placeholder={tt('nickname', 'Apelido')} maxLength={20} aria-label={tt('nickname', 'Apelido')} />
-                  <select value={kidBand} onChange={(e) => setKidBand(e.target.value as Band)} aria-label={tt('band', 'Faixa de idade')}>
-                    {(['4-6', '7-10', '11-13'] as Band[]).map((b) => <option key={b} value={b}>{b.replace('-', ' a ')} {tt('years', 'anos')}</option>)}
-                  </select>
-                  <button type="submit" className="fam-btn fam-btn--secondary" disabled={kidBusy || !kidNick.trim()}>{tt('addChild', 'Adicionar criança')}</button>
-                </form>
-                {kidError && <p className="fam-error">{kidError}</p>}
-                <p className="fam-note">{tt('addOnceNote', 'Leitura de um dia só, na igreja por exemplo? Cadastre a criança aqui e remova depois em Grupo.')}</p>
-              </section>
-            )}
+            <section className="ritual__kids-box">
+              <h3 className="ritual__who-sub">{tt('whoIsHere', 'Quem está à mesa?')}</h3>
+              <div className="fam-people">
+                {family.members.map((m, i) => (
+                  <button key={`a${i}`} type="button" className="fam-person" aria-pressed={presentAdults.has(i)}
+                    onClick={() => setPresentAdults((p) => { const n = new Set(p); if (n.has(i)) n.delete(i); else n.add(i); return n; })}>
+                    <span className={`fam-avatar${presentAdults.has(i) ? ' is-read' : ''}`}>{(m.displayName ?? '?').trim().slice(0, 2)}</span>
+                    <span className="fam-person__label">{m.isMe ? tt('you', 'você') : m.displayName ?? tt('someone', 'Alguém')}</span>
+                  </button>
+                ))}
+                {audience === 'kids' && family.children.map((c) => (
+                  <button key={c.id} type="button" className="fam-person" aria-pressed={present.has(c.id)}
+                    onClick={() => setPresent((p) => { const n = new Set(p); if (n.has(c.id)) n.delete(c.id); else n.add(c.id); return n; })}>
+                    <span className={`fam-avatar fam-avatar--child${present.has(c.id) ? ' is-read' : ''}`}>{c.nickname.slice(0, 2)}</span>
+                    <span className="fam-person__label">{c.nickname}</span>
+                  </button>
+                ))}
+              </div>
+              {reader && <p className="fam-note">{tt('reader', '{{name}} lê em voz alta', { name: reader })}</p>}
+              {audience === 'kids' && (
+                <>
+                  <h3 className="ritual__who-sub">{family.children.length > 0 ? tt('addAnother', 'Adicionar outra criança') : tt('addFirst', 'Quem vai ler com você?')}</h3>
+                  <form className="fam-inline" onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (!kidNick.trim() || kidBusy) return;
+                    setKidBusy(true); setKidError('');
+                    try {
+                      const before = new Set(family.children.map((c) => c.id));
+                      const f = await FamilyService.addChild(kidNick.trim(), kidBand);
+                      setFamily(f);
+                      setPresent((p) => { const n = new Set(p); f.children.filter((c) => !before.has(c.id)).forEach((c) => n.add(c.id)); return n; });
+                      setKidNick('');
+                    } catch { setKidError(tt('setupError', 'Não foi possível salvar agora. Tente de novo.')); }
+                    setKidBusy(false);
+                  }}>
+                    <input value={kidNick} onChange={(e) => setKidNick(e.target.value)} placeholder={tt('nickname', 'Apelido')} maxLength={20} aria-label={tt('nickname', 'Apelido')} />
+                    <select value={kidBand} onChange={(e) => setKidBand(e.target.value as Band)} aria-label={tt('band', 'Faixa de idade')}>
+                      {(['4-6', '7-10', '11-13'] as Band[]).map((b) => <option key={b} value={b}>{b.replace('-', ' a ')} {tt('years', 'anos')}</option>)}
+                    </select>
+                    <button type="submit" className="fam-btn fam-btn--secondary" disabled={kidBusy || !kidNick.trim()}>{tt('addChild', 'Adicionar criança')}</button>
+                  </form>
+                  {kidError && <p className="fam-error">{kidError}</p>}
+                  <p className="fam-note">{tt('addOnceNote', 'Leitura de um dia só, na igreja por exemplo? Cadastre a criança aqui e remova depois em Grupo.')}</p>
+                </>
+              )}
+            </section>
             {family.meetingTime && <p className="fam-note">{tt('meeting', 'Hora combinada: {{time}}', { time: family.meetingTime })}</p>}
           </>
         )}
@@ -269,7 +319,6 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
         {screen.kind === 'read' && (
           <>
             <span className="ritual__tag">{tt('stepRead', '1 · Ler')}</span>
-            {readCount > 1 && <p className="fam-note">{tt('part', 'Parte {{n}} de {{total}}', { n: (screen.part ?? 0) + 1, total: readCount })}</p>}
             {screen.part === 0 && (
               <>
                 {reader && <p className="fam-note">{tt('reader', '{{name}} lê em voz alta', { name: reader })}</p>}
@@ -308,7 +357,6 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
         {screen.kind === 'do' && (
           <>
             <span className="ritual__tag">{tt('stepDo', '3 · Fazer')}</span>
-            {doCount > 1 && <p className="fam-note">{tt('part', 'Parte {{n}} de {{total}}', { n: (screen.part ?? 0) + 1, total: doCount })}</p>}
             {guide ? (
               <>
                 {screen.part === 0 && <SectionLabel icon="practice">{tt('activity', 'Atividade em família')}</SectionLabel>}
@@ -330,7 +378,6 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
         {screen.kind === 'pray' && (
           <>
             <span className="ritual__tag">{tt('stepPray', '4 · Orar')}</span>
-            {prayCount > 1 && <p className="fam-note">{tt('part', 'Parte {{n}} de {{total}}', { n: (screen.part ?? 0) + 1, total: prayCount })}</p>}
             {guide ? (
               <>
                 {screen.part === 0 && <SectionLabel icon="prayer">{tt('familyPrayer', 'Oração em família')}</SectionLabel>}
@@ -386,6 +433,8 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
     </div>
   );
 }
+
+const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 type TT = (k: string, d: string | Record<string, unknown>, o?: Record<string, unknown>) => string;
 
