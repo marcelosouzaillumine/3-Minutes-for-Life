@@ -9,7 +9,7 @@
   "hero": {
     "title": "Tres minutos para mirar la vida con más atención.",
     "subtitle": "Una reflexión al día, para leer a solas o en familia. Un momento para detenerse, pensar en la vida y notar lo que merece tu atención.",
-    "btnStart": "Leer la de hoy",
+    "btnStart": "Devocional de Hoy",
     "hint": "Sin registro para probar.",
     "mockupLabel": "Continuar",
     "imageAlt": "Una mesa de madera junto a la ventana, con una taza de café, un jarrón con flores y la luz de la mañana"
@@ -167,9 +167,9 @@
       {
         "id": "familia",
         "kicker": "En familia",
-        "title": "Un momento solo de ustedes.",
-        "desc": "Lean la misma reflexión, el mismo día. Los adultos con el texto, los niños con una versión hecha para su edad. Después, conversen.",
-        "note": "Los niños no necesitan cuenta. Solo guardamos el apodo y el rango de edad.",
+        "title": "Un momento para crecer en familia.",
+        "desc": "El mismo mensaje bíblico, con palabras para cada edad. Lean el devocional del día y descubran juntos lo que enseña para la vida.",
+        "note": "Los niños participan sin necesidad de cuenta.",
         "alt": "Pantalla Familia de la app con la invitación «Lean juntos»"
       },
       {
@@ -180,7 +180,6 @@
         "note": "¿Perdiste un día? No pasa nada: lo importante es volver.",
         "alt": "Resumen de la jornada en la app con días seguidos y días leídos en el mes"
       }
-    ],
-    "btn": "Crear mi cuenta"
+    ]
   }
 }

@@ -501,16 +501,6 @@ export function Landing() {
             </div>
           </div>
         ))}
-
-        <div className="showcase-cta reveal">
-          <button
-            type="button"
-            className="btn-start"
-            onClick={startApp}
-          >
-            {t('landing:showcase.btn')}
-          </button>
-        </div>
       </section>
 
       {/* =========================================================
