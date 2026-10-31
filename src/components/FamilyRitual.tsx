@@ -5,7 +5,7 @@ import { DevotionalService } from '../services/DevotionalService';
 import { JourneyService } from '../services/JourneyService';
 import { FamilyService, type Band, type Family, type KidsVersion } from '../services/FamilyService';
 import { getTodayInSaoPaulo } from '../utils/date';
-import { RITUAL_STEPS, guideVersion, parseGuide, readerForDay, versionsForChildren } from '../utils/ritual';
+import { guideVersion, htmlBlocks, paginate, parseGuide, plainBlocks, readerForDay, versionsForChildren } from '../utils/ritual';
 import type { Devotional } from '../types/Devotional';
 import '../styles/family.css';
 import { Paragraphs } from './Paragraphs';
@@ -90,17 +90,27 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
     try { localStorage.setItem('ritual.audience', a); } catch { /* sem armazenamento */ }
   };
 
-  // Telas: uma por pergunta; sem perguntas, uma só tela de conversa.
-  const screens = useMemo(() => {
-    const out: { id: string; kind: (typeof RITUAL_STEPS)[number]; q?: number }[] = [{ id: 'welcome', kind: 'welcome' }, { id: 'read', kind: 'read' }];
-    if (questions.length) questions.forEach((_, q) => out.push({ id: `talk-${q}`, kind: 'talk', q }));
-    else out.push({ id: 'talk', kind: 'talk' });
-    out.push({ id: 'do', kind: 'do' }, { id: 'pray', kind: 'pray' }, { id: 'done', kind: 'done' });
-    return out;
-  }, [questions]);
+  const kidsView = perChild.some((p) => p.version);
 
-  // Cada tela começa no topo, mesmo que a anterior tenha sido rolada.
-  useEffect(() => { bodyRef.current?.scrollTo?.({ top: 0 }); window.scrollTo?.({ top: 0 }); }, [step]);
+  // Textos longos se dividem em partes curtas, uma ideia por tela.
+  const readKids = useMemo(() => perChild.map(({ child, version }) => ({ child, version, pages: paginate(plainBlocks(version?.whatItSays)) })), [perChild]);
+  const readAdult = useMemo(() => paginate(htmlBlocks(devotional?.reflection)), [devotional]);
+  const readCount = Math.max(1, kidsView ? Math.max(...readKids.map((k) => k.pages.length)) : readAdult.length);
+
+  const doGuide = useMemo(() => paginate(plainBlocks(guide?.activity)), [guide]);
+  const doAdult = useMemo(() => paginate(htmlBlocks(devotional?.practical_application)), [devotional]);
+  const doCount = Math.max(1, guide ? doGuide.length : kidsView ? 1 : doAdult.length);
+
+  // Telas: ler (em partes), uma por pergunta, fazer (em partes), orar.
+  const screens = useMemo(() => {
+    type S = { id: string; kind: 'welcome' | 'read' | 'talk' | 'do' | 'pray' | 'done'; q?: number; part?: number };
+    const out: S[] = [{ id: 'welcome', kind: 'welcome' }];
+    for (let i = 0; i < readCount; i++) out.push({ id: `read-${i}`, kind: 'read', part: i });
+    questions.forEach((_, q) => out.push({ id: `talk-${q}`, kind: 'talk', q }));
+    for (let i = 0; i < doCount; i++) out.push({ id: `do-${i}`, kind: 'do', part: i });
+    out.push({ id: 'pray', kind: 'pray' }, { id: 'done', kind: 'done' });
+    return out;
+  }, [questions, readCount, doCount]);
 
   const screen = screens[Math.min(step, screens.length - 1)];
   const last = step >= screens.length - 1;
@@ -139,7 +149,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   );
 
   return (
-    <div className="ritual" role="dialog" aria-modal="true" aria-label={tt('title', 'Ler em família')}>
+    <div className={`ritual${screen.kind === 'pray' ? ' ritual--pray' : ''}`} role="dialog" aria-modal="true" aria-label={tt('title', 'Ler em família')}>
       <header className="ritual__top">
         <div className="ritual__progress" aria-hidden="true">
           {screens.map((s, i) => <i key={s.id} className={i <= step ? 'is-on' : ''} />)}
@@ -148,6 +158,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
       </header>
 
       <div className="ritual__body" ref={bodyRef}>
+        <div className="ritual__screen" key={screen.id}>
         {screen.kind === 'welcome' && (
           <>
             <p className="fam-eyebrow fam-eyebrow--accent">{useSource === 'plan' && family.plan ? tt('planDay', 'Plano · dia {{n}}', { n: family.plan.currentDay }) : tt('today', 'Devocional de hoje')}</p>
@@ -190,44 +201,38 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
         {screen.kind === 'read' && (
           <>
             <span className="ritual__tag">{tt('stepRead', '1 · Ler')}</span>
-            {reader && <p className="fam-note">{tt('reader', '{{name}} lê em voz alta', { name: reader })}</p>}
-            {(devotional.scripture_reference || devotional.scripture_text) && (
-              <blockquote className="principle-scripture principle-scripture--ritual">
-                {devotional.scripture_reference && <cite className="principle-scripture-reference">{devotional.scripture_reference}</cite>}
-                {devotional.scripture_text && <p className="principle-scripture-text">&ldquo;{devotional.scripture_text}&rdquo;</p>}
-              </blockquote>
+            {readCount > 1 && <p className="fam-note">{tt('part', 'Parte {{n}} de {{total}}', { n: (screen.part ?? 0) + 1, total: readCount })}</p>}
+            {screen.part === 0 && (
+              <>
+                {reader && <p className="fam-note">{tt('reader', '{{name}} lê em voz alta', { name: reader })}</p>}
+                {(devotional.scripture_reference || devotional.scripture_text) && (
+                  <blockquote className="principle-scripture principle-scripture--ritual">
+                    {devotional.scripture_reference && <cite className="principle-scripture-reference">{devotional.scripture_reference}</cite>}
+                    {devotional.scripture_text && <p className="principle-scripture-text">&ldquo;{devotional.scripture_text}&rdquo;</p>}
+                  </blockquote>
+                )}
+              </>
             )}
-            {perChild.length > 0 && perChild.some((p) => p.version) ? (
-              perChild.map(({ child, version }) => (
+            {kidsView ? (
+              readKids.filter((k) => k.pages[screen.part ?? 0]).map(({ child, version, pages }) => (
                 <section key={child.id} className="ritual__kid">
                   <h3>{child.nickname} · {child.band.replace('-', ' a ')} {tt('years', 'anos')}</h3>
-                  {version?.title && <p className="ritual__kid-title">{version.title}</p>}
-                  {version ? <Paragraphs text={version.whatItSays} /> : <p className="fam-note">{tt('noKids', 'Ainda não há versão para esta faixa. Leia o texto dos adultos e converse.')}</p>}
+                  {screen.part === 0 && version?.title && <p className="ritual__kid-title">{version.title}</p>}
+                  <Paragraphs text={pages[screen.part ?? 0].join('\n\n')} />
                 </section>
               ))
             ) : (
-              <HtmlRenderer html={devotional.reflection} className="ritual__text" />
+              <HtmlRenderer html={(readAdult[screen.part ?? 0] ?? []).join('\n')} className="ritual__text" />
             )}
           </>
         )}
 
-        {screen.kind === 'talk' && (
+        {screen.kind === 'talk' && screen.q !== undefined && (
           <>
             <span className="ritual__tag">{tt('stepTalk', '2 · Conversar')}</span>
-            {screen.q !== undefined ? (
-              <>
-                <p className="fam-eyebrow">{tt('question', 'Pergunta {{n}} de {{total}}', { n: screen.q + 1, total: questions.length })}</p>
-                <div className="ritual__question"><p>{questions[screen.q]}</p></div>
-                <p className="fam-note">{tt('questionHint', 'Deixe cada um responder, sem pressa. Quem quiser pode passar.')}</p>
-              </>
-            ) : (
-              <>
-                {perChild.filter((p) => p.version).map(({ child, version }) => (
-                  <section key={child.id} className="ritual__kid"><h3>{child.nickname}</h3><Paragraphs text={version!.thinkAbout} question /></section>
-                ))}
-                {!perChild.some((p) => p.version) && devotional.practical_application && <HtmlRenderer html={devotional.practical_application} className="ritual__text" />}
-              </>
-            )}
+            <p className="fam-eyebrow">{tt('question', 'Pergunta {{n}} de {{total}}', { n: screen.q + 1, total: questions.length })}</p>
+            <div className="ritual__question"><p>{questions[screen.q]}</p></div>
+            <p className="fam-note">{tt('questionHint', 'Deixe cada um responder, sem pressa. Quem quiser pode passar.')}</p>
             {guidePanel}
           </>
         )}
@@ -235,17 +240,20 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
         {screen.kind === 'do' && (
           <>
             <span className="ritual__tag">{tt('stepDo', '3 · Fazer')}</span>
+            {doCount > 1 && <p className="fam-note">{tt('part', 'Parte {{n}} de {{total}}', { n: (screen.part ?? 0) + 1, total: doCount })}</p>}
             {guide ? (
               <>
-                <SectionLabel icon="practice">{tt('activity', 'Atividade em família')}</SectionLabel>
-                <div className="sec-card"><Paragraphs text={guide.activity} /></div>
+                {screen.part === 0 && <SectionLabel icon="practice">{tt('activity', 'Atividade em família')}</SectionLabel>}
+                <div className="sec-card"><Paragraphs text={(doGuide[screen.part ?? 0] ?? []).join('\n\n')} /></div>
               </>
+            ) : kidsView ? (
+              perChild.filter((p) => p.version).map(({ child, version }) => (
+                <section key={child.id} className="ritual__kid"><h3>{child.nickname}</h3><div className="sec-card"><Paragraphs text={version!.practice} strong /></div></section>
+              ))
             ) : (
               <>
-                {perChild.filter((p) => p.version).map(({ child, version }) => (
-                  <section key={child.id} className="ritual__kid"><h3>{child.nickname}</h3><div className="sec-card"><Paragraphs text={version!.practice} strong /></div></section>
-                ))}
-                {devotional.practical_application && <HtmlRenderer html={devotional.practical_application} className="ritual__text" />}
+                {screen.part === 0 && <SectionLabel icon="practice">{tt('doToday', 'Para viver hoje')}</SectionLabel>}
+                <HtmlRenderer html={(doAdult[screen.part ?? 0] ?? []).join('\n')} className="ritual__text" />
               </>
             )}
           </>
@@ -259,32 +267,40 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
                 <SectionLabel icon="prayer">{tt('familyPrayer', 'Oração em família')}</SectionLabel>
                 <div className="sec-prayer"><Paragraphs text={guide.prayer} /></div>
               </>
-            ) : (
+            ) : kidsView ? (
               <>
                 <SectionLabel icon="prayer">{tt('prayer', 'Oração')}</SectionLabel>
-                {devotional.prayer && <HtmlRenderer html={devotional.prayer} className="ritual__text ritual__prayer sec-prayer" />}
                 {perChild.filter((p) => p.version?.prayer).map(({ child, version }) => (
                   <section key={child.id} className="ritual__kid"><h3>{child.nickname}</h3><div className="sec-prayer"><Paragraphs text={version!.prayer} /></div></section>
                 ))}
               </>
+            ) : (
+              <>
+                <SectionLabel icon="prayer">{tt('prayer', 'Oração')}</SectionLabel>
+                {devotional.prayer && <HtmlRenderer html={devotional.prayer} className="ritual__text ritual__prayer sec-prayer" />}
+              </>
             )}
+            <p className="fam-note ritual__amen">{tt('prayHint', 'Respirem fundo, façam silêncio por um instante e orem juntos.')}</p>
           </>
         )}
 
         {screen.kind === 'done' && (
-          <>
+          <div className="ritual__done">
+            <span className="ritual__seal" aria-hidden="true">✓</span>
             <h1 className="ritual__title">{saved ? tt('doneTitle', 'Vocês leram juntos.') : tt('almost', 'Vamos registrar?')}</h1>
             <p className="ritual__lead">{saved ? tt('doneText', 'Cada adulto marca a própria leitura. Obrigado por separar esse tempo.') : tt('markText', 'Isso registra a sua leitura de hoje.')}</p>
             {saved && family.week.streak > 0 && (
               <div className="ritual__streak"><strong>{family.week.streak}</strong><span>{tt('streakDays', { count: family.week.streak, defaultValue: 'dias seguidos em família' })}</span></div>
             )}
+            {saved && <p className="fam-note">{tt('tomorrow', 'Amanhã tem um novo devocional esperando por vocês.')}</p>}
             {!saved ? (
               <button type="button" className="fam-btn fam-btn--primary" disabled={saving} onClick={finish}>{tt('together', 'Concluímos juntos')}</button>
             ) : (
               <button type="button" className="fam-btn fam-btn--secondary" onClick={onClose}>{tt('close', 'Fechar')}</button>
             )}
-          </>
+          </div>
         )}
+        </div>
       </div>
 
       {!last && (

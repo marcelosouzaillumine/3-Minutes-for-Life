@@ -114,6 +114,17 @@
 .ritual__nav .fam-btn--primary { flex: 2; }
 .ritual__nav .fam-btn--ghost { flex: 1; }
 
+/* Cada tela entra suave; a oração tem um fundo mais calmo; o fim celebra. */
+.ritual__screen { display: grid; gap: 1rem; animation: ritual-in 280ms ease both; }
+@keyframes ritual-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .ritual__screen { animation: none; } }
+.ritual { transition: background 400ms ease; }
+.ritual--pray { background: color-mix(in srgb, var(--accent-strong) 7%, var(--canvas)); }
+.ritual--pray .ritual__body { text-align: center; }
+.ritual--pray .sec-prayer { font-family: var(--font-serif); font-size: 1.3rem; line-height: 1.7; }
+.ritual__amen { font-style: italic; }
+.ritual__done { display: grid; gap: 1rem; justify-items: center; text-align: center; padding-top: 2rem; }
+.ritual__seal { display: grid; place-items: center; width: 4rem; height: 4rem; border-radius: 50%; font-size: 1.8rem; color: #fff; background: var(--accent-strong); }
 .fam-today { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin: 1rem 0; padding: 0.9rem 1rem; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); }
 .fam-today .fam-eyebrow { margin: 0 0 0.15rem; }
 .fam-today__text { margin: 0; font-size: 0.85rem; color: var(--text-muted); }

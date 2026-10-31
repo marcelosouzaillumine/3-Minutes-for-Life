@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { guideVersion, parseGuide, readerForDay, versionsForChildren } from './ritual';
+import { guideVersion, htmlBlocks, paginate, parseGuide, plainBlocks, readerForDay, versionsForChildren } from './ritual';
 import type { KidsVersion } from '../services/FamilyService';
 
 const v = (band: KidsVersion['band']): KidsVersion => ({
@@ -39,5 +39,19 @@ describe('ritual', () => {
     const out = guideVersion([{ version: v('11-13') }, { version: v('7-10') }], []);
     expect(out?.band).toBe('7-10');
     expect(guideVersion([], [v('11-13'), v('4-6')])?.band).toBe('4-6');
+  });
+
+  it('divide o texto em telas curtas sem cortar parágrafo', () => {
+    const blocks = ['a'.repeat(300), 'b'.repeat(300), 'c'.repeat(100), 'd'.repeat(900)];
+    const pages = paginate(blocks, 520);
+    expect(pages.map((p) => p.length)).toEqual([1, 2, 1]);
+    expect(pages.flat()).toEqual(blocks);
+    expect(paginate([])).toEqual([]);
+  });
+  it('separa texto simples e HTML em blocos', () => {
+    expect(plainBlocks('um\n\ndois\ntrês\n\n')).toEqual(['um', 'dois\ntrês']);
+    expect(htmlBlocks('um\n\ndois')).toEqual(['<p>um</p>', '<p>dois</p>']);
+    expect(htmlBlocks('<p>um</p><ul><li>a</li></ul><p>dois</p>')).toEqual(['<p>um</p>', '<ul><li>a</li></ul>', '<p>dois</p>']);
+    expect(htmlBlocks(null)).toEqual([]);
   });
 });

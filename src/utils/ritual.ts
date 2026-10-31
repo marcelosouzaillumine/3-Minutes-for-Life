@@ -70,3 +70,42 @@ export function versionsForChildren<C extends { id: string; band: Band }>(
 export function stepsFor(): readonly RitualStep[] {
   return RITUAL_STEPS;
 }
+
+/** Cabe tanto texto numa tela de leitura em voz alta antes de a próxima ideia ir para outra tela. */
+export const PAGE_CHARS = 520;
+
+/** Parágrafos de um texto simples (linha em branco separa). */
+export function plainBlocks(text: string | null | undefined): string[] {
+  return (text ?? '').split(/(?:\r?\n\s*){2,}/).map((p) => p.trim()).filter(Boolean);
+}
+
+/** Blocos de um texto editorial: cada parágrafo, lista ou citação é um bloco (HTML). Texto simples vira parágrafos. */
+export function htmlBlocks(html: string | null | undefined): string[] {
+  const raw = (html ?? '').trim();
+  if (!raw) return [];
+  if (!/<(p|div|h[1-6]|ul|ol|blockquote)\b/i.test(raw)) return plainBlocks(raw).map((p) => `<p>${p.replace(/\r?\n/g, '<br/>')}</p>`);
+  if (typeof DOMParser === 'undefined') return raw.match(/<(p|div|h[1-6]|ul|ol|blockquote)\b[\s\S]*?<\/\1>/gi) ?? [raw];
+  const body = new DOMParser().parseFromString(`<body>${raw}</body>`, 'text/html').body;
+  const out: string[] = [];
+  body.childNodes.forEach((n) => {
+    if (n.nodeType === 1) out.push((n as Element).outerHTML);
+    else if (n.nodeType === 3 && n.textContent?.trim()) out.push(`<p>${n.textContent.trim()}</p>`);
+  });
+  return out.length ? out : [raw];
+}
+
+const textLength = (block: string) => block.replace(/<[^>]+>/g, '').length;
+
+/** Agrupa blocos em telas de até `max` caracteres; um bloco maior que isso fica sozinho, nunca é cortado. */
+export function paginate(blocks: string[], max = PAGE_CHARS): string[][] {
+  const pages: string[][] = [];
+  let cur: string[] = [];
+  let len = 0;
+  for (const b of blocks) {
+    const l = textLength(b);
+    if (cur.length && len + l > max) { pages.push(cur); cur = []; len = 0; }
+    cur.push(b); len += l;
+  }
+  if (cur.length) pages.push(cur);
+  return pages;
+}
