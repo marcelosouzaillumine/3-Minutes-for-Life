@@ -50,6 +50,8 @@ export interface KidsVersion {
   practice: string;
   prayer: string;
   adultGuide: string;
+  /** Ilustração da faixa (https), cadastrada pelo conector editorial. */
+  imageUrl?: string | null;
   status: 'draft' | 'published';
 }
 

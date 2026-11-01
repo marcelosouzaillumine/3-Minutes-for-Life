@@ -140,8 +140,13 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   const slack = 12;
   const tagHtml = (n: string, kind: string) => `<span class="ritual__tag ritual__tag--${kind}">${esc(n)}</span>`;
   const heroHtml = (band?: string) => (band ? `<div class="ritual__hero ritual__hero--${bandArt(band)}"${heroStyleAttr(band)}></div>` : '');
-  const heroStyleAttr = (band: string) => { const u = ownArt(devotional?.id, band); return u ? ` style="background-image:url(${u})"` : ''; };
-  const heroStyle = (band: string) => { const u = ownArt(devotional?.id, band); return u ? { backgroundImage: `url(${u})` } : undefined; };
+  // A ilustração cadastrada na versão da faixa vale mais que o arquivo fixo em public/. Só https, e sem aspas ou parênteses que quebrem o CSS.
+  const artFor = (band: string) => {
+    const remote = kids.find((k) => k.band === band)?.imageUrl;
+    return (remote && /^https:\/\//.test(remote) ? encodeURI(remote).replace(/['"()]/g, encodeURIComponent) : null) ?? ownArt(devotional?.id, band);
+  };
+  const heroStyleAttr = (band: string) => { const u = artFor(band); return u ? ` style="background-image:url(${u})"` : ''; };
+  const heroStyle = (band: string) => { const u = artFor(band); return u ? { backgroundImage: `url(${u})` } : undefined; };
   const verseHtml = () => (reader ? `<p class="fam-note">${esc(tt('reader', '{{name}} lê em voz alta', { name: reader }))}</p>` : '')
     + (devotional && (devotional.scripture_reference || devotional.scripture_text)
       ? `<blockquote class="principle-scripture principle-scripture--ritual">${devotional.scripture_reference ? `<cite class="principle-scripture-reference">${esc(devotional.scripture_reference)}</cite>` : ''}${devotional.scripture_text ? `<p class="principle-scripture-text">“${esc(devotional.scripture_text)}”</p>` : ''}</blockquote>`
