@@ -174,13 +174,27 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
   return (
     <div className="studio__editor">
       <button type="button" className="fam-link" onClick={() => { setEditing(null); setMsg(''); }}>← Planos</button>
-      <h4 className="studio__title">{editing.id ? 'Editar plano' : 'Novo plano'} <em className={`studio__badge studio__badge--${editing.status === 'published' ? 'done' : 'draft'}`}>{editing.status === 'published' ? 'Publicado' : 'Rascunho'}</em></h4>
+      <div className="studio__head">
+        <h4 className="studio__title">{editing.id ? 'Editar plano' : 'Novo plano'} <em className={`studio__badge studio__badge--${editing.status === 'published' ? 'done' : 'draft'}`}>{editing.status === 'published' ? 'Publicado' : 'Rascunho'}</em></h4>
+        <div className="studio__head-actions">
+          <button type="button" className="fam-btn fam-btn--primary" disabled={saving} onClick={() => save('published')}>{editing.status === 'published' ? 'Salvar alterações' : 'Publicar plano'}</button>
+          <details className="studio__menu">
+            <summary aria-label="Mais ações">⋯</summary>
+            <div className="studio__menu-list">
+              <button type="button" disabled={saving} onClick={() => save('draft')}>{editing.status === 'published' ? 'Despublicar (rascunho)' : 'Salvar rascunho'}</button>
+              {editing.id && <button type="button" className="is-danger" onClick={remove}>Excluir este plano</button>}
+            </div>
+          </details>
+        </div>
+      </div>
+      {msg && <p className="fam-note" role="status">{msg}</p>}
 
       <section className="studio__step">
         <p className="studio__step-n">1 · Sobre o plano</p>
         <div className="fam-form">
           <label>Para quem
             <select value={editing.categoryId ?? ''} onChange={(e) => set('categoryId', e.target.value || null)}>
+              {!cats.some((c) => c.id === editing.categoryId) && <option value="">Escolha uma categoria…</option>}
               {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
             <span className="fam-note">{forFamily ? 'Aparece na aba Família, onde a família escolhe o plano e lê junto.' : 'Aparece em Explorar, para cada pessoa seguir no próprio ritmo.'}</span>
@@ -271,7 +285,7 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
           <button type="button" className="fam-btn fam-btn--secondary" disabled={saving} onClick={() => save('draft')}>{editing.status === 'published' ? 'Despublicar (rascunho)' : 'Salvar rascunho'}</button>
           <button type="button" className="fam-btn fam-btn--primary" disabled={saving} onClick={() => save('published')}>{editing.status === 'published' ? 'Salvar alterações' : 'Publicar plano'}</button>
         </div>
-        {editing.id && <button type="button" className="fam-link fam-link--muted" onClick={remove}>Excluir este plano</button>}
+        {editing.id && <div className="studio__danger"><button type="button" className="fam-link fam-link--muted" onClick={remove}>Excluir este plano</button></div>}
       </div>
     </div>
   );
