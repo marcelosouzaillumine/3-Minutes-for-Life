@@ -114,8 +114,12 @@ HQ = {
     'levi-e-o-banquete': {'4-6': [1, 3, 4], '7-10': [1, 2, 3, 4], '11-13': [4]},
     'marta-e-maria': {'4-6': [1, 2, 4], '7-10': [1, 2, 3, 4], '11-13': [2]},
 }
+# Perfume, Davi e Levi têm arte própria por faixa (faixa-<faixa>-N.webp); Marta e Maria ainda usa o conjunto único (hd-N.webp).
+POR_FAIXA = {'a-mulher-e-o-perfume', 'davi-e-a-arca', 'levi-e-o-banquete'}
+
 def art(slug, band, i):
-    return f'/ilustracoes/{slug}/quadros/hd-{HQ[slug][band][i - 1]}.webp'
+    n = HQ[slug][band][i - 1]
+    return f'/ilustracoes/{slug}/quadros/' + (f'faixa-{band}-{n}.webp' if slug in POR_FAIXA else f'hd-{n}.webp')
 
 def story(slug, band, v):
     if band == '11-13':
