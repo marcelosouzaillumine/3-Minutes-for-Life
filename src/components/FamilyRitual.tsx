@@ -113,17 +113,22 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
   // Uma só leitura para a mesa: todos ouvem o mesmo texto, na faixa da criança mais nova presente (ou a que o adulto escolher).
   const order = ['0-3', '4-6', '7-10', '11-13'];
   const [leadBand, setLeadBand] = useState<Band | null>(band ?? null);
+  // Todas as versões que existem neste devocional ficam à escolha, mesmo de uma idade que ninguém na mesa tem; começa na mais nova de quem está à mesa.
   const bandsHere = useMemo(
+    () => (withKids ? [...new Set(kids.map((v) => v.band))].sort((a, b) => order.indexOf(a) - order.indexOf(b)) : []),
+    [withKids, kids], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  const presentBandsHere = useMemo(
     () => [...new Set(perChild.filter((p) => p.version).map((p) => p.version!.band))].sort((a, b) => order.indexOf(a) - order.indexOf(b)),
     [perChild], // eslint-disable-line react-hooks/exhaustive-deps
   );
-  const sharedBand = leadBand && bandsHere.includes(leadBand) ? leadBand : bandsHere[0] ?? null;
+  const sharedBand = leadBand && bandsHere.includes(leadBand) ? leadBand : presentBandsHere[0] ?? bandsHere[0] ?? null;
   const shared = useMemo(() => {
-    const v = perChild.find((p) => p.version?.band === sharedBand)?.version;
-    if (!v) return [];
-    const names = perChild.filter((p) => p.version).map((p) => p.child.nickname).join(', ');
+    const v = kids.find((k) => k.band === sharedBand);
+    if (!v || perChild.length === 0) return [];
+    const names = perChild.map((p) => p.child.nickname).join(', ');
     return [{ child: { id: 'shared', nickname: names, band: v.band as Band }, version: v }];
-  }, [perChild, sharedBand]);
+  }, [perChild, kids, sharedBand]);
   const leadVersion = shared[0]?.version ?? null;
   // Versículo da capa: com crianças, o curto da faixa; senão o do devocional. Sempre sem aspas nem referência embutidas.
   const scriptureText = cleanScripture((withKids && leadVersion?.scriptureFocus) || devotional?.scripture_text);

@@ -74,11 +74,13 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
   );
   const bands = avail ? presentBands.filter((b) => avail.has(b)) : presentBands;
   const missing = avail ? presentBands.filter((b) => !avail.has(b)) : [];
-  const shared = lead && bands.includes(lead) ? lead : bands[0] ?? null;
+  // A escolha mostra todas as versões que existem neste devocional (inclusive de uma idade que ninguém na mesa tem); começa na mais nova de quem está à mesa.
+  const options = avail ? ORDER.filter((b) => avail.has(b)) : presentBands;
+  const shared = lead && options.includes(lead) ? lead : bands[0] ?? options[0] ?? null;
   const names = fam.members.filter((_, i) => adults.has(i)).map((m) => m.displayName ?? '').filter(Boolean);
   const reader = readerForDay(names, Math.floor(Date.now() / 86_400_000));
   const toggle = <T,>(set: Set<T>, v: T, put: (s: Set<T>) => void) => { const n = new Set(set); if (n.has(v)) n.delete(v); else n.add(v); put(n); };
-  const canStart = kids ? present.size > 0 && (!avail || bands.length > 0) : alone || adults.size > 0;
+  const canStart = kids ? present.size > 0 && (!avail || options.length > 0) : alone || adults.size > 0;
 
   const start = () => {
     onClose();
@@ -156,13 +158,13 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
       )}
       {error && <p className="fam-error">{error}</p>}
 
-      {kids && shared && (bands.length > 1 ? (
+      {kids && shared && (options.length > 1 ? (
         <>
           <p className="fam-note">{tt('sharedVersion', 'Todos ouvem a mesma leitura. Qual versão?')}</p>
           <BandPicker
-            bands={bands}
+            bands={options}
             value={shared}
-            names={Object.fromEntries(bands.map((b) => [b, fam.children.filter((c) => present.has(c.id) && c.band === b).map((c) => c.nickname)]))}
+            names={Object.fromEntries(options.map((b) => [b, fam.children.filter((c) => present.has(c.id) && c.band === b).map((c) => c.nickname)]))}
             years={tt('years', 'anos')}
             ariaLabel={tt('sharedVersion', 'Todos ouvem a mesma leitura. Qual versão?')}
             onPick={setLead}
@@ -173,7 +175,7 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
       ))}
       {kids && missing.length > 0 && (
         <p className="fam-note">
-          {bands.length > 0
+          {options.length > 0
             ? tt('sheetMissing', 'Ainda não há versão de {{band}} anos para este devocional.', { band: missing.map(bandLabel).join(' e ') })
             : tt('sheetNone', 'Este devocional ainda não tem versão para a idade de quem está na mesa ({{band}} anos).', { band: missing.map(bandLabel).join(' e ') })}
         </p>
