@@ -5,7 +5,7 @@ import { DevotionalService } from '../services/DevotionalService';
 import { JourneyService } from '../services/JourneyService';
 import { FamilyService, type Band, type Family, type KidsVersion } from '../services/FamilyService';
 import { getTodayInSaoPaulo } from '../utils/date';
-import { htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks, readerForDay, versionsForChildren } from '../utils/ritual';
+import { htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks, readerForDay, versionsForChildren, withoutEmbeddedSections } from '../utils/ritual';
 import type { Devotional } from '../types/Devotional';
 import '../styles/family.css';
 import { Paragraphs } from './Paragraphs';
@@ -204,7 +204,7 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
     } : null;
     return { child, version, pages: run(plainBlocks(version?.whatItSays), fits, true) };
   }), [shared, budget, fitCfg, reader, devotional, nKids]); // eslint-disable-line react-hooks/exhaustive-deps
-  const readAdult = useMemo(() => run(htmlBlocks(devotional?.reflection), screenFits((f) => tagHtml(tt('stepRead', '1 · Ler'), 'read') + (f ? verseHtml() : ''), (pg) => `<div class="ritual__text">${pg.join('')}</div>`), true), [devotional, budget, fitCfg, reader]); // eslint-disable-line react-hooks/exhaustive-deps
+  const readAdult = useMemo(() => run(withoutEmbeddedSections(devotional?.reflection, devotional?.practical_application, devotional?.prayer), screenFits((f) => tagHtml(tt('stepRead', '1 · Ler'), 'read') + (f ? verseHtml() : ''), (pg) => `<div class="ritual__text">${pg.join('')}</div>`), true), [devotional, budget, fitCfg, reader]); // eslint-disable-line react-hooks/exhaustive-deps
   // Título da capa da leitura infantil: o da versão; com várias faixas sem história só aparece se todos coincidem.
   const headTitle = story ? (leadVersion?.title ?? '') : (readKids.length > 0 && readKids.every((k) => k.version?.title && k.version.title === readKids[0].version?.title) ? readKids[0].version!.title : '');
   const readCount = story ? 1 + storyCount : Math.max(1, kidsView ? Math.max(...readKids.map((k) => k.pages.length)) : readAdult.length);

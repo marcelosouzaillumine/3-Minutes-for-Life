@@ -123,3 +123,14 @@ describe('ritual', () => {
     expect(paginateFit([], fits)).toEqual([]);
   });
 });
+
+describe('withoutEmbeddedSections', () => {
+  it('tira da reflexão os trechos que repetem a prática e a oração', () => {
+    const r = '<p>Texto.</p><p><strong>Para praticar hoje</strong></p><p>Faça isto.</p><p><strong>Oração</strong></p><p>Senhor, amém.</p>';
+    expect(withoutEmbeddedSections(r, '<p>Faça isto.</p>', '<p>Senhor, amém.</p>')).toEqual(['<p>Texto.</p>']);
+  });
+  it('mantém tudo quando não há campos próprios', () => {
+    const r = '<p>Texto.</p><p><strong>Oração</strong></p><p>Senhor.</p>';
+    expect(withoutEmbeddedSections(r, '', null)).toHaveLength(3);
+  });
+});

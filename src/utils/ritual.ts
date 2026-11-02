@@ -100,6 +100,26 @@ export function htmlBlocks(html: string | null | undefined): string[] {
   return out.length ? out : [raw];
 }
 
+const textOf = (block: string) => block.replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase();
+
+/**
+ * Devocionais antigos trazem "Para praticar hoje" e "Oração" dentro da reflexão, além dos campos próprios.
+ * No ritual esses trechos têm tela própria: tira da leitura o título em negrito e o parágrafo que repete um desses campos.
+ */
+export function withoutEmbeddedSections(reflection: string | null | undefined, ...fields: (string | null | undefined)[]): string[] {
+  const blocks = htmlBlocks(reflection);
+  const dup = new Set(fields.flatMap((f) => htmlBlocks(f).map(textOf)).filter(Boolean));
+  if (dup.size === 0) return blocks;
+  const out: string[] = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const heading = /^<p>\s*<(strong|b)>[\s\S]*<\/\1>\s*<\/p>$/i.test(blocks[i].trim());
+    if (heading && i + 1 < blocks.length && dup.has(textOf(blocks[i + 1]))) { i++; continue; }
+    if (dup.has(textOf(blocks[i]))) continue;
+    out.push(blocks[i]);
+  }
+  return out.length ? out : blocks;
+}
+
 const textLength = (block: string) => block.replace(/<[^>]+>/g, '').length;
 
 /** Parágrafo simples (`<p>` com ou sem atributos) que pode ser dividido por frases; null para listas, citações etc. */
