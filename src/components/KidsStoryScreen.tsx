@@ -50,7 +50,6 @@ export function KidsStoryScreen({ story, index, tt, picked, onPick }: {
         <>
           <Art src={safeStoryImage(story.image)} />
           <p className="kstory__text">{story.setup}</p>
-          <p className="kstory__q">{story.question}</p>
         </>
       )}
       {i === 1 && (
@@ -68,13 +67,11 @@ export function KidsStoryScreen({ story, index, tt, picked, onPick }: {
         <>
           <p className="kstory__text">{story.outcome}</p>
           {story.quote && <blockquote className="kstory__quote">“{story.quote}”</blockquote>}
-          <p className="kstory__q">{story.outcomeQuestion}</p>
         </>
       )}
       {i === 3 && (
         <>
           <p className="kstory__text">{story.today}</p>
-          <p className="kstory__q">{story.todayQuestion}</p>
         </>
       )}
     </div>

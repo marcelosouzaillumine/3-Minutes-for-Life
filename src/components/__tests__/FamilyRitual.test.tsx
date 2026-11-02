@@ -169,10 +169,14 @@ describe('FamilyRitual', () => {
     await click('Continuar');
     expect(host.textContent).toContain('Ele recusou.');
     expect(host.querySelector('.kstory__quote')?.textContent).toBe('“Presa à Palavra.”');
+    expect(host.textContent).not.toContain('Alguém mudaria?'); // a leitura só conta; quem pergunta é a conversa
+    await click('Continuar');
+    expect(host.textContent).toContain('Hoje é mais rápido.');
+    expect(host.textContent).not.toContain('Onde procura?');
+    await click('Continuar');
+    expect(host.textContent).toContain('Alguém mudaria?'); // as perguntas da história abrem a conversa, na ordem
     await click('Continuar');
     expect(host.textContent).toContain('Onde procura?');
-    await click('Continuar');
-    expect(host.textContent).toContain('Pergunta 1 de 2');
   });
 
   it('sem história, a leitura em texto segue igual', async () => {
