@@ -6,8 +6,14 @@ SKIN = '#D9A57B'
 def shade(hexc, f=.78):
     h = hexc.lstrip('#'); r, g, b = (int(h[i:i + 2], 16) for i in (0, 2, 4))
     return '#%02X%02X%02X' % (int(r * f), int(g * f), int(b * f))
-def person(x, y, s=1.0, robe='#7AA6C9', hair='#4A3523', head=None, mood='smile', arms='down', beard=False, crown=False, sit=False, flip=False, skin=SKIN, horn=False, rot=0):
+def person(x, y, s=1.0, robe='#7AA6C9', hair='#4A3523', head=None, mood='smile', arms='down', beard=False, crown=False, sit=False, flip=False, skin=SKIN, horn=False, rot=0, snap=True):
     """Figura em pé de ~104 de altura (largura 60): pés em y+104*s. Túnica até o tornozelo, pescoço, mãos, sandálias."""
+    if snap and s >= .55:
+        # apoia no chão: pés (ou o assento) ficam na linha do chão, um pouco mais baixo quanto maior a figura
+        foot = y + (102 if sit else 104) * s
+        goal = 190 + 8 * s
+        if abs(goal - foot) > 3:
+            y += goal - foot
     t = f'translate({x + 60 * s},{y}) scale({-s},{s})' if flip else f'translate({x},{y}) scale({s})'
     o = [f'<g transform="{t}">']
     if rot:
@@ -169,8 +175,8 @@ S[d]['4-6-3'] = bg() + sun(250, 38, 20) + spark(60, 60) + spark(240, 100, .8) + 
 S[d]['7-10-1'] = bg() + sun(46, 38, 18) + walls() + carried(150, 196, .72) + stand(240, .8, **DAV, arms='up', mood='happy', flip=True) + note(250, 80) + spark(120, 66, .8)
 S[d]['7-10-2'] = bg() + sun(250, 38, 16) + tent(6, 192, 128, 88) + ark(52, 166, 40) + altar(186, 148, 70, 44) + stand(128, .92, **DAV, arms='hold', mood='smile') + spark(160, 90, .8) + spark(120, 60, .7)
 S[d]['7-10-3'] = bg() + walls() + horn_player(8, 196 - 104 * .88, .88, '#C8A15A') + stand(118, 1.0, **DAV, arms='up', mood='happy', rot=4) + horn_player(232, 196 - 104 * .88, .88, '#6BA368', flip=True) + spark(100, 60) + spark(210, 56, .8) + note(160, 50)
-S[d]['7-10-4'] = bg() + '<rect x="176" y="14" width="124" height="180" fill="#D9BE8E"/><path d="M176 14h124" stroke="#B89A66" stroke-width="6"/>' + window_with(198, 40, 80, 84, person(213, 54, .98, robe='#B84A62', head='#8A4668', mood='frown')) + stand(20, 1.05, **DAV, arms='up', mood='happy', rot=-5) + note(130, 80) + spark(150, 128, .8)
-S[d]['11-13-cena'] = bg() + sun(40, 34, 14) + walls(False) + '<rect x="200" y="22" width="100" height="170" fill="#D9BE8E"/>' + window_with(214, 40, 68, 74, person(226, 50, .9, robe='#B84A62', head='#8A4668', mood='neutral')) + carried(84, 196, .6, 44) + stand(148, .95, **DAV, arms='up', mood='smile', rot=-3) + stand(214, .58, robe='#6BA368', head='#F4F1EA', mood='neutral', flip=True) + stand(254, .56, robe='#C8A15A', head='#F4F1EA', mood='neutral')
+S[d]['7-10-4'] = bg() + '<rect x="176" y="14" width="124" height="180" fill="#D9BE8E"/><path d="M176 14h124" stroke="#B89A66" stroke-width="6"/>' + window_with(198, 40, 80, 84, person(213, 54, .98, robe='#B84A62', head='#8A4668', mood='frown', snap=False)) + stand(20, 1.05, **DAV, arms='up', mood='happy', rot=-5) + note(130, 80) + spark(150, 128, .8)
+S[d]['11-13-cena'] = bg() + sun(40, 34, 14) + walls(False) + '<rect x="200" y="22" width="100" height="170" fill="#D9BE8E"/>' + window_with(214, 40, 68, 74, person(226, 50, .9, robe='#B84A62', head='#8A4668', mood='neutral', snap=False)) + carried(84, 196, .6, 44) + stand(148, .95, **DAV, arms='up', mood='smile', rot=-3) + stand(214, .58, robe='#6BA368', head='#F4F1EA', mood='neutral', flip=True) + stand(254, .56, robe='#C8A15A', head='#F4F1EA', mood='neutral')
 
 # ---------- 2. Levi ----------
 d = 'levi-e-o-banquete'
