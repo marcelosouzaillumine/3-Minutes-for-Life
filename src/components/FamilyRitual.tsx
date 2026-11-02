@@ -105,17 +105,31 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   const rawGuide = leadVersion?.adultGuide ?? '';
 
   // Perguntas da mesa: as do guia; sem guia, as do "Para pensar" da faixa; sem nada disso (ou só adultos), perguntas gerais.
-  const questions = useMemo(() => {
-    if (guide) return guide.questions;
-    const own = (leadVersion?.thinkAbout ?? '').split(/\r?\n/).map((l) => l.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, '').trim()).filter((l) => l.endsWith('?'));
-    if (own.length) return own;
-    const edited = (devotional?.discussion_questions ?? '').split(/\r?\n/).map((l) => l.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, '').trim()).filter(Boolean);
-    return edited.length ? edited : [
-      tt('adultQ1', 'O que mais chamou a sua atenção no texto de hoje?'),
-      tt('adultQ2', 'Onde isso toca a sua semana, de verdade?'),
-      tt('adultQ3', 'O que você leva dessa leitura para hoje?'),
-    ];
-  }, [guide, leadVersion, devotional, i18n.language]); // eslint-disable-line react-hooks/exhaustive-deps
+  // O texto do "Para pensar" que antecede a pergunta vai junto como contexto, para ela não ficar solta.
+  // No dilema, as perguntas da história (depois do desfecho e do "E hoje?") abrem a conversa: a leitura só conta, a mesa pergunta.
+  const { questions, talkContext } = useMemo(() => {
+    const lines = (text: string) => text.split(/\r?\n/).map((l) => l.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, '').trim()).filter(Boolean);
+    const fromStory = story?.format === 'dilemma' && leadVersion ? [story.outcomeQuestion, story.todayQuestion].map((q) => q?.trim()).filter(Boolean) as string[] : [];
+    let base: string[];
+    let context = '';
+    if (guide) base = guide.questions;
+    else {
+      const all = lines(leadVersion?.thinkAbout ?? '');
+      const own = all.filter((l) => l.endsWith('?'));
+      if (own.length) {
+        base = own;
+        context = all.slice(0, all.indexOf(own[0])).join('\n\n');
+      } else {
+        const edited = lines(devotional?.discussion_questions ?? '');
+        base = edited.length ? edited : [
+          tt('adultQ1', 'O que mais chamou a sua atenção no texto de hoje?'),
+          tt('adultQ2', 'Onde isso toca a sua semana, de verdade?'),
+          tt('adultQ3', 'O que você leva dessa leitura para hoje?'),
+        ];
+      }
+    }
+    return { questions: [...fromStory, ...base.filter((q) => !fromStory.includes(q))], talkContext: { at: fromStory.length, text: context } };
+  }, [guide, leadVersion, story, devotional, i18n.language]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pickAudience = (a: 'adults' | 'kids') => {
     setAudience(a);
@@ -411,6 +425,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
           <>
             <span className="ritual__tag ritual__tag--talk">{tt('stepTalk', '2 · Conversar')}</span>
             <p className="fam-eyebrow">{tt('question', 'Pergunta {{n}} de {{total}}', { n: screen.q + 1, total: questions.length })}</p>
+            {talkContext.text && screen.q === talkContext.at && <div className="ritual__context"><Paragraphs text={talkContext.text} /></div>}
             <div className="ritual__question"><p>{questions[screen.q]}</p></div>
             <p className="fam-note">{tt('questionHint', 'Deixe cada um responder, sem pressa. Quem quiser pode passar.')}</p>
             {guidePanel}
