@@ -49,3 +49,15 @@ describe('história da faixa', () => {
     expect(cleanStory({ format: 'panels', panels: [{ image: ' /ilustracoes/x/1.svg ', caption: ' Um. ', speech: ' ' }, panels.panels[1]] })).toMatchObject({ panels: [{ image: '/ilustracoes/x/1.svg', caption: 'Um.' }, panels.panels[1]] });
   });
 });
+
+describe('referência bíblica do dilema', () => {
+  it('limita referência e fonte da citação', () => {
+    expect(validateStory({ ...dilemma, reference: 'x'.repeat(61) } as KidStory)).toMatch(/referência/);
+    expect(validateStory({ ...dilemma, quoteSource: 'x'.repeat(81) } as KidStory)).toMatch(/fonte/);
+  });
+  it('cleanStory apara e descarta vazios', () => {
+    const c = cleanStory({ ...dilemma, reference: ' Lucas 10.38-42 ', quoteSource: '  ' } as KidStory) as Record<string, unknown>;
+    expect(c.reference).toBe('Lucas 10.38-42');
+    expect('quoteSource' in c).toBe(false);
+  });
+});

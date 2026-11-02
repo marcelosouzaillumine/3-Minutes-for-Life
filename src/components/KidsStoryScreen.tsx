@@ -49,7 +49,12 @@ export function KidsStoryScreen({ story, index, tt, picked, onPick }: {
     <div className="kstory" data-format="dilemma">
       <p className="fam-eyebrow">{label} · {i + 1}/{DILEMMA_STEPS}</p>
       <Art src={art} />
-      {i === 0 && <p className="kstory__text">{story.setup}</p>}
+      {i === 0 && (
+        <>
+          {story.reference && <p className="kstory__ref">{story.reference}</p>}
+          <p className="kstory__text">{story.setup}</p>
+        </>
+      )}
       {i === 1 && (
         <>
           <p className="kstory__q">{story.question}</p>
@@ -64,7 +69,7 @@ export function KidsStoryScreen({ story, index, tt, picked, onPick }: {
       {i === 2 && (
         <>
           <p className="kstory__text">{story.outcome}</p>
-          {story.quote && <blockquote className="kstory__quote">“{story.quote}”</blockquote>}
+          {story.quote && <blockquote className="kstory__quote">“{story.quote}”{story.quoteSource && <cite className="kstory__cite">{story.quoteSource}</cite>}</blockquote>}
         </>
       )}
       {i === 3 && (

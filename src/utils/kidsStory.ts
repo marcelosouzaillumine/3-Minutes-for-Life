@@ -21,7 +21,7 @@ export function storyToText(s: KidStory): string {
   return parts.join('\n\n').slice(0, 4000);
 }
 
-const L = { caption: 240, speech: 140, setup: 800, question: 200, option: 120, outcome: 800, quote: 240, today: 600 };
+const L = { caption: 240, speech: 140, setup: 800, question: 200, option: 120, outcome: 800, quote: 240, today: 600, reference: 60, quoteSource: 80 };
 const blank = (x?: string) => !(x ?? '').trim();
 const tooLong = (x: string | undefined, max: number) => (x ?? '').trim().length > max;
 
@@ -53,6 +53,8 @@ export function validateStory(s: KidStory | null | undefined): string | null {
   if (tooLong(s.setup, L.setup) || tooLong(s.outcome, L.outcome)) return `Dilema: a situação e o desfecho têm até ${L.setup} caracteres.`;
   if (tooLong(s.question, L.question) || tooLong(s.outcomeQuestion, L.question) || tooLong(s.todayQuestion, L.question)) return `Dilema: cada pergunta tem até ${L.question} caracteres.`;
   if (tooLong(s.quote, L.quote)) return `Dilema: a citação tem até ${L.quote} caracteres.`;
+  if (tooLong(s.reference, L.reference)) return `Dilema: a referência bíblica tem até ${L.reference} caracteres.`;
+  if (tooLong(s.quoteSource, L.quoteSource)) return `Dilema: a fonte da citação tem até ${L.quoteSource} caracteres.`;
   if (tooLong(s.today, L.today)) return `Dilema: o texto de “E hoje?” tem até ${L.today} caracteres.`;
   return null;
 }
@@ -66,8 +68,9 @@ export function cleanStory(s: KidStory): KidStory {
   return {
     format: 'dilemma', ...(t(s.image) ? { image: t(s.image) } : {}),
     ...((s.images ?? []).map(t).filter(Boolean).length ? { images: (s.images ?? []).map(t).filter(Boolean) } : {}),
+    ...(t(s.reference) ? { reference: t(s.reference) } : {}),
     setup: t(s.setup), question: t(s.question), options: s.options.map(t).filter(Boolean),
-    outcome: t(s.outcome), ...(t(s.quote) ? { quote: t(s.quote) } : {}), outcomeQuestion: t(s.outcomeQuestion),
+    outcome: t(s.outcome), ...(t(s.quote) ? { quote: t(s.quote) } : {}), ...(t(s.quoteSource) ? { quoteSource: t(s.quoteSource) } : {}), outcomeQuestion: t(s.outcomeQuestion),
     today: t(s.today), todayQuestion: t(s.todayQuestion),
   };
 }

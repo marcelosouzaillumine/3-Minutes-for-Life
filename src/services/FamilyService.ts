@@ -53,8 +53,12 @@ export type KidStory =
       image?: string;
       /** Uma imagem por momento (situação, decisão, desfecho, "E hoje?"), na ordem. */
       images?: string[];
+      /** Passagem bíblica da história (ex.: "Lucas 10.38-42"), mostrada como selo na abertura. */
+      reference?: string;
       setup: string; question: string; options: string[];
-      outcome: string; quote?: string; outcomeQuestion: string;
+      outcome: string; quote?: string;
+      /** De onde vem a citação (ex.: "Lucas 10.42" ou "Martinho Lutero"). */
+      quoteSource?: string; outcomeQuestion: string;
       today: string; todayQuestion: string;
     };
 
