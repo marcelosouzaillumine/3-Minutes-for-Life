@@ -12,7 +12,7 @@ import '../styles/family.css';
 import { Paragraphs } from './Paragraphs';
 import { KidsStoryScreen } from './KidsStoryScreen';
 import { BandPicker } from './BandPicker';
-import { safeStoryImage, storyScreenCount } from '../utils/kidsStory';
+import { safeStoryImage, storyCard, storyScreenCount } from '../utils/kidsStory';
 
 /** Ler juntos: um roteiro de tela cheia, uma coisa por vez, feito para ser lido em voz alta. */
 const bandArt = (band: string) => (band === '0-3' || band === '4-6' ? 'young' : 'older');
@@ -405,6 +405,7 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
                     bands={bandsHere}
                     value={sharedBand}
                     names={Object.fromEntries(bandsHere.map((b) => [b, perChild.filter((p) => p.version && p.child.band === b).map((p) => p.child.nickname)]))}
+                    cards={Object.fromEntries(kids.map((v) => [v.band, storyCard(v.story)]))}
                     years={tt('years', 'anos')}
                     ariaLabel={tt('sharedVersion', 'Todos ouvem a mesma leitura. Qual versão?')}
                     onPick={setLeadBand}

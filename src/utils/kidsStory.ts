@@ -13,6 +13,13 @@ export function safeStoryImage(url?: string | null): string | null {
   return APP_ART.test(u) ? u : null;
 }
 
+/** Cartão da faixa no seletor de versão: a primeira imagem da história e uma frase curta que a apresenta. */
+export function storyCard(s?: KidStory | null): { image: string | null; text: string } {
+  if (!s) return { image: null, text: '' };
+  if (s.format === 'panels') return { image: safeStoryImage(s.panels[0]?.image), text: s.panels[0]?.caption ?? '' };
+  return { image: safeStoryImage(s.images?.[0] ?? s.image), text: (s.teaser ?? s.question).trim() };
+}
+
 /** Texto corrido da história. Igual ao da API: é a reserva de quem não tem suporte e a base de uma tradução. */
 export function storyToText(s: KidStory): string {
   const parts = s.format === 'panels'
@@ -21,7 +28,7 @@ export function storyToText(s: KidStory): string {
   return parts.join('\n\n').slice(0, 4000);
 }
 
-const L = { caption: 240, speech: 140, setup: 800, question: 200, option: 120, outcome: 800, quote: 240, today: 600 };
+const L = { caption: 240, speech: 140, setup: 800, question: 200, option: 120, outcome: 800, quote: 240, today: 600, reference: 60, quoteSource: 80, teaser: 100 };
 const blank = (x?: string) => !(x ?? '').trim();
 const tooLong = (x: string | undefined, max: number) => (x ?? '').trim().length > max;
 
@@ -41,6 +48,9 @@ export function validateStory(s: KidStory | null | undefined): string | null {
     return null;
   }
   if (s.image && !safeStoryImage(s.image)) return 'Dilema: a cena precisa ser https:// ou /ilustracoes/…';
+  const imgs = (s.images ?? []).map((x) => x.trim()).filter(Boolean);
+  if (imgs.length > DILEMMA_STEPS) return `Dilema: no máximo ${DILEMMA_STEPS} imagens (uma por momento).`;
+  if (imgs.some((x) => !safeStoryImage(x))) return 'Dilema: cada imagem precisa ser https:// ou /ilustracoes/…';
   const need: [string, string | undefined][] = [['a situação', s.setup], ['a pergunta', s.question], ['o que aconteceu', s.outcome], ['a pergunta depois do desfecho', s.outcomeQuestion], ['o texto de “E hoje?”', s.today], ['a pergunta de “E hoje?”', s.todayQuestion]];
   for (const [label, v] of need) if (blank(v)) return `Dilema: escreva ${label}.`;
   const opts = s.options.map((o) => o.trim()).filter(Boolean);
@@ -50,6 +60,9 @@ export function validateStory(s: KidStory | null | undefined): string | null {
   if (tooLong(s.setup, L.setup) || tooLong(s.outcome, L.outcome)) return `Dilema: a situação e o desfecho têm até ${L.setup} caracteres.`;
   if (tooLong(s.question, L.question) || tooLong(s.outcomeQuestion, L.question) || tooLong(s.todayQuestion, L.question)) return `Dilema: cada pergunta tem até ${L.question} caracteres.`;
   if (tooLong(s.quote, L.quote)) return `Dilema: a citação tem até ${L.quote} caracteres.`;
+  if (tooLong(s.teaser, L.teaser)) return `Dilema: a frase do cartão tem até ${L.teaser} caracteres.`;
+  if (tooLong(s.reference, L.reference)) return `Dilema: a referência bíblica tem até ${L.reference} caracteres.`;
+  if (tooLong(s.quoteSource, L.quoteSource)) return `Dilema: a fonte da citação tem até ${L.quoteSource} caracteres.`;
   if (tooLong(s.today, L.today)) return `Dilema: o texto de “E hoje?” tem até ${L.today} caracteres.`;
   return null;
 }
@@ -62,8 +75,11 @@ export function cleanStory(s: KidStory): KidStory {
   }
   return {
     format: 'dilemma', ...(t(s.image) ? { image: t(s.image) } : {}),
+    ...((s.images ?? []).map(t).filter(Boolean).length ? { images: (s.images ?? []).map(t).filter(Boolean) } : {}),
+    ...(t(s.reference) ? { reference: t(s.reference) } : {}),
+    ...(t(s.teaser) ? { teaser: t(s.teaser) } : {}),
     setup: t(s.setup), question: t(s.question), options: s.options.map(t).filter(Boolean),
-    outcome: t(s.outcome), ...(t(s.quote) ? { quote: t(s.quote) } : {}), outcomeQuestion: t(s.outcomeQuestion),
+    outcome: t(s.outcome), ...(t(s.quote) ? { quote: t(s.quote) } : {}), ...(t(s.quoteSource) ? { quoteSource: t(s.quoteSource) } : {}), outcomeQuestion: t(s.outcomeQuestion),
     today: t(s.today), todayQuestion: t(s.todayQuestion),
   };
 }

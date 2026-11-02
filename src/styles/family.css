@@ -245,6 +245,17 @@
 .bandpick__opt.is-on { background: var(--text-strong); border-color: var(--text-strong); color: #fff; }
 .bandpick__opt.is-on span { color: rgba(255, 255, 255, 0.8); }
 .bandpick__opt i { position: absolute; top: 0.25rem; right: 0.4rem; font-style: normal; font-size: 0.75rem; }
+.bandpick__body { display: grid; gap: 0.15rem; justify-items: center; min-width: 0; }
+.bandpick--cards { grid-template-columns: 1fr; }
+.bandpick__opt--card { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 1.6rem 0.5rem 0.5rem; text-align: left; }
+.bandpick__opt--card.is-on { background: var(--surface-alt, #FAF8F4); color: var(--text-strong); box-shadow: inset 0 0 0 1px var(--text-strong); }
+.bandpick__img { flex: none; width: 5.75rem; height: 4rem; object-fit: cover; border-radius: 10px; }
+.bandpick__opt--card .bandpick__body { justify-items: start; gap: 0.25rem; }
+.bandpick__opt--card b { display: inline-block; padding: 0.1rem 0.6rem; border-radius: 999px; background: var(--accent-strong); color: #fff; font-size: 0.72rem; }
+.bandpick__opt--card .bandpick__text { min-height: 0; font-family: var(--font-serif); font-size: 0.92rem; line-height: 1.3; color: var(--text-strong); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.bandpick__opt--card .bandpick__who { min-height: 0; font-size: 0.72rem; color: var(--text-muted); }
+.bandpick__opt--card.is-on .bandpick__who { color: var(--text-muted); }
+.bandpick__opt--card i { top: 0.4rem; right: 0.6rem; }
 
 /* Ilustrações: ícone de cada etapa e cena da versão infantil */
 .ritual__tag { display: inline-flex; align-items: center; gap: 0.4rem; }
@@ -291,6 +302,7 @@
 .kstory .fam-eyebrow { margin: 0; }
 .kstory__cap, .kstory__speech { margin: 0; color: #2b2b2b; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; }
 .kstory__cap { padding: 0.6rem 0.85rem; background: #FFE9A8; border: 2px solid #2b2b2b; border-radius: 10px; font-size: clamp(1rem, 4.3vw, 1.2rem); }
+.kstory[data-format='dilemma'] .kstory__art { width: min(100%, max(14rem, calc((100dvh - 30rem) * 1.25))); justify-self: start; }
 .kstory__art { margin: 0; justify-self: stretch; width: 100%; aspect-ratio: 5 / 4; overflow: hidden; background: #fff; border: 3px solid #2b2b2b; border-radius: 10px; }
 .kstory__art img { display: block; width: 100%; height: 100%; object-fit: cover; user-select: none; -webkit-user-drag: none; }
 .kstory__speech { position: relative; justify-self: start; max-width: min(100%, 26rem); margin-top: 0.35rem; padding: 0.55rem 0.95rem; background: #fff; border: 2px solid #2b2b2b; border-radius: 18px; font-family: 'Chalkboard SE', 'Comic Sans MS', var(--font-sans, system-ui), sans-serif; font-size: clamp(1rem, 4.2vw, 1.15rem); }
@@ -303,6 +315,8 @@
 .kstory__opt { min-height: 3rem; padding: 0.7rem 0.95rem; text-align: left; font: inherit; font-size: clamp(1rem, 4.2vw, 1.1rem); line-height: 1.4; color: var(--text-strong); background: transparent; border: 1.5px solid var(--border-subtle); border-radius: 12px; cursor: pointer; overflow-wrap: anywhere; }
 .kstory__opt.is-on { border-color: var(--text-strong); background: var(--surface); font-weight: 600; }
 .kstory__quote { margin: 0; padding: 0.9rem 1rem; background: #2E3550; color: #F3E6B8; border-radius: 12px; font-family: var(--font-serif); font-size: clamp(1.1rem, 4.8vw, 1.3rem); line-height: 1.5; overflow-wrap: anywhere; }
+.kstory__cite { display: block; margin-top: 0.4rem; font-family: var(--font-sans, inherit); font-style: normal; font-size: 0.85rem; letter-spacing: 0.02em; opacity: 0.8; }
+.kstory__ref { margin: 0; justify-self: start; padding: 0.2rem 0.7rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em; color: var(--text-strong); border: 1px solid var(--border-subtle); border-radius: 999px; }
 @media (min-width: 768px) { .kstory[data-format='panels'] { width: min(100%, max(14rem, calc((100dvh - 27rem) * 1.25))); } }
 @media (prefers-reduced-motion: no-preference) { .kstory__art img { animation: ritual-in 280ms ease both; } }
 
@@ -385,7 +399,7 @@
 .notice-item.is-new { border-color: var(--accent-strong, #8a7048); }
 .notice-item p { margin: 0.15rem 0; font-size: 0.9rem; }
 .notice-item small { color: var(--text-muted); }
-.hoje-capa__quote { margin: 0.5rem 0 0.4rem; font-family: var(--font-serif); font-style: italic; font-size: 1.35rem; line-height: 1.45; color: var(--text-strong); }
+.hoje-capa__quote { margin: 0 0 0.4rem; font-family: var(--font-serif); font-style: italic; font-weight: 300; font-size: 1.2rem; line-height: 1.5; color: var(--text-strong); }
 .hoje-capa__ref { margin: 0 0 0.25rem; }
 .reading-closing { margin: 1.5rem 0; padding: 1.25rem 1rem; text-align: center; border: 1px solid #c9dfc4; border-radius: 16px; background: #f6faf4; }
 .reading-closing__seal { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border-radius: 50%; background: #e7efe3; color: #2f6b2a; font-size: 1.5rem; }
