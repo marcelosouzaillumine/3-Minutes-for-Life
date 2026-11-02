@@ -158,7 +158,7 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
             {visible.map((t) => (
               <li key={t.id}>
                 <button type="button" onClick={() => startEdit(t)}>
-                  {t.coverUrl ? <img className="studio__thumb" src={t.coverUrl} alt="" /> : <span className="studio__thumb studio__thumb--none">sem capa</span>}
+                  {t.coverUrl ? <img className="studio__mini" src={t.coverUrl} alt="" /> : <span className="studio__mini studio__mini--none">sem capa</span>}
                   <span style={{ flex: 1 }}>{t.title}<small>{t.partnerKeyId ? `Exclusivo: ${partners.find((p) => p.id === t.partnerKeyId)?.name ?? 'parceiro'}` : catOf(t.categoryId)?.name ?? 'Sem categoria'} · {t.days} dias · “{t.themeWord}”</small></span>
                   <em className={`studio__badge studio__badge--${t.status === 'published' ? 'done' : 'draft'}`}>{t.status === 'published' ? 'Publicado' : 'Rascunho'}</em>
                 </button>
