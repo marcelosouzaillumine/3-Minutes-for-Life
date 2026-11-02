@@ -509,7 +509,14 @@
     "kidsTitle": "Lire avec les enfants",
     "kidsText": "Choisissez l'âge et lisez la version faite pour eux.",
     "kidsWith": "Avec {{names}}",
-    "kidsReady": "version prête"
+    "kidsReady": "version prête",
+    "modeQuestion": "Comment allez-vous lire aujourd'hui ?",
+    "modeSolo": "Moi",
+    "modeGroup": "Groupe",
+    "modeKids": "Enfants",
+    "kidsWithReady": "{{names}} ont une version prête",
+    "stepReflect": "2 · Réfléchir",
+    "reflectHint": "Prenez le temps d'y penser, ou écrivez une ligne pour vous. Vous n'avez à répondre à personne."
   },
   "familyNav": "Groupe",
   "plansx": {

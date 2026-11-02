@@ -18,7 +18,15 @@ const bandArt = (band: string) => (band === '4-6' ? 'young' : 'older');
 const OWN_ART: Record<string, string> = { cmvudrag10002oe2ldyzmvhaa: 'reforma-protestante' };
 const ownArt = (devotionalId: string | undefined, band: string) => (devotionalId && OWN_ART[devotionalId] ? `/ilustracoes/${OWN_ART[devotionalId]}/${band}.svg` : null);
 
-export function FamilyRitual({ source, audience: forced, onClose }: { source: 'daily' | 'plan'; audience?: 'adults' | 'kids'; onClose: () => void }) {
+export function FamilyRitual({ source, audience: forced, solo = false, intro = true, onClose }: {
+  source: 'daily' | 'plan';
+  audience?: 'adults' | 'kids';
+  /** Só a própria pessoa lê: não pede grupo nem escolha de quem está à mesa. */
+  solo?: boolean;
+  /** Mostra a tela de abertura (título e versículo). Vindo do Hoje, a pessoa já viu o título e entra direto. */
+  intro?: boolean;
+  onClose: () => void;
+}) {
   const { t, i18n } = useTranslation('common');
   const tt: TT = (k, d, o) => t(`ritual.${k}`, typeof d === 'string' ? { defaultValue: d, ...o } : d) as string;
 
@@ -59,7 +67,7 @@ export function FamilyRitual({ source, audience: forced, onClose }: { source: 'd
   const useSource: 'daily' | 'plan' = chosen === 'plan' && canPlan ? 'plan' : 'daily';
 
   useEffect(() => {
-    if (!family) return;
+    if (!family && !solo) return;
     let alive = true;
     setDevotional(null);
     const load = useSource === 'plan' && planDay
@@ -76,7 +84,7 @@ export function FamilyRitual({ source, audience: forced, onClose }: { source: 'd
 
   const adults = useMemo(() => (family?.members ?? []).filter((_, i) => presentAdults.has(i)).map((m) => m.displayName ?? '').filter(Boolean), [family, presentAdults]);
   const dayKey = Math.floor(Date.now() / 86_400_000);
-  const reader = readerForDay(adults, dayKey);
+  const reader = solo ? null : readerForDay(adults, dayKey);
   // Uma só escolha de público conduz todas as telas: com crianças, tudo vem da faixa delas; só adultos, do texto adulto.
   const withKids = audience === 'kids' && (family?.children.length ?? 0) > 0;
   const perChild = useMemo(
@@ -208,14 +216,16 @@ export function FamilyRitual({ source, audience: forced, onClose }: { source: 'd
   // Telas: ler (em partes), uma por pergunta, fazer (em partes), orar.
   const screens = useMemo(() => {
     type S = { id: string; kind: 'welcome' | 'table' | 'read' | 'talk' | 'do' | 'pray' | 'done'; q?: number; part?: number };
-    const out: S[] = [{ id: 'welcome', kind: 'welcome' }, { id: 'table', kind: 'table' }];
+    const out: S[] = [...(intro ? [{ id: 'welcome', kind: 'welcome' } as S] : []), ...(solo ? [] : [{ id: 'table', kind: 'table' } as S])];
     for (let i = 0; i < readCount; i++) out.push({ id: `read-${i}`, kind: 'read', part: i });
     questions.forEach((_, q) => out.push({ id: `talk-${q}`, kind: 'talk', q }));
     for (let i = 0; i < doCount; i++) out.push({ id: `do-${i}`, kind: 'do', part: i });
     for (let i = 0; i < prayCount; i++) out.push({ id: `pray-${i}`, kind: 'pray', part: i });
     out.push({ id: 'done', kind: 'done' });
     return out;
-  }, [questions, readCount, doCount, prayCount]);
+  }, [questions, readCount, doCount, prayCount, intro, solo]);
+  // Telas de abertura (título e quem está à mesa): sem setas e sem o contador.
+  const introN = screens.filter((x) => x.kind === 'welcome' || x.kind === 'table').length;
 
   const screen = screens[Math.min(step, screens.length - 1)];
   const last = step >= screens.length - 1;
@@ -225,20 +235,20 @@ export function FamilyRitual({ source, audience: forced, onClose }: { source: 'd
   const touch = useRef<{ x: number; y: number } | null>(null);
   const go = (delta: number) => setStep((s) => Math.max(0, Math.min(screens.length - 1, s + delta)));
   useEffect(() => {
-    if (step <= 1 || last) return;
+    if (step < introN || last) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') go(1);
       else if (e.key === 'ArrowLeft') go(-1);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [step, last, screens.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [step, last, screens.length, introN]); // eslint-disable-line react-hooks/exhaustive-deps
   const swipe = {
     onTouchStart: (e: React.TouchEvent) => { touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }; },
     onTouchEnd: (e: React.TouchEvent) => {
       const t = touch.current;
       touch.current = null;
-      if (!t || step <= 1 || last) return;
+      if (!t || step < introN || last) return;
       const dx = e.changedTouches[0].clientX - t.x;
       const dy = e.changedTouches[0].clientY - t.y;
       if (Math.abs(dx) >= 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
@@ -266,8 +276,10 @@ export function FamilyRitual({ source, audience: forced, onClose }: { source: 'd
   }
   if (!loaded) return <div className="ritual"><div className="ritual__body"><p className="ritual__lead">…</p></div></div>;
 
-  if (!family) return <RitualSetup onClose={onClose} onCreated={(f) => { setFamily(f); setPresent(new Set(f.children.map((c) => c.id))); }} tt={tt} />;
+  if (!family && !solo) return <RitualSetup onClose={onClose} onCreated={(f) => { setFamily(f); setPresent(new Set(f.children.map((c) => c.id))); }} tt={tt} />;
   if (!devotional) return <div className="ritual"><div className="ritual__body"><p className="ritual__lead">…</p></div></div>;
+  // Sem grupo (leitura só da pessoa): um grupo vazio faz as telas seguirem o mesmo caminho.
+  const fam: Family = family ?? { id: '', name: '', meetingTime: null, role: 'owner', inviteCode: '', members: [], children: [], week: { days: [], streak: 0 }, plan: null };
 
   const guidePanel = rawGuide && (
     <div className="ritual__guide">
@@ -292,20 +304,18 @@ export function FamilyRitual({ source, audience: forced, onClose }: { source: 'd
         <div className="ritual__screen" key={screen.id}>
         {screen.kind === 'welcome' && (
           <>
-            <p className="fam-eyebrow fam-eyebrow--accent">{useSource === 'plan' && family.plan ? tt('planDay', 'Plano · dia {{n}}', { n: family.plan.currentDay }) : tt('today', 'Devocional de hoje')}</p>
+            <p className="fam-eyebrow fam-eyebrow--accent">{useSource === 'plan' && fam.plan ? tt('planDay', 'Plano · dia {{n}}', { n: fam.plan.currentDay }) : tt('today', 'Devocional de hoje')}</p>
             <h1 className="ritual__title">{devotional.title}</h1>
             {canPlan && (
               <div className="fam-people" role="tablist">
                 <button type="button" className={`fam-chip${useSource === 'daily' ? ' is-on' : ''}`} onClick={() => setChosen('daily')}>{tt('pickDaily', 'Devocional do dia')}</button>
-                <button type="button" className={`fam-chip${useSource === 'plan' ? ' is-on' : ''}`} onClick={() => setChosen('plan')}>{tt('pickPlan', 'Do plano · dia {{n}}', { n: family.plan?.currentDay })}</button>
+                <button type="button" className={`fam-chip${useSource === 'plan' ? ' is-on' : ''}`} onClick={() => setChosen('plan')}>{tt('pickPlan', 'Do plano · dia {{n}}', { n: fam.plan?.currentDay })}</button>
               </div>
             )}
             {devotional.scripture_reference && <p className="ritual__verse">{devotional.scripture_reference}</p>}
             {devotional.principle_statement && <p className="ritual__lead">{devotional.principle_statement}</p>}
             <p className="fam-note">{tt('promise', '3 minutos · ler, conversar, fazer e orar juntos')}</p>
-            {forced ? (
-              <button type="button" className="fam-btn fam-btn--primary" onClick={() => go(1)}>{tt('start', 'Começar')}</button>
-            ) : (
+            {forced ? null : (
               <section className="ritual__who" aria-label={tt('withWhom', 'Com quem você vai ler hoje?')}>
                 <h2 className="ritual__who-title">{tt('withWhom', 'Com quem você vai ler hoje?')}</h2>
                 <div className="ritual__choices">
@@ -329,14 +339,14 @@ export function FamilyRitual({ source, audience: forced, onClose }: { source: 'd
             <section className="ritual__kids-box">
               <h3 className="ritual__who-sub">{tt('whoIsHere', 'Quem está à mesa?')}</h3>
               <div className="fam-people">
-                {family.members.map((m, i) => (
+                {fam.members.map((m, i) => (
                   <button key={`a${i}`} type="button" className="fam-person" aria-pressed={presentAdults.has(i)}
                     onClick={() => setPresentAdults((p) => { const n = new Set(p); if (n.has(i)) n.delete(i); else n.add(i); return n; })}>
                     <span className={`fam-avatar${presentAdults.has(i) ? ' is-read' : ''}`}>{(m.displayName ?? '?').trim().slice(0, 2)}</span>
                     <span className="fam-person__label">{m.isMe ? tt('you', 'você') : m.displayName ?? tt('someone', 'Alguém')}</span>
                   </button>
                 ))}
-                {audience === 'kids' && family.children.map((c) => (
+                {audience === 'kids' && fam.children.map((c) => (
                   <button key={c.id} type="button" className="fam-person" aria-pressed={present.has(c.id)}
                     onClick={() => setPresent((p) => { const n = new Set(p); if (n.has(c.id)) n.delete(c.id); else n.add(c.id); return n; })}>
                     <span className={`fam-avatar fam-avatar--child${present.has(c.id) ? ' is-read' : ''}`}>{c.nickname.slice(0, 2)}</span>
@@ -360,13 +370,13 @@ export function FamilyRitual({ source, audience: forced, onClose }: { source: 'd
               )}
               {audience === 'kids' && (
                 <>
-                  <h3 className="ritual__who-sub">{family.children.length > 0 ? tt('addAnother', 'Adicionar outra criança') : tt('addFirst', 'Quem vai ler com você?')}</h3>
+                  <h3 className="ritual__who-sub">{fam.children.length > 0 ? tt('addAnother', 'Adicionar outra criança') : tt('addFirst', 'Quem vai ler com você?')}</h3>
                   <form className="fam-inline" onSubmit={async (e) => {
                     e.preventDefault();
                     if (!kidNick.trim() || kidBusy) return;
                     setKidBusy(true); setKidError('');
                     try {
-                      const before = new Set(family.children.map((c) => c.id));
+                      const before = new Set(fam.children.map((c) => c.id));
                       const f = await FamilyService.addChild(kidNick.trim(), kidBand);
                       setFamily(f);
                       setPresent((p) => { const n = new Set(p); f.children.filter((c) => !before.has(c.id)).forEach((c) => n.add(c.id)); return n; });
@@ -385,7 +395,7 @@ export function FamilyRitual({ source, audience: forced, onClose }: { source: 'd
                 </>
               )}
             </section>
-            {family.meetingTime && <p className="fam-note">{tt('meeting', 'Hora combinada: {{time}}', { time: family.meetingTime })}</p>}
+            {fam.meetingTime && <p className="fam-note">{tt('meeting', 'Hora combinada: {{time}}', { time: fam.meetingTime })}</p>}
           </>
         )}
 
@@ -430,11 +440,11 @@ export function FamilyRitual({ source, audience: forced, onClose }: { source: 'd
 
         {screen.kind === 'talk' && screen.q !== undefined && (
           <>
-            <span className="ritual__tag ritual__tag--talk">{tt('stepTalk', '2 · Conversar')}</span>
+            <span className="ritual__tag ritual__tag--talk">{solo ? tt('stepReflect', '2 · Refletir') : tt('stepTalk', '2 · Conversar')}</span>
             <p className="fam-eyebrow">{tt('question', 'Pergunta {{n}} de {{total}}', { n: screen.q + 1, total: questions.length })}</p>
             {talkContext.text && screen.q === talkContext.at && <div className="ritual__context"><Paragraphs text={talkContext.text} /></div>}
             <div className="ritual__question"><p>{questions[screen.q]}</p></div>
-            <p className="fam-note">{tt('questionHint', 'Deixe cada um responder, sem pressa. Quem quiser pode passar.')}</p>
+            <p className="fam-note">{solo ? tt('reflectHint', 'Pense com calma, ou escreva uma linha para você. Não precisa responder a ninguém.') : tt('questionHint', 'Deixe cada um responder, sem pressa. Quem quiser pode passar.')}</p>
             {guidePanel}
           </>
         )}
@@ -485,8 +495,8 @@ export function FamilyRitual({ source, audience: forced, onClose }: { source: 'd
             <span className="ritual__seal" aria-hidden="true">✓</span>
             <h1 className="ritual__title">{saved ? tt('doneTitle', 'Vocês leram juntos.') : tt('almost', 'Vamos registrar?')}</h1>
             <p className="ritual__lead">{saved ? tt('doneText', 'Cada adulto marca a própria leitura. Obrigado por separar esse tempo.') : tt('markText', 'Isso registra a sua leitura de hoje.')}</p>
-            {saved && family.week.streak > 0 && (
-              <div className="ritual__streak"><strong>{family.week.streak}</strong><span>{tt('streakDays', { count: family.week.streak, defaultValue: 'dias seguidos juntos' })}</span></div>
+            {saved && fam.week.streak > 0 && (
+              <div className="ritual__streak"><strong>{fam.week.streak}</strong><span>{tt('streakDays', { count: fam.week.streak, defaultValue: 'dias seguidos juntos' })}</span></div>
             )}
             {saved && <p className="fam-note">{tt('tomorrow', 'Amanhã tem um novo devocional esperando por vocês.')}</p>}
             {!saved ? (
@@ -499,15 +509,15 @@ export function FamilyRitual({ source, audience: forced, onClose }: { source: 'd
         </div>
       </div>
 
-      {!last && (step <= 1 ? (
+      {!last && (step < introN ? (
         <footer className="ritual__nav">
-          <button type="button" className="fam-btn fam-btn--primary" onClick={() => go(1)}>{step === 0 ? tt('continue', 'Continuar') : tt('start', 'Começar')}</button>
-          {step === 1 && <button type="button" className="fam-btn fam-btn--ghost" onClick={() => go(-1)}>{tt('back', 'Voltar')}</button>}
+          <button type="button" className="fam-btn fam-btn--primary" onClick={() => go(1)}>{step === 0 && intro ? tt('continue', 'Continuar') : tt('start', 'Começar')}</button>
+          {step === introN - 1 && introN > 1 && <button type="button" className="fam-btn fam-btn--ghost" onClick={() => go(-1)}>{tt('back', 'Voltar')}</button>}
         </footer>
       ) : (
         <footer className="ritual__nav ritual__nav--circles">
           <button type="button" className="ritual__circle" aria-label={tt('back', 'Voltar')} onClick={() => go(-1)}>‹</button>
-          <span className="ritual__counter" aria-live="polite">{tt('counter', '{{n}} de {{total}}', { n: step - 1, total: screens.length - 2 })}</span>
+          <span className="ritual__counter" aria-live="polite">{tt('counter', '{{n}} de {{total}}', { n: step - introN + 1, total: screens.length - introN })}</span>
           <button type="button" className="ritual__circle ritual__circle--next" aria-label={tt('next', 'Continuar')} onClick={() => go(1)}>›</button>
         </footer>
       ))}

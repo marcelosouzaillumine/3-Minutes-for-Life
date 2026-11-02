@@ -66,11 +66,11 @@ function AppShell() {
   // Tocar na aba já ativa remonta a tela dela (volta ao início, ex.: sai do devocional aberto na Biblioteca)
   const [tabResetKey, setTabResetKey] = useState(0);
   // Ler juntos abre por cima de qualquer aba (cartão da Home, aba Família).
-  const [ritual, setRitual] = useState<{ source: 'daily' | 'plan'; audience?: 'adults' | 'kids' } | null>(null);
+  const [ritual, setRitual] = useState<{ source: 'daily' | 'plan'; audience?: 'adults' | 'kids'; solo?: boolean; intro?: boolean } | null>(null);
   useEffect(() => {
     const onRitual = (e: Event) => {
-      const d = (e as CustomEvent).detail as 'daily' | 'plan' | { source?: 'daily' | 'plan'; audience?: 'adults' | 'kids' } | undefined;
-      setRitual(typeof d === 'object' && d ? { source: d.source ?? 'daily', audience: d.audience } : { source: d ?? 'daily' });
+      const d = (e as CustomEvent).detail as 'daily' | 'plan' | { source?: 'daily' | 'plan'; audience?: 'adults' | 'kids'; solo?: boolean; intro?: boolean } | undefined;
+      setRitual(typeof d === 'object' && d ? { source: d.source ?? 'daily', audience: d.audience, solo: d.solo, intro: d.intro } : { source: d ?? 'daily' });
     };
     const onTab = (e: Event) => setCurrentTab(((e as CustomEvent).detail as Tab) ?? 'home');
     window.addEventListener('family:ritual', onRitual);
@@ -98,7 +98,7 @@ function AppShell() {
     <div className="app-container">
       <main className="content-area" key={tabResetKey}>{renderContent()}</main>
       <BottomNav currentTab={currentTab} setTab={handleTabChange} />
-      {ritual && <FamilyRitual source={ritual.source} audience={ritual.audience} onClose={() => setRitual(null)} />}
+      {ritual && <FamilyRitual source={ritual.source} audience={ritual.audience} solo={ritual.solo} intro={ritual.intro} onClose={() => setRitual(null)} />}
     </div>
   );
 }

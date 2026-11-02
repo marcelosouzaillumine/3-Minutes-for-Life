@@ -329,8 +329,12 @@
 .ritual__body .principle-scripture--compact .principle-scripture-text { font-size: 1.1rem; line-height: 1.55; font-style: italic; }
 .ritual__body .principle-scripture--compact .principle-scripture-reference { margin: 0 0 0.35rem; font-size: 0.75rem; }
 
-.fam-today-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin: 0.75rem 0; }
-.fam-today--pick { flex-direction: column; align-items: flex-start; text-align: left; cursor: pointer; margin: 0; }
+.fam-mode { margin: 0.75rem 0; text-align: center; }
+.fam-mode__q { margin: 0 0 0.4rem; font-size: 0.85rem; color: var(--text-muted); }
+.fam-mode__seg { display: flex; padding: 0.2rem; border: 1px solid var(--border-subtle); border-radius: 999px; background: var(--surface-subtle, transparent); }
+.fam-mode__seg button { flex: 1; min-height: 2.5rem; padding: 0 0.5rem; font: inherit; font-size: 0.95rem; color: var(--text-strong); background: none; border: 0; border-radius: 999px; cursor: pointer; }
+.fam-mode__seg button:active { background: var(--color-accent); color: #fff; }
+.fam-mode__hint { margin: 0.5rem 0 0; font-size: 0.8rem; color: var(--text-muted); }
 .more-list { display: flex; flex-direction: column; }
 .more-row { display: flex; align-items: center; gap: 0.85rem; min-height: 3rem; padding: 0 0.25rem; font: inherit; font-size: 1rem; color: var(--text-strong); text-decoration: none; background: none; border: 0; border-bottom: 1px solid var(--border-subtle); text-align: left; cursor: pointer; }
 .more-row:last-child { border-bottom: 0; }

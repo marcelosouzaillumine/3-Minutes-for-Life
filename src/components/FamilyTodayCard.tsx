@@ -36,30 +36,23 @@ export function FamilyTodayCard({ devotionalId }: { devotionalId?: string }) {
   const kidNames = (family?.children ?? []).map((c) => c.nickname);
   const names = kidNames.length > 2 ? `${kidNames.slice(0, 2).join(', ')} +${kidNames.length - 2}` : kidNames.join(' e ');
 
+  const hint = [
+    family ? (readers > 0
+      ? t('fam.today.readers', { count: readers, total: family.members.length, defaultValue: '{{count}} de {{total}} já leram hoje' })
+      : t('fam.today.none', 'Ninguém leu ainda hoje')) : '',
+    names && hasKids ? t('ritual.kidsWithReady', { names, defaultValue: '{{names}} têm versão pronta' }) : '',
+  ].filter(Boolean).join(' · ');
+
+  // Nenhum modo vem marcado: tocar em um já abre a leitura, sempre no mesmo passo a passo.
   return (
-    <div className="fam-today-pair">
-      <button type="button" className="fam-today fam-today--pick" onClick={() => (family ? openRitual(plan ? 'plan' : 'daily', 'adults') : goTab('family'))}>
-        <p className="fam-eyebrow">{t('ritual.groupTitle', 'Ler em grupo')}</p>
-        <p className="fam-today__text">
-          {family
-            ? <>
-                {readers > 0
-                  ? t('fam.today.readers', { count: readers, total: family.members.length, defaultValue: '{{count}} de {{total}} já leram hoje' })
-                  : t('fam.today.none', 'Ninguém leu ainda hoje')}
-                {plan && ` · ${t('fam.today.planDay', { n: plan.currentDay, defaultValue: 'plano, dia {{n}}' })}`}
-              </>
-            : t('ritual.groupText', 'Casal, célula ou amigos. Cada um no seu tempo.')}
-        </p>
-      </button>
-      <button type="button" className="fam-today fam-today--pick" onClick={() => openRitual('daily', 'kids')}>
-        <p className="fam-eyebrow">{t('ritual.kidsTitle', 'Ler com as crianças')}</p>
-        <p className="fam-today__text">
-          {names
-            ? t('ritual.kidsWith', { names, defaultValue: 'Com {{names}}' })
-            : t('ritual.kidsText', 'Escolha a idade e leia a versão feita para elas.')}
-          {hasKids && names ? ` · ${t('ritual.kidsReady', 'versão pronta')}` : ''}
-        </p>
-      </button>
+    <div className="fam-mode">
+      <p className="fam-mode__q">{t('ritual.modeQuestion', 'Como você vai ler hoje?')}</p>
+      <div className="fam-mode__seg" role="group" aria-label={t('ritual.modeQuestion', 'Como você vai ler hoje?')}>
+        <button type="button" onClick={() => openRitual('daily', undefined, { solo: true, intro: false })}>{t('ritual.modeSolo', 'Eu')}</button>
+        <button type="button" onClick={() => (family ? openRitual(plan ? 'plan' : 'daily', 'adults', { intro: false }) : goTab('family'))}>{t('ritual.modeGroup', 'Grupo')}</button>
+        <button type="button" onClick={() => openRitual('daily', 'kids', { intro: false })}>{t('ritual.modeKids', 'Crianças')}</button>
+      </div>
+      {hint && <p className="fam-mode__hint">{hint}{plan && ` · ${t('fam.today.planDay', { n: plan.currentDay, defaultValue: 'plano, dia {{n}}' })}`}</p>}
     </div>
   );
 }
