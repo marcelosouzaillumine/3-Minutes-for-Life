@@ -319,3 +319,11 @@
   .kstory[data-format='panels'] .kstory__cap, .kstory[data-format='panels'] .kstory__speech { grid-column: 2; }
   .kstory[data-format='panels'] .kstory__speech { margin-top: 0.7rem; }
 }
+
+/* Capa da leitura infantil: faixa, título grande e só depois a passagem, menor */
+.ritual__cover { display: grid; gap: 0.35rem; }
+.ritual__cover .fam-eyebrow { margin: 0; }
+.ritual__cover-title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 2rem; line-height: 1.15; color: var(--text-strong); }
+.ritual__body .principle-scripture--compact { padding: 0.9rem 1.1rem; }
+.ritual__body .principle-scripture--compact .principle-scripture-text { font-size: 1.1rem; line-height: 1.55; font-style: italic; }
+.ritual__body .principle-scripture--compact .principle-scripture-reference { margin: 0 0 0.35rem; font-size: 0.75rem; }

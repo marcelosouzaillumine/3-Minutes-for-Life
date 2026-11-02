@@ -175,6 +175,8 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
     return { child, version, pages: run(plainBlocks(version?.whatItSays), fits, true) };
   }), [shared, budget, fitCfg, reader, devotional, nKids]); // eslint-disable-line react-hooks/exhaustive-deps
   const readAdult = useMemo(() => run(htmlBlocks(devotional?.reflection), screenFits((f) => tagHtml(tt('stepRead', '1 · Ler'), 'read') + (f ? verseHtml() : ''), (pg) => `<div class="ritual__text">${pg.join('')}</div>`), true), [devotional, budget, fitCfg, reader]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Título da capa da leitura infantil: o da versão; com várias faixas sem história só aparece se todos coincidem.
+  const headTitle = story ? (leadVersion?.title ?? '') : (readKids.length > 0 && readKids.every((k) => k.version?.title && k.version.title === readKids[0].version?.title) ? readKids[0].version!.title : '');
   const readCount = story ? 1 + storyCount : Math.max(1, kidsView ? Math.max(...readKids.map((k) => k.pages.length)) : readAdult.length);
 
   const doHead = (_f: boolean) => tagHtml(tt('stepDo', '3 · Fazer'), 'do');
@@ -370,11 +372,17 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
           <>
             {screen.part === 0 && kidsView && <div className={`ritual__hero ritual__hero--${bandArt(shared[0].child.band)}`} style={heroStyle(shared[0].child.band)} />}
             <span className="ritual__tag ritual__tag--read">{tt('stepRead', '1 · Ler')}</span>
+            {screen.part === 0 && kidsView && headTitle && (
+              <header className="ritual__cover">
+                <p className="fam-eyebrow">{(story ? leadVersion : readKids[0]?.version)?.band.replace('-', ' a ')} {tt('years', 'anos')}</p>
+                <h2 className="ritual__cover-title">{headTitle}</h2>
+              </header>
+            )}
             {screen.part === 0 && (
               <>
                 {reader && <p className="fam-note">{tt('reader', '{{name}} lê em voz alta', { name: reader })}</p>}
                 {(devotional.scripture_reference || devotional.scripture_text) && (
-                  <blockquote className="principle-scripture principle-scripture--ritual">
+                  <blockquote className={`principle-scripture principle-scripture--ritual${kidsView && headTitle ? ' principle-scripture--compact' : ''}`}>
                     {devotional.scripture_reference && <cite className="principle-scripture-reference">{devotional.scripture_reference}</cite>}
                     {devotional.scripture_text && <p className="principle-scripture-text">&ldquo;{devotional.scripture_text}&rdquo;</p>}
                   </blockquote>
@@ -383,13 +391,13 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
             )}
             {kidsView && story ? (
               (screen.part ?? 0) === 0
-                ? (leadVersion?.title && <section className="ritual__kid"><h3>{leadVersion.band.replace('-', ' a ')} {tt('years', 'anos')}</h3><p className="ritual__kid-title">{leadVersion.title}</p></section>)
+                ? null
                 : <KidsStoryScreen story={story} index={(screen.part ?? 1) - 1} tt={tt} picked={dilemmaPick} onPick={setDilemmaPick} />
             ) : kidsView ? (
               readKids.filter((k) => k.pages[screen.part ?? 0]).map(({ child, version, pages }) => (
                 <section key={child.id} className="ritual__kid">
-                  <h3>{child.band.replace('-', ' a ')} {tt('years', 'anos')}</h3>
-                  {screen.part === 0 && version?.title && <p className="ritual__kid-title">{version.title}</p>}
+                  {!(screen.part === 0 && headTitle) && <h3>{child.band.replace('-', ' a ')} {tt('years', 'anos')}</h3>}
+                  {screen.part === 0 && version?.title && !headTitle && <p className="ritual__kid-title">{version.title}</p>}
                   <Paragraphs text={pages[screen.part ?? 0].join('\n\n')} />
                 </section>
               ))
