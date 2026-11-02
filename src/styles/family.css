@@ -304,6 +304,8 @@
 .kstory__opt { min-height: 3rem; padding: 0.7rem 0.95rem; text-align: left; font: inherit; font-size: clamp(1rem, 4.2vw, 1.1rem); line-height: 1.4; color: var(--text-strong); background: transparent; border: 1.5px solid var(--border-subtle); border-radius: 12px; cursor: pointer; overflow-wrap: anywhere; }
 .kstory__opt.is-on { border-color: var(--text-strong); background: var(--surface); font-weight: 600; }
 .kstory__quote { margin: 0; padding: 0.9rem 1rem; background: #2E3550; color: #F3E6B8; border-radius: 12px; font-family: var(--font-serif); font-size: clamp(1.1rem, 4.8vw, 1.3rem); line-height: 1.5; overflow-wrap: anywhere; }
+.kstory__cite { display: block; margin-top: 0.4rem; font-family: var(--font-sans, inherit); font-style: normal; font-size: 0.85rem; letter-spacing: 0.02em; opacity: 0.8; }
+.kstory__ref { margin: 0; justify-self: start; padding: 0.2rem 0.7rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em; color: var(--text-strong); border: 1px solid var(--border-subtle); border-radius: 999px; }
 @media (min-width: 768px) { .kstory[data-format='panels'] { width: min(100%, max(14rem, calc((100dvh - 27rem) * 1.25))); } }
 @media (prefers-reduced-motion: no-preference) { .kstory__art img { animation: ritual-in 280ms ease both; } }
 

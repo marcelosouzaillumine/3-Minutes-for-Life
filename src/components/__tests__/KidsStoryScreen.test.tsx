@@ -30,3 +30,26 @@ describe('dilema com imagens', () => {
     expect(srcs({ ...base, image: img(2) })).toEqual([img(2), null, null, null]);
   });
 });
+
+function textOf(story: KidStory, index: number): string {
+  const host = document.createElement('div');
+  const root = createRoot(host);
+  act(() => root.render(<KidsStoryScreen story={story} index={index} tt={tt} />));
+  const html = host.innerHTML;
+  act(() => root.unmount());
+  return html;
+}
+
+describe('dilema com referência bíblica', () => {
+  it('mostra o selo só na abertura e a fonte da citação no desfecho', () => {
+    const story = { ...base, reference: 'Lucas 10.38-42', quote: 'Maria escolheu a boa parte.', quoteSource: 'Lucas 10.42' };
+    expect(textOf(story, 0)).toContain('Lucas 10.38-42');
+    expect(textOf(story, 1)).not.toContain('Lucas 10.38-42');
+    expect(textOf(story, 2)).toContain('Lucas 10.42');
+  });
+
+  it('sem os campos novos, nada extra aparece', () => {
+    expect(textOf(base, 0)).not.toContain('kstory__ref');
+    expect(textOf({ ...base, quote: 'x' }, 2)).not.toContain('kstory__cite');
+  });
+});

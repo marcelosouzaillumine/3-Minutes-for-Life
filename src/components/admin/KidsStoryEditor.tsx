@@ -109,6 +109,7 @@ function DilemmaForm({ story, ref_, onChange }: { story: Dilemma; ref_: Dilemma 
   const setOpt = (i: number, v: string) => set({ options: story.options.map((o, k) => (k === i ? v : o)) });
   return (
     <div className="fam-form studio__dilemma">
+      {field('reference', 'Passagem bíblica, ex.: Lucas 10.38-42 (selo na abertura; Bíblia NAA em português)', 1, 60)}
       <label>Cena (opcional; https:// ou /ilustracoes/…, sem texto dentro da imagem)
         <input value={story.image ?? ''} placeholder="/ilustracoes/reforma-protestante/quadros/11-13-cena.svg" onChange={(e) => set({ image: e.target.value })} />
       </label>
@@ -130,6 +131,7 @@ function DilemmaForm({ story, ref_, onChange }: { story: Dilemma; ref_: Dilemma 
       </fieldset>
       {field('outcome', '3 · O que aconteceu', 4, 800)}
       {field('quote', '3 · Citação do desfecho (opcional)', 2, 240)}
+      {field('quoteSource', '3 · Fonte da citação, ex.: Lucas 10.42 (opcional)', 1, 80)}
       {field('outcomeQuestion', '3 · Pergunta depois do desfecho', 1, 200)}
       {field('today', '4 · E hoje? O elo com a vida de agora', 3, 600)}
       {field('todayQuestion', '4 · Pergunta de “E hoje?”', 1, 200)}
