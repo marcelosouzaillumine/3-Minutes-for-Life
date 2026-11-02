@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { guideVersion, htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks, readerForDay, versionsForChildren } from './ritual';
+import { guideVersion, htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks, readerForDay, versionsForChildren, withoutEmbeddedSections } from './ritual';
 import type { KidsVersion } from '../services/FamilyService';
 
 const v = (band: KidsVersion['band']): KidsVersion => ({
