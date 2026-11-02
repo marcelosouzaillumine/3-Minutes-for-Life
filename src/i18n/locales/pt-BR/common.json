@@ -546,7 +546,9 @@
     "readGroup": "Ler em grupo",
     "readGroupHint": "Este devocional, passo a passo com o grupo",
     "readKids": "Ler com as crianças",
-    "readKidsHint": "A versão feita para a idade delas"
+    "readKidsHint": "A versão feita para a idade delas",
+    "sheetMissing": "Ainda não há versão de {{band}} anos para este devocional.",
+    "sheetNone": "Este devocional ainda não tem versão para a idade de quem está na mesa ({{band}} anos)."
   },
   "familyNav": "Grupo",
   "plansx": {

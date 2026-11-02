@@ -546,7 +546,9 @@
     "readGroup": "Lire en groupe",
     "readGroupHint": "Ce dévotionnel, pas à pas avec le groupe",
     "readKids": "Lire avec les enfants",
-    "readKidsHint": "La version faite pour leur âge"
+    "readKidsHint": "La version faite pour leur âge",
+    "sheetMissing": "Il n'y a pas encore de version {{band}} ans de ce dévotionnel.",
+    "sheetNone": "Ce dévotionnel n'a pas encore de version pour l'âge des personnes à table ({{band}} ans)."
   },
   "familyNav": "Groupe",
   "plansx": {

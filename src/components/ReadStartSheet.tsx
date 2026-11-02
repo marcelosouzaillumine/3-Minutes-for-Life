@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from './Sheet';
+import { DevotionalService } from '../services/DevotionalService';
+import { getTodayInSaoPaulo } from '../utils/date';
 import { FamilyService, activeFamily, type Band, type Family, type FamilySummary } from '../services/FamilyService';
 import { openRitual } from '../pages/Family';
 import { readerForDay } from '../utils/ritual';
@@ -19,7 +21,7 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, onClose, 
   onClose: () => void;
   onChanged?: (f: Family) => void;
 }) {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const tt = (k: string, d: string, o?: Record<string, unknown>) => t(`ritual.${k}`, { defaultValue: d, ...o }) as string;
   const kids = audience === 'kids';
   // Grupo à distância: cada um lê a rolagem de hoje no seu tempo. A escolha fica lembrada.
@@ -50,15 +52,30 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, onClose, 
     setLead(null);
   };
 
-  const bands = useMemo(
+  // Faixas com versão aprovada neste devocional e idioma. Sem isso a folha prometeria uma idade que a leitura não tem.
+  const [avail, setAvail] = useState<Set<Band> | null>(null);
+  useEffect(() => {
+    if (!kids) return;
+    let alive = true;
+    (async () => {
+      const id = devotionalId ?? (await DevotionalService.getDailyDevotional(getTodayInSaoPaulo(), i18n.language)).id;
+      const v = await FamilyService.getKids(id, i18n.language);
+      if (alive) setAvail(new Set(v.map((x) => x.band)));
+    })().catch(() => { if (alive) setAvail(null); });
+    return () => { alive = false; };
+  }, [kids, devotionalId, i18n.language]);
+
+  const presentBands = useMemo(
     () => [...new Set(fam.children.filter((c) => present.has(c.id)).map((c) => c.band))].sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b)),
     [fam, present],
   );
+  const bands = avail ? presentBands.filter((b) => avail.has(b)) : presentBands;
+  const missing = avail ? presentBands.filter((b) => !avail.has(b)) : [];
   const shared = lead && bands.includes(lead) ? lead : bands[0] ?? null;
   const names = fam.members.filter((_, i) => adults.has(i)).map((m) => m.displayName ?? '').filter(Boolean);
   const reader = readerForDay(names, Math.floor(Date.now() / 86_400_000));
   const toggle = <T,>(set: Set<T>, v: T, put: (s: Set<T>) => void) => { const n = new Set(set); if (n.has(v)) n.delete(v); else n.add(v); put(n); };
-  const canStart = kids ? present.size > 0 : alone || adults.size > 0;
+  const canStart = kids ? present.size > 0 && (!avail || bands.length > 0) : alone || adults.size > 0;
 
   const start = () => {
     onClose();
@@ -142,6 +159,13 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, onClose, 
           {bands.length > 1 && bands.filter((b) => b !== shared).map((b) => (
             <button key={b} type="button" className="fam-link" onClick={() => setLead(b)}> {tt('sheetSwitch', 'Trocar para {{band}}', { band: bandLabel(b) })}</button>
           ))}
+        </p>
+      )}
+      {kids && missing.length > 0 && (
+        <p className="fam-note">
+          {bands.length > 0
+            ? tt('sheetMissing', 'Ainda não há versão de {{band}} anos para este devocional.', { band: missing.map(bandLabel).join(' e ') })
+            : tt('sheetNone', 'Este devocional ainda não tem versão para a idade de quem está na mesa ({{band}} anos).', { band: missing.map(bandLabel).join(' e ') })}
         </p>
       )}
       {reader && !alone && <p className="fam-note">{tt('reader', '{{name}} lê em voz alta', { name: reader })}</p>}
