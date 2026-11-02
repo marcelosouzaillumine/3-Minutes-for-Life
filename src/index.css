@@ -2659,3 +2659,5 @@ a:focus-visible {
 .home-next__chip { padding: 0.3rem 0.85rem; border: 1px solid var(--color-border); border-radius: 999px; background: none; color: inherit; font: inherit; font-size: 0.85rem; cursor: pointer; }
 .home-next__chip:hover { border-color: var(--accent-strong); color: var(--accent-strong); }
 .home-next__library { display: block; margin: 1.25rem auto 0; padding: 0.25rem 0.5rem; background: none; border: 0; color: var(--color-text-light); font: inherit; font-size: 0.9rem; text-decoration: underline; cursor: pointer; }
+
+.action-btn .action-sub { display: block; margin-top: 0.1rem; font-size: 0.72rem; font-weight: 400; opacity: 0.7; }

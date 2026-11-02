@@ -2,7 +2,6 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { illumineAuth } from '../lib/illumine';
 import { PlansService, type PlanCard } from '../services/PlansService';
-import { FamilyService } from '../services/FamilyService';
 import { SectionLabel } from './SectionLabel';
 
 const CHIPS = ['c1', 'c2', 'c3', 'c4'] as const;
@@ -12,7 +11,6 @@ export function HomeNext({ onExplore }: { onExplore: () => void }) {
   const { t } = useTranslation('common');
   const tt = (k: string, d: string, o?: Record<string, unknown>) => t(`next.${k}`, { defaultValue: d, ...o });
   const [plan, setPlan] = useState<PlanCard | null>(null);
-  const [hasFamily, setHasFamily] = useState(false);
   const [query, setQuery] = useState('');
   const signedIn = illumineAuth.isAuthenticated();
 
@@ -23,7 +21,6 @@ export function HomeNext({ onExplore }: { onExplore: () => void }) {
       const active = groups.flatMap((g) => g.plans).find((p) => p.started && !p.completed);
       if (alive) setPlan(active ?? null);
     });
-    FamilyService.get().then((f) => { if (alive) setHasFamily(!!f); }).catch(() => {});
     return () => { alive = false; };
   }, [signedIn]);
 
@@ -46,15 +43,6 @@ export function HomeNext({ onExplore }: { onExplore: () => void }) {
           <span className="home-next__text">
             <strong>{tt('plan', 'Continuar o plano')}</strong>
             <small>{tt('planSub', '{{title}} · dia {{day}} de {{total}}', { title: plan.title, day: Math.min(plan.currentDay, plan.days), total: plan.days })}</small>
-          </span>
-          <span aria-hidden="true">›</span>
-        </button>
-      )}
-      {hasFamily && (
-        <button type="button" className="home-next__row" onClick={() => window.dispatchEvent(new CustomEvent('family:ritual', { detail: 'daily' }))}>
-          <span className="home-next__text">
-            <strong>{tt('family', 'Ler juntos')}</strong>
-            <small>{tt('familySub', 'Hoje, em voz alta, à mesa')}</small>
           </span>
           <span aria-hidden="true">›</span>
         </button>

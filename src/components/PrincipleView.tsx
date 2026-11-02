@@ -3,6 +3,7 @@ import { ReminderInvite } from './ReminderInvite';
 import { FamilyTodayCard } from './FamilyTodayCard';
 import { GroupWordCard } from './GroupWordCard';
 import { GroupCelebrationBanner } from './GroupNotices';
+import { FamilyService } from '../services/FamilyService';
 import { useNavigate } from 'react-router-dom';
 import type { Devotional } from '../types/Devotional';
 import { JourneyService } from '../services/JourneyService';
@@ -56,6 +57,14 @@ export function PrincipleView({
   const [reading, setReading] = useState(false);
   // Aberta pela folha do Grupo ("cada um no seu tempo"): o fim da leitura ganha o cartão do grupo.
   const [groupRead, setGroupRead] = useState(false);
+  // Grupos da pessoa: o registro da leitura conta para todos eles, e o botão diz quais.
+  const [groupNames, setGroupNames] = useState<string[]>([]);
+  useEffect(() => {
+    if (!isDaily || !user) return;
+    let alive = true;
+    FamilyService.list().then((g) => { if (alive) setGroupNames(g.families.map((f) => f.name)); }).catch(() => {});
+    return () => { alive = false; };
+  }, [isDaily, user]);
   useEffect(() => {
     if (!isDaily) return;
     const take = () => {
@@ -801,7 +810,14 @@ export function PrincipleView({
                   </svg>
 
                   <span className="action-label">
-                    {completed ? t('completed') : t('complete')}
+                    {completed ? t('ritual.registered2', 'Leitura registrada') : t('ritual.register', 'Registrar minha leitura')}
+                    {isDaily && groupNames.length > 0 && (
+                      <small className="action-sub">
+                        {groupNames.length === 1
+                          ? t('ritual.registerFor', { name: groupNames[0], defaultValue: 'Conta para você e para o grupo {{name}}' })
+                          : t('ritual.registerForMany', { count: groupNames.length, defaultValue: 'Conta para você e para {{count}} grupos' })}
+                      </small>
+                    )}
                   </span>
                 </button>
               )}
@@ -810,7 +826,7 @@ export function PrincipleView({
 
           )}
 
-          {isDaily && user && groupRead && <GroupWordCard completed={completed} onComplete={markComplete} />}
+          {isDaily && user && (groupRead || completed) && groupNames.length > 0 && <GroupWordCard completed={completed} onComplete={markComplete} />}
 
           <ShareImageMenu
             title={devotional.title ?? ''}
