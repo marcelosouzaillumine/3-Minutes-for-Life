@@ -3,7 +3,7 @@ import { FamilyAdmin, type PlanCategoryAdmin, type PlanTemplate } from '../../se
 import type { Row } from './AdminKids';
 import { MediaLibraryPicker } from '../../components/admin/MediaLibraryPicker';
 
-type Draft = { id: string | null; title: string; description: string; themeWord: string; items: string[]; status: 'draft' | 'published'; categoryId: string | null; coverUrl: string | null };
+type Draft = { id: string | null; title: string; description: string; themeWord: string; items: string[]; status: 'draft' | 'published'; categoryId: string | null; coverUrl: string | null; partnerKeyId: string | null };
 const LIMITS = { title: 80, description: 400, themeWord: 30 };
 const MIN_TO_PUBLISH = 3;
 
@@ -21,12 +21,14 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
   const [query, setQuery] = useState('');
   const [msg, setMsg] = useState('');
   const [saving, setSaving] = useState(false);
+  const [partners, setPartners] = useState<{ id: string; name: string }[]>([]);
   const [pickingCover, setPickingCover] = useState(false);
   const [kidsReady, setKidsReady] = useState<Record<string, number>>({});
 
   const refresh = () => { FamilyAdmin.templates().then(setTemplates); FamilyAdmin.categories().then(setCats); };
   useEffect(() => {
     refresh();
+    FamilyAdmin.partners().then(setPartners);
     FamilyAdmin.kidsSummary().then((s) => setKidsReady(Object.fromEntries(Object.entries(s).map(([id, v]) => [id, v.published]))));
   }, []);
 
@@ -37,8 +39,8 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
   const startEdit = (t?: PlanTemplate) => {
     setMsg(''); setQuery('');
     setEditing(t
-      ? { id: t.id, title: t.title, description: t.description, themeWord: t.themeWord, items: (t.items ?? []).map((i) => i.id), status: t.status, categoryId: t.categoryId ?? familyCat?.id ?? null, coverUrl: t.coverUrl ?? null }
-      : { id: null, title: '', description: '', themeWord: '', items: [], status: 'draft', categoryId: filter !== 'all' ? filter : familyCat?.id ?? null, coverUrl: null });
+      ? { id: t.id, title: t.title, description: t.description, themeWord: t.themeWord, items: (t.items ?? []).map((i) => i.id), status: t.status, categoryId: t.categoryId ?? familyCat?.id ?? null, coverUrl: t.coverUrl ?? null, partnerKeyId: t.partnerKeyId ?? null }
+      : { id: null, title: '', description: '', themeWord: '', items: [], status: 'draft', categoryId: filter !== 'all' ? filter : familyCat?.id ?? null, coverUrl: null, partnerKeyId: null });
   };
 
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setEditing((e) => (e ? { ...e, [k]: v } : e));
@@ -64,14 +66,15 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
     if (!textOk) { setMsg('Preencha título, descrição e palavra do plano. Isso vale até para o rascunho.'); return; }
     if (status === 'published' && !ready) { setMsg(`Para publicar, o plano precisa de ao menos ${MIN_TO_PUBLISH} dias.`); return; }
     setSaving(true);
-    const r = await FamilyAdmin.saveTemplate(editing.id, { title: editing.title.trim(), description: editing.description.trim(), themeWord: editing.themeWord.trim(), items: editing.items, status, categoryId: editing.categoryId, coverUrl: editing.coverUrl });
+    const r = await FamilyAdmin.saveTemplate(editing.id, { title: editing.title.trim(), description: editing.description.trim(), themeWord: editing.themeWord.trim(), items: editing.items, status, categoryId: editing.categoryId, coverUrl: editing.coverUrl, partnerKeyId: editing.partnerKeyId });
     if (r.ok) {
       setEditing({ ...editing, id: r.template.id, status });
       refresh();
       setMsg(status === 'published' ? 'Plano publicado. Já aparece para as pessoas.' : 'Rascunho salvo. Ninguém vê ainda.');
     } else {
       setMsg(
-        r.error === 'INVALID_CATEGORY' ? 'Escolha uma categoria válida.'
+        r.error === 'INVALID_PARTNER' ? 'Esse parceiro não existe mais. Escolha outro.'
+        : r.error === 'INVALID_CATEGORY' ? 'Escolha uma categoria válida.'
         : r.error === 'INVALID_ITEMS' ? 'Algum devocional do plano não está publicado, ou foi repetido.'
         : r.error === 'PLAN_TOO_SHORT' ? `Para publicar, o plano precisa de ao menos ${MIN_TO_PUBLISH} dias.`
         : r.error === 'VALIDATION_ERROR' ? 'Confira os tamanhos: título até 80, descrição até 400 e palavra até 30 caracteres.'
@@ -157,7 +160,7 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
               <li key={t.id}>
                 <button type="button" onClick={() => startEdit(t)}>
                   {t.coverUrl ? <img className="studio__thumb" src={t.coverUrl} alt="" /> : <span className="studio__thumb studio__thumb--none">sem capa</span>}
-                  <span style={{ flex: 1 }}>{t.title}<small>{catOf(t.categoryId)?.name ?? 'Sem categoria'} · {t.days} dias · “{t.themeWord}”</small></span>
+                  <span style={{ flex: 1 }}>{t.title}<small>{t.partnerKeyId ? `Exclusivo: ${partners.find((p) => p.id === t.partnerKeyId)?.name ?? 'parceiro'}` : catOf(t.categoryId)?.name ?? 'Sem categoria'} · {t.days} dias · “{t.themeWord}”</small></span>
                   <em className={`studio__badge studio__badge--${t.status === 'published' ? 'done' : 'draft'}`}>{t.status === 'published' ? 'Publicado' : 'Rascunho'}</em>
                 </button>
               </li>
@@ -198,6 +201,13 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
               {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
             <span className="fam-note">{forFamily ? 'Aparece na aba Família, onde a família escolhe o plano e lê junto.' : 'Aparece em Explorar, para cada pessoa seguir no próprio ritmo.'}</span>
+          </label>
+          <label>Quem pode ver
+            <select value={editing.partnerKeyId ?? ''} onChange={(e) => set('partnerKeyId', e.target.value || null)}>
+              <option value="">Todos (público)</option>
+              {partners.map((p) => <option key={p.id} value={p.id}>Exclusivo: {p.name}</option>)}
+            </select>
+            <span className="fam-note">{editing.partnerKeyId ? 'Só este parceiro recebe o plano, pela API dele. Não aparece no app para as pessoas.' : 'Aparece no app para todas as pessoas.'}</span>
           </label>
           <div>
             <span>Capa do plano <span className="studio__count">opcional</span></span>
