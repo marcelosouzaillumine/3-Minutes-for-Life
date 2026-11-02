@@ -388,7 +388,7 @@
 .notice-item.is-new { border-color: var(--accent-strong, #8a7048); }
 .notice-item p { margin: 0.15rem 0; font-size: 0.9rem; }
 .notice-item small { color: var(--text-muted); }
-.hoje-capa__quote { margin: 0.5rem 0 0.4rem; font-family: var(--font-serif); font-style: italic; font-size: 1.35rem; line-height: 1.45; color: var(--text-strong); }
+.hoje-capa__quote { margin: 0 0 0.4rem; font-family: var(--font-serif); font-style: italic; font-weight: 300; font-size: 1.2rem; line-height: 1.5; color: var(--text-strong); }
 .hoje-capa__ref { margin: 0 0 0.25rem; }
 .reading-closing { margin: 1.5rem 0; padding: 1.25rem 1rem; text-align: center; border: 1px solid #c9dfc4; border-radius: 16px; background: #f6faf4; }
 .reading-closing__seal { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border-radius: 50%; background: #e7efe3; color: #2f6b2a; font-size: 1.5rem; }
