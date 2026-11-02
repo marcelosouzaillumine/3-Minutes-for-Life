@@ -5,6 +5,8 @@ import { createRoot } from 'react-dom/client';
 import '../src/i18n/config';
 import i18n from '../src/i18n/config';
 import { FamilyRitual } from '../src/components/FamilyRitual';
+import { Kids } from '../src/pages/Kids';
+import { illumineAuth } from '../src/lib/illumine';
 import { ReadStartSheet } from '../src/components/ReadStartSheet';
 import stories from './demo-historia.json';
 
@@ -45,5 +47,7 @@ window.fetch = (async (input: RequestInfo | URL) => {
 
 // ?sheet=1 abre a folha "Quem lê com você?" (a que antecede a leitura) em vez do ritual.
 const root = createRoot(document.getElementById('root')!);
-if (q.get('sheet') === '1') root.render(<ReadStartSheet audience="kids" family={family as never} plan={false} onClose={() => { location.reload(); }} />);
+// ?kids=1 abre a aba Crianças (como logado) para testar o menu.
+if (q.get('kids') === '1') { (illumineAuth as { isAuthenticated: () => boolean }).isAuthenticated = () => true; root.render(<Kids />); }
+else if (q.get('sheet') === '1') root.render(<ReadStartSheet audience="kids" family={family as never} plan={false} onClose={() => { location.reload(); }} />);
 else root.render(<FamilyRitual source="daily" onClose={() => { location.href = location.pathname + location.search; }} />);

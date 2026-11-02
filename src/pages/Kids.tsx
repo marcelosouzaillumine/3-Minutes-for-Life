@@ -51,7 +51,7 @@ export function Kids() {
       <div className="fam-hero">
         <p className="fam-eyebrow">{tt('eyebrow', 'Ler com as crianças')}</p>
         <h1 className="fam-hero__title">{tt('title', 'Uma leitura feita para a idade delas')}</h1>
-        <p className="fam-hero__text">{tt('text', 'Cada faixa de idade tem a sua versão: 4 a 6, 7 a 10 e 11 a 13 anos. Você lê em voz alta e conduz a conversa com o guia do adulto.')}</p>
+        <p className="fam-hero__text">{tt('text', 'Cada faixa de idade tem a sua versão: 0 a 3, 4 a 6, 7 a 10 e 11 a 13 anos. Você lê em voz alta e conduz a conversa com o guia do adulto.')}</p>
         {groups.length > 1 && family && (
           <label className="fam-groupline">{tt('group', 'Grupo')}:
             <select value={family.id} onChange={(e) => activeFamily.set(e.target.value)} aria-label={tt('group', 'Grupo')}>

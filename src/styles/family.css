@@ -239,12 +239,12 @@
 .fam-person[aria-pressed="true"] .fam-avatar::after { content: '✓'; position: absolute; right: -0.2rem; bottom: -0.2rem; width: 1.15rem; height: 1.15rem; border-radius: 50%; display: grid; place-items: center; font-size: 0.7rem; line-height: 1; background: #fff; color: var(--accent-strong); border: 1.5px solid var(--accent-strong); }
 /* Versão da leitura (faixa de idade): a escolhida fica cheia e com ✓. */
 .bandpick { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 0.5rem; }
-.bandpick__opt { position: relative; display: grid; gap: 0.15rem; justify-items: center; padding: 0.7rem 0.4rem; border: 1.5px solid var(--border-subtle); border-radius: 14px; background: #fff; color: var(--text-strong); font: inherit; text-align: center; cursor: pointer; }
+.bandpick__opt { position: relative; display: grid; gap: 0.15rem; justify-items: center; padding: 1.1rem 0.4rem 0.7rem; border: 1.5px solid var(--border-subtle); border-radius: 14px; background: #fff; color: var(--text-strong); font: inherit; text-align: center; cursor: pointer; }
 .bandpick__opt b { font-weight: 600; font-size: 0.9rem; }
 .bandpick__opt span { min-height: 1.1rem; font-size: 0.78rem; color: var(--text-muted); overflow-wrap: anywhere; }
 .bandpick__opt.is-on { background: var(--text-strong); border-color: var(--text-strong); color: #fff; }
 .bandpick__opt.is-on span { color: rgba(255, 255, 255, 0.8); }
-.bandpick__opt i { position: absolute; top: 0.3rem; right: 0.4rem; font-style: normal; font-size: 0.75rem; }
+.bandpick__opt i { position: absolute; top: 0.25rem; right: 0.4rem; font-style: normal; font-size: 0.75rem; }
 
 /* Ilustrações: ícone de cada etapa e cena da versão infantil */
 .ritual__tag { display: inline-flex; align-items: center; gap: 0.4rem; }
