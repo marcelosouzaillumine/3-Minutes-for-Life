@@ -32,15 +32,14 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
     FamilyAdmin.kidsSummary().then((s) => setKidsReady(Object.fromEntries(Object.entries(s).map(([id, v]) => [id, v.published]))));
   }, []);
 
-  const familyCat = cats.find((c) => c.isFamily);
-  const catOf = (id: string | null | undefined) => cats.find((c) => c.id === (id ?? familyCat?.id));
+  const catOf = (id: string | null | undefined) => cats.find((c) => c.id === id);
   const rowOf = (id: string) => rows.find((r) => r.id === id);
 
   const startEdit = (t?: PlanTemplate) => {
     setMsg(''); setQuery('');
     setEditing(t
-      ? { id: t.id, title: t.title, description: t.description, themeWord: t.themeWord, items: (t.items ?? []).map((i) => i.id), status: t.status, categoryId: t.categoryId ?? familyCat?.id ?? null, coverUrl: t.coverUrl ?? null, partnerKeyId: t.partnerKeyId ?? null }
-      : { id: null, title: '', description: '', themeWord: '', items: [], status: 'draft', categoryId: filter !== 'all' ? filter : familyCat?.id ?? null, coverUrl: null, partnerKeyId: null });
+      ? { id: t.id, title: t.title, description: t.description, themeWord: t.themeWord, items: (t.items ?? []).map((i) => i.id), status: t.status, categoryId: t.categoryId ?? null, coverUrl: t.coverUrl ?? null, partnerKeyId: t.partnerKeyId ?? null }
+      : { id: null, title: '', description: '', themeWord: '', items: [], status: 'draft', categoryId: filter !== 'all' ? filter : cats[0]?.id ?? null, coverUrl: null, partnerKeyId: null });
   };
 
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setEditing((e) => (e ? { ...e, [k]: v } : e));
@@ -111,11 +110,11 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
 
   // ───────────── Lista ─────────────
   if (!editing) {
-    const visible = templates.filter((t) => filter === 'all' || (t.categoryId ?? familyCat?.id) === filter);
+    const visible = templates.filter((t) => filter === 'all' || t.categoryId === filter);
     return (
       <>
         <div className="studio__bar-top">
-          <p className="fam-note">Um plano é uma sequência de devocionais, um por dia. A categoria <strong>Família</strong> alimenta a aba Família; as outras aparecem em Explorar.</p>
+          <p className="fam-note">Um plano é uma sequência de devocionais, um por dia. As categorias organizam os planos em Explorar, e qualquer plano publicado também pode ser escolhido pelo grupo para ler junto.</p>
           <button type="button" className="fam-btn fam-btn--primary studio__new" onClick={() => startEdit()}>Novo plano</button>
         </div>
         <div className="fam-people">
@@ -128,7 +127,7 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
             <ul className="studio__order">
               {cats.map((c) => (
                 <li key={c.id}>
-                  <span>{c.name} <small>{c.isFamily ? 'aba Família' : 'Explorar'} · {c.plans} planos</small></span>
+                  <span>{c.name} <small>{c.plans} planos</small></span>
                   <button type="button" onClick={() => setCatEdit({ id: c.id, name: c.name, description: c.description })}>Editar</button>
                 </li>
               ))}
@@ -142,7 +141,7 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
                 <div className="studio__actions">
                   <button type="button" className="fam-btn fam-btn--primary" onClick={saveCategory}>Salvar categoria</button>
                   <button type="button" className="fam-btn fam-btn--ghost" onClick={() => { setCatEdit(null); setMsg(''); }}>Cancelar</button>
-                  {catEdit.id && !cats.find((c) => c.id === catEdit.id)?.isFamily && <button type="button" className="fam-btn fam-btn--danger" onClick={deleteCategory}>Excluir</button>}
+                  {catEdit.id && <button type="button" className="fam-btn fam-btn--danger" onClick={deleteCategory}>Excluir</button>}
                 </div>
               </div>
             )}
@@ -173,7 +172,6 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
 
   // ───────────── Editor ─────────────
   const cat = catOf(editing.categoryId);
-  const forFamily = !!cat?.isFamily;
   return (
     <div className="studio__editor">
       <button type="button" className="fam-link" onClick={() => { setEditing(null); setMsg(''); }}>← Planos</button>
@@ -200,7 +198,7 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
               {!cats.some((c) => c.id === editing.categoryId) && <option value="">Escolha uma categoria…</option>}
               {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
-            <span className="fam-note">{forFamily ? 'Aparece na aba Família, onde a família escolhe o plano e lê junto.' : 'Aparece em Explorar, para cada pessoa seguir no próprio ritmo.'}</span>
+            <span className="fam-note">Aparece em Explorar nesta categoria e também pode ser escolhido pelo grupo para ler junto.</span>
           </label>
           <label>Quem pode ver
             <select value={editing.partnerKeyId ?? ''} onChange={(e) => set('partnerKeyId', e.target.value || null)}>
@@ -248,7 +246,7 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
             return (
               <li key={id}>
                 <span className="studio__day-n">{i + 1}</span>
-                <span className="studio__day-t">{r?.title ?? id}{r && isFuture(r.publicationDate) && <em className="studio__badge studio__badge--draft">agendado {fmtDate(r.publicationDate)}</em>}{forFamily && (kidsReady[id] ?? 0) >= 3 && <em className="studio__badge studio__badge--done">crianças</em>}</span>
+                <span className="studio__day-t">{r?.title ?? id}{r && isFuture(r.publicationDate) && <em className="studio__badge studio__badge--draft">agendado {fmtDate(r.publicationDate)}</em>}{(kidsReady[id] ?? 0) >= 3 && <em className="studio__badge studio__badge--done">crianças</em>}</span>
                 <span className="studio__day-actions">
                   <button type="button" aria-label="Subir" onClick={() => move(i, -1)}>↑</button>
                   <button type="button" aria-label="Descer" onClick={() => move(i, 1)}>↓</button>
@@ -264,7 +262,7 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
             <li key={r.id}>
               <button type="button" onClick={() => { set('items', [...editing.items, r.id]); setQuery(''); }}>
                 <span>+ {r.title}</span>
-                <small>{isFuture(r.publicationDate) ? `agendado ${fmtDate(r.publicationDate)}` : fmtDate(r.publicationDate)}{forFamily && (kidsReady[r.id] ?? 0) >= 3 ? ' · crianças ✓' : ''}</small>
+                <small>{isFuture(r.publicationDate) ? `agendado ${fmtDate(r.publicationDate)}` : fmtDate(r.publicationDate)}{(kidsReady[r.id] ?? 0) >= 3 ? ' · crianças ✓' : ''}</small>
               </button>
             </li>
           ))}
@@ -276,7 +274,7 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
         <p className="studio__step-n">3 · Como vai aparecer</p>
         <div className="studio__screen studio__preview">
           {editing.coverUrl && <img src={editing.coverUrl} alt="" />}
-          <p className="fam-eyebrow fam-eyebrow--accent">{forFamily ? 'Plano da família' : cat?.name ?? ''}</p>
+          <p className="fam-eyebrow fam-eyebrow--accent">{cat?.name ?? ''}</p>
           <h4 className="studio__title">{editing.title || 'Título do plano'}</h4>
           <p>{editing.description || 'A descrição aparece aqui.'}</p>
           <div className="fam-dots">{(editing.items.length ? editing.items : [1, 2, 3]).map((_, i) => <span key={i} className={`fam-dot${i === 0 ? ' is-now' : ''}`} />)}</div>
