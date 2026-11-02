@@ -243,6 +243,7 @@ export function Family() {
         <Sheet title={tt('plan.sheet', 'Escolha o plano')} onClose={close}>
           {templates.map((p) => (
             <div key={p.id} className="fam-card">
+              {p.coverUrl && <img className="plans__cover" src={p.coverUrl} alt="" loading="lazy" />}
               <h2 className="fam-card__title">{p.title}</h2>
               <p className="fam-card__text">{p.description}</p>
               <p className="fam-note">{tt('plan.days', '{{count}} dias', { count: p.days })} · {p.themeWord}</p>

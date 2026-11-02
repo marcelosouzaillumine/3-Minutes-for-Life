@@ -26,6 +26,7 @@ export interface PlanTemplate {
   status: 'draft' | 'published';
   days: number;
   categoryId?: string | null;
+  coverUrl?: string | null;
   items?: { id: string; title: string }[];
 }
 
@@ -202,7 +203,7 @@ export const FamilyAdmin = {
     const res = await illumineFetch('/families/templates/admin');
     return res.ok ? (await res.json()).templates ?? [] : [];
   },
-  async saveTemplate(id: string | null, body: { title: string; description: string; themeWord: string; items: string[]; status: 'draft' | 'published'; categoryId?: string | null }): Promise<{ ok: true; template: PlanTemplate } | { ok: false; error: string }> {
+  async saveTemplate(id: string | null, body: { title: string; description: string; themeWord: string; items: string[]; status: 'draft' | 'published'; categoryId?: string | null; coverUrl?: string | null }): Promise<{ ok: true; template: PlanTemplate } | { ok: false; error: string }> {
     const res = await illumineFetch(id ? `/families/templates/${encodeURIComponent(id)}` : '/families/templates', { method: id ? 'PUT' : 'POST', body: JSON.stringify(body) });
     const data = await res.json().catch(() => ({}));
     return res.ok ? { ok: true, template: data } : { ok: false, error: data?.error ?? String(res.status) };

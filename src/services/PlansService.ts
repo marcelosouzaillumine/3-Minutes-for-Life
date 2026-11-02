@@ -5,6 +5,7 @@ export interface PlanCard {
   title: string;
   description: string;
   themeWord: string;
+  coverUrl?: string | null;
   days: number;
   started: boolean;
   daysRead: number;
@@ -17,6 +18,7 @@ export interface PlanDetail {
   title: string;
   description: string;
   themeWord: string;
+  coverUrl?: string | null;
   category: string;
   started: boolean;
   currentDay: number;

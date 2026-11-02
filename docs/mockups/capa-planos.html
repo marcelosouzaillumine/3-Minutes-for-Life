@@ -1,0 +1,62 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}body{margin:0;padding:28px;background:#faf8f4;font:14px/1.5 -apple-system,system-ui,sans-serif;color:#1f2430}
+h1{font-size:20px;font-weight:500;text-align:center;margin:0 0 4px}.sub{text-align:center;color:#6b7280;font-size:13px;margin:0 0 22px}
+.row{display:flex;gap:24px;justify-content:center;align-items:flex-start}.col{width:400px}.col.ph{width:290px}
+.lbl{font-weight:500;margin:0 0 10px;font-size:14px;text-align:center}
+.box{background:#fff;border:1px solid #e4ded2;border-radius:16px;padding:16px;box-shadow:0 6px 24px rgba(0,0,0,.06)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.chip{border:1px solid #d9d3c7;border-radius:99px;padding:3px 12px;font-size:12px}.chip.on{border-color:#8a7048;color:#8a7048}
+.item{display:flex;align-items:center;gap:12px;border:1px solid #e4ded2;border-radius:12px;padding:8px;margin-bottom:8px}
+.th{width:64px;height:64px;border-radius:10px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;text-align:center}
+.item span{flex:1;font-size:14px}.item small{display:block;font-size:11px;color:#6b7280}
+.badge{font-style:normal;font-size:11px;padding:2px 10px;border-radius:99px;background:#E6F0E4;color:#2f6b2a}.badge.d{background:#FBF1DC;color:#8a5a00}
+.new{outline:2px solid #8a7048;outline-offset:2px}.tag{display:inline-block;font-size:10px;background:#8a7048;color:#fff;border-radius:99px;padding:1px 8px;margin-left:6px}
+label{display:block;font-size:13px;margin-bottom:10px}.in{border:1px solid #e4ded2;border-radius:10px;padding:8px 10px;margin-top:3px;font-size:14px;background:#fff}
+.cover{border:1.5px dashed #c9bfa9;border-radius:14px;overflow:hidden;margin:4px 0 6px}
+.cover .img{height:150px;display:flex;align-items:flex-end;padding:10px;color:#fff;font-family:Georgia,serif;font-size:20px}
+.cover .bar{display:flex;gap:8px;padding:8px 10px;background:#faf8f4;align-items:center;font-size:12px;color:#6b7280}
+.b{border:1px solid #d9d3c7;border-radius:99px;padding:3px 12px;font-size:12px;background:#fff;color:#1f2430}.note{font-size:11px;color:#6b7280}
+.g1{background:linear-gradient(135deg,#c9a46a,#7a4f2a)}.g2{background:linear-gradient(135deg,#7da1b5,#2f4b63)}.g3{background:linear-gradient(135deg,#9bb08a,#49633f)}.g0{background:#efeae0;color:#9a917f;border:1px dashed #c9bfa9}
+.phone{width:290px;border-radius:32px;border:1px solid #d9d3c7;background:#fff;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.08);padding-bottom:12px}
+.hero{height:170px;position:relative;display:flex;align-items:flex-end;padding:14px;color:#fff}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 35%,rgba(0,0,0,.55))}.hero b{position:relative;z-index:1;font:400 22px Georgia,serif}
+.pad{padding:14px 16px}.eb{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#8a7048}
+.pc{border:1px solid #e4ded2;border-radius:14px;overflow:hidden;margin:10px 0}.pc .im{height:90px}.pc div.t{padding:8px 12px;font-size:13px}.pc small{display:block;color:#6b7280;font-size:11px}
+.dots{display:flex;gap:4px;margin:10px 0}.dots i{width:8px;height:8px;border-radius:50%;background:#e4ded2}.dots i:first-child{background:#8a7048}
+.btn{background:#1f2430;color:#fff;text-align:center;padding:10px;border-radius:99px;margin-top:10px}
+</style></head><body>
+<h1>Capa em cada plano</h1><p class="sub">Só uma prévia: nada foi alterado no app, na API nem no banco. As imagens abaixo são cores no lugar das artes.</p>
+<div class="row">
+
+<div class="col"><p class="lbl">1 · Admin › Planos (lista)</p><div class="box">
+<div class="chips"><span class="chip on">Todas</span><span class="chip">Família · 2</span><span class="chip">Explorar · 3</span></div>
+<div class="item new"><div class="th g1">capa</div><span>A mesa com Jesus<small>Família · 7 dias · “Comunhão”</small></span><em class="badge d">Rascunho</em></div>
+<div class="item"><div class="th g2">capa</div><span>Sete dias de descanso<small>Explorar · 7 dias · “Descanso”</small></span><em class="badge">Publicado</em></div>
+<div class="item"><div class="th g3">capa</div><span>Gratidão em família<small>Família · 5 dias · “Gratidão”</small></span><em class="badge">Publicado</em></div>
+<div class="item"><div class="th g0">sem capa</div><span>Plano sem imagem<small>Explorar · 4 dias · “Paz”</small></span><em class="badge">Publicado</em></div>
+<p class="note">Toda linha continua clicável para editar. A miniatura mostra de relance quem já tem capa.</p>
+</div></div>
+
+<div class="col"><p class="lbl">2 · Editor › passo 1 “Sobre o plano”</p><div class="box">
+<label>Para quem<div class="in">Família</div></label>
+<label>Capa do plano <span class="tag">novo</span>
+<div class="cover"><div class="img g1">A mesa com Jesus</div>
+<div class="bar"><span class="b">Trocar imagem</span><span class="b">Remover</span><span style="margin-left:auto">1200 × 675 · 180 KB</span></div></div>
+<span class="note">Formato 16:9, JPG ou PNG até 2 MB. Sem imagem, o app mostra a cor da categoria.</span></label>
+<label>Título<div class="in">A mesa com Jesus</div></label>
+<label>Descrição<div class="in" style="height:54px">Sete refeições para ler, conversar e orar juntos.</div></label>
+<label>Palavra do plano<div class="in">Comunhão</div></label>
+</div></div>
+
+<div class="col ph"><p class="lbl">3 · Como aparece no app</p>
+<div class="phone">
+<div class="pad"><p class="eb" style="margin:0">Explorar</p>
+<div class="pc"><div class="im g2"></div><div class="t">Sete dias de descanso<small>7 dias</small></div></div>
+<div class="pc"><div class="im g1"></div><div class="t">A mesa com Jesus<small>7 dias</small></div></div></div>
+<div class="hero g1"><b>A mesa com Jesus</b></div>
+<div class="pad"><p class="eb" style="margin:0">Plano da família</p>
+<p style="margin:6px 0">Sete refeições para ler, conversar e orar juntos.</p>
+<div class="dots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<div class="btn">Começar</div></div>
+</div></div>
+
+</div></body></html>
