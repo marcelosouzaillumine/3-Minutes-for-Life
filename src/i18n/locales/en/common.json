@@ -532,7 +532,11 @@
     "wordSent": "Done: the group can see you read.",
     "groupLine": "Group",
     "wordTo": "To the group",
-    "registered": "We recorded the reading of {{names}}."
+    "registered": "We recorded the reading of {{names}}.",
+    "register": "Record my reading",
+    "registered2": "Reading recorded",
+    "registerFor": "Counts for you and the {{name}} group",
+    "registerForMany": "Counts for you and {{count}} groups"
   },
   "familyNav": "Group",
   "plansx": {

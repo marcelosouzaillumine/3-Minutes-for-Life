@@ -538,7 +538,11 @@
     "wordSent": "C'est fait : le groupe voit que vous avez lu.",
     "groupLine": "Groupe",
     "wordTo": "Pour le groupe",
-    "registered": "Nous avons enregistré la lecture de {{names}}."
+    "registered": "Nous avons enregistré la lecture de {{names}}.",
+    "register": "Enregistrer ma lecture",
+    "registered2": "Lecture enregistrée",
+    "registerFor": "Compte pour vous et le groupe {{name}}",
+    "registerForMany": "Compte pour vous et {{count}} groupes"
   },
   "familyNav": "Groupe",
   "plansx": {
