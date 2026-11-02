@@ -11,6 +11,22 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // O html nunca fica pré-guardado: a página vem sempre da rede (e só cai no cache sem internet).
+      // Assim uma versão nova aparece na primeira abertura, sem precisar recarregar duas vezes.
+      workbox: {
+        globPatterns: ['**/*.{js,css,ico,png,svg,woff2}'],
+        navigateFallback: null,
+        skipWaiting: true,
+        clientsClaim: true,
+        cleanupOutdatedCaches: true,
+        runtimeCaching: [
+          {
+            urlPattern: ({ request }) => request.mode === 'navigate',
+            handler: 'NetworkFirst',
+            options: { cacheName: 'pages', networkTimeoutSeconds: 4, expiration: { maxEntries: 5 } },
+          },
+        ],
+      },
       includeAssets: ['branding/pwa-icon-192x192.png', 'branding/pwa-icon-512x512.png'],
       manifest: {
         name: '3 Minutes for Life',

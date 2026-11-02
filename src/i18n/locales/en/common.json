@@ -503,7 +503,14 @@
     "kidsTitle": "Read with the children",
     "kidsText": "Pick the age and read the version made for them.",
     "kidsWith": "With {{names}}",
-    "kidsReady": "version ready"
+    "kidsReady": "version ready",
+    "modeQuestion": "How will you read today?",
+    "modeSolo": "Me",
+    "modeGroup": "Group",
+    "modeKids": "Kids",
+    "kidsWithReady": "{{names}} have a version ready",
+    "stepReflect": "2 · Reflect",
+    "reflectHint": "Think it over, or write a line for yourself. You don't have to answer anyone."
   },
   "familyNav": "Group",
   "plansx": {
