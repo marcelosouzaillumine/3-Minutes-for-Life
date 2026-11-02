@@ -88,8 +88,22 @@ export class FamilyError extends Error {
   constructor(code: string) { super(code); this.code = code; }
 }
 
+// Grupo ativo: a pessoa pode estar em vários, e as telas trabalham com um de cada vez.
+const ACTIVE_KEY = 'family:active';
+export const activeFamily = {
+  get(): string | null { try { return localStorage.getItem(ACTIVE_KEY); } catch { return null; } },
+  set(id: string | null) {
+    try { if (id) localStorage.setItem(ACTIVE_KEY, id); else localStorage.removeItem(ACTIVE_KEY); } catch { /* sem armazenamento */ }
+    window.dispatchEvent(new CustomEvent('family:changed'));
+  },
+};
+
+export interface FamilySummary { id: string; name: string; role: 'owner' | 'adult'; members: number; children: number }
+
 async function call(path: string, init?: RequestInit): Promise<any> {
-  const res = await illumineFetch(`${path}${path.includes('?') ? '&' : '?'}date=${getTodayInSaoPaulo()}`, init);
+  const active = path.startsWith('/families/me') ? activeFamily.get() : null;
+  const query = `date=${getTodayInSaoPaulo()}${active ? `&familyId=${encodeURIComponent(active)}` : ''}`;
+  const res = await illumineFetch(`${path}${path.includes('?') ? '&' : '?'}${query}`, init);
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw new FamilyError(body?.error ?? String(res.status));
   return body;
@@ -102,13 +116,25 @@ export const inviteLink = (code: string) => `${window.location.origin}/f/${code}
 
 export const FamilyService = {
   async get(): Promise<Family | null> {
-    return (await call('/families/me')).family ?? null;
+    const f = (await call('/families/me')).family ?? null;
+    // O grupo guardado deixou de existir (apagado ou saída): volta para o mais antigo.
+    if (!f && activeFamily.get()) { activeFamily.set(null); return (await call('/families/me')).family ?? null; }
+    return f;
+  },
+  /** Todos os grupos da pessoa e o máximo permitido. */
+  async list(): Promise<{ families: FamilySummary[]; max: number }> {
+    const body = await call('/families');
+    return { families: body.families ?? [], max: body.max ?? 5 };
   },
   async create(name: string, meetingTime?: string): Promise<Family> {
-    return (await call('/families', json('POST', { name, meetingTime: meetingTime || undefined }))).family;
+    const f = (await call('/families', json('POST', { name, meetingTime: meetingTime || undefined }))).family;
+    activeFamily.set(f.id);
+    return f;
   },
   async join(code: string): Promise<Family> {
-    return (await call('/families/join', json('POST', { code }))).family;
+    const f = (await call('/families/join', json('POST', { code }))).family;
+    activeFamily.set(f.id);
+    return f;
   },
   async update(name: string, meetingTime: string): Promise<Family> {
     return (await call('/families/me', json('PATCH', { name, meetingTime }))).family;
@@ -124,6 +150,7 @@ export const FamilyService = {
   },
   async leave(): Promise<void> {
     await call('/families/me', json('DELETE'));
+    activeFamily.set(null);
   },
   async rotateInvite(): Promise<Family> {
     return (await call('/families/me/invite/rotate', json('POST'))).family;

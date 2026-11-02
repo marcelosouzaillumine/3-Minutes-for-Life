@@ -238,7 +238,9 @@
     "setupNote": "When you start, you choose each child's age.",
     "privacy": "Children have no account: we keep only a nickname and an age range, never a surname, photo or email.",
     "error": "Could not finish. Try again.",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "group": "Group",
+    "noneHere": "This group has no children. Switch to the family group or add them here."
   },
   "family": {
     "title": "Family",
@@ -293,7 +295,8 @@
       "code": "That code doesn't exist. Check with whoever invited you.",
       "full": "This group is already full.",
       "already": "You're already in a group.",
-      "generic": "Couldn't finish. Please try again."
+      "generic": "Couldn't finish. Please try again.",
+      "groups": "You are already in the maximum number of groups. Leave one to join another."
     },
     "loading": "Loading…",
     "title": "Group",
@@ -398,6 +401,17 @@
       "planDay": "plan, day {{n}}",
       "cta": "Read",
       "kids": "Version for children"
+    },
+    "groups": {
+      "title": "Your groups",
+      "owner": "You created it",
+      "adults_one": "{{count}} adult",
+      "adults_other": "{{count}} adults",
+      "kids_one": "{{count}} child",
+      "kids_other": "{{count}} children",
+      "create": "Create another group",
+      "join": "Join with a code",
+      "count": "You are in {{count}} of {{max}} possible groups."
     }
   },
   "ritual": {
