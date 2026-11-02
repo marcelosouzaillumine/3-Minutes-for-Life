@@ -161,10 +161,11 @@ def front_table(x, w, top, food=True, cloth='#F0E4C8'):
             r += f'<ellipse cx="{cx:.0f}" cy="{top - 1}" rx="13" ry="4.5" fill="#F4F1EA" stroke="#CFC7B8"/><ellipse cx="{cx:.0f}" cy="{top - 5}" rx="8" ry="4.5" fill="{"#D9A35B" if i % 2 == 0 else "#B5533C"}"/>'
     return r
 def feet(x, y=196, flip=False, sc=1.0):
-    """Dois pés com sandália, um atrás do outro, saindo da barra da túnica (apontando para a esquerda)."""
+    """Dois pés com sandália (apontando para a esquerda), pele quente, contorno e dedos."""
     t = f'translate({x},{y}) scale({-sc if flip else sc},{sc})'
-    return (f'<g transform="{t}"><ellipse cx="-6" cy="-3" rx="13" ry="5" fill="{SKIN}"/><ellipse cx="4" cy="-8" rx="13" ry="5" fill="{SKIN}"/>'
-            '<path d="M-14 -3h20M-6 -8h20" stroke="#5A4030" stroke-width="2"/></g>')
+    foot = lambda cx, cy: (f'<ellipse cx="{cx}" cy="{cy}" rx="14" ry="5.6" fill="#D4936A" stroke="#A8693F" stroke-width="1.2"/>'
+                           f'<path d="M{cx + 1} {cy - 5}Q{cx + 6} {cy} {cx + 1} {cy + 5}" stroke="#7A3F1E" stroke-width="2" fill="none" stroke-linecap="round"/>')
+    return f'<g transform="{t}">' + foot(4, -9) + foot(-6, -3) + '</g>'
 def woman_kneel(fx, s=1.0, robe='#B84A62', veil='#8A4668', pour=True):
     """Mulher ajoelhada, inclinada sobre os pés (em fx), com o véu, as lágrimas e o frasco de perfume derramando."""
     bx, by = fx - 54 * s, 196
@@ -179,11 +180,12 @@ def woman_kneel(fx, s=1.0, robe='#B84A62', veil='#8A4668', pour=True):
     o += '<path d="M44 -62q-3 6 0 9q3-3 0-9z" fill="#7FB8E6"/>'
     if pour:
         o += f'<line x1="22" y1="-54" x2="46" y2="-42" stroke="{robe}" stroke-width="9" stroke-linecap="round"/><circle cx="47" cy="-41" r="5" fill="{SKIN}"/>'
-        o += '<g transform="translate(62,-30) rotate(112) scale(.75)"><path d="M-8 0h16l4 8q6 8 0 20q-4 8-12 8q-8 0-12-8q-6-12 0-20z" fill="#F4E9D8" stroke="#C9B48A" stroke-width="2"/><rect x="-5" y="-6" width="10" height="7" rx="2" fill="#C9B48A"/></g>'
-        o += '<path d="M66 -22q1 5 0 9M71 -21q1 5 0 7M62 -21q1 4 0 7" stroke="#F2C94C" stroke-width="2.4" fill="none" stroke-linecap="round"/>'
+        o += '<g transform="translate(62,-30) rotate(112) scale(.75)"><path d="M-8 0h16l4 8q6 8 0 20q-4 8-12 8q-8 0-12-8q-6-12 0-20z" fill="#F3D9A4" stroke="#C48A2E" stroke-width="2"/><path d="M-6 12q-2 8 1 14" stroke="#FFF1CF" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="-5" y="-6" width="10" height="7" rx="2" fill="#D9A530" stroke="#B07D1E" stroke-width="1"/></g>'
+        o += '<ellipse cx="66" cy="-10" rx="22" ry="9" fill="#F7C948" opacity=".4"/>'
+        o += '<path d="M66 -22q1 5 0 9M71 -21q1 5 0 7M62 -21q1 4 0 7" stroke="#E8A21F" stroke-width="3" fill="none" stroke-linecap="round"/>'
     return o + '</g>'
 def jar(x, y, s=1, tilt=0):
-    return f'<g transform="translate({x},{y}) rotate({tilt}) scale({s})"><path d="M-8 0h16l4 8q6 8 0 20q-4 8-12 8q-8 0-12-8q-6-12 0-20z" fill="#F4E9D8" stroke="#C9B48A" stroke-width="2"/><rect x="-5" y="-6" width="10" height="7" rx="2" fill="#C9B48A"/></g>'
+    return f'<g transform="translate({x},{y}) rotate({tilt}) scale({s})"><path d="M-8 0h16l4 8q6 8 0 20q-4 8-12 8q-8 0-12-8q-6-12 0-20z" fill="#F3D9A4" stroke="#C48A2E" stroke-width="2"/><path d="M-6 12q-2 8 1 14" stroke="#FFF1CF" stroke-width="3" fill="none" stroke-linecap="round"/><rect x="-5" y="-6" width="10" height="7" rx="2" fill="#D9A530" stroke="#B07D1E" stroke-width="1"/></g>'
 def window(x, y, w=64, h=64):
     return f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="#CFE3F2" stroke="#8A7048" stroke-width="5"/><path d="M{x + w / 2} {y}v{h}M{x} {y + h / 2}h{w}" stroke="#8A7048" stroke-width="4"/>'
 def house_wall(sky='#F6E7C8'):
