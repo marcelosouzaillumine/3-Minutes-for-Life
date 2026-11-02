@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { HtmlRenderer } from './HtmlRenderer';
 import { DevotionalService } from '../services/DevotionalService';
 import { JourneyService } from '../services/JourneyService';
-import { FamilyService, type Band, type Family, type KidsVersion } from '../services/FamilyService';
+import { BANDS, FamilyService, type Band, type Family, type KidsVersion } from '../services/FamilyService';
 import { getTodayInSaoPaulo } from '../utils/date';
 import { cleanScripture, htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks, readerForDay, versionsForChildren, withoutEmbeddedSections } from '../utils/ritual';
 import type { Devotional } from '../types/Devotional';
@@ -14,7 +14,7 @@ import { BandPicker } from './BandPicker';
 import { safeStoryImage, storyScreenCount } from '../utils/kidsStory';
 
 /** Ler juntos: um roteiro de tela cheia, uma coisa por vez, feito para ser lido em voz alta. */
-const bandArt = (band: string) => (band === '4-6' ? 'young' : 'older');
+const bandArt = (band: string) => (band === '0-3' || band === '4-6' ? 'young' : 'older');
 // Devocionais com ilustração própria por faixa (arquivos em public/ilustracoes/<pasta>/<faixa>.svg).
 const OWN_ART: Record<string, string> = {
   cmvudrag10002oe2ldyzmvhaa: 'reforma-protestante',
@@ -110,7 +110,7 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
   // Quem fica registrado ao concluir: os adultos presentes e, na leitura com crianças, as crianças à mesa.
   const registeredNames = useMemo(() => [...adults, ...perChild.map((p) => p.child.nickname)], [adults, perChild]);
   // Uma só leitura para a mesa: todos ouvem o mesmo texto, na faixa da criança mais nova presente (ou a que o adulto escolher).
-  const order = ['4-6', '7-10', '11-13'];
+  const order = ['0-3', '4-6', '7-10', '11-13'];
   const [leadBand, setLeadBand] = useState<Band | null>(band ?? null);
   const bandsHere = useMemo(
     () => [...new Set(perChild.filter((p) => p.version).map((p) => p.version!.band))].sort((a, b) => order.indexOf(a) - order.indexOf(b)),
@@ -414,7 +414,7 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
                   }}>
                     <input value={kidNick} onChange={(e) => setKidNick(e.target.value)} placeholder={tt('nickname', 'Apelido')} maxLength={20} aria-label={tt('nickname', 'Apelido')} />
                     <select value={kidBand} onChange={(e) => setKidBand(e.target.value as Band)} aria-label={tt('band', 'Faixa de idade')}>
-                      {(['4-6', '7-10', '11-13'] as Band[]).map((b) => <option key={b} value={b}>{b.replace('-', ' a ')} {tt('years', 'anos')}</option>)}
+                      {BANDS.map((b) => <option key={b} value={b}>{b.replace('-', ' a ')} {tt('years', 'anos')}</option>)}
                     </select>
                     <button type="submit" className="fam-btn fam-btn--secondary" disabled={kidBusy || !kidNick.trim()}>{tt('addChild', 'Adicionar criança')}</button>
                   </form>
@@ -606,7 +606,7 @@ function RitualSetup({ onClose, onCreated, tt }: { onClose: () => void; onCreate
             <form className="fam-inline" onSubmit={(e) => { e.preventDefault(); if (nick.trim()) run(() => FamilyService.addChild(nick.trim(), band), (f) => { setFam(f); setNick(''); }); }}>
               <input value={nick} onChange={(e) => setNick(e.target.value)} placeholder={tt('nickname', 'Apelido')} maxLength={20} aria-label={tt('nickname', 'Apelido')} autoFocus />
               <select value={band} onChange={(e) => setBand(e.target.value as Band)} aria-label={tt('band', 'Faixa de idade')}>
-                {(['4-6', '7-10', '11-13'] as Band[]).map((b) => <option key={b} value={b}>{b.replace('-', ' a ')} {tt('years', 'anos')}</option>)}
+                {BANDS.map((b) => <option key={b} value={b}>{b.replace('-', ' a ')} {tt('years', 'anos')}</option>)}
               </select>
               <button type="submit" className="fam-btn fam-btn--secondary" disabled={busy || !nick.trim()}>{tt('addChild', 'Adicionar criança')}</button>
             </form>

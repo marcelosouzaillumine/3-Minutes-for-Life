@@ -9,7 +9,7 @@ import { ReadStartSheet } from '../src/components/ReadStartSheet';
 import stories from './demo-historia.json';
 
 const q = new URLSearchParams(location.search);
-const band = (['4-6', '7-10', '11-13'].includes(q.get('band') ?? '') ? q.get('band') : '7-10') as '4-6' | '7-10' | '11-13';
+const band = (['0-3', '4-6', '7-10', '11-13'].includes(q.get('band') ?? '') ? q.get('band') : '7-10') as '0-3' | '4-6' | '7-10' | '11-13';
 const noStory = q.get('story') === 'off';
 const multi = q.get('multi') === '1'; // três crianças, uma em cada faixa, para testar a escolha da versão
 if (q.get('lang')) i18n.changeLanguage(q.get('lang')!);
@@ -20,7 +20,7 @@ const family = {
   id: 'f1', name: 'Família Souza', meetingTime: '19h30', role: 'owner', inviteCode: 'DEMO-0000',
   members: [{ displayName: 'Marcelo', role: 'owner', isMe: true, readToday: false }],
   children: multi
-    ? [{ id: 'c1', nickname: 'Bento', band: '4-6' }, { id: 'c2', nickname: 'Davi', band: '7-10' }, { id: 'c3', nickname: 'Lia', band: '11-13' }]
+    ? [{ id: 'c0', nickname: 'Nina', band: '0-3' }, { id: 'c1', nickname: 'Bento', band: '4-6' }, { id: 'c2', nickname: 'Davi', band: '7-10' }, { id: 'c3', nickname: 'Lia', band: '11-13' }]
     : [{ id: 'c1', nickname: 'Davi', band }], week: { days: [], streak: 2 }, plan: null,
 };
 const devotional = {
@@ -28,12 +28,12 @@ const devotional = {
   scriptureReference: 'Romanos 1.17', scriptureText: '[texto da passagem na tradução do app]',
   reflection: '<p>Texto do adulto.</p>', principleStatement: 'A Palavra de Deus é para todos.', translations: [], shareAssets: [],
 };
-const titles: Record<string, string> = { '4-6': 'A Bíblia é para todos', '7-10': 'O presente que não se compra', '11-13': 'Quem decide o que é verdade?' };
-const versionOf = (b: '4-6' | '7-10' | '11-13') => ({
+const titles: Record<string, string> = { '0-3': 'A Bíblia', '4-6': 'A Bíblia é para todos', '7-10': 'O presente que não se compra', '11-13': 'Quem decide o que é verdade?' };
+const versionOf = (b: '0-3' | '4-6' | '7-10' | '11-13') => ({
   band: b, title: titles[b], scriptureFocus: null, whatItSays: 'Texto de reserva da faixa.', thinkAbout: 'Pensar?', practice: 'Fazer.', prayer: 'Orar.', adultGuide: guide,
   story: noStory ? null : (stories as Record<string, unknown>)[b], status: 'published',
 });
-const kids = (multi ? (['4-6', '7-10', '11-13'] as const) : [band]).map(versionOf);
+const kids = (multi ? (['0-3', '4-6', '7-10', '11-13'] as const) : [band]).map(versionOf);
 const json = (b: unknown, status = 200) => new Response(JSON.stringify(b), { status, headers: { 'content-type': 'application/json' } });
 window.fetch = (async (input: RequestInfo | URL) => {
   const u = String(input);

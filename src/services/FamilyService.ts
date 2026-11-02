@@ -1,8 +1,8 @@
 import { illumineFetch } from '../lib/illumine';
 import { getTodayInSaoPaulo } from '../utils/date';
 
-export type Band = '4-6' | '7-10' | '11-13';
-export const BANDS: Band[] = ['4-6', '7-10', '11-13'];
+export type Band = '0-3' | '4-6' | '7-10' | '11-13';
+export const BANDS: Band[] = ['0-3', '4-6', '7-10', '11-13'];
 
 export interface PlanDay { day: number; devotionalId: string; title: string; readers: number; done: boolean; together: boolean }
 export interface PlanState {
@@ -45,7 +45,7 @@ export interface Family {
 
 /** Quadro de uma história em quadrinhos: arte (igual em todos os idiomas), legenda e, às vezes, a fala de um personagem. */
 export interface KidPanel { image: string; caption: string; speech?: string }
-/** História da faixa: quadrinhos (4-6, 7-10) ou dilema com debate (11-13). Vem pronta para o idioma pedido. */
+/** História da faixa: quadrinhos (0-3, 4-6, 7-10) ou dilema com debate (11-13). Vem pronta para o idioma pedido. */
 export type KidStory =
   | { format: 'panels'; panels: KidPanel[] }
   | {

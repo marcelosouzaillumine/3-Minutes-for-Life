@@ -9,7 +9,7 @@ import { openRitual } from '../pages/Family';
 import { readerForDay } from '../utils/ritual';
 import '../styles/family.css';
 
-const ORDER: Band[] = ['4-6', '7-10', '11-13'];
+const ORDER: Band[] = ['0-3', '4-6', '7-10', '11-13'];
 const bandLabel = (b: Band) => b.replace('-', ' a ');
 
 /** Folha de preparo da leitura: quem está à mesa (e, com crianças, a versão) numa tela só, e a leitura começa já no primeiro passo. */

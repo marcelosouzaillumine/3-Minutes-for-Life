@@ -43,7 +43,7 @@ export function parseGuide(text: string | null | undefined): GuideParts | null {
 
 /** Versão que conduz a mesa: a da criança mais nova presente, ou a primeira disponível. */
 export function guideVersion(perChild: { version: KidsVersion | null }[], all: KidsVersion[]): KidsVersion | null {
-  const order = ['4-6', '7-10', '11-13'];
+  const order = ['0-3', '4-6', '7-10', '11-13'];
   const present = perChild.map((p) => p.version).filter((v): v is KidsVersion => !!v);
   const pool = present.length ? present : all;
   return [...pool].sort((a, b) => order.indexOf(a.band) - order.indexOf(b.band))[0] ?? null;
