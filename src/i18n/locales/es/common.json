@@ -238,7 +238,9 @@
     "setupNote": "Al empezar, eliges la edad de cada niño.",
     "privacy": "Los niños no tienen cuenta: guardamos solo el apodo y la franja de edad, nunca apellido, foto ni correo.",
     "error": "No se pudo completar. Inténtalo de nuevo.",
-    "loading": "Cargando…"
+    "loading": "Cargando…",
+    "group": "Grupo",
+    "noneHere": "Este grupo no tiene niños. Cambia al grupo de la familia o añádelos aquí."
   },
   "family": {
     "title": "Familia",
@@ -293,7 +295,8 @@
       "code": "Ese código no existe. Confirma con quien te invitó.",
       "full": "Este grupo ya está completo.",
       "already": "Ya estás en un grupo.",
-      "generic": "No se pudo completar. Inténtalo de nuevo."
+      "generic": "No se pudo completar. Inténtalo de nuevo.",
+      "groups": "Ya estás en el máximo de grupos. Sal de uno para entrar en otro."
     },
     "loading": "Cargando…",
     "title": "Grupo",
@@ -403,6 +406,17 @@
       "planDay": "plan, día {{n}}",
       "cta": "Leer",
       "kids": "Versión para niños"
+    },
+    "groups": {
+      "title": "Tus grupos",
+      "owner": "Lo creaste tú",
+      "adults_one": "{{count}} adulto",
+      "adults_other": "{{count}} adultos",
+      "kids_one": "{{count}} niño",
+      "kids_other": "{{count}} niños",
+      "create": "Crear otro grupo",
+      "join": "Entrar con código",
+      "count": "Estás en {{count}} de {{max}} grupos posibles."
     }
   },
   "ritual": {

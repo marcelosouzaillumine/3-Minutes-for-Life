@@ -15,8 +15,10 @@ export function FamilyTodayCard({ devotionalId }: { devotionalId?: string }) {
   useEffect(() => {
     if (!illumineAuth.isAuthenticated()) return;
     let alive = true;
-    FamilyService.get().then((f) => { if (alive) { setFamily(f); setLoaded(true); } }).catch(() => {});
-    return () => { alive = false; };
+    const load = () => FamilyService.get().then((f) => { if (alive) { setFamily(f); setLoaded(true); } }).catch(() => {});
+    load();
+    window.addEventListener('family:changed', load);
+    return () => { alive = false; window.removeEventListener('family:changed', load); };
   }, []);
 
   useEffect(() => {

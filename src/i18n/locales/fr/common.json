@@ -238,7 +238,9 @@
     "setupNote": "En commençant, vous choisissez l'âge de chaque enfant.",
     "privacy": "Les enfants n'ont pas de compte : nous gardons seulement le surnom et la tranche d'âge, jamais de nom, photo ou e-mail.",
     "error": "Impossible de terminer. Réessayez.",
-    "loading": "Chargement…"
+    "loading": "Chargement…",
+    "group": "Groupe",
+    "noneHere": "Ce groupe n'a pas d'enfants. Passez au groupe de la famille ou ajoutez-les ici."
   },
   "family": {
     "title": "Famille",
@@ -293,7 +295,8 @@
       "code": "Ce code n'existe pas. Vérifiez auprès de la personne qui vous a invité.",
       "full": "Ce groupe est déjà complet.",
       "already": "Vous êtes déjà dans un groupe.",
-      "generic": "Impossible de terminer. Veuillez réessayer."
+      "generic": "Impossible de terminer. Veuillez réessayer.",
+      "groups": "Vous avez atteint le maximum de groupes. Quittez-en un pour en rejoindre un autre."
     },
     "loading": "Chargement…",
     "title": "Groupe",
@@ -403,6 +406,17 @@
       "planDay": "parcours, jour {{n}}",
       "cta": "Lire",
       "kids": "Version pour les enfants"
+    },
+    "groups": {
+      "title": "Vos groupes",
+      "owner": "Vous l'avez créé",
+      "adults_one": "{{count}} adulte",
+      "adults_other": "{{count}} adultes",
+      "kids_one": "{{count}} enfant",
+      "kids_other": "{{count}} enfants",
+      "create": "Créer un autre groupe",
+      "join": "Entrer avec un code",
+      "count": "Vous êtes dans {{count}} groupes sur {{max}} possibles."
     }
   },
   "ritual": {

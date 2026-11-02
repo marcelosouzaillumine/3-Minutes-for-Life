@@ -238,7 +238,9 @@
     "setupNote": "Quando inizi, scegli l'età di ogni bambino.",
     "privacy": "I bambini non hanno un account: conserviamo solo il soprannome e la fascia d'età, mai cognome, foto o e-mail.",
     "error": "Impossibile completare. Riprova.",
-    "loading": "Caricamento…"
+    "loading": "Caricamento…",
+    "group": "Gruppo",
+    "noneHere": "Questo gruppo non ha bambini. Passa al gruppo della famiglia o aggiungili qui."
   },
   "family": {
     "title": "Famiglia",
@@ -293,7 +295,8 @@
       "code": "Questo codice non esiste. Controlla con chi ti ha invitato.",
       "full": "Questo gruppo è già al completo.",
       "already": "Sei già in un gruppo.",
-      "generic": "Non è stato possibile completare l'operazione. Riprova."
+      "generic": "Non è stato possibile completare l'operazione. Riprova.",
+      "groups": "Hai raggiunto il numero massimo di gruppi. Esci da uno per entrare in un altro."
     },
     "loading": "Caricamento…",
     "title": "Gruppo",
@@ -403,6 +406,17 @@
       "planDay": "percorso, giorno {{n}}",
       "cta": "Leggi",
       "kids": "Versione per i bambini"
+    },
+    "groups": {
+      "title": "I tuoi gruppi",
+      "owner": "Lo hai creato tu",
+      "adults_one": "{{count}} adulto",
+      "adults_other": "{{count}} adulti",
+      "kids_one": "{{count}} bambino",
+      "kids_other": "{{count}} bambini",
+      "create": "Crea un altro gruppo",
+      "join": "Entra con un codice",
+      "count": "Sei in {{count}} gruppi su {{max}} possibili."
     }
   },
   "ritual": {

@@ -2,12 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from '../components/Sheet';
 import {
-  FamilyError, FamilyService, inviteLink, pendingFamilyCode,
-  type Family as FamilyT, type FamilyPrayer, type PlanTemplate,
+  FamilyError, FamilyService, activeFamily, inviteLink, pendingFamilyCode,
+  type Family as FamilyT, type FamilySummary, type FamilyPrayer, type PlanTemplate,
 } from '../services/FamilyService';
 import '../styles/family.css';
 
-type SheetKind = null | 'create' | 'join' | 'invite' | 'manage' | 'plan' | 'prayer';
+type SheetKind = null | 'create' | 'join' | 'invite' | 'manage' | 'plan' | 'prayer' | 'groups';
 
 const initials = (name: string | null) => (name ?? '?').trim().slice(0, 2).replace(/^./, (c) => c.toUpperCase());
 
@@ -22,6 +22,7 @@ export function Family() {
 
   const [family, setFamily] = useState<FamilyT | null>(null);
   const [loading, setLoading] = useState(true);
+  const [groups, setGroups] = useState<{ families: FamilySummary[]; max: number }>({ families: [], max: 5 });
   const [prayers, setPrayers] = useState<FamilyPrayer[]>([]);
   const [templates, setTemplates] = useState<PlanTemplate[]>([]);
   const [sheet, setSheet] = useState<SheetKind>(() => (pendingFamilyCode.get() ? 'join' : null));
@@ -40,7 +41,7 @@ export function Family() {
     setError(
       c === 'INVALID_CODE' ? tt('err.code', 'Esse código não existe. Confira com quem convidou.')
       : c === 'FAMILY_FULL' ? tt('err.full', 'Este grupo já está completo.')
-      : c === 'ALREADY_IN_FAMILY' ? tt('err.already', 'Você já está em um grupo.')
+      : c === 'TOO_MANY_GROUPS' ? tt('err.groups', 'Você já está no máximo de grupos. Saia de um para entrar em outro.')
       : tt('err.generic', 'Não foi possível concluir. Tente de novo.'),
     );
   };
@@ -56,6 +57,7 @@ export function Family() {
     try {
       const f = await FamilyService.get();
       setFamily(f);
+      FamilyService.list().then(setGroups).catch(() => {});
       if (f) {
         FamilyService.prayers().then(setPrayers).catch(() => {});
         FamilyService.templates().then(setTemplates).catch(() => {});
@@ -65,9 +67,39 @@ export function Family() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+  // Trocar de grupo (aqui ou em outra aba do app) recarrega a tela.
+  useEffect(() => {
+    const onChange = () => { load(); };
+    window.addEventListener('family:changed', onChange);
+    return () => window.removeEventListener('family:changed', onChange);
+  }, [load]);
 
   const close = () => { setSheet(null); setError(''); setConfirmLeave(false); };
   const apply = (f: FamilyT) => { setFamily(f); close(); };
+
+  const groupSheets = (
+    <>
+      {sheet === 'create' && (
+        <Sheet title={tt('create.title', 'Novo grupo')} onClose={close}>
+          <form className="fam-form" onSubmit={(e) => { e.preventDefault(); if (name.trim()) run(() => FamilyService.create(name.trim(), meeting.trim()), apply); }}>
+            <label>{tt('create.name', 'Nome do grupo')}<input value={name} onChange={(e) => setName(e.target.value)} placeholder={tt('create.namePh', 'Família Souza ou Célula de quinta')} maxLength={60} autoFocus /></label>
+            <label>{tt('create.meeting', 'Horário combinado (opcional)')}<input value={meeting} onChange={(e) => setMeeting(e.target.value)} placeholder={tt('create.meetingPh', 'Jantar, 20h')} maxLength={60} /></label>
+            {error && <p className="fam-error">{error}</p>}
+            <button type="submit" className="fam-btn fam-btn--primary" disabled={busy || !name.trim()}>{tt('create.cta', 'Criar grupo')}</button>
+          </form>
+        </Sheet>
+      )}
+      {sheet === 'join' && (
+        <Sheet title={tt('join.title', 'Entrar num grupo')} onClose={close}>
+          <form className="fam-form" onSubmit={(e) => { e.preventDefault(); if (code.trim()) run(() => FamilyService.join(code.trim()), (f) => { pendingFamilyCode.clear(); setCode(''); apply(f); load(); }); }}>
+            <label>{tt('join.code', 'Código de convite')}<input value={code} onChange={(e) => setCode(e.target.value)} placeholder="ABCD-2345" maxLength={12} autoFocus /></label>
+            {error && <p className="fam-error">{error}</p>}
+            <button type="submit" className="fam-btn fam-btn--primary" disabled={busy || !code.trim()}>{tt('join.cta', 'Entrar')}</button>
+          </form>
+        </Sheet>
+      )}
+    </>
+  );
 
   if (loading) return <div className="fam fam--loading">{tt('loading', 'Carregando…')}</div>;
 
@@ -83,25 +115,7 @@ export function Family() {
           <button type="button" className="fam-btn fam-btn--ghost" onClick={() => setSheet('join')}>{tt('hero.join', 'Tenho um código de convite')}</button>
         </div>
 
-        {sheet === 'create' && (
-          <Sheet title={tt('create.title', 'Novo grupo')} onClose={close}>
-            <form className="fam-form" onSubmit={(e) => { e.preventDefault(); if (name.trim()) run(() => FamilyService.create(name.trim(), meeting.trim()), apply); }}>
-              <label>{tt('create.name', 'Nome do grupo')}<input value={name} onChange={(e) => setName(e.target.value)} placeholder={tt('create.namePh', 'Família Souza ou Célula de quinta')} maxLength={60} autoFocus /></label>
-              <label>{tt('create.meeting', 'Horário combinado (opcional)')}<input value={meeting} onChange={(e) => setMeeting(e.target.value)} placeholder={tt('create.meetingPh', 'Jantar, 20h')} maxLength={60} /></label>
-              {error && <p className="fam-error">{error}</p>}
-              <button type="submit" className="fam-btn fam-btn--primary" disabled={busy || !name.trim()}>{tt('create.cta', 'Criar grupo')}</button>
-            </form>
-          </Sheet>
-        )}
-        {sheet === 'join' && (
-          <Sheet title={tt('join.title', 'Entrar num grupo')} onClose={close}>
-            <form className="fam-form" onSubmit={(e) => { e.preventDefault(); if (code.trim()) run(() => FamilyService.join(code.trim()), (f) => { pendingFamilyCode.clear(); setCode(''); apply(f); load(); }); }}>
-              <label>{tt('join.code', 'Código de convite')}<input value={code} onChange={(e) => setCode(e.target.value)} placeholder="ABCD-2345" maxLength={12} autoFocus /></label>
-              {error && <p className="fam-error">{error}</p>}
-              <button type="submit" className="fam-btn fam-btn--primary" disabled={busy || !code.trim()}>{tt('join.cta', 'Entrar')}</button>
-            </form>
-          </Sheet>
-        )}
+        {groupSheets}
       </div>
     );
   }
@@ -120,7 +134,9 @@ export function Family() {
       <header className="fam-head">
         <div>
           <p className="fam-eyebrow">{tt('title', 'Grupo')}</p>
-          <h1 className="fam-head__name">{family.name}</h1>
+          <button type="button" className="fam-pick" onClick={() => setSheet('groups')} aria-haspopup="dialog">
+            <h1 className="fam-head__name">{family.name}</h1><span aria-hidden="true">▾</span>
+          </button>
           <p className="fam-head__sub">
             {family.week.streak > 0 ? tt('streak', '{{count}} dias lendo juntos', { count: family.week.streak }) : tt('streak0', 'Comecem hoje')}
             {family.meetingTime ? ` · ${family.meetingTime}` : ''}
@@ -244,6 +260,33 @@ export function Family() {
         </Sheet>
       )}
 
+      {groupSheets}
+
+      {sheet === 'groups' && (
+        <Sheet title={tt('groups.title', 'Seus grupos')} onClose={close}>
+          <div className="fam-groups">
+            {groups.families.map((g) => (
+              <button key={g.id} type="button" className={`fam-group${g.id === family.id ? ' is-on' : ''}`} aria-pressed={g.id === family.id}
+                onClick={() => { if (g.id !== family.id) activeFamily.set(g.id); close(); }}>
+                <span className="fam-group__icon">{g.name.trim().slice(0, 2).toUpperCase()}</span>
+                <span className="fam-group__text">
+                  <strong>{g.name}</strong>
+                  <small>{[g.role === 'owner' ? tt('groups.owner', 'Você criou') : null, tt('groups.adults', '{{count}} adultos', { count: g.members }), g.children > 0 ? tt('groups.kids', '{{count}} crianças', { count: g.children }) : null].filter(Boolean).join(' · ')}</small>
+                </span>
+                {g.id === family.id && <span aria-hidden="true">✓</span>}
+              </button>
+            ))}
+          </div>
+          {groups.families.length < groups.max ? (
+            <div className="fam-inline fam-inline--actions">
+              <button type="button" className="fam-btn fam-btn--secondary" onClick={() => setSheet('create')}>{tt('groups.create', 'Criar outro grupo')}</button>
+              <button type="button" className="fam-btn fam-btn--secondary" onClick={() => setSheet('join')}>{tt('groups.join', 'Entrar com código')}</button>
+            </div>
+          ) : null}
+          <p className="fam-note">{tt('groups.count', 'Você está em {{count}} de {{max}} grupos possíveis.', { count: groups.families.length, max: groups.max })}</p>
+        </Sheet>
+      )}
+
       {sheet === 'manage' && (
         <Sheet title={tt('manage.title', 'Gerenciar grupo')} onClose={close}>
           {isOwner && (
@@ -263,7 +306,7 @@ export function Family() {
           ) : (
             <div className="fam-confirm">
               <p>{isOwner ? tt('confirmDelete', 'Apagar o grupo? Os adultos saem do grupo e tudo o que foi guardado é apagado, inclusive os apelidos das crianças e o mural.') : tt('confirmLeave', 'Sair deste grupo?')}</p>
-              <button type="button" className="fam-btn fam-btn--danger" disabled={busy} onClick={() => run(() => FamilyService.leave(), () => { setFamily(null); setPrayers([]); close(); })}>{tt('confirmYes', 'Sim, continuar')}</button>
+              <button type="button" className="fam-btn fam-btn--danger" disabled={busy} onClick={() => run(() => FamilyService.leave(), () => { setPrayers([]); close(); })}>{tt('confirmYes', 'Sim, continuar')}</button>
               <button type="button" className="fam-btn fam-btn--ghost" onClick={() => setConfirmLeave(false)}>{tt('cancel', 'Cancelar')}</button>
             </div>
           )}
