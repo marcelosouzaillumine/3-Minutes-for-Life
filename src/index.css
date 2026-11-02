@@ -92,7 +92,7 @@
      DEVOTIONAL DESIGN SYSTEM V1 TOKENS
   ========================================================= */
 
-  --devotional-header-height: 90px;
+  --devotional-header-height: 48px;
   --devotional-logo-max-width: 275px;
   --devotional-intro-offset: 3rem;
   --devotional-section-gap: 3rem;
@@ -762,8 +762,7 @@ h4 {
   background: #1F262E;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 0.75rem;
+  justify-content: center;
   padding: 0 1.25rem;
   min-height: var(--devotional-header-height);
   border-radius: 16px 16px 0 0;
@@ -772,13 +771,16 @@ h4 {
 .devotional-logo {
   display: block;
   width: auto;
-  height: calc(var(--devotional-header-height) * 0.9);
-  max-width: var(--devotional-logo-max-width);
-  max-height: calc(var(--devotional-header-height) * 0.9);
+  height: calc(var(--devotional-header-height) * 0.85);
+  max-height: calc(var(--devotional-header-height) * 0.85);
   object-fit: contain;
 }
 
 .devotional-back {
+  position: absolute;
+  left: 1.25rem;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -2668,5 +2670,3 @@ a:focus-visible {
 
 .action-btn .action-sub { display: block; margin-top: 0.1rem; font-size: 0.72rem; font-weight: 400; opacity: 0.7; }
 
-.devotional-header--compact { min-height: calc(var(--devotional-header-height) * 0.55); }
-.devotional-header--compact .devotional-logo { height: calc(var(--devotional-header-height) * 0.5); max-height: calc(var(--devotional-header-height) * 0.5); }
