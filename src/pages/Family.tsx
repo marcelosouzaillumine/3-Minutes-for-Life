@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from '../components/Sheet';
+import { ReadStartSheet } from '../components/ReadStartSheet';
 import {
   FamilyError, FamilyService, activeFamily, inviteLink, pendingFamilyCode,
-  type Family as FamilyT, type FamilySummary, type FamilyPrayer, type PlanTemplate,
+  type Band, type Family as FamilyT, type FamilySummary, type FamilyPrayer, type PlanTemplate,
 } from '../services/FamilyService';
 import '../styles/family.css';
 
@@ -12,7 +13,7 @@ type SheetKind = null | 'create' | 'join' | 'invite' | 'manage' | 'plan' | 'pray
 const initials = (name: string | null) => (name ?? '?').trim().slice(0, 2).replace(/^./, (c) => c.toUpperCase());
 
 /** Abre o Ler juntos. Com `audience`, a pessoa já chega sabendo com quem lê e a tela de escolha some. */
-export const openRitual = (source: 'daily' | 'plan' = 'daily', audience?: 'adults' | 'kids', opts?: { solo?: boolean; intro?: boolean }) =>
+export const openRitual = (source: 'daily' | 'plan' = 'daily', audience?: 'adults' | 'kids', opts?: { solo?: boolean; intro?: boolean; kidIds?: string[]; adultIdx?: number[]; band?: Band }) =>
   window.dispatchEvent(new CustomEvent('family:ritual', { detail: { source, audience, ...opts } }));
 
 /** Aba Grupo (família, casal ou amigos): cada um lê no seu tempo e todos veem quem já leu. Quem leu, a semana, o plano em andamento e o mural. */
@@ -26,6 +27,7 @@ export function Family() {
   const [prayers, setPrayers] = useState<FamilyPrayer[]>([]);
   const [templates, setTemplates] = useState<PlanTemplate[]>([]);
   const [sheet, setSheet] = useState<SheetKind>(() => (pendingFamilyCode.get() ? 'join' : null));
+  const [readSheet, setReadSheet] = useState<{ plan: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -166,7 +168,7 @@ export function Family() {
       </section>
       <p className="fam-note">{readers > 0 ? tt('readersToday', '{{count}} de {{total}} já leram hoje', { count: readers, total: family.members.length }) : tt('noneToday', 'Ninguém leu hoje ainda.')}</p>
 
-      <button type="button" className="fam-btn fam-btn--primary fam-cta" onClick={() => openRitual('daily', 'adults')}>{tt('ritual', 'Ler juntos')}</button>
+      <button type="button" className="fam-btn fam-btn--primary fam-cta" onClick={() => setReadSheet({ plan: false })}>{tt('ritual', 'Ler juntos')}</button>
 
       {/* ── Plano ── */}
       {plan && !plan.completed && (
@@ -177,7 +179,7 @@ export function Family() {
           {!plan.lockedUntilTomorrow && <p className="fam-card__text">{tt('plan.today', 'Hoje no plano: {{title}}', { title: plan.days[plan.currentDay - 1]?.title })}</p>}
           {plan.lockedUntilTomorrow
             ? <p className="fam-note">{tt('plan.locked', 'Hoje vocês já leram o dia {{n}}. O dia {{next}} libera amanhã.', { n: plan.currentDay - 1, next: plan.currentDay })}</p>
-            : <button type="button" className="fam-btn fam-btn--secondary" onClick={() => openRitual('plan', 'adults')}>{tt('plan.read', 'Ler o dia do plano juntos')}</button>}
+            : <button type="button" className="fam-btn fam-btn--secondary" onClick={() => setReadSheet({ plan: true })}>{tt('plan.read', 'Ler o dia do plano juntos')}</button>}
         </section>
       )}
       {plan?.completed && plan.summary && (
@@ -312,6 +314,7 @@ export function Family() {
           )}
         </Sheet>
       )}
+      {readSheet && <ReadStartSheet audience="adults" family={family} plan={readSheet.plan} onClose={() => setReadSheet(null)} />}
     </div>
   );
 }

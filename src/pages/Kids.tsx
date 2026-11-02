@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { illumineAuth } from '../lib/illumine';
 import { BANDS, FamilyService, activeFamily, type Band, type Family, type FamilySummary } from '../services/FamilyService';
 import { openRitual } from './Family';
+import { ReadStartSheet } from '../components/ReadStartSheet';
 import '../styles/family.css';
 
 const bandLabel = (b: Band) => b.replace('-', ' a ');
@@ -20,6 +21,7 @@ export function Kids() {
   const [band, setBand] = useState<Band>('7-10');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [startSheet, setStartSheet] = useState(false);
 
   const load = useCallback(() => {
     FamilyService.get().then(setFamily).catch(() => {}).finally(() => setLoaded(true));
@@ -57,7 +59,7 @@ export function Kids() {
             </select>
           </label>
         )}
-        <button type="button" className="fam-btn fam-btn--primary" onClick={() => openRitual('daily', 'kids')}>{tt('start', 'Começar a leitura de hoje')}</button>
+        <button type="button" className="fam-btn fam-btn--primary" onClick={() => (family ? setStartSheet(true) : openRitual('daily', 'kids'))}>{tt('start', 'Começar a leitura de hoje')}</button>
       </div>
 
       <section className="fam-section">
@@ -86,6 +88,7 @@ export function Kids() {
         {error && <p className="fam-error">{error}</p>}
         <p className="fam-note">{tt('privacy', 'Crianças não têm conta: guardamos só o apelido e a faixa de idade, nunca sobrenome, foto ou e-mail.')}</p>
       </section>
+      {startSheet && family && <ReadStartSheet audience="kids" family={family} plan={false} onClose={() => setStartSheet(false)} onChanged={setFamily} />}
     </div>
   );
 }

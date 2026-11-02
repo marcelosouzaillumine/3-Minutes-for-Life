@@ -510,13 +510,19 @@
     "kidsText": "Elige la edad y lee la versión hecha para ellos.",
     "kidsWith": "Con {{names}}",
     "kidsReady": "versión lista",
-    "modeQuestion": "¿Cómo vas a leer hoy?",
-    "modeSolo": "Yo",
     "modeGroup": "Grupo",
     "modeKids": "Niños",
-    "kidsWithReady": "{{names}} tienen versión lista",
     "stepReflect": "2 · Reflexionar",
-    "reflectHint": "Piénsalo con calma, o escribe una línea para ti. No tienes que responder a nadie."
+    "reflectHint": "Piénsalo con calma, o escribe una línea para ti. No tienes que responder a nadie.",
+    "readNow": "Leer ahora",
+    "readNowHint": "3 minutos · a tu ritmo",
+    "orWithOthers": "O lee con otras personas",
+    "backToCover": "Volver a la portada",
+    "kidsSheetTitle": "¿Quién lee contigo?",
+    "groupSheetTitle": "¿Quién está en la mesa?",
+    "sheetVersion": "Leeremos la versión de {{band}} años, la del más pequeño en la mesa.",
+    "sheetSwitch": "Cambiar a {{band}}",
+    "sheetStart": "Empezar la lectura"
   },
   "familyNav": "Grupo",
   "plansx": {
@@ -548,5 +554,6 @@
   },
   "kidsNav": "Niños",
   "moreNav": "Más",
-  "moreProfile": "Perfil y cuenta"
+  "moreProfile": "Perfil y cuenta",
+  "supportNav": "Apoyar 3 Minutes"
 }

@@ -50,6 +50,8 @@ export function PrincipleView({
   const authorRole = branding?.authorRole || t('home.authorRole', 'Pastor na Igreja Missão Mobilização');
 
   const [saved, setSaved] = useState(false);
+  // No Hoje, quem está logado vê primeiro a capa; "Ler agora" abre a leitura por rolagem.
+  const [reading, setReading] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [showLoginToSave, setShowLoginToSave] = useState(false);
   const [reflectionContent, setReflectionContent] = useState('');
@@ -276,12 +278,31 @@ export function PrincipleView({
 
       <div className="devotional-content">
 
+        {isDaily && user && !reading ? (
+          <section className="principle-introduction hoje-capa-wrap">
+            <span className="principle-category label">
+              {devotional.categories?.name ? t(`categories.${devotional.categories.name}`, devotional.categories.name) : t('categories.Devocional', 'Devocional')}
+            </span>
+            <h1 className="principle-title">{devotional.title}</h1>
+            <StreakLine summary={journey} />
+            {devotional.scripture_reference && <cite className="principle-scripture-reference">{devotional.scripture_reference}</cite>}
+            {devotional.principle_statement && <p className="principle-statement">{devotional.principle_statement}</p>}
+            <FamilyTodayCard devotionalId={devotional.id} onReadSolo={() => { setReading(true); window.scrollTo({ top: 0 }); }} />
+          </section>
+        ) : (<>
+
         {/* ======================================================
             INTRODUCTION
             Categoria → Título → Princípio → Citação → Reflexão
             ====================================================== */}
 
         <section className="principle-introduction">
+
+          {isDaily && user && (
+            <button type="button" className="hoje-capa__back" onClick={() => { setReading(false); window.scrollTo({ top: 0 }); }}>
+              ‹ {t('ritual.backToCover', 'Voltar à capa')}
+            </button>
+          )}
 
           <span className="principle-category label">
             {devotional.categories?.name
@@ -300,7 +321,6 @@ export function PrincipleView({
           </h1>
 
           {isDaily && <StreakLine summary={journey} />}
-          {isDaily && user && <FamilyTodayCard devotionalId={devotional.id} />}
 
           {devotional.principle_statement && (
             <p className="principle-statement">
@@ -801,6 +821,7 @@ export function PrincipleView({
 
         {onExplore && <HomeNext onExplore={onExplore} />}
 
+        </>)}
       </div>
     </article>
   );

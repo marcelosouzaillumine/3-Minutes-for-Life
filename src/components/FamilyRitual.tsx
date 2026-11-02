@@ -5,7 +5,7 @@ import { DevotionalService } from '../services/DevotionalService';
 import { JourneyService } from '../services/JourneyService';
 import { FamilyService, type Band, type Family, type KidsVersion } from '../services/FamilyService';
 import { getTodayInSaoPaulo } from '../utils/date';
-import { htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks, readerForDay, versionsForChildren } from '../utils/ritual';
+import { htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks, readerForDay, versionsForChildren, withoutEmbeddedSections } from '../utils/ritual';
 import type { Devotional } from '../types/Devotional';
 import '../styles/family.css';
 import { Paragraphs } from './Paragraphs';
@@ -18,14 +18,20 @@ const bandArt = (band: string) => (band === '4-6' ? 'young' : 'older');
 const OWN_ART: Record<string, string> = { cmvudrag10002oe2ldyzmvhaa: 'reforma-protestante' };
 const ownArt = (devotionalId: string | undefined, band: string) => (devotionalId && OWN_ART[devotionalId] ? `/ilustracoes/${OWN_ART[devotionalId]}/${band}.svg` : null);
 
-export function FamilyRitual({ source, audience: forced, solo = false, intro = true, onClose }: {
+export function FamilyRitual({ source, audience: forced, solo = false, intro = true, kidIds, adultIdx, band, onClose }: {
   source: 'daily' | 'plan';
   audience?: 'adults' | 'kids';
   /** Só a própria pessoa lê: não pede grupo nem escolha de quem está à mesa. */
   solo?: boolean;
   /** Mostra a tela de abertura (título e versículo). Vindo do Hoje, a pessoa já viu o título e entra direto. */
   intro?: boolean;
+  /** Crianças já escolhidas na folha de preparo (e a versão): a tela "Quem vai ler?" não se repete. */
+  kidIds?: string[];
+  /** Adultos presentes (posições em `members`), escolhidos na folha do grupo. */
+  adultIdx?: number[];
+  band?: Band;
   onClose: () => void;
+
 }) {
   const { t, i18n } = useTranslation('common');
   const tt: TT = (k, d, o) => t(`ritual.${k}`, typeof d === 'string' ? { defaultValue: d, ...o } : d) as string;
@@ -57,8 +63,8 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
 
   useEffect(() => { FamilyService.get().then((f) => {
     setFamily(f);
-    setPresent(new Set((f?.children ?? []).map((c) => c.id)));
-    setPresentAdults(new Set((f?.members ?? []).map((_, i) => i)));
+    setPresent(new Set(kidIds ?? (f?.children ?? []).map((c) => c.id)));
+    setPresentAdults(new Set(adultIdx ?? (f?.members ?? []).map((_, i) => i)));
     setLoaded(true);
   }).catch(() => setFailed(true)); }, []);
 
@@ -93,7 +99,7 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
   );
   // Uma só leitura para a mesa: todos ouvem o mesmo texto, na faixa da criança mais nova presente (ou a que o adulto escolher).
   const order = ['4-6', '7-10', '11-13'];
-  const [leadBand, setLeadBand] = useState<Band | null>(null);
+  const [leadBand, setLeadBand] = useState<Band | null>(band ?? null);
   const bandsHere = useMemo(
     () => [...new Set(perChild.filter((p) => p.version).map((p) => p.version!.band))].sort((a, b) => order.indexOf(a) - order.indexOf(b)),
     [perChild], // eslint-disable-line react-hooks/exhaustive-deps
@@ -198,7 +204,7 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
     } : null;
     return { child, version, pages: run(plainBlocks(version?.whatItSays), fits, true) };
   }), [shared, budget, fitCfg, reader, devotional, nKids]); // eslint-disable-line react-hooks/exhaustive-deps
-  const readAdult = useMemo(() => run(htmlBlocks(devotional?.reflection), screenFits((f) => tagHtml(tt('stepRead', '1 · Ler'), 'read') + (f ? verseHtml() : ''), (pg) => `<div class="ritual__text">${pg.join('')}</div>`), true), [devotional, budget, fitCfg, reader]); // eslint-disable-line react-hooks/exhaustive-deps
+  const readAdult = useMemo(() => run(withoutEmbeddedSections(devotional?.reflection, devotional?.practical_application, devotional?.prayer), screenFits((f) => tagHtml(tt('stepRead', '1 · Ler'), 'read') + (f ? verseHtml() : ''), (pg) => `<div class="ritual__text">${pg.join('')}</div>`), true), [devotional, budget, fitCfg, reader]); // eslint-disable-line react-hooks/exhaustive-deps
   // Título da capa da leitura infantil: o da versão; com várias faixas sem história só aparece se todos coincidem.
   const headTitle = story ? (leadVersion?.title ?? '') : (readKids.length > 0 && readKids.every((k) => k.version?.title && k.version.title === readKids[0].version?.title) ? readKids[0].version!.title : '');
   const readCount = story ? 1 + storyCount : Math.max(1, kidsView ? Math.max(...readKids.map((k) => k.pages.length)) : readAdult.length);
@@ -216,14 +222,14 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
   // Telas: ler (em partes), uma por pergunta, fazer (em partes), orar.
   const screens = useMemo(() => {
     type S = { id: string; kind: 'welcome' | 'table' | 'read' | 'talk' | 'do' | 'pray' | 'done'; q?: number; part?: number };
-    const out: S[] = [...(intro ? [{ id: 'welcome', kind: 'welcome' } as S] : []), ...(solo ? [] : [{ id: 'table', kind: 'table' } as S])];
+    const out: S[] = [...(intro ? [{ id: 'welcome', kind: 'welcome' } as S] : []), ...(solo || kidIds || adultIdx ? [] : [{ id: 'table', kind: 'table' } as S])];
     for (let i = 0; i < readCount; i++) out.push({ id: `read-${i}`, kind: 'read', part: i });
     questions.forEach((_, q) => out.push({ id: `talk-${q}`, kind: 'talk', q }));
     for (let i = 0; i < doCount; i++) out.push({ id: `do-${i}`, kind: 'do', part: i });
     for (let i = 0; i < prayCount; i++) out.push({ id: `pray-${i}`, kind: 'pray', part: i });
     out.push({ id: 'done', kind: 'done' });
     return out;
-  }, [questions, readCount, doCount, prayCount, intro, solo]);
+  }, [questions, readCount, doCount, prayCount, intro, solo, kidIds, adultIdx]);
   // Telas de abertura (título e quem está à mesa): sem setas e sem o contador.
   const introN = screens.filter((x) => x.kind === 'welcome' || x.kind === 'table').length;
 

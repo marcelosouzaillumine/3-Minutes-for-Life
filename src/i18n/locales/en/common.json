@@ -504,13 +504,19 @@
     "kidsText": "Pick the age and read the version made for them.",
     "kidsWith": "With {{names}}",
     "kidsReady": "version ready",
-    "modeQuestion": "How will you read today?",
-    "modeSolo": "Me",
     "modeGroup": "Group",
     "modeKids": "Kids",
-    "kidsWithReady": "{{names}} have a version ready",
     "stepReflect": "2 · Reflect",
-    "reflectHint": "Think it over, or write a line for yourself. You don't have to answer anyone."
+    "reflectHint": "Think it over, or write a line for yourself. You don't have to answer anyone.",
+    "readNow": "Read now",
+    "readNowHint": "3 minutes · at your own pace",
+    "orWithOthers": "Or read with others",
+    "backToCover": "Back to cover",
+    "kidsSheetTitle": "Who is reading with you?",
+    "groupSheetTitle": "Who's at the table?",
+    "sheetVersion": "We'll read the {{band}} version, for the youngest at the table.",
+    "sheetSwitch": "Switch to {{band}}",
+    "sheetStart": "Start reading"
   },
   "familyNav": "Group",
   "plansx": {
@@ -541,5 +547,6 @@
   },
   "kidsNav": "Kids",
   "moreNav": "More",
-  "moreProfile": "Profile and account"
+  "moreProfile": "Profile and account",
+  "supportNav": "Support 3 Minutes"
 }
