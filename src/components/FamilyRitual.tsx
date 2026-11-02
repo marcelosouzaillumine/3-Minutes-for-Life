@@ -21,15 +21,9 @@ const FAIXA_ART: Record<string, string> = {
   cmvue6llj000koe2lqtw0xdz2: 'davi-e-a-arca',
   cmvv1whpq0002pm2l3f1bfo13: 'levi-e-o-banquete',
   cmvyun7rw0032o72lmlzc68bk: 'a-mulher-e-o-perfume',
+  cmvyv3ozp003ho72lezbf5h9r: 'marta-e-maria',
 };
-// Sem a arte nova ainda: ilustração antiga em public/ilustracoes/<pasta>/<faixa>.svg.
-const OWN_ART: Record<string, string> = {
-  cmvyv3ozp003ho72lezbf5h9r: 'o-que-e-mais-importante',
-};
-// Bebês (0 a 3) ainda não têm desenho próprio: usam o da faixa de 4 a 6.
-const artBand = (band: string) => (band === '0-3' ? '4-6' : band);
-const faixaArt = (devotionalId: string | undefined, band: string) => (devotionalId && FAIXA_ART[devotionalId] ? `/ilustracoes/${FAIXA_ART[devotionalId]}/quadros/faixa-${artBand(band)}-1.webp` : null);
-const ownArt = (devotionalId: string | undefined, band: string) => (devotionalId && OWN_ART[devotionalId] ? `/ilustracoes/${OWN_ART[devotionalId]}/${artBand(band)}.svg` : null);
+const faixaArt = (devotionalId: string | undefined, band: string) => (devotionalId && FAIXA_ART[devotionalId] ? `/ilustracoes/${FAIXA_ART[devotionalId]}/quadros/faixa-${band}-1.webp` : null);
 
 export function FamilyRitual({ source, audience: forced, solo = false, intro = true, kidIds, adultIdx, devotionalId, band, onClose }: {
   source: 'daily' | 'plan';
@@ -199,7 +193,7 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
   const heroHtml = (band?: string) => (band ? `<div class="ritual__hero ritual__hero--${bandArt(band)}"${heroStyleAttr(band)}></div>` : '');
   // A ilustração cadastrada na versão da faixa vale mais que o arquivo fixo em public/. Só https, e sem aspas ou parênteses que quebrem o CSS.
   const artFor = (band: string) => {
-    return faixaArt(devotional?.id, band) ?? safeStoryImage(kids.find((k) => k.band === band)?.imageUrl) ?? ownArt(devotional?.id, band);
+    return faixaArt(devotional?.id, band) ?? safeStoryImage(kids.find((k) => k.band === band)?.imageUrl);
   };
   const heroStyleAttr = (band: string) => { const u = artFor(band); return u ? ` style="background-image:url(${u})"` : ''; };
   const heroStyle = (band: string) => { const u = artFor(band); return u ? { backgroundImage: `url(${u})` } : undefined; };
