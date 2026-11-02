@@ -212,7 +212,8 @@
 .ritual__question { padding: 1.75rem 1.4rem; border: 1px solid var(--border-subtle); border-radius: 18px; background: var(--surface); }
 .ritual__question p { margin: 0; font-family: var(--font-serif); font-size: 1.6rem; line-height: 1.35; }
 .ritual__guide { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed var(--border-subtle); }
-.ritual__guide-toggle { width: auto; min-height: 2.25rem; padding: 0 0.5rem; font-size: 0.85rem; }
+.ritual__guide-toggle { width: 100%; min-height: 2.75rem; font-size: 0.95rem; }
+.ritual__guide-note { margin: 0.35rem 0 0.5rem; text-align: center; }
 .ritual__guide-body { padding: 0.75rem 1rem; border-radius: 12px; background: #F4EEE4; font-size: 0.95rem; line-height: 1.6; }
 .ritual__guide-body p { margin: 0 0 0.5rem; }
 .ritual__streak { display: grid; justify-items: center; gap: 0.1rem; padding: 1rem; border: 1px solid var(--border-subtle); border-radius: 14px; }
