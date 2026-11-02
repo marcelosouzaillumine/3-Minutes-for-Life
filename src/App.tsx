@@ -69,7 +69,7 @@ function AppShell() {
   const [ritual, setRitual] = useState<{ source: 'daily' | 'plan'; audience?: 'adults' | 'kids'; solo?: boolean; intro?: boolean } | null>(null);
   useEffect(() => {
     const onRitual = (e: Event) => {
-      const d = (e as CustomEvent).detail as 'daily' | 'plan' | { source?: 'daily' | 'plan'; audience?: 'adults' | 'kids' } | undefined;
+      const d = (e as CustomEvent).detail as 'daily' | 'plan' | { source?: 'daily' | 'plan'; audience?: 'adults' | 'kids'; solo?: boolean; intro?: boolean } | undefined;
       setRitual(typeof d === 'object' && d ? { source: d.source ?? 'daily', audience: d.audience, solo: d.solo, intro: d.intro } : { source: d ?? 'daily' });
     };
     const onTab = (e: Event) => setCurrentTab(((e as CustomEvent).detail as Tab) ?? 'home');
