@@ -2,15 +2,15 @@ import { BrandLogo } from './BrandLogo';
 
 interface DevotionalHeaderProps {
   showLogo?: boolean;
-  /** Barra mais baixa, para a capa do Hoje caber na primeira tela. */
-  compact?: boolean;
+  /** Capa só com tipografia (Hoje): a marca no topo, a categoria e o título grande na mesma faixa escura. */
+  cover?: { eyebrow: string; title: string };
   onBack?: () => void;
   backText?: string;
 }
 
-export function DevotionalHeader({ showLogo = true, compact = false, onBack, backText }: DevotionalHeaderProps) {
+export function DevotionalHeader({ showLogo = true, cover, onBack, backText }: DevotionalHeaderProps) {
   return (
-    <header className={`devotional-header${compact ? ' devotional-header--compact' : ''}`}>
+    <header className={`devotional-header${cover ? ' devotional-header--cover' : ''}`}>
       {onBack && (
         <button
           type="button"
@@ -42,6 +42,12 @@ export function DevotionalHeader({ showLogo = true, compact = false, onBack, bac
           alt="3 Minutes for Life"
           className="devotional-logo"
         />
+      )}
+      {cover && (
+        <div className="devotional-cover">
+          <span className="devotional-cover__eyebrow">{cover.eyebrow}</span>
+          <h1 className="devotional-cover__title">{cover.title}</h1>
+        </div>
       )}
     </header>
   );

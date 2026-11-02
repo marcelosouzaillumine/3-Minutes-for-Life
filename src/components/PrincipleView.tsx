@@ -291,6 +291,8 @@ export function PrincipleView({
     </div>
   );
 
+  const categoryLabel = devotional.categories?.name ? t(`categories.${devotional.categories.name}`, devotional.categories.name) : t('categories.Devocional', 'Devocional');
+
   return (
     <article className="devotional">
 
@@ -298,7 +300,7 @@ export function PrincipleView({
 
       <DevotionalHeader
         showLogo={showLogo}
-        compact={hasCover && !reading}
+        cover={hasCover && !reading ? { eyebrow: categoryLabel, title: devotional.title } : undefined}
         onBack={onBack}
         backText={t('home.back')}
       />
@@ -313,10 +315,6 @@ export function PrincipleView({
 
         {hasCover && !reading ? (
           <section className="principle-introduction hoje-capa-wrap">
-            <span className="principle-category label">
-              {devotional.categories?.name ? t(`categories.${devotional.categories.name}`, devotional.categories.name) : t('categories.Devocional', 'Devocional')}
-            </span>
-            <h1 className="principle-title">{devotional.title}</h1>
             <StreakLine summary={journey} />
             {devotional.principle_statement && <p className="hoje-capa__quote">{devotional.principle_statement}</p>}
             {devotional.scripture_reference && <cite className="principle-scripture-reference hoje-capa__ref">{devotional.scripture_reference}</cite>}
