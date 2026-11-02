@@ -493,7 +493,9 @@
     "groupTitle": "Ler em grupo",
     "groupText": "Casal, célula ou amigos. Cada um no seu tempo.",
     "kidsTitle": "Ler com as crianças",
-    "kidsText": "Escolha a idade e leia a versão feita para elas."
+    "kidsText": "Escolha a idade e leia a versão feita para elas.",
+    "kidsWith": "Com {{names}}",
+    "kidsReady": "versão pronta"
   },
   "familyNav": "Grupo",
   "plansx": {
