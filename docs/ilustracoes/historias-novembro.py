@@ -107,16 +107,19 @@ T['marta-e-maria'] = {
  '11-13': D("Un villaggio, la casa di Marta. Sei Marta. Gesù è appena arrivato e c'è molto da fare. Tua sorella Maria si è seduta ad ascoltarlo, e tu sei sola in cucina.", "Che cosa faresti?", ["Lamentarmi con Maria", "Chiedere aiuto a Gesù", "Lasciare tutto e sedermi ad ascoltare"], "Marta portò la sua lamentela a Gesù. Lui la chiamò per nome, parlò delle molte preoccupazioni che la agitavano e disse che Maria aveva scelto la parte buona. Marta voleva offrire qualcosa a Gesù, e lui la aiutò a vedere ciò che anche lei aveva bisogno di ricevere.", "Maria ha scelto la parte buona, che non le sarà tolta.", "Che cosa avrebbe potuto fare Marta di diverso?", "Oggi compiti, schermi e agenda si contendono la nostra attenzione, anche per cose buone. Ascoltare Gesù non è in concorrenza con il servire: è ciò che dà senso al servizio.", "Che cosa potresti mettere in pausa oggi per stare un po' con Gesù?")},
 }
 
-# A mulher e o perfume já tem arte em HQ (webp); cada faixa usa os quadros que contam a sua parte da história.
-HQ = {'a-mulher-e-o-perfume': {'4-6': ['hq-1', 'hq-2', 'hq-4'], '7-10': ['hq-1', 'hq-2', 'hq-3', 'hq-4'], '11-13': ['hq-1']}}
+# Todos os devocionais têm arte em HQ (hd-1..4.webp, uma página de 4 quadros por devocional); cada faixa usa os quadros que contam a sua parte.
+HQ = {
+    'a-mulher-e-o-perfume': {'4-6': [1, 2, 4], '7-10': [1, 2, 3, 4], '11-13': [1]},
+    'davi-e-a-arca': {'4-6': [1, 3, 4], '7-10': [1, 2, 3, 4], '11-13': [4]},
+    'levi-e-o-banquete': {'4-6': [1, 3, 4], '7-10': [1, 2, 3, 4], '11-13': [4]},
+    'marta-e-maria': {'4-6': [1, 2, 4], '7-10': [1, 2, 3, 4], '11-13': [2]},
+}
 def art(slug, band, i):
-    if slug in HQ:
-        return f'/ilustracoes/{slug}/quadros/{HQ[slug][band][i - 1]}.webp'
-    return f'/ilustracoes/{slug}/quadros/{band}-{i}.svg'
+    return f'/ilustracoes/{slug}/quadros/hd-{HQ[slug][band][i - 1]}.webp'
 
 def story(slug, band, v):
     if band == '11-13':
-        return {'format': 'dilemma', 'image': art(slug, band, 1) if slug in HQ else f'/ilustracoes/{slug}/quadros/11-13-cena.svg', **v}
+        return {'format': 'dilemma', 'image': art(slug, band, 1), **v}
     return {'format': 'panels', 'panels': [{'image': art(slug, band, i), 'caption': c, **({'speech': s} if s else {})} for i, (c, s) in enumerate(v, 1)]}
 
 sql_path, rb_path, json_path = sys.argv[1:4]
