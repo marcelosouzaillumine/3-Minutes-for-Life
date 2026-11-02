@@ -5,17 +5,23 @@ import { DevotionalService } from '../services/DevotionalService';
 import { JourneyService } from '../services/JourneyService';
 import { FamilyService, type Band, type Family, type KidsVersion } from '../services/FamilyService';
 import { getTodayInSaoPaulo } from '../utils/date';
-import { htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks, readerForDay, versionsForChildren, withoutEmbeddedSections } from '../utils/ritual';
+import { cleanScripture, htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks, readerForDay, versionsForChildren, withoutEmbeddedSections } from '../utils/ritual';
 import type { Devotional } from '../types/Devotional';
 import '../styles/family.css';
 import { Paragraphs } from './Paragraphs';
 import { KidsStoryScreen } from './KidsStoryScreen';
-import { storyScreenCount } from '../utils/kidsStory';
+import { BandPicker } from './BandPicker';
+import { safeStoryImage, storyScreenCount } from '../utils/kidsStory';
 
 /** Ler juntos: um roteiro de tela cheia, uma coisa por vez, feito para ser lido em voz alta. */
 const bandArt = (band: string) => (band === '4-6' ? 'young' : 'older');
 // Devocionais com ilustração própria por faixa (arquivos em public/ilustracoes/<pasta>/<faixa>.svg).
-const OWN_ART: Record<string, string> = { cmvudrag10002oe2ldyzmvhaa: 'reforma-protestante' };
+const OWN_ART: Record<string, string> = {
+  cmvudrag10002oe2ldyzmvhaa: 'reforma-protestante',
+  cmvue6llj000koe2lqtw0xdz2: 'alegria-de-adorar',
+  cmvv1whpq0002pm2l3f1bfo13: 'quem-se-senta-a-mesa',
+  cmvyv3ozp003ho72lezbf5h9r: 'o-que-e-mais-importante',
+};
 const ownArt = (devotionalId: string | undefined, band: string) => (devotionalId && OWN_ART[devotionalId] ? `/ilustracoes/${OWN_ART[devotionalId]}/${band}.svg` : null);
 
 export function FamilyRitual({ source, audience: forced, solo = false, intro = true, kidIds, adultIdx, devotionalId, band, onClose }: {
@@ -101,6 +107,8 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
     () => (family && withKids ? versionsForChildren(family.children, present, kids) : []),
     [family, withKids, present, kids],
   );
+  // Quem fica registrado ao concluir: os adultos presentes e, na leitura com crianças, as crianças à mesa.
+  const registeredNames = useMemo(() => [...adults, ...perChild.map((p) => p.child.nickname)], [adults, perChild]);
   // Uma só leitura para a mesa: todos ouvem o mesmo texto, na faixa da criança mais nova presente (ou a que o adulto escolher).
   const order = ['4-6', '7-10', '11-13'];
   const [leadBand, setLeadBand] = useState<Band | null>(band ?? null);
@@ -116,6 +124,8 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
     return [{ child: { id: 'shared', nickname: names, band: v.band as Band }, version: v }];
   }, [perChild, sharedBand]);
   const leadVersion = shared[0]?.version ?? null;
+  // Versículo da capa: com crianças, o curto da faixa; senão o do devocional. Sempre sem aspas nem referência embutidas.
+  const scriptureText = cleanScripture((withKids && leadVersion?.scriptureFocus) || devotional?.scripture_text);
   // Com história (quadrinhos ou dilema), a leitura vira: passagem + uma tela por quadro (ou por momento do dilema).
   const story = leadVersion?.story ?? null;
   const storyCount = story ? storyScreenCount(story) : 0;
@@ -182,14 +192,13 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
   const heroHtml = (band?: string) => (band ? `<div class="ritual__hero ritual__hero--${bandArt(band)}"${heroStyleAttr(band)}></div>` : '');
   // A ilustração cadastrada na versão da faixa vale mais que o arquivo fixo em public/. Só https, e sem aspas ou parênteses que quebrem o CSS.
   const artFor = (band: string) => {
-    const remote = kids.find((k) => k.band === band)?.imageUrl;
-    return (remote && /^https:\/\//.test(remote) ? encodeURI(remote).replace(/['"()]/g, encodeURIComponent) : null) ?? ownArt(devotional?.id, band);
+    return safeStoryImage(kids.find((k) => k.band === band)?.imageUrl) ?? ownArt(devotional?.id, band);
   };
   const heroStyleAttr = (band: string) => { const u = artFor(band); return u ? ` style="background-image:url(${u})"` : ''; };
   const heroStyle = (band: string) => { const u = artFor(band); return u ? { backgroundImage: `url(${u})` } : undefined; };
   const verseHtml = () => (reader ? `<p class="fam-note">${esc(tt('reader', '{{name}} lê em voz alta', { name: reader }))}</p>` : '')
-    + (devotional && (devotional.scripture_reference || devotional.scripture_text)
-      ? `<blockquote class="principle-scripture principle-scripture--ritual">${devotional.scripture_reference ? `<cite class="principle-scripture-reference">${esc(devotional.scripture_reference)}</cite>` : ''}${devotional.scripture_text ? `<p class="principle-scripture-text">“${esc(devotional.scripture_text)}”</p>` : ''}</blockquote>`
+    + (devotional && (devotional.scripture_reference || scriptureText)
+      ? `<blockquote class="principle-scripture principle-scripture--ritual">${devotional.scripture_reference ? `<cite class="principle-scripture-reference">${esc(devotional.scripture_reference)}</cite>` : ''}${scriptureText ? `<p class="principle-scripture-text">“${esc(scriptureText)}”</p>` : ''}</blockquote>`
       : '');
   const plainHtml = (blocks: string[]) => blocks.map((x) => `<p>${esc(x)}</p>`).join('');
   type Fit = (page: string[], i: number) => boolean;
@@ -225,10 +234,11 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
 
   // Telas: ler (em partes), uma por pergunta, fazer (em partes), orar.
   const screens = useMemo(() => {
-    type S = { id: string; kind: 'welcome' | 'table' | 'read' | 'talk' | 'do' | 'pray' | 'done'; q?: number; part?: number };
+    type S = { id: string; kind: 'welcome' | 'table' | 'read' | 'talk' | 'do' | 'pray' | 'done'; part?: number };
     const out: S[] = [...(intro ? [{ id: 'welcome', kind: 'welcome' } as S] : []), ...(solo || kidIds || adultIdx ? [] : [{ id: 'table', kind: 'table' } as S])];
     for (let i = 0; i < readCount; i++) out.push({ id: `read-${i}`, kind: 'read', part: i });
-    questions.forEach((_, q) => out.push({ id: `talk-${q}`, kind: 'talk', q }));
+    // Conversar é uma tela só, com uma única pergunta (a primeira).
+    if (questions.length) out.push({ id: 'talk', kind: 'talk' });
     for (let i = 0; i < doCount; i++) out.push({ id: `do-${i}`, kind: 'do', part: i });
     for (let i = 0; i < prayCount; i++) out.push({ id: `pray-${i}`, kind: 'pray', part: i });
     out.push({ id: 'done', kind: 'done' });
@@ -270,8 +280,13 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
     setSaving(true);
     try {
       // Na mesa, quem conclui registra todos os adultos presentes; sozinho ou sem grupo, só a própria leitura.
-      if (!solo && family && family.members.length > 1) await FamilyService.readTogether(devotional.id, [...presentAdults]);
-      else await JourneyService.complete(devotional.id, devotional.legacy_id);
+      // As crianças que estavam à mesa também contam; só entram quando a leitura foi feita com elas.
+      const kidsHere = withKids ? perChild.map((p) => p.child.id) : [];
+      if (!solo && family && family.members.length > 1) await FamilyService.readTogether(devotional.id, [...presentAdults], kidsHere);
+      else {
+        await JourneyService.complete(devotional.id, devotional.legacy_id);
+        if (!solo && family && kidsHere.length) await FamilyService.readTogether(devotional.id, [...presentAdults], kidsHere);
+      }
       setSaved(true);
       window.dispatchEvent(new Event('notices:changed'));
       FamilyService.get().then((f) => f && setFamily(f)).catch(() => {});
@@ -371,14 +386,14 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
               {audience === 'kids' && bandsHere.length > 1 && (
                 <>
                   <h3 className="ritual__who-sub">{tt('sharedVersion', 'Todos ouvem a mesma leitura. Qual versão?')}</h3>
-                  <div className="ritual__bands">
-                    {bandsHere.map((b) => (
-                      <button key={b} type="button" className={`ritual__band${b === sharedBand ? ' is-on' : ''}`} aria-pressed={b === sharedBand} onClick={() => setLeadBand(b)}>
-                        <span className={`ritual__hero ritual__hero--${bandArt(b)} ritual__hero--thumb`} style={heroStyle(b)} />
-                        <b>{b.replace('-', ' a ')} {tt('years', 'anos')}</b>
-                      </button>
-                    ))}
-                  </div>
+                  <BandPicker
+                    bands={bandsHere}
+                    value={sharedBand}
+                    names={Object.fromEntries(bandsHere.map((b) => [b, perChild.filter((p) => p.version && p.child.band === b).map((p) => p.child.nickname)]))}
+                    years={tt('years', 'anos')}
+                    ariaLabel={tt('sharedVersion', 'Todos ouvem a mesma leitura. Qual versão?')}
+                    onPick={setLeadBand}
+                  />
                 </>
               )}
               {audience === 'kids' && (
@@ -425,10 +440,10 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
             {screen.part === 0 && (
               <>
                 {reader && <p className="fam-note">{tt('reader', '{{name}} lê em voz alta', { name: reader })}</p>}
-                {(devotional.scripture_reference || devotional.scripture_text) && (
+                {(devotional.scripture_reference || scriptureText) && (
                   <blockquote className={`principle-scripture principle-scripture--ritual${kidsView && headTitle ? ' principle-scripture--compact' : ''}`}>
                     {devotional.scripture_reference && <cite className="principle-scripture-reference">{devotional.scripture_reference}</cite>}
-                    {devotional.scripture_text && <p className="principle-scripture-text">&ldquo;{devotional.scripture_text}&rdquo;</p>}
+                    {scriptureText && <p className="principle-scripture-text">&ldquo;{scriptureText}&rdquo;</p>}
                   </blockquote>
                 )}
               </>
@@ -448,15 +463,15 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
             ) : (
               <HtmlRenderer html={(readAdult[screen.part ?? 0] ?? []).join('\n')} className="ritual__text" />
             )}
+            {kidsView && screen.part === 0 && guidePanel}
           </>
         )}
 
-        {screen.kind === 'talk' && screen.q !== undefined && (
+        {screen.kind === 'talk' && (
           <>
             <span className="ritual__tag ritual__tag--talk">{solo ? tt('stepReflect', '2 · Refletir') : tt('stepTalk', '2 · Conversar')}</span>
-            <p className="fam-eyebrow">{tt('question', 'Pergunta {{n}} de {{total}}', { n: screen.q + 1, total: questions.length })}</p>
-            {talkContext.text && screen.q === talkContext.at && <div className="ritual__context"><Paragraphs text={talkContext.text} /></div>}
-            <div className="ritual__question"><p>{questions[screen.q]}</p></div>
+            {talkContext.text && talkContext.at === 0 && <div className="ritual__context"><Paragraphs text={talkContext.text} /></div>}
+            <div className="ritual__question"><p>{questions[0]}</p></div>
             <p className="fam-note">{solo ? tt('reflectHint', 'Pense com calma, ou escreva uma linha para você. Não precisa responder a ninguém.') : tt('questionHint', 'Deixe cada um responder, sem pressa. Quem quiser pode passar.')}</p>
             {guidePanel}
           </>
@@ -478,6 +493,7 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
                 <HtmlRenderer html={(doAdult[screen.part ?? 0] ?? []).join('\n')} className="ritual__text" />
               </>
             )}
+            {kidsView && screen.part === 0 && guidePanel}
           </>
         )}
 
@@ -499,6 +515,7 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
                 <HtmlRenderer html={(prayAdult[screen.part ?? 0] ?? []).join('\n')} className="ritual__text ritual__prayer sec-prayer" />
               </>
             )}
+            {kidsView && screen.part === 0 && guidePanel}
             {(screen.part ?? 0) >= prayCount - 1 && <p className="fam-note ritual__amen">{tt('prayHint', 'Respirem fundo, façam silêncio por um instante e orem juntos.')}</p>}
           </>
         )}
@@ -508,7 +525,7 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
             <span className="ritual__seal" aria-hidden="true">✓</span>
             <h1 className="ritual__title">{saved ? tt('doneTitle', 'Vocês leram juntos.') : tt('almost', 'Vamos registrar?')}</h1>
             <p className="ritual__lead">{saved ? tt('doneText', 'Obrigado por separar esse tempo.') : tt('markText', 'Isso registra a sua leitura de hoje.')}</p>
-            {saved && adults.length > 1 && <p className="fam-note">{tt('registered', 'Registramos a leitura de {{names}}.', { names: adults.join(', ') })}</p>}
+            {saved && registeredNames.length > 1 && <p className="fam-note">{tt('registered', 'Registramos a leitura de {{names}}.', { names: registeredNames.join(', ') })}</p>}
             {saved && fam.week.streak > 0 && (
               <div className="ritual__streak"><strong>{fam.week.streak}</strong><span>{tt('streakDays', { count: fam.week.streak, defaultValue: 'dias seguidos juntos' })}</span></div>
             )}

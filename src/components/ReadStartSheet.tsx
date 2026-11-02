@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Sheet } from './Sheet';
 import { DevotionalService } from '../services/DevotionalService';
 import { getTodayInSaoPaulo } from '../utils/date';
+import { BandPicker } from './BandPicker';
 import { FamilyService, activeFamily, type Band, type Family, type FamilySummary } from '../services/FamilyService';
 import { openRitual } from '../pages/Family';
 import { readerForDay } from '../utils/ritual';
@@ -137,7 +138,7 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, onClose, 
         {kids && !adding && (
           <button type="button" className="fam-person" onClick={() => setAdding(true)}>
             <span className="fam-avatar fam-avatar--add">+</span>
-            <span className="fam-person__label">{tt('addChild', 'Adicionar criança')}</span>
+            <span className="fam-person__label">{tt('addShort', 'Adicionar')}</span>
           </button>
         )}
       </div>}
@@ -153,14 +154,21 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, onClose, 
       )}
       {error && <p className="fam-error">{error}</p>}
 
-      {kids && shared && (
-        <p className="fam-note">
-          {tt('sheetVersion', 'Vamos ler a versão de {{band}} anos, a mais nova na mesa.', { band: bandLabel(shared) })}
-          {bands.length > 1 && bands.filter((b) => b !== shared).map((b) => (
-            <button key={b} type="button" className="fam-link" onClick={() => setLead(b)}> {tt('sheetSwitch', 'Trocar para {{band}}', { band: bandLabel(b) })}</button>
-          ))}
-        </p>
-      )}
+      {kids && shared && (bands.length > 1 ? (
+        <>
+          <p className="fam-note">{tt('sharedVersion', 'Todos ouvem a mesma leitura. Qual versão?')}</p>
+          <BandPicker
+            bands={bands}
+            value={shared}
+            names={Object.fromEntries(bands.map((b) => [b, fam.children.filter((c) => present.has(c.id) && c.band === b).map((c) => c.nickname)]))}
+            years={tt('years', 'anos')}
+            ariaLabel={tt('sharedVersion', 'Todos ouvem a mesma leitura. Qual versão?')}
+            onPick={setLead}
+          />
+        </>
+      ) : (
+        <p className="fam-note">{tt('sheetVersionOne', 'Vamos ler a versão de {{band}} anos.', { band: bandLabel(shared) })}</p>
+      ))}
       {kids && missing.length > 0 && (
         <p className="fam-note">
           {bands.length > 0

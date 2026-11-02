@@ -38,7 +38,7 @@ export interface Family {
   role: 'owner' | 'adult';
   inviteCode: string;
   members: { displayName: string | null; role: string; isMe: boolean; readToday: boolean }[];
-  children: { id: string; nickname: string; band: Band }[];
+  children: { id: string; nickname: string; band: Band; readToday?: boolean; daysRead?: number }[];
   week: Week;
   plan: PlanState | null;
 }
@@ -173,8 +173,8 @@ export const FamilyService = {
     return (await call(`/families/me/children/${encodeURIComponent(id)}`, json('DELETE'))).family;
   },
   /** Leitura na mesa: registra os adultos presentes (posição em `members`) e avisa o grupo. */
-  async readTogether(devotionalId: string, present: number[]): Promise<Family> {
-    return (await call('/families/me/read-together', json('POST', { devotionalId, present }))).family;
+  async readTogether(devotionalId: string, present: number[], children: string[] = []): Promise<Family> {
+    return (await call('/families/me/read-together', json('POST', { devotionalId, present, children }))).family;
   },
   async notices(): Promise<{ notices: FamilyNotice[]; unread: number }> {
     const b = await call('/families/me/notices');

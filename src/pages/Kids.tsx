@@ -70,7 +70,9 @@ export function Kids() {
               <div key={c.id} className="fam-person">
                 <span className="fam-avatar fam-avatar--child">{initials(c.nickname)}</span>
                 <span className="fam-person__label">{c.nickname}</span>
-                <span className="fam-person__state">{bandLabel(c.band)}</span>
+                <span className="fam-person__state">
+                  {[bandLabel(c.band), c.readToday ? tt('readToday', 'leu hoje ✓') : null, c.daysRead ? (c.daysRead === 1 ? tt('dayRead', '1 dia lendo') : tt('daysRead', '{{count}} dias lendo', { count: c.daysRead })) : null].filter(Boolean).join(' · ')}
+                </span>
                 {isOwner && <button type="button" className="fam-link fam-link--muted" disabled={busy} onClick={() => run(() => FamilyService.removeChild(c.id))}>{tt('remove', 'Remover')}</button>}
               </div>
             ))}

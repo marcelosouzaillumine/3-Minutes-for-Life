@@ -220,3 +220,14 @@ export function pageBudget(width: number, height: number): { max: number; first:
   const fit = (n: number) => Math.max(140, Math.min(PAGE_CHARS, Math.floor(n * cols * 0.9)));
   return { max: fit(lines), first: fit(lines - 4) };
 }
+
+const QUOTES = /^[\s"'“”‘’«»]+|[\s"'“”‘’«»]+$/g;
+
+/**
+ * Versículo para a capa: tira as aspas e a referência que o cadastro às vezes embute no texto
+ * (“… — Lucas 10.42”, “… - Lucas 7.47”), porque o app já põe as aspas e mostra a referência à parte.
+ */
+export function cleanScripture(text: string | null | undefined): string {
+  const noRef = (text ?? '').replace(/\s*[—–-]\s*(?:[1-3]\s*)?[\p{L}ºª. ]{2,}\s\d+[.:,]\d+(?:\s*[-–]\s*\d+)?\s*$/u, '');
+  return noRef.replace(QUOTES, '').trim();
+}

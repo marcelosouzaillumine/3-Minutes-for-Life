@@ -93,11 +93,13 @@
 
 /* Ritual: tela cheia, uma coisa por vez */
 .ritual { position: fixed; inset: 0; z-index: 1100; display: flex; flex-direction: column; background: var(--canvas); color: var(--text-strong); }
-.ritual__top { display: flex; align-items: center; gap: 1rem; padding: calc(0.75rem + env(safe-area-inset-top)) 1.25rem 0.5rem; }
+.ritual { --ritual-gutter: 1.5rem; --ritual-col: 32rem; }
+/* Topo, corpo e rodapé compartilham a mesma coluna e as mesmas margens laterais (inclusive o recorte do aparelho deitado). */
+.ritual__top { display: flex; align-items: center; gap: 1rem; width: 100%; max-width: var(--ritual-col); margin: 0 auto; padding: calc(0.75rem + env(safe-area-inset-top)) max(var(--ritual-gutter), env(safe-area-inset-right)) 0.5rem max(var(--ritual-gutter), env(safe-area-inset-left)); box-sizing: border-box; }
 .ritual__progress { flex: 1; display: flex; gap: 0.3rem; }
 .ritual__progress i { flex: 1; height: 3px; border-radius: 2px; background: #E7E0D3; }
 .ritual__progress i.is-on { background: var(--accent-strong); }
-.ritual__body { flex: 1; overflow-y: auto; width: 100%; max-width: 32rem; margin: 0 auto; padding: 1rem 1.5rem 1.5rem; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 1rem; }
+.ritual__body { flex: 1; overflow-y: auto; width: 100%; max-width: var(--ritual-col); margin: 0 auto; padding: 1rem max(var(--ritual-gutter), env(safe-area-inset-right)) 1.5rem max(var(--ritual-gutter), env(safe-area-inset-left)); box-sizing: border-box; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 1rem; }
 .ritual__title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 2rem; line-height: 1.15; }
 .ritual__verse { margin: 0; font-size: 0.95rem; font-weight: 600; letter-spacing: 0.04em; color: var(--accent, currentColor); }
 .ritual__lead { margin: 0; font-size: 1.05rem; line-height: 1.6; color: var(--text-muted); }
@@ -110,7 +112,7 @@
 .ritual__kid { padding: 1rem 1.1rem; border: 1px solid var(--border-subtle); border-radius: 14px; }
 .ritual__kid h3 { margin: 0 0 0.4rem; font-size: 0.8rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-strong); }
 .ritual__kid p { margin: 0 0 0.5rem; font-size: clamp(1rem, 4.4vw, 1.15rem); line-height: 1.7; }
-.ritual__nav { display: flex; gap: 0.75rem; width: 100%; max-width: 32rem; margin: 0 auto; padding: 0.75rem 1.5rem calc(1rem + env(safe-area-inset-bottom)); }
+.ritual__nav { display: flex; gap: 0.75rem; width: 100%; max-width: var(--ritual-col); margin: 0 auto; padding: 0.75rem max(var(--ritual-gutter), env(safe-area-inset-right)) calc(1rem + env(safe-area-inset-bottom)) max(var(--ritual-gutter), env(safe-area-inset-left)); box-sizing: border-box; }
 .ritual__nav .fam-btn--primary { flex: 2; }
 .ritual__nav .fam-btn--ghost { flex: 1; }
 .ritual__nav--circles { align-items: center; justify-content: space-between; }
@@ -210,8 +212,7 @@
 /* ── Ler em família: momentos da mesa ── */
 .ritual__tag { justify-self: start; padding: 0.15rem 0.6rem; border-radius: 999px; background: #F4EEE4; color: var(--accent-strong); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.04em; }
 .ritual__question { padding: 1.75rem 1.4rem; border: 1px solid var(--border-subtle); border-radius: 18px; background: var(--surface); }
-.ritual__question p { margin: 0; font-family: var(--font-serif); font-size: 1.6rem; line-height: 1.35; }
-.ritual__guide { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed var(--border-subtle); }
+.ritual__question p { margin: 0; font-family: var(--font-serif); font-size: 1.6rem; line-height: 1.35; }.ritual__guide { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed var(--border-subtle); }
 .ritual__guide-toggle { width: 100%; min-height: 2.75rem; font-size: 0.95rem; }
 .ritual__guide-note { margin: 0.35rem 0 0.5rem; text-align: center; }
 .ritual__guide-body { padding: 0.75rem 1rem; border-radius: 12px; background: #F4EEE4; font-size: 0.95rem; line-height: 1.6; }
@@ -229,8 +230,21 @@
 .ritual__kids-box .fam-inline { display: grid; grid-template-columns: minmax(0, 1fr); margin: 0; }
 .ritual__kids-box .fam-inline input, .ritual__kids-box .fam-inline select, .ritual__kids-box .fam-inline .fam-btn { width: 100%; min-height: 2.9rem; }
 .ritual__kids-box .fam-note { margin: 0; }
-.ritual__kids-box .fam-person[aria-pressed="false"] { opacity: 0.4; }
-.ritual__kids-box .fam-person[aria-pressed="true"] .fam-avatar { box-shadow: 0 0 0 2px var(--accent-strong); }
+/* Quem está à mesa: marcado = círculo cheio com ✓; fora da mesa = apagado e vazado. Vale para o grupo e para as crianças. */
+.fam-avatar { position: relative; }
+.fam-person[aria-pressed] { cursor: pointer; }
+.fam-person[aria-pressed="false"] { opacity: 0.55; }
+.fam-person[aria-pressed="false"] .fam-avatar { background: transparent; color: var(--text-muted); border: 2px dashed var(--text-faint); }
+.fam-person[aria-pressed="true"] .fam-avatar { background: var(--accent-strong); color: #fff; border-color: var(--accent-strong); }
+.fam-person[aria-pressed="true"] .fam-avatar::after { content: '✓'; position: absolute; right: -0.2rem; bottom: -0.2rem; width: 1.15rem; height: 1.15rem; border-radius: 50%; display: grid; place-items: center; font-size: 0.7rem; line-height: 1; background: #fff; color: var(--accent-strong); border: 1.5px solid var(--accent-strong); }
+/* Versão da leitura (faixa de idade): a escolhida fica cheia e com ✓. */
+.bandpick { display: grid; grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr)); gap: 0.5rem; }
+.bandpick__opt { position: relative; display: grid; gap: 0.15rem; justify-items: center; padding: 0.7rem 0.4rem; border: 1.5px solid var(--border-subtle); border-radius: 14px; background: #fff; color: var(--text-strong); font: inherit; text-align: center; cursor: pointer; }
+.bandpick__opt b { font-weight: 600; font-size: 0.9rem; }
+.bandpick__opt span { min-height: 1.1rem; font-size: 0.78rem; color: var(--text-muted); overflow-wrap: anywhere; }
+.bandpick__opt.is-on { background: var(--text-strong); border-color: var(--text-strong); color: #fff; }
+.bandpick__opt.is-on span { color: rgba(255, 255, 255, 0.8); }
+.bandpick__opt i { position: absolute; top: 0.3rem; right: 0.4rem; font-style: normal; font-size: 0.75rem; }
 
 /* Ilustrações: ícone de cada etapa e cena da versão infantil */
 .ritual__tag { display: inline-flex; align-items: center; gap: 0.4rem; }
@@ -242,10 +256,6 @@
 .ritual__hero--young { background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 100%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Crect width=%22200%22 height=%22100%22 fill=%22%23fdf1d6%22/%3E%3Ccircle cx=%22160%22 cy=%2226%22 r=%2216%22 fill=%22%23f5c04a%22/%3E%3Cpath d=%22M0 80Q60 55 120 78T200 70V100H0Z%22 fill=%22%23cfe3bd%22/%3E%3Crect x=%2262%22 y=%2244%22 width=%2236%22 height=%2228%22 rx=%223%22 fill=%22%238a7048%22/%3E%3Crect x=%2266%22 y=%2248%22 width=%2228%22 height=%2220%22 rx=%222%22 fill=%22%23fff7e6%22/%3E%3Cpath d=%22M80 48v20%22 stroke=%22%238a7048%22 stroke-width=%222%22/%3E%3Ccircle cx=%2240%22 cy=%2260%22 r=%2212%22 fill=%22%23f2c7a1%22/%3E%3Crect x=%2230%22 y=%2270%22 width=%2220%22 height=%2218%22 rx=%226%22 fill=%22%237aa6c9%22/%3E%3C/svg%3E"); }
 .ritual__hero--older { background-image: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 100%22 preserveAspectRatio=%22xMidYMid slice%22%3E%3Crect width=%22200%22 height=%22100%22 fill=%22%23e7ecf3%22/%3E%3Cpath d=%22M0 70L40 40 70 62 110 30 150 60 200 38V100H0Z%22 fill=%22%23b9c6d8%22/%3E%3Cpath d=%22M0 84Q70 66 130 82T200 76V100H0Z%22 fill=%22%237b8fa8%22/%3E%3Crect x=%2284%22 y=%2246%22 width=%2234%22 height=%2226%22 rx=%222%22 fill=%22%236b4f2f%22/%3E%3Cpath d=%22M90 52h22M90 58h22M90 64h14%22 stroke=%22%23e8d9b8%22 stroke-width=%222%22/%3E%3Ccircle cx=%22152%22 cy=%2224%22 r=%2210%22 fill=%22%23f0d27a%22/%3E%3Cpath d=%22M60 80c4-14 14-14 18 0%22 fill=%22%233a3f4f%22/%3E%3C/svg%3E"); }
 .ritual__hero--thumb { display: block; height: 5rem; border-radius: 0; margin: 0; }
-.ritual__bands { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
-.ritual__band { border: 1px solid var(--border, #D9D3C7); border-radius: 14px; overflow: hidden; background: #fff; padding: 0 0 0.5rem; cursor: pointer; font: inherit; color: inherit; text-align: center; }
-.ritual__band b { display: block; margin-top: 0.4rem; font-weight: 500; font-size: 0.85rem; }
-.ritual__band.is-on { border: 2px solid var(--text, #1F2430); }
 
 /* Na etapa Orar o fundo é creme: o selo ganha um bege mais escuro para aparecer como nas outras etapas. */
 .ritual--pray .ritual__tag { background: #E9E0CF; }
@@ -276,11 +286,12 @@
 /* ── História da faixa: quadrinhos e dilema ───────────────────────────────────
    Legenda, fala e perguntas são texto fora da imagem; só a arte é desenhada. Assim a tradução, a fonte maior e as telas
    estreitas nunca cobrem um personagem. A altura da arte respeita a altura da tela (celular deitado, tablet, janela baixa). */
-.kstory { display: grid; gap: 0.8rem; }
+.kstory { display: grid; gap: 0.8rem; width: 100%; min-width: 0; }
+.kstory[data-format='panels'] { width: min(100%, max(14rem, calc((100dvh - 26rem) * 1.25))); justify-self: start; }
 .kstory .fam-eyebrow { margin: 0; }
 .kstory__cap, .kstory__speech { margin: 0; color: #2b2b2b; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; }
 .kstory__cap { padding: 0.6rem 0.85rem; background: #FFE9A8; border: 2px solid #2b2b2b; border-radius: 10px; font-size: clamp(1rem, 4.3vw, 1.2rem); }
-.kstory__art { margin: 0; justify-self: center; width: min(100%, max(12rem, calc((100dvh - 21rem) * 1.25))); aspect-ratio: 5 / 4; overflow: hidden; background: #fff; border: 3px solid #2b2b2b; border-radius: 10px; }
+.kstory__art { margin: 0; justify-self: stretch; width: 100%; aspect-ratio: 5 / 4; overflow: hidden; background: #fff; border: 3px solid #2b2b2b; border-radius: 10px; }
 .kstory__art img { display: block; width: 100%; height: 100%; object-fit: cover; user-select: none; -webkit-user-drag: none; }
 .kstory__speech { position: relative; justify-self: start; max-width: min(100%, 26rem); margin-top: 0.35rem; padding: 0.55rem 0.95rem; background: #fff; border: 2px solid #2b2b2b; border-radius: 18px; font-family: 'Chalkboard SE', 'Comic Sans MS', var(--font-sans, system-ui), sans-serif; font-size: clamp(1rem, 4.2vw, 1.15rem); }
 .kstory__speech::before, .kstory__speech::after { content: ''; position: absolute; left: 1.6rem; border: solid transparent; }
@@ -292,7 +303,7 @@
 .kstory__opt { min-height: 3rem; padding: 0.7rem 0.95rem; text-align: left; font: inherit; font-size: clamp(1rem, 4.2vw, 1.1rem); line-height: 1.4; color: var(--text-strong); background: transparent; border: 1.5px solid var(--border-subtle); border-radius: 12px; cursor: pointer; overflow-wrap: anywhere; }
 .kstory__opt.is-on { border-color: var(--text-strong); background: var(--surface); font-weight: 600; }
 .kstory__quote { margin: 0; padding: 0.9rem 1rem; background: #2E3550; color: #F3E6B8; border-radius: 12px; font-family: var(--font-serif); font-size: clamp(1.1rem, 4.8vw, 1.3rem); line-height: 1.5; overflow-wrap: anywhere; }
-@media (min-width: 768px) { .kstory__art { width: min(100%, max(14rem, calc((100dvh - 23rem) * 1.25))); } }
+@media (min-width: 768px) { .kstory[data-format='panels'] { width: min(100%, max(14rem, calc((100dvh - 27rem) * 1.25))); } }
 @media (prefers-reduced-motion: no-preference) { .kstory__art img { animation: ritual-in 280ms ease both; } }
 
 /* Admin: editor de quadros e dilema. */
@@ -314,7 +325,7 @@
 .studio__scene { width: 100%; max-width: 16rem; aspect-ratio: 5 / 4; object-fit: cover; border: 2px solid #2b2b2b; border-radius: 6px; }
 /* Celular deitado: pouca altura, então a arte fica ao lado do texto em vez de empilhada. */
 @media (orientation: landscape) and (max-height: 520px) {
-  .kstory[data-format='panels']:has(.kstory__art) { grid-template-columns: minmax(0, 14rem) minmax(0, 1fr); column-gap: 1rem; align-items: start; }
+  .kstory[data-format='panels']:has(.kstory__art) { width: 100%; grid-template-columns: minmax(0, 14rem) minmax(0, 1fr); column-gap: 1rem; align-items: start; }
   .kstory[data-format='panels'] .fam-eyebrow { grid-column: 1 / -1; }
   .kstory[data-format='panels'] .kstory__art { grid-column: 1; grid-row: 2 / span 2; width: 100%; }
   .kstory[data-format='panels'] .kstory__cap, .kstory[data-format='panels'] .kstory__speech { grid-column: 2; }
