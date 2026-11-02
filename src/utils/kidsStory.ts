@@ -41,6 +41,9 @@ export function validateStory(s: KidStory | null | undefined): string | null {
     return null;
   }
   if (s.image && !safeStoryImage(s.image)) return 'Dilema: a cena precisa ser https:// ou /ilustracoes/…';
+  const imgs = (s.images ?? []).map((x) => x.trim()).filter(Boolean);
+  if (imgs.length > DILEMMA_STEPS) return `Dilema: no máximo ${DILEMMA_STEPS} imagens (uma por momento).`;
+  if (imgs.some((x) => !safeStoryImage(x))) return 'Dilema: cada imagem precisa ser https:// ou /ilustracoes/…';
   const need: [string, string | undefined][] = [['a situação', s.setup], ['a pergunta', s.question], ['o que aconteceu', s.outcome], ['a pergunta depois do desfecho', s.outcomeQuestion], ['o texto de “E hoje?”', s.today], ['a pergunta de “E hoje?”', s.todayQuestion]];
   for (const [label, v] of need) if (blank(v)) return `Dilema: escreva ${label}.`;
   const opts = s.options.map((o) => o.trim()).filter(Boolean);
@@ -62,6 +65,7 @@ export function cleanStory(s: KidStory): KidStory {
   }
   return {
     format: 'dilemma', ...(t(s.image) ? { image: t(s.image) } : {}),
+    ...((s.images ?? []).map(t).filter(Boolean).length ? { images: (s.images ?? []).map(t).filter(Boolean) } : {}),
     setup: t(s.setup), question: t(s.question), options: s.options.map(t).filter(Boolean),
     outcome: t(s.outcome), ...(t(s.quote) ? { quote: t(s.quote) } : {}), outcomeQuestion: t(s.outcomeQuestion),
     today: t(s.today), todayQuestion: t(s.todayQuestion),

@@ -51,6 +51,8 @@ export type KidStory =
   | {
       format: 'dilemma';
       image?: string;
+      /** Uma imagem por momento (situação, decisão, desfecho, "E hoje?"), na ordem. */
+      images?: string[];
       setup: string; question: string; options: string[];
       outcome: string; quote?: string; outcomeQuestion: string;
       today: string; todayQuestion: string;

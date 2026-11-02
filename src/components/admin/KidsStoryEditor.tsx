@@ -112,6 +112,9 @@ function DilemmaForm({ story, ref_, onChange }: { story: Dilemma; ref_: Dilemma 
       <label>Cena (opcional; https:// ou /ilustracoes/…, sem texto dentro da imagem)
         <input value={story.image ?? ''} placeholder="/ilustracoes/reforma-protestante/quadros/11-13-cena.svg" onChange={(e) => set({ image: e.target.value })} />
       </label>
+      <label>Imagens dos 4 momentos (opcional; uma por linha, na ordem: dilema, decisão, desfecho, “E hoje?”)
+        <textarea rows={4} value={(story.images ?? []).join('\n')} placeholder="/ilustracoes/reforma-protestante/quadros/faixa-11-13-1.webp" onChange={(e) => set({ images: e.target.value.split('\n') })} />
+      </label>
       {field('setup', '1 · O dilema: a situação', 4, 800)}
       {field('question', '1 · A pergunta que o jovem responde antes do desfecho', 1, 200)}
       <fieldset className="studio__opts">

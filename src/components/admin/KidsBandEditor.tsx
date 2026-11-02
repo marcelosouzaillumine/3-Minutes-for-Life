@@ -50,7 +50,7 @@ function StoryPreview({ story }: { story: NonNullable<KidsDraft['story']> }) {
   }
   return (
     <>
-      {safeStoryImage(story.image) && <img className="studio__scene" src={safeStoryImage(story.image)!} alt="" />}
+      {(story.images?.length ? story.images : story.image ? [story.image] : []).map((u, k) => (safeStoryImage(u) ? <img key={k} className="studio__scene" src={safeStoryImage(u)!} alt="" /> : null))}
       <p>{story.setup || '…'}</p>
       <p><strong>{story.question || '…'}</strong></p>
       <ul>{story.options.map((o, i) => <li key={i}>{o || '…'}</li>)}</ul>

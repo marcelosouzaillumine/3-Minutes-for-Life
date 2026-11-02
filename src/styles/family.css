@@ -291,6 +291,7 @@
 .kstory .fam-eyebrow { margin: 0; }
 .kstory__cap, .kstory__speech { margin: 0; color: #2b2b2b; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; }
 .kstory__cap { padding: 0.6rem 0.85rem; background: #FFE9A8; border: 2px solid #2b2b2b; border-radius: 10px; font-size: clamp(1rem, 4.3vw, 1.2rem); }
+.kstory[data-format='dilemma'] .kstory__art { width: min(100%, max(14rem, calc((100dvh - 30rem) * 1.25))); justify-self: start; }
 .kstory__art { margin: 0; justify-self: stretch; width: 100%; aspect-ratio: 5 / 4; overflow: hidden; background: #fff; border: 3px solid #2b2b2b; border-radius: 10px; }
 .kstory__art img { display: block; width: 100%; height: 100%; object-fit: cover; user-select: none; -webkit-user-drag: none; }
 .kstory__speech { position: relative; justify-self: start; max-width: min(100%, 26rem); margin-top: 0.35rem; padding: 0.55rem 0.95rem; background: #fff; border: 2px solid #2b2b2b; border-radius: 18px; font-family: 'Chalkboard SE', 'Comic Sans MS', var(--font-sans, system-ui), sans-serif; font-size: clamp(1rem, 4.2vw, 1.15rem); }
