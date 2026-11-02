@@ -298,6 +298,7 @@ export function PrincipleView({
 
       <DevotionalHeader
         showLogo={showLogo}
+        compact={hasCover && !reading}
         onBack={onBack}
         backText={t('home.back')}
       />

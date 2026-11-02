@@ -1,24 +1,16 @@
-import { useEffect, useState } from 'react';
-import { getBranding, onBrandingReady } from '../lib/branding';
+import { BrandLogo } from './BrandLogo';
 
 interface DevotionalHeaderProps {
   showLogo?: boolean;
+  /** Barra mais baixa, para a capa do Hoje caber na primeira tela. */
+  compact?: boolean;
   onBack?: () => void;
   backText?: string;
 }
 
-const DEFAULT_ICON = '/branding/icon-on-dark.png';
-
-/** Barra fina com só o símbolo da marca, no centro; o Voltar fica na ponta esquerda. */
-export function DevotionalHeader({ showLogo = true, onBack, backText }: DevotionalHeaderProps) {
-  const [icon, setIcon] = useState<string>(getBranding()?.iconUrl ?? DEFAULT_ICON);
-  useEffect(() => {
-    let cancelled = false;
-    onBrandingReady().then(() => { if (!cancelled) setIcon(getBranding()?.iconUrl ?? DEFAULT_ICON); });
-    return () => { cancelled = true; };
-  }, []);
+export function DevotionalHeader({ showLogo = true, compact = false, onBack, backText }: DevotionalHeaderProps) {
   return (
-    <header className="devotional-header">
+    <header className={`devotional-header${compact ? ' devotional-header--compact' : ''}`}>
       {onBack && (
         <button
           type="button"
@@ -45,7 +37,11 @@ export function DevotionalHeader({ showLogo = true, onBack, backText }: Devotion
         </button>
       )}
       {showLogo && (
-        <img src={icon} alt="3 Minutes for Life" className="devotional-logo" onError={() => setIcon(DEFAULT_ICON)} />
+        <BrandLogo
+          variant="dark"
+          alt="3 Minutes for Life"
+          className="devotional-logo"
+        />
       )}
     </header>
   );
