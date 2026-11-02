@@ -510,13 +510,14 @@
     "kidsText": "Elige la edad y lee la versión hecha para ellos.",
     "kidsWith": "Con {{names}}",
     "kidsReady": "versión lista",
-    "modeQuestion": "¿Cómo vas a leer hoy?",
-    "modeSolo": "Yo",
     "modeGroup": "Grupo",
     "modeKids": "Niños",
-    "kidsWithReady": "{{names}} tienen versión lista",
     "stepReflect": "2 · Reflexionar",
-    "reflectHint": "Piénsalo con calma, o escribe una línea para ti. No tienes que responder a nadie."
+    "reflectHint": "Piénsalo con calma, o escribe una línea para ti. No tienes que responder a nadie.",
+    "readNow": "Leer ahora",
+    "readNowHint": "3 minutos · a tu ritmo",
+    "orWithOthers": "O lee con otras personas",
+    "backToCover": "Volver a la portada"
   },
   "familyNav": "Grupo",
   "plansx": {
