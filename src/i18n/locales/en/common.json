@@ -487,7 +487,9 @@
     "groupTitle": "Read as a group",
     "groupText": "Couple, small group or friends. Each at their own pace.",
     "kidsTitle": "Read with the children",
-    "kidsText": "Pick the age and read the version made for them."
+    "kidsText": "Pick the age and read the version made for them.",
+    "kidsWith": "With {{names}}",
+    "kidsReady": "version ready"
   },
   "familyNav": "Group",
   "plansx": {
