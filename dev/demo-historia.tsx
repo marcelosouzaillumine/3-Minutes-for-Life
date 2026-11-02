@@ -26,7 +26,7 @@ const family = {
     : [{ id: 'c1', nickname: 'Davi', band }], week: { days: [], streak: 2 }, plan: null,
 };
 const devotional = {
-  id: 'demo-reforma', publicationDate: new Date().toISOString(), title: 'A Reforma Protestante', status: 'published',
+  id: ({ reforma: 'cmvudrag10002oe2ldyzmvhaa', davi: 'cmvue6llj000koe2lqtw0xdz2', levi: 'cmvv1whpq0002pm2l3f1bfo13', perfume: 'cmvyun7rw0032o72lmlzc68bk' } as Record<string, string>)[q.get('dev') ?? ''] ?? 'demo-reforma', publicationDate: new Date().toISOString(), title: 'A Reforma Protestante', status: 'published',
   scriptureReference: 'Romanos 1.17', scriptureText: '[texto da passagem na tradução do app]',
   reflection: '<p>Texto do adulto.</p>', principleStatement: 'A Palavra de Deus é para todos.', translations: [], shareAssets: [],
 };

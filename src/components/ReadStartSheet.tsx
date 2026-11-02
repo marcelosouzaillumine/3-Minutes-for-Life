@@ -13,12 +13,14 @@ const ORDER: Band[] = ['0-3', '4-6', '7-10', '11-13'];
 const bandLabel = (b: Band) => b.replace('-', ' a ');
 
 /** Folha de preparo da leitura: quem está à mesa (e, com crianças, a versão) numa tela só, e a leitura começa já no primeiro passo. */
-export function ReadStartSheet({ audience, family, plan, devotionalId, onClose, onChanged }: {
+export function ReadStartSheet({ audience, family, plan, devotionalId, inline = false, onClose, onChanged }: {
   audience: 'adults' | 'kids';
   family: Family;
   plan: boolean;
   /** Devocional escolhido fora do Hoje (Explorar, planos); sem isso vale o do dia. */
   devotionalId?: string;
+  /** Dentro da página (aba Crianças), sem a folha por cima: a escolha e o começo ficam numa tela só. */
+  inline?: boolean;
   onClose: () => void;
   onChanged?: (f: Family) => void;
 }) {
@@ -104,8 +106,8 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, onClose, 
     setBusy(false);
   };
 
-  return (
-    <Sheet title={kids ? tt('kidsSheetTitle', 'Quem lê com você?') : alone ? tt('groupHowTitle', 'Como o grupo vai ler?') : tt('groupSheetTitle', 'Quem está à mesa?')} onClose={onClose}>
+  const body = (
+    <>
       {groups.length > 1 && (
         <label className="fam-groupline">{tt('groupLine', 'Grupo')}:
           <select value={fam.id} onChange={(e) => { switchGroup(e.target.value).catch(() => {}); }} aria-label={tt('groupLine', 'Grupo')}>
@@ -126,7 +128,7 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, onClose, 
           ? fam.children.map((c) => (
               <button key={c.id} type="button" className="fam-person" aria-pressed={present.has(c.id)} onClick={() => toggle(present, c.id, setPresent)}>
                 <span className={`fam-avatar fam-avatar--child${present.has(c.id) ? ' is-read' : ''}`}>{c.nickname.slice(0, 2)}</span>
-                <span className="fam-person__label">{c.nickname}<small className="fam-person__sub">{bandLabel(c.band)}</small></span>
+                <span className="fam-person__label">{c.nickname}<small className="fam-person__sub">{[bandLabel(c.band), c.readToday ? tt('readTodayShort', 'leu hoje ✓') : null].filter(Boolean).join(' · ')}</small></span>
               </button>
             ))
           : fam.members.map((m, i) => (
@@ -179,6 +181,11 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, onClose, 
       {reader && !alone && <p className="fam-note">{tt('reader', '{{name}} lê em voz alta', { name: reader })}</p>}
 
       <button type="button" className="fam-btn fam-btn--primary fam-cta" disabled={!canStart} onClick={start}>{alone ? tt('aloneStart', 'Ler agora') : tt('sheetStart', 'Começar a leitura')}</button>
+    </>
+  );
+  return inline ? <div className="fam-startinline">{body}</div> : (
+    <Sheet title={kids ? tt('kidsSheetTitle', 'Quem lê com você?') : alone ? tt('groupHowTitle', 'Como o grupo vai ler?') : tt('groupSheetTitle', 'Quem está à mesa?')} onClose={onClose}>
+      {body}
     </Sheet>
   );
 }
