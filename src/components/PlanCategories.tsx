@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { illumineAuth } from '../lib/illumine';
 import { PlansService, type PlanCategoryGroup, type PlanDetail } from '../services/PlansService';
@@ -6,12 +6,10 @@ import '../styles/family.css';
 
 interface Props {
   onOpen: (devotionalId: string) => void;
-  /** Mostrado enquanto a pessoa não tem planos publicados (ou não entrou na conta). */
-  fallback: ReactNode;
 }
 
 /** Planos em Explorar, por categoria (Liderança, Casais…). A categoria da família fica na aba Família. */
-export function PlanCategories({ onOpen, fallback }: Props) {
+export function PlanCategories({ onOpen }: Props) {
   const { t } = useTranslation('common');
   const tt = (k: string, d: string, o?: Record<string, unknown>) => t(`plansx.${k}`, { defaultValue: d, ...o });
   const [groups, setGroups] = useState<PlanCategoryGroup[] | null>(null);
@@ -37,7 +35,7 @@ export function PlanCategories({ onOpen, fallback }: Props) {
   const shown = useMemo(() => (groups ?? []).filter((g) => filter === 'all' || g.id === filter), [groups, filter]);
 
   if (groups === null) return null;
-  if (!groups.length) return <>{fallback}</>;
+  if (!groups.length) return <section className="plans"><p className="fam-note">{tt('empty', 'Entre na sua conta para ver os planos de leitura.')}</p></section>;
 
   if (openId) {
     if (!detail) return <section className="plans"><p className="fam-note">…</p></section>;
