@@ -433,6 +433,7 @@
     "question": "Domanda {{n}} di {{total}}",
     "questionHint": "Lascia rispondere ognuno, senza fretta. Chi vuole può passare.",
     "howToLead": "Vedi come guidare",
+    "adultOnly": "Solo per l'adulto: come guidare questa conversazione.",
     "hideGuide": "Nascondi la guida",
     "activity": "Attività in famiglia",
     "familyPrayer": "Preghiera in famiglia",

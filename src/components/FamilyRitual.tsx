@@ -269,9 +269,10 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
 
   const guidePanel = rawGuide && (
     <div className="ritual__guide">
-      <button type="button" className="fam-btn fam-btn--ghost ritual__guide-toggle" aria-expanded={showGuide} onClick={() => setShowGuide(!showGuide)}>
+      <button type="button" className="fam-btn fam-btn--secondary ritual__guide-toggle" aria-expanded={showGuide} onClick={() => setShowGuide(!showGuide)}>
         {showGuide ? tt('hideGuide', 'Esconder o guia') : tt('howToLead', 'Ver como conduzir')}
       </button>
+      <p className="fam-note ritual__guide-note">{tt('adultOnly', 'Só para o adulto: como conduzir esta conversa.')}</p>
       {showGuide && <div className="ritual__guide-body">{guide?.lead ? <Paragraphs text={guide.lead} /> : <Paragraphs text={rawGuide} />}</div>}
     </div>
   );

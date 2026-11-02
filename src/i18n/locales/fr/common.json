@@ -433,6 +433,7 @@
     "question": "Question {{n}} sur {{total}}",
     "questionHint": "Laissez chacun répondre, sans se presser. Chacun peut passer.",
     "howToLead": "Voir comment mener",
+    "adultOnly": "Réservé à l'adulte : comment mener cette conversation.",
     "hideGuide": "Masquer le guide",
     "activity": "Activité en famille",
     "familyPrayer": "Prière en famille",
