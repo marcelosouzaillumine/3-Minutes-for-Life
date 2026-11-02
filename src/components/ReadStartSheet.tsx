@@ -20,6 +20,12 @@ export function ReadStartSheet({ audience, family, plan, onClose, onChanged }: {
   const { t } = useTranslation('common');
   const tt = (k: string, d: string, o?: Record<string, unknown>) => t(`ritual.${k}`, { defaultValue: d, ...o }) as string;
   const kids = audience === 'kids';
+  // Grupo à distância: cada um lê a rolagem de hoje no seu tempo. A escolha fica lembrada.
+  const [mode, setMode] = useState<'together' | 'alone'>(() => {
+    try { return localStorage.getItem('ritual.groupMode') === 'alone' ? 'alone' : 'together'; } catch { return 'together'; }
+  });
+  const pick = (m: 'together' | 'alone') => { setMode(m); try { localStorage.setItem('ritual.groupMode', m); } catch { /* sem armazenamento */ } };
+  const alone = !kids && mode === 'alone';
   const [fam, setFam] = useState(family);
   const [adults, setAdults] = useState<Set<number>>(() => new Set(family.members.map((_, i) => i)));
   const [present, setPresent] = useState<Set<string>>(() => new Set(family.children.map((c) => c.id)));
@@ -38,10 +44,16 @@ export function ReadStartSheet({ audience, family, plan, onClose, onChanged }: {
   const names = fam.members.filter((_, i) => adults.has(i)).map((m) => m.displayName ?? '').filter(Boolean);
   const reader = readerForDay(names, Math.floor(Date.now() / 86_400_000));
   const toggle = <T,>(set: Set<T>, v: T, put: (s: Set<T>) => void) => { const n = new Set(set); if (n.has(v)) n.delete(v); else n.add(v); put(n); };
-  const canStart = kids ? present.size > 0 : adults.size > 0;
+  const canStart = kids ? present.size > 0 : alone || adults.size > 0;
 
   const start = () => {
     onClose();
+    if (alone) {
+      try { sessionStorage.setItem('hoje.read', 'group'); } catch { /* sem armazenamento */ }
+      window.dispatchEvent(new CustomEvent('app:tab', { detail: 'home' }));
+      window.dispatchEvent(new Event('hoje:read'));
+      return;
+    }
     if (kids) openRitual('daily', 'kids', { intro: false, kidIds: [...present], band: shared ?? undefined });
     else openRitual(plan ? 'plan' : 'daily', 'adults', { intro: false, adultIdx: [...adults] });
   };
@@ -61,8 +73,16 @@ export function ReadStartSheet({ audience, family, plan, onClose, onChanged }: {
   };
 
   return (
-    <Sheet title={kids ? tt('kidsSheetTitle', 'Quem lê com você?') : tt('groupSheetTitle', 'Quem está à mesa?')} onClose={onClose}>
-      <div className="fam-people">
+    <Sheet title={kids ? tt('kidsSheetTitle', 'Quem lê com você?') : alone ? tt('groupHowTitle', 'Como o grupo vai ler?') : tt('groupSheetTitle', 'Quem está à mesa?')} onClose={onClose}>
+      {!kids && (
+        <div className="fam-people" role="tablist" aria-label={tt('groupHowTitle', 'Como o grupo vai ler?')}>
+          <button type="button" className={`fam-chip${!alone ? ' is-on' : ''}`} aria-pressed={!alone} onClick={() => pick('together')}>{tt('modeTogether', 'Estamos juntos agora')}</button>
+          <button type="button" className={`fam-chip${alone ? ' is-on' : ''}`} aria-pressed={alone} onClick={() => pick('alone')}>{tt('modeAlone', 'Cada um no seu tempo')}</button>
+        </div>
+      )}
+      {alone && <p className="fam-note">{tt('aloneHint', 'Você lê agora, no seu ritmo. Ao terminar, o grupo vê que você leu.')}</p>}
+
+      {!alone && <div className="fam-people">
         {kids
           ? fam.children.map((c) => (
               <button key={c.id} type="button" className="fam-person" aria-pressed={present.has(c.id)} onClick={() => toggle(present, c.id, setPresent)}>
@@ -82,7 +102,7 @@ export function ReadStartSheet({ audience, family, plan, onClose, onChanged }: {
             <span className="fam-person__label">{tt('addChild', 'Adicionar criança')}</span>
           </button>
         )}
-      </div>
+      </div>}
 
       {kids && adding && (
         <form className="fam-inline" onSubmit={add}>
@@ -103,9 +123,9 @@ export function ReadStartSheet({ audience, family, plan, onClose, onChanged }: {
           ))}
         </p>
       )}
-      {reader && <p className="fam-note">{tt('reader', '{{name}} lê em voz alta', { name: reader })}</p>}
+      {reader && !alone && <p className="fam-note">{tt('reader', '{{name}} lê em voz alta', { name: reader })}</p>}
 
-      <button type="button" className="fam-btn fam-btn--primary fam-cta" disabled={!canStart} onClick={start}>{tt('sheetStart', 'Começar a leitura')}</button>
+      <button type="button" className="fam-btn fam-btn--primary fam-cta" disabled={!canStart} onClick={start}>{alone ? tt('aloneStart', 'Ler agora') : tt('sheetStart', 'Começar a leitura')}</button>
     </Sheet>
   );
 }

@@ -522,7 +522,18 @@
     "groupSheetTitle": "Chi è a tavola?",
     "sheetVersion": "Leggeremo la versione {{band}} anni, quella del più piccolo a tavola.",
     "sheetSwitch": "Passa a {{band}}",
-    "sheetStart": "Inizia la lettura"
+    "sheetStart": "Inizia la lettura",
+    "groupHowTitle": "Come leggerà il gruppo?",
+    "modeTogether": "Siamo insieme adesso",
+    "modeAlone": "Ognuno col suo tempo",
+    "aloneHint": "Leggi adesso, col tuo ritmo. Alla fine il gruppo vede che hai letto.",
+    "aloneStart": "Leggi ora",
+    "wordTitle": "Lascia una parola al gruppo",
+    "wordHint": "Facoltativo. Con l'invio, la lettura di oggi risulta segnata per il gruppo.",
+    "wordPlaceholder": "Cosa ti ha toccato di più oggi? Oppure chiedi una preghiera.",
+    "wordSend": "Invia al gruppo",
+    "wordMark": "Segna solo come letto",
+    "wordSent": "Fatto: il gruppo vede che hai letto."
   },
   "familyNav": "Gruppo",
   "plansx": {

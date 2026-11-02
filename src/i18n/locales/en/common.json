@@ -516,7 +516,18 @@
     "groupSheetTitle": "Who's at the table?",
     "sheetVersion": "We'll read the {{band}} version, for the youngest at the table.",
     "sheetSwitch": "Switch to {{band}}",
-    "sheetStart": "Start reading"
+    "sheetStart": "Start reading",
+    "groupHowTitle": "How will the group read?",
+    "modeTogether": "We're together now",
+    "modeAlone": "Each at their own time",
+    "aloneHint": "You read now, at your own pace. When you finish, the group sees you read.",
+    "aloneStart": "Read now",
+    "wordTitle": "Leave a word for the group",
+    "wordHint": "Optional. When you send, today's reading is marked for the group.",
+    "wordPlaceholder": "What touched you most today? Or ask for prayer.",
+    "wordSend": "Send to the group",
+    "wordMark": "Just mark as read",
+    "wordSent": "Done: the group can see you read."
   },
   "familyNav": "Group",
   "plansx": {

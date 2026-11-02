@@ -522,7 +522,18 @@
     "groupSheetTitle": "Quem está à mesa?",
     "sheetVersion": "Vamos ler a versão de {{band}} anos, a mais nova na mesa.",
     "sheetSwitch": "Trocar para {{band}}",
-    "sheetStart": "Começar a leitura"
+    "sheetStart": "Começar a leitura",
+    "groupHowTitle": "Como o grupo vai ler?",
+    "modeTogether": "Estamos juntos agora",
+    "modeAlone": "Cada um no seu tempo",
+    "aloneHint": "Você lê agora, no seu ritmo. Ao terminar, o grupo vê que você leu.",
+    "aloneStart": "Ler agora",
+    "wordTitle": "Deixe uma palavra para o grupo",
+    "wordHint": "Opcional. Ao enviar, sua leitura de hoje fica marcada para o grupo.",
+    "wordPlaceholder": "O que mais tocou você hoje? Ou peça oração por algo.",
+    "wordSend": "Enviar ao grupo",
+    "wordMark": "Só marcar que li",
+    "wordSent": "Pronto: o grupo já vê que você leu."
   },
   "familyNav": "Grupo",
   "plansx": {
