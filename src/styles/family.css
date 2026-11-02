@@ -251,9 +251,9 @@
 .ritual--pray .ritual__tag { background: #E9E0CF; }
 
 /* Estúdio: capa do plano */
-.studio__thumb { width: 3.5rem; height: 3.5rem; flex: none; border-radius: 8px; object-fit: cover; background: #efeae0; }
-.studio__thumb--none { display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--text-faint); border: 1px dashed var(--border-subtle); }
-.studio__list li > button > .studio__thumb { margin-right: 0; }
+.studio__mini { width: 3.5rem; height: 3.5rem; flex: none; border-radius: 8px; object-fit: cover; background: #efeae0; }
+.studio__mini--none { display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--text-faint); border: 1px dashed var(--border-subtle); }
+.studio__list li > button > .studio__mini { margin-right: 0; }
 .studio__cover { border: 1.5px dashed var(--border-subtle); border-radius: 14px; overflow: hidden; margin: 0.3rem 0; }
 .studio__cover img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
 .studio__cover-bar { display: flex; gap: 0.5rem; padding: 0.5rem 0.7rem; align-items: center; }
