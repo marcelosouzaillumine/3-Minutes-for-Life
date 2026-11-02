@@ -51,6 +51,7 @@ export function PlanCategories({ onOpen, fallback }: Props) {
     return (
       <section className="plans">
         <button type="button" className="plans__back" onClick={() => setOpenId(null)}>← {tt('back', 'Planos')}</button>
+        {detail.coverUrl && <img className="plans__hero" src={detail.coverUrl} alt="" loading="lazy" />}
         <p className="fam-eyebrow fam-eyebrow--accent">{detail.category}</p>
         <h3 className="plans__title">{detail.title}</h3>
         <p className="plans__desc">{detail.description}</p>
@@ -94,6 +95,7 @@ export function PlanCategories({ onOpen, fallback }: Props) {
           <div className="plans__list">
             {g.plans.map((p) => (
               <button key={p.id} type="button" className="plans__card" onClick={() => setOpenId(p.id)}>
+                {p.coverUrl && <img className="plans__cover" src={p.coverUrl} alt="" loading="lazy" />}
                 <strong>{p.title}</strong>
                 <span>{p.description}</span>
                 <em>

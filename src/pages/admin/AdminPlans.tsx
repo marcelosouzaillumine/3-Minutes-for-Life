@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { FamilyAdmin, type PlanCategoryAdmin, type PlanTemplate } from '../../services/FamilyService';
 import type { Row } from './AdminKids';
+import { MediaLibraryPicker } from '../../components/admin/MediaLibraryPicker';
 
-type Draft = { id: string | null; title: string; description: string; themeWord: string; items: string[]; status: 'draft' | 'published'; categoryId: string | null };
+type Draft = { id: string | null; title: string; description: string; themeWord: string; items: string[]; status: 'draft' | 'published'; categoryId: string | null; coverUrl: string | null };
 const LIMITS = { title: 80, description: 400, themeWord: 30 };
 const MIN_TO_PUBLISH = 3;
 
@@ -20,6 +21,7 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
   const [query, setQuery] = useState('');
   const [msg, setMsg] = useState('');
   const [saving, setSaving] = useState(false);
+  const [pickingCover, setPickingCover] = useState(false);
   const [kidsReady, setKidsReady] = useState<Record<string, number>>({});
 
   const refresh = () => { FamilyAdmin.templates().then(setTemplates); FamilyAdmin.categories().then(setCats); };
@@ -35,8 +37,8 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
   const startEdit = (t?: PlanTemplate) => {
     setMsg(''); setQuery('');
     setEditing(t
-      ? { id: t.id, title: t.title, description: t.description, themeWord: t.themeWord, items: (t.items ?? []).map((i) => i.id), status: t.status, categoryId: t.categoryId ?? familyCat?.id ?? null }
-      : { id: null, title: '', description: '', themeWord: '', items: [], status: 'draft', categoryId: filter !== 'all' ? filter : familyCat?.id ?? null });
+      ? { id: t.id, title: t.title, description: t.description, themeWord: t.themeWord, items: (t.items ?? []).map((i) => i.id), status: t.status, categoryId: t.categoryId ?? familyCat?.id ?? null, coverUrl: t.coverUrl ?? null }
+      : { id: null, title: '', description: '', themeWord: '', items: [], status: 'draft', categoryId: filter !== 'all' ? filter : familyCat?.id ?? null, coverUrl: null });
   };
 
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setEditing((e) => (e ? { ...e, [k]: v } : e));
@@ -62,7 +64,7 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
     if (!textOk) { setMsg('Preencha título, descrição e palavra do plano. Isso vale até para o rascunho.'); return; }
     if (status === 'published' && !ready) { setMsg(`Para publicar, o plano precisa de ao menos ${MIN_TO_PUBLISH} dias.`); return; }
     setSaving(true);
-    const r = await FamilyAdmin.saveTemplate(editing.id, { title: editing.title.trim(), description: editing.description.trim(), themeWord: editing.themeWord.trim(), items: editing.items, status, categoryId: editing.categoryId });
+    const r = await FamilyAdmin.saveTemplate(editing.id, { title: editing.title.trim(), description: editing.description.trim(), themeWord: editing.themeWord.trim(), items: editing.items, status, categoryId: editing.categoryId, coverUrl: editing.coverUrl });
     if (r.ok) {
       setEditing({ ...editing, id: r.template.id, status });
       refresh();
@@ -154,7 +156,8 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
             {visible.map((t) => (
               <li key={t.id}>
                 <button type="button" onClick={() => startEdit(t)}>
-                  <span>{t.title}<small>{catOf(t.categoryId)?.name ?? 'Sem categoria'} · {t.days} dias · “{t.themeWord}”</small></span>
+                  {t.coverUrl ? <img className="studio__thumb" src={t.coverUrl} alt="" /> : <span className="studio__thumb studio__thumb--none">sem capa</span>}
+                  <span style={{ flex: 1 }}>{t.title}<small>{catOf(t.categoryId)?.name ?? 'Sem categoria'} · {t.days} dias · “{t.themeWord}”</small></span>
                   <em className={`studio__badge studio__badge--${t.status === 'published' ? 'done' : 'draft'}`}>{t.status === 'published' ? 'Publicado' : 'Rascunho'}</em>
                 </button>
               </li>
@@ -182,6 +185,23 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
             </select>
             <span className="fam-note">{forFamily ? 'Aparece na aba Família, onde a família escolhe o plano e lê junto.' : 'Aparece em Explorar, para cada pessoa seguir no próprio ritmo.'}</span>
           </label>
+          <div>
+            <span>Capa do plano <span className="studio__count">opcional</span></span>
+            <div className="studio__cover">
+              {editing.coverUrl ? (
+                <>
+                  <img src={editing.coverUrl} alt="Capa do plano" />
+                  <div className="studio__cover-bar">
+                    <button type="button" className="fam-btn fam-btn--secondary" onClick={() => setPickingCover(true)}>Trocar imagem</button>
+                    <button type="button" className="fam-btn fam-btn--ghost" onClick={() => set('coverUrl', null)}>Remover</button>
+                  </div>
+                </>
+              ) : (
+                <button type="button" className="studio__cover-empty" onClick={() => setPickingCover(true)}>+ Escolher imagem da biblioteca</button>
+              )}
+            </div>
+            <span className="fam-note">Formato 16:9 funciona melhor. Sem imagem, o plano aparece só com o texto.</span>
+          </div>
           <label>Título <span className="studio__count">{editing.title.length}/{LIMITS.title}</span>
             <input maxLength={LIMITS.title} placeholder="Sete dias de descanso" value={editing.title} onChange={(e) => set('title', e.target.value)} />
           </label>
@@ -231,6 +251,7 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
       <section className="studio__step">
         <p className="studio__step-n">3 · Como vai aparecer</p>
         <div className="studio__screen studio__preview">
+          {editing.coverUrl && <img src={editing.coverUrl} alt="" />}
           <p className="fam-eyebrow fam-eyebrow--accent">{forFamily ? 'Plano da família' : cat?.name ?? ''}</p>
           <h4 className="studio__title">{editing.title || 'Título do plano'}</h4>
           <p>{editing.description || 'A descrição aparece aqui.'}</p>
@@ -238,6 +259,8 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
           <p className="fam-note">{editing.items.length || '…'} dias · palavra: {editing.themeWord || '…'}</p>
         </div>
       </section>
+
+      {pickingCover && <MediaLibraryPicker onSelect={(url) => { set('coverUrl', url); setPickingCover(false); }} onClose={() => setPickingCover(false)} />}
 
       <div className="studio__savebar">
         <ul className="studio__checks" aria-label="O que falta para publicar">
