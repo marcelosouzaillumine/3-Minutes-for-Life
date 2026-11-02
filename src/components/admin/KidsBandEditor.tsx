@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { FamilyAdmin, type Band, type KidsDraft } from '../../services/FamilyService';
+import { KidsStoryEditor } from './KidsStoryEditor';
+import { cleanStory, safeStoryImage, storyToText, validateStory } from '../../utils/kidsStory';
 import '../../styles/family.css';
 
-const EMPTY: KidsDraft = { title: '', scriptureFocus: '', whatItSays: '', thinkAbout: '', practice: '', prayer: '', adultGuide: '', status: 'draft' };
-const FIELDS: { key: Exclude<keyof KidsDraft, 'status'>; label: string; rows: number }[] = [
+const EMPTY: KidsDraft = { title: '', scriptureFocus: '', whatItSays: '', thinkAbout: '', practice: '', prayer: '', adultGuide: '', story: null, status: 'draft' };
+const FIELDS: { key: Exclude<keyof KidsDraft, 'status' | 'story'>; label: string; rows: number }[] = [
   { key: 'title', label: 'Título para esta faixa (até 80 caracteres)', rows: 1 },
   { key: 'scriptureFocus', label: 'Trecho da passagem (opcional)', rows: 2 },
   { key: 'whatItSays', label: 'O que a Bíblia conta', rows: 5 },
@@ -24,11 +26,40 @@ export function KidsBandPreview({ devotional, draft }: { devotional: any; draft:
       {devotional.scripture_reference && <p className="fam-eyebrow fam-eyebrow--accent">{devotional.scripture_reference}</p>}
       <h4 className="studio__title">{draft.title || devotional.title}</h4>
       {draft.scriptureFocus && <blockquote>{draft.scriptureFocus}</blockquote>}
-      <h5>O que a Bíblia conta</h5><p>{draft.whatItSays || '…'}</p>
+      <h5>O que a Bíblia conta</h5>
+      {draft.story ? <StoryPreview story={draft.story} /> : <p>{draft.whatItSays || '…'}</p>}
       <h5>Para pensar</h5><p>{draft.thinkAbout || '…'}</p>
       <h5>Para fazer hoje</h5><p>{draft.practice || '…'}</p>
       <h5>Oração</h5><p>{draft.prayer || '…'}</p>
     </div>
+  );
+}
+
+function StoryPreview({ story }: { story: NonNullable<KidsDraft['story']> }) {
+  if (story.format === 'panels') {
+    return (
+      <>
+        {story.panels.map((p, i) => (
+          <div key={i} className="studio__thumb">
+            {safeStoryImage(p.image) && <img src={safeStoryImage(p.image)!} alt="" />}
+            <p><strong>{i + 1}.</strong> {p.caption || '…'}{p.speech ? <em> “{p.speech}”</em> : null}</p>
+          </div>
+        ))}
+      </>
+    );
+  }
+  return (
+    <>
+      {safeStoryImage(story.image) && <img className="studio__scene" src={safeStoryImage(story.image)!} alt="" />}
+      <p>{story.setup || '…'}</p>
+      <p><strong>{story.question || '…'}</strong></p>
+      <ul>{story.options.map((o, i) => <li key={i}>{o || '…'}</li>)}</ul>
+      <p>{story.outcome || '…'}</p>
+      {story.quote && <blockquote>{story.quote}</blockquote>}
+      <p><strong>{story.outcomeQuestion || '…'}</strong></p>
+      <p>{story.today || '…'}</p>
+      <p><strong>{story.todayQuestion || '…'}</strong></p>
+    </>
   );
 }
 
@@ -66,7 +97,11 @@ export function KidsBandEditor({ devotional, language, languageName, band, onCha
   const set = (key: keyof KidsDraft, value: string) => setDraft((p) => ({ ...p, [key]: value }) as KidsDraft);
 
   const save = async (status: 'draft' | 'published') => {
-    const d = { ...draft, status };
+    // Com história, o texto corrido sai dela (é a reserva dos apps antigos e a base de uma tradução).
+    const story = draft.story ? cleanStory(draft.story) : null;
+    const d = { ...draft, story, whatItSays: story ? storyToText(story) : draft.whatItSays, status };
+    const storyError = validateStory(story);
+    if (storyError) { setMsg(`Faixa ${bandLabel(band)}: ${storyError}`); return; }
     if (status === 'published' && ![d.whatItSays, d.thinkAbout, d.practice, d.prayer, d.adultGuide].every((x) => x.trim())) {
       setMsg(`Faixa ${bandLabel(band)}: preencha todos os campos, menos o título e o trecho da passagem.`);
       return;
@@ -99,7 +134,7 @@ export function KidsBandEditor({ devotional, language, languageName, band, onCha
       </details>
       <div>
         <div className="fam-form">
-          {FIELDS.map((f) => (
+          {FIELDS.filter((f) => !(draft.story && f.key === 'whatItSays')).map((f) => (
             <label key={f.key}>{f.label}
               {f.key === 'title'
                 ? <input maxLength={80} value={draft.title} placeholder="Ex.: O segredo de Paulo" onChange={(e) => set('title', e.target.value)} />
@@ -107,6 +142,7 @@ export function KidsBandEditor({ devotional, language, languageName, band, onCha
             </label>
           ))}
         </div>
+        <KidsStoryEditor value={draft.story} reference={reference?.story} translated={translated} onChange={(story) => setDraft((p) => ({ ...p, story }))} />
         {msg && <p className="fam-note" role="status">{msg}</p>}
         <div className="studio__actions">
           <button type="button" className="fam-btn fam-btn--secondary" disabled={saving} onClick={() => save('draft')}>Salvar rascunho</button>

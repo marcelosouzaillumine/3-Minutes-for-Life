@@ -9,6 +9,8 @@ import { htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks,
 import type { Devotional } from '../types/Devotional';
 import '../styles/family.css';
 import { Paragraphs } from './Paragraphs';
+import { KidsStoryScreen } from './KidsStoryScreen';
+import { storyScreenCount } from '../utils/kidsStory';
 
 /** Ler juntos: um roteiro de tela cheia, uma coisa por vez, feito para ser lido em voz alta. */
 const bandArt = (band: string) => (band === '4-6' ? 'young' : 'older');
@@ -36,6 +38,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   const [saved, setSaved] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
+  const [dilemmaPick, setDilemmaPick] = useState<number | null>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   // Escolha guardada; sem escolha, abre em "Com crianças" só se já houver crianças cadastradas.
   const [picked, setAudience] = useState<'adults' | 'kids' | null>(() => {
@@ -94,6 +97,9 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
     return [{ child: { id: 'shared', nickname: names, band: v.band as Band }, version: v }];
   }, [perChild, sharedBand]);
   const leadVersion = shared[0]?.version ?? null;
+  // Com história (quadrinhos ou dilema), a leitura vira: passagem + uma tela por quadro (ou por momento do dilema).
+  const story = leadVersion?.story ?? null;
+  const storyCount = story ? storyScreenCount(story) : 0;
 
   const guide = useMemo(() => (leadVersion ? parseGuide(leadVersion.adultGuide) : null), [leadVersion]);
   const rawGuide = leadVersion?.adultGuide ?? '';
@@ -169,7 +175,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
     return { child, version, pages: run(plainBlocks(version?.whatItSays), fits, true) };
   }), [shared, budget, fitCfg, reader, devotional, nKids]); // eslint-disable-line react-hooks/exhaustive-deps
   const readAdult = useMemo(() => run(htmlBlocks(devotional?.reflection), screenFits((f) => tagHtml(tt('stepRead', '1 · Ler'), 'read') + (f ? verseHtml() : ''), (pg) => `<div class="ritual__text">${pg.join('')}</div>`), true), [devotional, budget, fitCfg, reader]); // eslint-disable-line react-hooks/exhaustive-deps
-  const readCount = Math.max(1, kidsView ? Math.max(...readKids.map((k) => k.pages.length)) : readAdult.length);
+  const readCount = story ? 1 + storyCount : Math.max(1, kidsView ? Math.max(...readKids.map((k) => k.pages.length)) : readAdult.length);
 
   const doHead = (_f: boolean) => tagHtml(tt('stepDo', '3 · Fazer'), 'do');
   const doGuide = useMemo(() => run(plainBlocks(guide?.activity), screenFits(doHead, (pg) => `<div class="sec-card">${plainHtml(pg)}</div>`)), [guide, budget, fitCfg]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -375,7 +381,11 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
                 )}
               </>
             )}
-            {kidsView ? (
+            {kidsView && story ? (
+              (screen.part ?? 0) === 0
+                ? (leadVersion?.title && <section className="ritual__kid"><h3>{leadVersion.band.replace('-', ' a ')} {tt('years', 'anos')}</h3><p className="ritual__kid-title">{leadVersion.title}</p></section>)
+                : <KidsStoryScreen story={story} index={(screen.part ?? 1) - 1} tt={tt} picked={dilemmaPick} onPick={setDilemmaPick} />
+            ) : kidsView ? (
               readKids.filter((k) => k.pages[screen.part ?? 0]).map(({ child, version, pages }) => (
                 <section key={child.id} className="ritual__kid">
                   <h3>{child.band.replace('-', ' a ')} {tt('years', 'anos')}</h3>

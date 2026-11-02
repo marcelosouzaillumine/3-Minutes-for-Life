@@ -477,7 +477,13 @@
     "addFirst": "Chi legge con te?",
     "sharedVersion": "Tutti ascoltano la stessa lettura. Quale versione?",
     "tableTitle": "Chi legge?",
-    "continue": "Continua"
+    "continue": "Continua",
+    "storyPanel": "Vignetta {{n}} di {{total}}",
+    "dilemmaStep1": "Il dilemma",
+    "dilemmaStep2": "La decisione della tavola",
+    "dilemmaStep3": "Cos’è successo",
+    "dilemmaStep4": "E oggi?",
+    "dilemmaPick": "Ognuno sceglie e lo spiega in una frase. Non c’è ancora una risposta giusta."
   },
   "familyNav": "Gruppo",
   "plansx": {
