@@ -36,6 +36,10 @@ describe('história da faixa', () => {
     expect(validateStory({ ...dilemma, options: ['A', 'B', 'C', 'D', 'E'] })).toMatch(/no máximo 4/);
     expect(validateStory({ ...dilemma, question: ' ' })).toMatch(/a pergunta/);
     expect(validateStory({ ...dilemma, image: 'http://x.com/a.png' })).toMatch(/cena/);
+    expect(validateStory({ ...dilemma, images: ['/ilustracoes/x/1.webp', '/ilustracoes/x/2.webp', '/ilustracoes/x/3.webp', '/ilustracoes/x/4.webp'] })).toBeNull();
+    expect(validateStory({ ...dilemma, images: ['/a/1.webp'] })).toMatch(/imagem/);
+    expect(validateStory({ ...dilemma, images: ['/ilustracoes/x/1.webp', '/ilustracoes/x/2.webp', '/ilustracoes/x/3.webp', '/ilustracoes/x/4.webp', '/ilustracoes/x/5.webp'] })).toMatch(/no máximo 4/);
+    expect(cleanStory({ ...dilemma, images: [' /ilustracoes/x/1.webp ', ''] })).toMatchObject({ images: ['/ilustracoes/x/1.webp'] });
   });
 
   it('limpa espaços e opções vazias antes de enviar', () => {

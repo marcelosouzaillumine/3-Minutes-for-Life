@@ -42,16 +42,14 @@ export function KidsStoryScreen({ story, index, tt, picked, onPick }: {
     );
   }
 
+  // Cada momento mostra a sua imagem; sem "images", só a abertura usa a cena única (apps e dados antigos).
+  const art = safeStoryImage(story.images?.[i] ?? (i === 0 ? story.image : undefined));
   const label = [tt('dilemmaStep1', 'O dilema'), tt('dilemmaStep2', 'A decisão da mesa'), tt('dilemmaStep3', 'O que aconteceu'), tt('dilemmaStep4', 'E hoje?')][i];
   return (
     <div className="kstory" data-format="dilemma">
       <p className="fam-eyebrow">{label} · {i + 1}/{DILEMMA_STEPS}</p>
-      {i === 0 && (
-        <>
-          <Art src={safeStoryImage(story.image)} />
-          <p className="kstory__text">{story.setup}</p>
-        </>
-      )}
+      <Art src={art} />
+      {i === 0 && <p className="kstory__text">{story.setup}</p>}
       {i === 1 && (
         <>
           <p className="kstory__q">{story.question}</p>
