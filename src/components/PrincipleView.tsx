@@ -321,7 +321,6 @@ export function PrincipleView({
           </h1>
 
           {isDaily && <StreakLine summary={journey} />}
-          {isDaily && user && <FamilyTodayCard devotionalId={devotional.id} />}
 
           {devotional.principle_statement && (
             <p className="principle-statement">
