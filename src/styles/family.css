@@ -251,9 +251,9 @@
 .ritual--pray .ritual__tag { background: #E9E0CF; }
 
 /* Estúdio: capa do plano */
-.studio__thumb { width: 3.5rem; height: 3.5rem; flex: none; border-radius: 8px; object-fit: cover; background: #efeae0; }
-.studio__thumb--none { display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--text-faint); border: 1px dashed var(--border-subtle); }
-.studio__list li > button > .studio__thumb { margin-right: 0; }
+.studio__mini { width: 3.5rem; height: 3.5rem; flex: none; border-radius: 8px; object-fit: cover; background: #efeae0; }
+.studio__mini--none { display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: var(--text-faint); border: 1px dashed var(--border-subtle); }
+.studio__list li > button > .studio__mini { margin-right: 0; }
 .studio__cover { border: 1.5px dashed var(--border-subtle); border-radius: 14px; overflow: hidden; margin: 0.3rem 0; }
 .studio__cover img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
 .studio__cover-bar { display: flex; gap: 0.5rem; padding: 0.5rem 0.7rem; align-items: center; }
@@ -332,7 +332,7 @@
 .fam-today-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin: 0.75rem 0; }
 .fam-today--pick { flex-direction: column; align-items: flex-start; text-align: left; cursor: pointer; margin: 0; }
 .more-list { display: flex; flex-direction: column; }
-.more-row { display: flex; align-items: center; justify-content: space-between; min-height: 3rem; padding: 0 0.25rem; font: inherit; font-size: 1rem; color: var(--text-strong); text-decoration: none; background: none; border: 0; border-bottom: 1px solid var(--border-subtle); text-align: left; cursor: pointer; }
+.more-row { display: flex; align-items: center; gap: 0.85rem; min-height: 3rem; padding: 0 0.25rem; font: inherit; font-size: 1rem; color: var(--text-strong); text-decoration: none; background: none; border: 0; border-bottom: 1px solid var(--border-subtle); text-align: left; cursor: pointer; }
 .more-row:last-child { border-bottom: 0; }
 .more-row__badge { min-width: 1.25rem; padding: 0 0.35rem; border-radius: 999px; background: var(--color-accent); color: #fff; font-size: 0.7rem; font-weight: 700; line-height: 1.25rem; text-align: center; }
 .ritual__context { margin: 0 0 1rem; font-size: 1.05rem; line-height: 1.6; color: var(--text-muted); }
@@ -351,3 +351,5 @@
 .fam-inline--actions .fam-btn { flex: 1; min-height: 2.75rem; padding: 0 0.5rem; font-size: 0.85rem; }
 .fam-groupline { display: flex; align-items: center; gap: 0.5rem; margin: 0.75rem 0; font-size: 0.85rem; color: var(--text-muted); }
 .fam-groupline select { flex: 1; min-height: 2.5rem; padding: 0 0.5rem; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--surface); font: inherit; color: var(--text-strong); }
+.more-row__icon { width: 22px; height: 22px; flex: none; color: var(--text-muted); }
+.more-row__label { flex: 1; }
