@@ -1,4 +1,4 @@
-# Faixa 0 a 3 anos (bebês) dos devocionais Davi, Levi, Perfume e Reforma, em pt-BR, en, es, fr e it.
+# Faixa 0 a 3 anos (bebês) dos devocionais Davi, Levi, Perfume, Reforma e Marta e Maria, em pt-BR, en, es, fr e it.
 # Uso: python3 historias-0-3.py <saida.sql> <saida-rollback.sql>
 # Quatro quadros por devocional (faixa-0-3-1..4.webp), legendas de poucas palavras e sem fala; oração de uma linha.
 # As versões entram como RASCUNHO: a pessoa revisa e publica no admin.
@@ -10,6 +10,7 @@ DEV = {
     'levi-e-o-banquete': 'cmvv1whpq0002pm2l3f1bfo13',
     'a-mulher-e-o-perfume': 'cmvyun7rw0032o72lmlzc68bk',
     'reforma-protestante': 'cmvudrag10002oe2ldyzmvhaa',
+    'marta-e-maria': 'cmvyv3ozp003ho72lezbf5h9r',
 }
 HEAD = {
     'pt-BR': ('Para conversar à mesa:', 'Atividade em família:', 'Oração em família:'),
@@ -216,6 +217,54 @@ C['reforma-protestante'] = {
   'Signore, grazie per la Bibbia, che ci mostra chi sei. Insegna alla nostra famiglia a conoscerti. Amen.'),
 }
 
+C['marta-e-maria'] = {
+'pt-BR': ('Jesus visita Marta e Maria', 'Maria escolheu a melhor parte.',
+  ['Marta recebe Jesus em casa.', 'Marta cozinha. Maria senta perto de Jesus.', 'Marta fica preocupada com tanta coisa.', 'Jesus responde com carinho: ouvir é o mais importante.'],
+  'O que você gosta de ouvir?',
+  'Fiquem quietinhos juntos por um momento, de mãos dadas, e depois digam: Jesus está aqui.',
+  'Obrigado, Jesus, por falares comigo. Amém.',
+  'Leia uma frase por quadro, mostrando a imagem. No segundo quadro, fale mais baixinho, como quem escuta. Não espere respostas: o que a criança guarda é o seu carinho e o seu tom de voz.',
+  ['Quem recebeu Jesus em casa?', 'O que Maria fez perto de Jesus?', 'Quando a nossa família consegue ficar quietinha para escutar Jesus?'],
+  'Fiquem quietinhos por um minuto, sentados juntos no chão, de mãos dadas. Depois, cada um diz uma coisa boa que ouviu: o vento, um passarinho, a voz de alguém. Leva cerca de 3 minutos e não precisa de material.',
+  'Jesus, obrigado por visitares a nossa casa. Ensina a nossa família a parar e a te ouvir. Amém.'),
+'en': ('Jesus visits Martha and Mary', 'Mary has chosen the better part.',
+  ['Martha welcomes Jesus into her home.', 'Martha cooks. Mary sits near Jesus.', 'Martha is worried about so many things.', 'Jesus answers kindly: listening matters most.'],
+  'What do you like to listen to?',
+  'Be quiet together for a moment, holding hands, and then say: Jesus is here.',
+  'Thank you, Jesus, for speaking to me. Amen.',
+  "Read one sentence per picture, showing the image. On the second picture, speak more softly, like someone listening. Don't expect answers: what your child keeps is your warmth and your tone of voice.",
+  ['Who welcomed Jesus into her home?', 'What did Mary do near Jesus?', 'When can our family be quiet to listen to Jesus?'],
+  'Be quiet for one minute, sitting together on the floor, holding hands. Then each person says one good thing they heard: the wind, a little bird, someone\'s voice. It takes about 3 minutes and needs no materials.',
+  'Jesus, thank you for visiting our home. Teach our family to stop and listen to you. Amen.'),
+'es': ('Jesús visita a Marta y María', 'María ha escogido la mejor parte.',
+  ['Marta recibe a Jesús en casa.', 'Marta cocina. María se sienta cerca de Jesús.', 'Marta se preocupa por tantas cosas.', 'Jesús responde con cariño: escuchar es lo más importante.'],
+  '¿Qué te gusta escuchar?',
+  'Quédense quietitos juntos un momento, de la mano, y luego digan: Jesús está aquí.',
+  'Gracias, Jesús, por hablar conmigo. Amén.',
+  'Lee una frase por cuadro, mostrando la imagen. En el segundo cuadro, habla más bajito, como quien escucha. No esperes respuestas: lo que el niño guarda es tu cariño y tu tono de voz.',
+  ['¿Quién recibió a Jesús en casa?', '¿Qué hizo María cerca de Jesús?', '¿Cuándo puede nuestra familia quedarse quietita para escuchar a Jesús?'],
+  'Quédense quietitos un minuto, sentados juntos en el suelo, de la mano. Después, cada uno dice algo bueno que oyó: el viento, un pajarito, la voz de alguien. Dura unos 3 minutos y no necesita materiales.',
+  'Jesús, gracias por visitar nuestra casa. Enseña a nuestra familia a detenerse y a escucharte. Amén.'),
+'fr': ('Jésus rend visite à Marthe et Marie', 'Marie a choisi la meilleure part.',
+  ['Marthe accueille Jésus chez elle.', 'Marthe cuisine. Marie s\'assoit près de Jésus.', 'Marthe s\'inquiète de tant de choses.', 'Jésus répond avec douceur : écouter est le plus important.'],
+  "Qu'aimes-tu écouter ?",
+  "Restez tout calmes un moment, main dans la main, puis dites : Jésus est là.",
+  'Merci, Jésus, de me parler. Amen.',
+  "Lisez une phrase par image, en montrant le dessin. Sur la deuxième image, parlez plus doucement, comme quelqu'un qui écoute. N'attendez pas de réponses : ce que l'enfant retient, c'est votre tendresse et le ton de votre voix.",
+  ['Qui a accueilli Jésus chez elle ?', 'Que fait Marie près de Jésus ?', 'Quand notre famille peut-elle rester calme pour écouter Jésus ?'],
+  "Restez calmes une minute, assis ensemble par terre, main dans la main. Ensuite, chacun dit une bonne chose qu'il a entendue : le vent, un petit oiseau, la voix de quelqu'un. Cela dure environ 3 minutes et ne demande aucun matériel.",
+  "Jésus, merci de visiter notre maison. Apprends à notre famille à s'arrêter et à t'écouter. Amen."),
+'it': ('Gesù visita Marta e Maria', 'Maria ha scelto la parte migliore.',
+  ['Marta accoglie Gesù in casa.', 'Marta cucina. Maria si siede vicino a Gesù.', 'Marta si preoccupa per tante cose.', 'Gesù risponde con dolcezza: ascoltare è la cosa più importante.'],
+  'Che cosa ti piace ascoltare?',
+  'State in silenzio insieme per un momento, tenendovi per mano, e poi dite: Gesù è qui.',
+  'Grazie, Gesù, perché parli con me. Amen.',
+  "Leggi una frase per immagine, mostrando il disegno. Sulla seconda immagine, parla più piano, come chi ascolta. Non aspettarti risposte: quello che il bambino conserva è il tuo affetto e il tono della tua voce.",
+  ['Chi ha accolto Gesù in casa?', 'Che cosa ha fatto Maria vicino a Gesù?', 'Quando la nostra famiglia riesce a stare in silenzio per ascoltare Gesù?'],
+  "State in silenzio per un minuto, seduti insieme per terra, tenendovi per mano. Poi ciascuno dice una cosa bella che ha sentito: il vento, un uccellino, la voce di qualcuno. Dura circa 3 minuti e non serve alcun materiale.",
+  'Gesù, grazie perché visiti la nostra casa. Insegna alla nostra famiglia a fermarsi e ad ascoltarti. Amen.'),
+}
+
 
 def q(s):
     return "'" + s.replace("'", "''") + "'"
@@ -239,12 +288,12 @@ def build():
             rows.append(dict(slug=slug, lang=lang, id=DEV[slug], title=title, focus=focus, what='\n\n'.join(caps), think=think,
                              practice=practice, prayer=prayer, guide=guide(lang, lead, qs, activity, fam), story=story(slug, caps)))
     ids = ','.join(q(i) for i in DEV.values())
-    fwd = ['-- Faixa 0 a 3 anos (bebês) de Davi, Levi, Perfume e Reforma, em 5 idiomas: 20 versões novas, como RASCUNHO (a pessoa revisa e publica no admin). Publicar o app ANTES de rodar (a arte faixa-0-3-*.webp).',
+    fwd = ['-- Faixa 0 a 3 anos (bebês) de Davi, Levi, Perfume, Reforma e Marta e Maria, em 5 idiomas: 25 versões novas, como RASCUNHO (a pessoa revisa e publica no admin). Publicar o app ANTES de rodar (a arte faixa-0-3-*.webp).',
            '\\set ON_ERROR_STOP on', 'BEGIN;', 'DO $$', 'DECLARE n int;', 'BEGIN',
            f"  SELECT count(*) INTO n FROM devotional_kids WHERE band = '0-3' AND devotional_id IN ({ids});",
            "  IF n <> 0 THEN RAISE EXCEPTION 'ja existem % versoes 0-3 para estes devocionais', n; END IF;",
            f"  SELECT count(*) INTO n FROM devotionals WHERE id IN ({ids});",
-           "  IF n <> 4 THEN RAISE EXCEPTION 'esperava 4 devocionais e encontrei %', n; END IF;", 'END $$;']
+           f"  IF n <> {len(DEV)} THEN RAISE EXCEPTION 'esperava {len(DEV)} devocionais e encontrei %', n; END IF;", 'END $$;']
     for r in rows:
         key = f"'k03' || substr(md5({q(r['id'] + r['lang'])}), 1, 20)"
         fwd.append(
@@ -252,9 +301,9 @@ def build():
             f"{key}, {q(r['id'])}, '0-3', {q(r['lang'])}, {q(r['title'])}, {q(r['focus'])}, {q(r['what'])}, {q(r['think'])}, {q(r['practice'])}, {q(r['prayer'])}, {q(r['guide'])}, "
             f"{q(json.dumps(r['story'], ensure_ascii=False))}::jsonb, 'draft', now(), now());")
     fwd += [f"SELECT devotional_id, count(*) AS versoes, bool_and(status = 'draft') AS rascunho FROM devotional_kids WHERE band = '0-3' AND devotional_id IN ({ids}) GROUP BY 1 ORDER BY 1;", 'COMMIT;']
-    rb = ['-- Desfaz kids-faixa-0-3.sql: apaga as versões 0-3 desses 4 devocionais.', '\\set ON_ERROR_STOP on', 'BEGIN;', 'DO $$', 'DECLARE n int;', 'BEGIN',
+    rb = ['-- Desfaz kids-faixa-0-3.sql: apaga as versões 0-3 desses 5 devocionais.', '\\set ON_ERROR_STOP on', 'BEGIN;', 'DO $$', 'DECLARE n int;', 'BEGIN',
           f"  SELECT count(*) INTO n FROM devotional_kids WHERE band = '0-3' AND devotional_id IN ({ids});",
-          "  IF n <> 20 THEN RAISE EXCEPTION 'esperava 20 versoes 0-3 e encontrei %', n; END IF;", 'END $$;',
+          f"  IF n <> {len(rows)} THEN RAISE EXCEPTION 'esperava {len(rows)} versoes 0-3 e encontrei %', n; END IF;", 'END $$;',
           f"DELETE FROM devotional_kids WHERE band = '0-3' AND devotional_id IN ({ids});", 'COMMIT;']
     return '\n'.join(fwd) + '\n', '\n'.join(rb) + '\n'
 

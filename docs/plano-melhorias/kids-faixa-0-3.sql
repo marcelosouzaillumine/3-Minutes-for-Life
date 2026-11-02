@@ -1,13 +1,13 @@
--- Faixa 0 a 3 anos (bebês) de Davi, Levi, Perfume e Reforma, em 5 idiomas: 20 versões novas, como RASCUNHO (a pessoa revisa e publica no admin). Publicar o app ANTES de rodar (a arte faixa-0-3-*.webp).
+-- Faixa 0 a 3 anos (bebês) de Davi, Levi, Perfume, Reforma e Marta e Maria, em 5 idiomas: 25 versões novas, como RASCUNHO (a pessoa revisa e publica no admin). Publicar o app ANTES de rodar (a arte faixa-0-3-*.webp).
 \set ON_ERROR_STOP on
 BEGIN;
 DO $$
 DECLARE n int;
 BEGIN
-  SELECT count(*) INTO n FROM devotional_kids WHERE band = '0-3' AND devotional_id IN ('cmvue6llj000koe2lqtw0xdz2','cmvv1whpq0002pm2l3f1bfo13','cmvyun7rw0032o72lmlzc68bk','cmvudrag10002oe2ldyzmvhaa');
+  SELECT count(*) INTO n FROM devotional_kids WHERE band = '0-3' AND devotional_id IN ('cmvue6llj000koe2lqtw0xdz2','cmvv1whpq0002pm2l3f1bfo13','cmvyun7rw0032o72lmlzc68bk','cmvudrag10002oe2ldyzmvhaa','cmvyv3ozp003ho72lezbf5h9r');
   IF n <> 0 THEN RAISE EXCEPTION 'ja existem % versoes 0-3 para estes devocionais', n; END IF;
-  SELECT count(*) INTO n FROM devotionals WHERE id IN ('cmvue6llj000koe2lqtw0xdz2','cmvv1whpq0002pm2l3f1bfo13','cmvyun7rw0032o72lmlzc68bk','cmvudrag10002oe2ldyzmvhaa');
-  IF n <> 4 THEN RAISE EXCEPTION 'esperava 4 devocionais e encontrei %', n; END IF;
+  SELECT count(*) INTO n FROM devotionals WHERE id IN ('cmvue6llj000koe2lqtw0xdz2','cmvv1whpq0002pm2l3f1bfo13','cmvyun7rw0032o72lmlzc68bk','cmvudrag10002oe2ldyzmvhaa','cmvyv3ozp003ho72lezbf5h9r');
+  IF n <> 5 THEN RAISE EXCEPTION 'esperava 5 devocionais e encontrei %', n; END IF;
 END $$;
 INSERT INTO devotional_kids (id, devotional_id, band, language, title, scripture_focus, what_it_says, think_about, practice, prayer, adult_guide, story, status, created_at, updated_at) VALUES ('k03' || substr(md5('cmvue6llj000koe2lqtw0xdz2pt-BR'), 1, 20), 'cmvue6llj000koe2lqtw0xdz2', '0-3', 'pt-BR', 'Davi dança de alegria', 'Davi dançava de alegria diante do Senhor.', 'A arca de Deus chega a Jerusalém.
 
@@ -369,5 +369,95 @@ Sedetevi insieme con una Bibbia aperta e sfogliate le pagine piano. Leggete ad a
 
 Preghiera in famiglia:
 Signore, grazie per la Bibbia, che ci mostra chi sei. Insegna alla nostra famiglia a conoscerti. Amen.', '{"format": "panels", "panels": [{"image": "/ilustracoes/reforma-protestante/quadros/faixa-0-3-1.webp", "caption": "Lutero legge la Bibbia."}, {"image": "/ilustracoes/reforma-protestante/quadros/faixa-0-3-2.webp", "caption": "Racconta a tutti ciò che ha scoperto."}, {"image": "/ilustracoes/reforma-protestante/quadros/faixa-0-3-3.webp", "caption": "Lutero parla con coraggio."}, {"image": "/ilustracoes/reforma-protestante/quadros/faixa-0-3-4.webp", "caption": "Ora le famiglie leggono la Bibbia."}]}'::jsonb, 'draft', now(), now());
-SELECT devotional_id, count(*) AS versoes, bool_and(status = 'draft') AS rascunho FROM devotional_kids WHERE band = '0-3' AND devotional_id IN ('cmvue6llj000koe2lqtw0xdz2','cmvv1whpq0002pm2l3f1bfo13','cmvyun7rw0032o72lmlzc68bk','cmvudrag10002oe2ldyzmvhaa') GROUP BY 1 ORDER BY 1;
+INSERT INTO devotional_kids (id, devotional_id, band, language, title, scripture_focus, what_it_says, think_about, practice, prayer, adult_guide, story, status, created_at, updated_at) VALUES ('k03' || substr(md5('cmvyv3ozp003ho72lezbf5h9rpt-BR'), 1, 20), 'cmvyv3ozp003ho72lezbf5h9r', '0-3', 'pt-BR', 'Jesus visita Marta e Maria', 'Maria escolheu a melhor parte.', 'Marta recebe Jesus em casa.
+
+Marta cozinha. Maria senta perto de Jesus.
+
+Marta fica preocupada com tanta coisa.
+
+Jesus responde com carinho: ouvir é o mais importante.', 'O que você gosta de ouvir?', 'Fiquem quietinhos juntos por um momento, de mãos dadas, e depois digam: Jesus está aqui.', 'Obrigado, Jesus, por falares comigo. Amém.', 'Leia uma frase por quadro, mostrando a imagem. No segundo quadro, fale mais baixinho, como quem escuta. Não espere respostas: o que a criança guarda é o seu carinho e o seu tom de voz.
+
+Para conversar à mesa:
+Quem recebeu Jesus em casa?
+O que Maria fez perto de Jesus?
+Quando a nossa família consegue ficar quietinha para escutar Jesus?
+
+Atividade em família:
+Fiquem quietinhos por um minuto, sentados juntos no chão, de mãos dadas. Depois, cada um diz uma coisa boa que ouviu: o vento, um passarinho, a voz de alguém. Leva cerca de 3 minutos e não precisa de material.
+
+Oração em família:
+Jesus, obrigado por visitares a nossa casa. Ensina a nossa família a parar e a te ouvir. Amém.', '{"format": "panels", "panels": [{"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-1.webp", "caption": "Marta recebe Jesus em casa."}, {"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-2.webp", "caption": "Marta cozinha. Maria senta perto de Jesus."}, {"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-3.webp", "caption": "Marta fica preocupada com tanta coisa."}, {"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-4.webp", "caption": "Jesus responde com carinho: ouvir é o mais importante."}]}'::jsonb, 'draft', now(), now());
+INSERT INTO devotional_kids (id, devotional_id, band, language, title, scripture_focus, what_it_says, think_about, practice, prayer, adult_guide, story, status, created_at, updated_at) VALUES ('k03' || substr(md5('cmvyv3ozp003ho72lezbf5h9ren'), 1, 20), 'cmvyv3ozp003ho72lezbf5h9r', '0-3', 'en', 'Jesus visits Martha and Mary', 'Mary has chosen the better part.', 'Martha welcomes Jesus into her home.
+
+Martha cooks. Mary sits near Jesus.
+
+Martha is worried about so many things.
+
+Jesus answers kindly: listening matters most.', 'What do you like to listen to?', 'Be quiet together for a moment, holding hands, and then say: Jesus is here.', 'Thank you, Jesus, for speaking to me. Amen.', 'Read one sentence per picture, showing the image. On the second picture, speak more softly, like someone listening. Don''t expect answers: what your child keeps is your warmth and your tone of voice.
+
+To talk about at the table:
+Who welcomed Jesus into her home?
+What did Mary do near Jesus?
+When can our family be quiet to listen to Jesus?
+
+Family activity:
+Be quiet for one minute, sitting together on the floor, holding hands. Then each person says one good thing they heard: the wind, a little bird, someone''s voice. It takes about 3 minutes and needs no materials.
+
+Family prayer:
+Jesus, thank you for visiting our home. Teach our family to stop and listen to you. Amen.', '{"format": "panels", "panels": [{"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-1.webp", "caption": "Martha welcomes Jesus into her home."}, {"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-2.webp", "caption": "Martha cooks. Mary sits near Jesus."}, {"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-3.webp", "caption": "Martha is worried about so many things."}, {"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-4.webp", "caption": "Jesus answers kindly: listening matters most."}]}'::jsonb, 'draft', now(), now());
+INSERT INTO devotional_kids (id, devotional_id, band, language, title, scripture_focus, what_it_says, think_about, practice, prayer, adult_guide, story, status, created_at, updated_at) VALUES ('k03' || substr(md5('cmvyv3ozp003ho72lezbf5h9res'), 1, 20), 'cmvyv3ozp003ho72lezbf5h9r', '0-3', 'es', 'Jesús visita a Marta y María', 'María ha escogido la mejor parte.', 'Marta recibe a Jesús en casa.
+
+Marta cocina. María se sienta cerca de Jesús.
+
+Marta se preocupa por tantas cosas.
+
+Jesús responde con cariño: escuchar es lo más importante.', '¿Qué te gusta escuchar?', 'Quédense quietitos juntos un momento, de la mano, y luego digan: Jesús está aquí.', 'Gracias, Jesús, por hablar conmigo. Amén.', 'Lee una frase por cuadro, mostrando la imagen. En el segundo cuadro, habla más bajito, como quien escucha. No esperes respuestas: lo que el niño guarda es tu cariño y tu tono de voz.
+
+Para conversar en la mesa:
+¿Quién recibió a Jesús en casa?
+¿Qué hizo María cerca de Jesús?
+¿Cuándo puede nuestra familia quedarse quietita para escuchar a Jesús?
+
+Actividad en familia:
+Quédense quietitos un minuto, sentados juntos en el suelo, de la mano. Después, cada uno dice algo bueno que oyó: el viento, un pajarito, la voz de alguien. Dura unos 3 minutos y no necesita materiales.
+
+Oración en familia:
+Jesús, gracias por visitar nuestra casa. Enseña a nuestra familia a detenerse y a escucharte. Amén.', '{"format": "panels", "panels": [{"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-1.webp", "caption": "Marta recibe a Jesús en casa."}, {"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-2.webp", "caption": "Marta cocina. María se sienta cerca de Jesús."}, {"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-3.webp", "caption": "Marta se preocupa por tantas cosas."}, {"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-4.webp", "caption": "Jesús responde con cariño: escuchar es lo más importante."}]}'::jsonb, 'draft', now(), now());
+INSERT INTO devotional_kids (id, devotional_id, band, language, title, scripture_focus, what_it_says, think_about, practice, prayer, adult_guide, story, status, created_at, updated_at) VALUES ('k03' || substr(md5('cmvyv3ozp003ho72lezbf5h9rfr'), 1, 20), 'cmvyv3ozp003ho72lezbf5h9r', '0-3', 'fr', 'Jésus rend visite à Marthe et Marie', 'Marie a choisi la meilleure part.', 'Marthe accueille Jésus chez elle.
+
+Marthe cuisine. Marie s''assoit près de Jésus.
+
+Marthe s''inquiète de tant de choses.
+
+Jésus répond avec douceur : écouter est le plus important.', 'Qu''aimes-tu écouter ?', 'Restez tout calmes un moment, main dans la main, puis dites : Jésus est là.', 'Merci, Jésus, de me parler. Amen.', 'Lisez une phrase par image, en montrant le dessin. Sur la deuxième image, parlez plus doucement, comme quelqu''un qui écoute. N''attendez pas de réponses : ce que l''enfant retient, c''est votre tendresse et le ton de votre voix.
+
+Pour en parler à table :
+Qui a accueilli Jésus chez elle ?
+Que fait Marie près de Jésus ?
+Quand notre famille peut-elle rester calme pour écouter Jésus ?
+
+Activité en famille :
+Restez calmes une minute, assis ensemble par terre, main dans la main. Ensuite, chacun dit une bonne chose qu''il a entendue : le vent, un petit oiseau, la voix de quelqu''un. Cela dure environ 3 minutes et ne demande aucun matériel.
+
+Prière en famille :
+Jésus, merci de visiter notre maison. Apprends à notre famille à s''arrêter et à t''écouter. Amen.', '{"format": "panels", "panels": [{"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-1.webp", "caption": "Marthe accueille Jésus chez elle."}, {"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-2.webp", "caption": "Marthe cuisine. Marie s''assoit près de Jésus."}, {"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-3.webp", "caption": "Marthe s''inquiète de tant de choses."}, {"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-4.webp", "caption": "Jésus répond avec douceur : écouter est le plus important."}]}'::jsonb, 'draft', now(), now());
+INSERT INTO devotional_kids (id, devotional_id, band, language, title, scripture_focus, what_it_says, think_about, practice, prayer, adult_guide, story, status, created_at, updated_at) VALUES ('k03' || substr(md5('cmvyv3ozp003ho72lezbf5h9rit'), 1, 20), 'cmvyv3ozp003ho72lezbf5h9r', '0-3', 'it', 'Gesù visita Marta e Maria', 'Maria ha scelto la parte migliore.', 'Marta accoglie Gesù in casa.
+
+Marta cucina. Maria si siede vicino a Gesù.
+
+Marta si preoccupa per tante cose.
+
+Gesù risponde con dolcezza: ascoltare è la cosa più importante.', 'Che cosa ti piace ascoltare?', 'State in silenzio insieme per un momento, tenendovi per mano, e poi dite: Gesù è qui.', 'Grazie, Gesù, perché parli con me. Amen.', 'Leggi una frase per immagine, mostrando il disegno. Sulla seconda immagine, parla più piano, come chi ascolta. Non aspettarti risposte: quello che il bambino conserva è il tuo affetto e il tono della tua voce.
+
+Per parlarne a tavola:
+Chi ha accolto Gesù in casa?
+Che cosa ha fatto Maria vicino a Gesù?
+Quando la nostra famiglia riesce a stare in silenzio per ascoltare Gesù?
+
+Attività in famiglia:
+State in silenzio per un minuto, seduti insieme per terra, tenendovi per mano. Poi ciascuno dice una cosa bella che ha sentito: il vento, un uccellino, la voce di qualcuno. Dura circa 3 minuti e non serve alcun materiale.
+
+Preghiera in famiglia:
+Gesù, grazie perché visiti la nostra casa. Insegna alla nostra famiglia a fermarsi e ad ascoltarti. Amen.', '{"format": "panels", "panels": [{"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-1.webp", "caption": "Marta accoglie Gesù in casa."}, {"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-2.webp", "caption": "Marta cucina. Maria si siede vicino a Gesù."}, {"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-3.webp", "caption": "Marta si preoccupa per tante cose."}, {"image": "/ilustracoes/marta-e-maria/quadros/faixa-0-3-4.webp", "caption": "Gesù risponde con dolcezza: ascoltare è la cosa più importante."}]}'::jsonb, 'draft', now(), now());
+SELECT devotional_id, count(*) AS versoes, bool_and(status = 'draft') AS rascunho FROM devotional_kids WHERE band = '0-3' AND devotional_id IN ('cmvue6llj000koe2lqtw0xdz2','cmvv1whpq0002pm2l3f1bfo13','cmvyun7rw0032o72lmlzc68bk','cmvudrag10002oe2ldyzmvhaa','cmvyv3ozp003ho72lezbf5h9r') GROUP BY 1 ORDER BY 1;
 COMMIT;
