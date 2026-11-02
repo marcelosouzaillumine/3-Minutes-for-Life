@@ -126,6 +126,17 @@ describe('FamilyRitual', () => {
     await click('Continuar'); // passagem
   };
 
+  it('abre na versão da faixa escolhida na folha (11 a 13), não na mais nova', async () => {
+    const f3 = { ...family, children: [{ id: 'c1', nickname: 'Bento', band: '4-6' }, { id: 'c3', nickname: 'Lia', band: '11-13' }] };
+    const v = (band: string, title: string) => ({ ...kid(null), band, title });
+    mocks.get.mockResolvedValue(f3);
+    mocks.getKids.mockResolvedValue([v('4-6', 'Versão pequena'), v('11-13', 'Versão adolescente')]);
+    await act(async () => { root.render(<FamilyRitual source="daily" audience="kids" intro={false} kidIds={['c1', 'c3']} band="11-13" onClose={() => {}} />); });
+    await flush(); await flush();
+    expect(host.textContent).toContain('Versão adolescente');
+    expect(host.textContent).not.toContain('Versão pequena');
+  });
+
   it('quadrinhos: passagem primeiro, depois um quadro por tela, legenda e fala em texto, e só então as perguntas', async () => {
     mocks.getKids.mockResolvedValue([kid({ format: 'panels', panels: [
       { image: '/ilustracoes/x/1.svg', caption: 'Em casa havia um livro.', speech: 'Que livro grande!' },
