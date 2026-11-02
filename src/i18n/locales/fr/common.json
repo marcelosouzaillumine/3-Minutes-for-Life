@@ -416,7 +416,9 @@
       "kids_other": "{{count}} enfants",
       "create": "Créer un autre groupe",
       "join": "Entrer avec un code",
-      "count": "Vous êtes dans {{count}} groupes sur {{max}} possibles."
+      "count": "Vous êtes dans {{count}} groupes sur {{max}} possibles.",
+      "switch": "Changer de groupe · vous êtes dans {{count}}",
+      "another": "+ Créer ou rejoindre un autre groupe"
     }
   },
   "ritual": {
@@ -522,7 +524,20 @@
     "groupSheetTitle": "Qui est à table ?",
     "sheetVersion": "Nous lirons la version {{band}} ans, celle du plus jeune à table.",
     "sheetSwitch": "Passer à {{band}}",
-    "sheetStart": "Commencer la lecture"
+    "sheetStart": "Commencer la lecture",
+    "groupHowTitle": "Comment le groupe va-t-il lire ?",
+    "modeTogether": "Nous sommes ensemble",
+    "modeAlone": "Chacun à son rythme",
+    "aloneHint": "Vous lisez maintenant, à votre rythme. À la fin, le groupe voit que vous avez lu.",
+    "aloneStart": "Lire maintenant",
+    "wordTitle": "Laissez un mot au groupe",
+    "wordHint": "Facultatif. À l'envoi, votre lecture du jour est marquée pour le groupe.",
+    "wordPlaceholder": "Qu'est-ce qui vous a le plus touché ? Ou demandez une prière.",
+    "wordSend": "Envoyer au groupe",
+    "wordMark": "Marquer comme lu",
+    "wordSent": "C'est fait : le groupe voit que vous avez lu.",
+    "groupLine": "Groupe",
+    "wordTo": "Pour le groupe"
   },
   "familyNav": "Groupe",
   "plansx": {

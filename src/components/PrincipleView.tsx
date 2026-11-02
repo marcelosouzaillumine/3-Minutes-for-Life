@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ReminderInvite } from './ReminderInvite';
 import { FamilyTodayCard } from './FamilyTodayCard';
+import { GroupWordCard } from './GroupWordCard';
 import { useNavigate } from 'react-router-dom';
 import type { Devotional } from '../types/Devotional';
 import { JourneyService } from '../services/JourneyService';
@@ -52,6 +53,19 @@ export function PrincipleView({
   const [saved, setSaved] = useState(false);
   // No Hoje, quem está logado vê primeiro a capa; "Ler agora" abre a leitura por rolagem.
   const [reading, setReading] = useState(false);
+  // Aberta pela folha do Grupo ("cada um no seu tempo"): o fim da leitura ganha o cartão do grupo.
+  const [groupRead, setGroupRead] = useState(false);
+  useEffect(() => {
+    if (!isDaily) return;
+    const take = () => {
+      let v: string | null = null;
+      try { v = sessionStorage.getItem('hoje.read'); sessionStorage.removeItem('hoje.read'); } catch { /* sem armazenamento */ }
+      if (v) { setReading(true); if (v === 'group') setGroupRead(true); window.scrollTo({ top: 0 }); }
+    };
+    take();
+    window.addEventListener('hoje:read', take);
+    return () => window.removeEventListener('hoje:read', take);
+  }, [isDaily]);
   const [completed, setCompleted] = useState(false);
   const [showLoginToSave, setShowLoginToSave] = useState(false);
   const [reflectionContent, setReflectionContent] = useState('');
@@ -163,6 +177,7 @@ export function PrincipleView({
       setCompleted(true);
     } catch (err) {
       console.error(err);
+      throw err;
     }
   };
 
@@ -760,7 +775,7 @@ export function PrincipleView({
                 <button
                   type="button"
                   className={`action-btn action-complete ${completed ? 'active' : ''}`}
-                  onClick={markComplete}
+                  onClick={() => { markComplete().catch(() => {}); }}
                   aria-pressed={completed}
                 >
                   <svg
@@ -791,6 +806,8 @@ export function PrincipleView({
             </>
 
           )}
+
+          {isDaily && user && groupRead && <GroupWordCard completed={completed} onComplete={markComplete} />}
 
           <ShareImageMenu
             title={devotional.title ?? ''}

@@ -362,3 +362,7 @@
 .more-row__icon { width: 22px; height: 22px; flex: none; color: var(--text-muted); }
 .more-row__label { flex: 1; }
 .fam-person__sub { display: block; font-size: 0.7rem; color: var(--text-muted); }
+.group-word { margin: 1.5rem 0; padding: 1rem; border: 1px solid var(--accent-strong, var(--border-subtle)); border-radius: 14px; background: var(--surface); }
+.group-word__title { margin: 0 0 0.25rem; font-weight: 500; }
+.group-word textarea { width: 100%; margin: 0.5rem 0 0.75rem; padding: 0.6rem 0.75rem; font: inherit; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--canvas); color: inherit; resize: vertical; }
+.fam-groups-link { display: inline-block; margin-top: 0.25rem; font-size: 0.85rem; }
