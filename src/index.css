@@ -558,7 +558,7 @@ h4 {
   justify-content: flex-start;
 
   padding:
-    0.75rem 0.5rem;
+    0.75rem 0.25rem;
 
   z-index: 100;
 
@@ -586,9 +586,12 @@ h4 {
 
   gap: 4px;
 
-  flex: 1 0 auto;
+  /* Seis botões dividem a barra por igual; nenhum fica escondido à direita. */
+  flex: 1 1 0;
 
-  min-width: 72px;
+  min-width: 0;
+
+  white-space: nowrap;
 
   transition:
     color 0.3s ease,
