@@ -433,6 +433,7 @@
     "question": "Question {{n}} of {{total}}",
     "questionHint": "Let everyone answer, with no rush. Anyone can pass.",
     "howToLead": "See how to lead",
+    "adultOnly": "For the adult only: how to lead this conversation.",
     "hideGuide": "Hide the guide",
     "activity": "Family activity",
     "familyPrayer": "Family prayer",
