@@ -6,7 +6,7 @@ import { ReadStartSheet } from './ReadStartSheet';
 import '../styles/family.css';
 
 /** Capa do Hoje: ler sozinho em destaque e, abaixo, os caminhos em grupo e com as crianças, cada um com o seu estado. */
-export function FamilyTodayCard({ devotionalId, onReadSolo }: { devotionalId?: string; onReadSolo: () => void }) {
+export function FamilyTodayCard({ devotionalId, daily = true, onReadSolo }: { devotionalId?: string; /** false fora do Hoje: sem estado do dia, e a leitura é a deste devocional. */ daily?: boolean; onReadSolo: () => void }) {
   const { t, i18n } = useTranslation('common');
   const [hasKids, setHasKids] = useState(false);
   const [family, setFamily] = useState<Family | null>(null);
@@ -30,7 +30,7 @@ export function FamilyTodayCard({ devotionalId, onReadSolo }: { devotionalId?: s
 
   const goTab = (tab: string) => window.dispatchEvent(new CustomEvent('app:tab', { detail: tab }));
   const readers = family ? family.members.filter((m) => m.readToday).length : 0;
-  const plan = family?.plan && !family.plan.completed && !family.plan.lockedUntilTomorrow ? family.plan : null;
+  const plan = daily && family?.plan && !family.plan.completed && !family.plan.lockedUntilTomorrow ? family.plan : null;
   const kidNames = (family?.children ?? []).map((c) => c.nickname);
   const names = kidNames.length > 2 ? `${kidNames.slice(0, 2).join(', ')} +${kidNames.length - 2}` : kidNames.join(' e ');
 
@@ -40,12 +40,11 @@ export function FamilyTodayCard({ devotionalId, onReadSolo }: { devotionalId?: s
         <b>{t('ritual.readNow', 'Ler agora')}</b>
         <span>{t('ritual.readNowHint', '3 minutos · no seu ritmo')}</span>
       </button>
-      <p className="hoje-capa__or">{t('ritual.orWithOthers', 'Ou leia com outras pessoas')}</p>
       <div className="hoje-capa__list">
         <button type="button" className="hoje-capa__row" onClick={() => (family ? setSheet('adults') : goTab('family'))}>
           <span className="hoje-capa__text"><b>{t('ritual.modeGroup', 'Grupo')}</b>
           <span>
-            {family
+            {family && daily
               ? (readers > 0
                 ? t('fam.today.readers', { count: readers, total: family.members.length, defaultValue: '{{count}} de {{total}} já leram hoje' })
                 : t('fam.today.none', 'Ninguém leu ainda hoje'))
@@ -63,7 +62,7 @@ export function FamilyTodayCard({ devotionalId, onReadSolo }: { devotionalId?: s
           <span aria-hidden="true">›</span>
         </button>
       </div>
-      {sheet && family && <ReadStartSheet audience={sheet} family={family} plan={!!plan} onClose={() => setSheet(null)} onChanged={setFamily} />}
+      {sheet && family && <ReadStartSheet audience={sheet} family={family} plan={!!plan} devotionalId={daily ? undefined : devotionalId} onClose={() => setSheet(null)} onChanged={setFamily} />}
     </div>
   );
 }

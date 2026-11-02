@@ -4,7 +4,6 @@ import { FamilyTodayCard } from './FamilyTodayCard';
 import { GroupWordCard } from './GroupWordCard';
 import { GroupCelebrationBanner } from './GroupNotices';
 import { ReadingClosing } from './ReadingClosing';
-import { ReadWithOthers } from './ReadWithOthers';
 import { FamilyService } from '../services/FamilyService';
 import { useNavigate } from 'react-router-dom';
 import type { Devotional } from '../types/Devotional';
@@ -37,6 +36,8 @@ interface PrincipleViewProps {
   onExplore?: () => void;
   /** true apenas para o devocional do dia (Home) — define o rótulo da imagem de compartilhamento. */
   isDaily?: boolean;
+  /** Devocional aberto por quem está logado (Explorar, planos, salvos): começa pela capa com ler sozinho, em grupo ou com as crianças. */
+  cover?: boolean;
 }
 
 export function PrincipleView({
@@ -46,6 +47,7 @@ export function PrincipleView({
   customAction,
   onExplore,
   isDaily = false,
+  cover = false,
 }: PrincipleViewProps) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
@@ -57,6 +59,7 @@ export function PrincipleView({
   const [saved, setSaved] = useState(false);
   // No Hoje, quem está logado vê primeiro a capa; "Ler agora" abre a leitura por rolagem.
   const [reading, setReading] = useState(false);
+  const hasCover = (isDaily || cover) && !!user;
   // Aberta pela folha do Grupo ("cada um no seu tempo"): o fim da leitura ganha o cartão do grupo.
   const [groupRead, setGroupRead] = useState(false);
   // Grupos da pessoa: o registro da leitura conta para todos eles, e o botão diz quais.
@@ -295,7 +298,7 @@ export function PrincipleView({
 
       <DevotionalHeader
         showLogo={showLogo}
-        compact={isDaily && !!user && !reading}
+        compact={hasCover && !reading}
         onBack={onBack}
         backText={t('home.back')}
       />
@@ -308,7 +311,7 @@ export function PrincipleView({
 
         {isDaily && user && <GroupCelebrationBanner />}
 
-        {isDaily && user && !reading ? (
+        {hasCover && !reading ? (
           <section className="principle-introduction hoje-capa-wrap">
             <span className="principle-category label">
               {devotional.categories?.name ? t(`categories.${devotional.categories.name}`, devotional.categories.name) : t('categories.Devocional', 'Devocional')}
@@ -317,7 +320,7 @@ export function PrincipleView({
             <StreakLine summary={journey} />
             {devotional.principle_statement && <p className="hoje-capa__quote">{devotional.principle_statement}</p>}
             {devotional.scripture_reference && <cite className="principle-scripture-reference hoje-capa__ref">{devotional.scripture_reference}</cite>}
-            <FamilyTodayCard devotionalId={devotional.id} onReadSolo={() => { setReading(true); window.scrollTo({ top: 0 }); }} />
+            <FamilyTodayCard devotionalId={devotional.id} daily={isDaily} onReadSolo={() => { setReading(true); window.scrollTo({ top: 0 }); }} />
           </section>
         ) : (<>
 
@@ -328,7 +331,7 @@ export function PrincipleView({
 
         <section className="principle-introduction">
 
-          {isDaily && user && (
+          {hasCover && (
             <button type="button" className="hoje-capa__back" onClick={() => { setReading(false); window.scrollTo({ top: 0 }); }}>
               ‹ {t('ritual.backToCover', 'Voltar à capa')}
             </button>
@@ -830,8 +833,6 @@ export function PrincipleView({
           )}
 
           {isDaily && user && completed && <ReadingClosing summary={journey} />}
-
-          {!isDaily && user && <ReadWithOthers devotionalId={devotional.id} />}
 
           {isDaily && user && (groupRead || completed) && groupNames.length > 0 && <GroupWordCard completed={completed} onComplete={markComplete} />}
 

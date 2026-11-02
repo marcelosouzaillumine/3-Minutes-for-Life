@@ -173,6 +173,8 @@
 html {
   width: 100%;
   min-height: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
   background: var(--color-bg);
 }
 
@@ -190,6 +192,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   overflow-x: hidden;
+  max-width: 100%;
+  position: relative;
 }
 
 /* =========================================================
@@ -249,6 +253,8 @@ h4 {
   flex: 1;
 
   width: 100%;
+  min-width: 0;
+  overflow-x: clip;
 
   padding:
     3rem var(--content-padding) var(--spacing-lg);
