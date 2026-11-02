@@ -117,6 +117,71 @@ describe('FamilyRitual', () => {
     expect(host.textContent).toContain('1 · Ler');
   });
 
+  const kid = (story: unknown) => ({ band: '4-6', title: 'A Bíblia é para todos', scriptureFocus: null, whatItSays: 'Texto de reserva.', thinkAbout: 'Pensar?', practice: 'Fazer.', prayer: 'Orar.', adultGuide: guide, story, status: 'published' });
+  const open = async () => {
+    mocks.get.mockResolvedValue(family);
+    await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
+    await flush(); await flush();
+    await click('Continuar'); // passagem
+  };
+
+  it('quadrinhos: passagem primeiro, depois um quadro por tela, legenda e fala em texto, e só então as perguntas', async () => {
+    mocks.getKids.mockResolvedValue([kid({ format: 'panels', panels: [
+      { image: '/ilustracoes/x/1.svg', caption: 'Em casa havia um livro.', speech: 'Que livro grande!' },
+      { image: '/ilustracoes/x/2.svg', caption: 'Ninguém alcançava.' },
+    ] })]);
+    await open();
+    expect(host.textContent).toContain('1 · Ler');
+    expect(host.textContent).toContain('Fp 4:6');
+    expect(host.textContent).not.toContain('Texto de reserva.');
+    await click('Continuar');
+    expect(host.textContent).toContain('Quadro 1 de 2');
+    expect(host.textContent).toContain('Em casa havia um livro.');
+    expect(host.querySelector('.kstory__speech')?.textContent).toBe('Que livro grande!');
+    expect(host.querySelector('.kstory__art img')?.getAttribute('src')).toBe('/ilustracoes/x/1.svg');
+    await click('Continuar');
+    expect(host.textContent).toContain('Quadro 2 de 2');
+    expect(host.querySelector('.kstory__speech')).toBeNull();
+    await click('Continuar');
+    expect(host.textContent).toContain('Pergunta 1 de 2');
+  });
+
+  it('quadrinhos: se a imagem não carregar, a legenda continua na tela', async () => {
+    mocks.getKids.mockResolvedValue([kid({ format: 'panels', panels: [{ image: 'https://cdn.exemplo.com/1.png', caption: 'Legenda.' }, { image: 'https://cdn.exemplo.com/2.png', caption: 'Outra.' }] })]);
+    await open();
+    await click('Continuar');
+    await act(async () => { host.querySelector('.kstory__art img')!.dispatchEvent(new Event('error')); });
+    expect(host.querySelector('.kstory__art')).toBeNull();
+    expect(host.textContent).toContain('Legenda.');
+  });
+
+  it('dilema: situação, decisão da mesa (opções marcáveis), desfecho e “E hoje?”', async () => {
+    mocks.getKids.mockResolvedValue([kid({ format: 'dilemma', setup: 'Worms, 1521.', question: 'O que você faria?', options: ['Negar', 'Manter'], outcome: 'Ele recusou.', quote: 'Presa à Palavra.', outcomeQuestion: 'Alguém mudaria?', today: 'Hoje é mais rápido.', todayQuestion: 'Onde procura?' })]);
+    await open();
+    await click('Continuar');
+    expect(host.textContent).toContain('O dilema · 1/4');
+    expect(host.textContent).toContain('Worms, 1521.');
+    expect(host.textContent).not.toContain('Ele recusou.'); // o desfecho só vem depois da decisão
+    await click('Continuar');
+    expect(host.textContent).toContain('A decisão da mesa · 2/4');
+    await click('Manter');
+    expect(host.querySelector('.kstory__opt.is-on')?.textContent).toBe('Manter');
+    await click('Continuar');
+    expect(host.textContent).toContain('Ele recusou.');
+    expect(host.querySelector('.kstory__quote')?.textContent).toBe('“Presa à Palavra.”');
+    await click('Continuar');
+    expect(host.textContent).toContain('Onde procura?');
+    await click('Continuar');
+    expect(host.textContent).toContain('Pergunta 1 de 2');
+  });
+
+  it('sem história, a leitura em texto segue igual', async () => {
+    mocks.getKids.mockResolvedValue([kid(null)]);
+    await open();
+    expect(host.textContent).toContain('Texto de reserva.');
+    expect(host.querySelector('.kstory')).toBeNull();
+  });
+
   it('mostra uma pergunta por tela, a atividade e a oração em família do guia', async () => {
     mocks.get.mockResolvedValue(family);
     await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });

@@ -471,7 +471,13 @@
     "addFirst": "Who is reading with you?",
     "sharedVersion": "Everyone hears the same reading. Which version?",
     "tableTitle": "Who is reading?",
-    "continue": "Continue"
+    "continue": "Continue",
+    "storyPanel": "Panel {{n}} of {{total}}",
+    "dilemmaStep1": "The dilemma",
+    "dilemmaStep2": "The table's decision",
+    "dilemmaStep3": "What happened",
+    "dilemmaStep4": "And today?",
+    "dilemmaPick": "Everyone picks one and explains it in a sentence. There's no right answer yet."
   },
   "familyNav": "Group",
   "plansx": {

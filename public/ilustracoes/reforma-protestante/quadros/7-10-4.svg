@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 240"><rect width="300" height="240" fill="#E7ECF3"/><rect y="190" width="300" height="50" fill="#9AA9BD"/><rect x="104" y="60" width="92" height="130" fill="#B79A6C"/><rect x="128" y="76" width="44" height="56" fill="#FFF7E6" transform="rotate(2 150 104)"/><path d="M136 90h28M136 98h28M136 106h28M136 114h20" stroke="#B9A98A" stroke-width="2.5"/>
+  <g><circle cx="48" cy="150" r="17" fill="#F2C7A1"/><rect x="28" y="166" width="40" height="30" rx="14" fill="#7AA6C9"/><path d="M32 144q16-22 32 0z" fill="#6B4F2F"/></g>
+  <g><circle cx="238" cy="148" r="17" fill="#F2C7A1"/><rect x="218" y="164" width="40" height="32" rx="14" fill="#B9A25C"/><path d="M222 142q16-22 32 0z" fill="#3A3F4F"/></g>
+  <g><circle cx="90" cy="162" r="14" fill="#F2C7A1"/><rect x="74" y="176" width="34" height="22" rx="12" fill="#E58E8E"/><path d="M78 158q12-18 24 0z" fill="#C9743A"/></g>
+  <g><circle cx="268" cy="168" r="13" fill="#F2C7A1"/><rect x="254" y="180" width="30" height="20" rx="11" fill="#8FB58B"/></g></svg>

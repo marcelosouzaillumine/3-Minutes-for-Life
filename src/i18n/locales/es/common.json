@@ -477,7 +477,13 @@
     "addFirst": "¿Quién lee contigo?",
     "sharedVersion": "Todos escuchan la misma lectura. ¿Qué versión?",
     "tableTitle": "¿Quién va a leer?",
-    "continue": "Continuar"
+    "continue": "Continuar",
+    "storyPanel": "Viñeta {{n}} de {{total}}",
+    "dilemmaStep1": "El dilema",
+    "dilemmaStep2": "La decisión de la mesa",
+    "dilemmaStep3": "Lo que pasó",
+    "dilemmaStep4": "¿Y hoy?",
+    "dilemmaPick": "Cada uno elige y lo explica en una frase. Todavía no hay respuesta correcta."
   },
   "familyNav": "Grupo",
   "plansx": {

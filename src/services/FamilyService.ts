@@ -42,6 +42,19 @@ export interface Family {
   plan: PlanState | null;
 }
 
+/** Quadro de uma história em quadrinhos: arte (igual em todos os idiomas), legenda e, às vezes, a fala de um personagem. */
+export interface KidPanel { image: string; caption: string; speech?: string }
+/** História da faixa: quadrinhos (4-6, 7-10) ou dilema com debate (11-13). Vem pronta para o idioma pedido. */
+export type KidStory =
+  | { format: 'panels'; panels: KidPanel[] }
+  | {
+      format: 'dilemma';
+      image?: string;
+      setup: string; question: string; options: string[];
+      outcome: string; quote?: string; outcomeQuestion: string;
+      today: string; todayQuestion: string;
+    };
+
 export interface KidsVersion {
   band: Band;
   title?: string | null;
@@ -53,6 +66,8 @@ export interface KidsVersion {
   adultGuide: string;
   /** Ilustração da faixa (https), cadastrada pelo conector editorial. */
   imageUrl?: string | null;
+  /** Quando existe, a leitura usa a história; o texto corrido (whatItSays) fica de reserva. */
+  story?: KidStory | null;
   status: 'draft' | 'published';
 }
 
@@ -160,6 +175,7 @@ export interface KidsDraft {
   practice: string;
   prayer: string;
   adultGuide: string;
+  story?: KidStory | null;
   status: 'draft' | 'published';
 }
 
@@ -189,7 +205,7 @@ export const FamilyAdmin = {
     for (const b of BANDS) {
       const v = versions.find((x) => x.band === b && (x.language ?? 'pt-BR') === language);
       out[b] = v
-        ? { title: v.title ?? '', scriptureFocus: v.scriptureFocus ?? '', whatItSays: v.whatItSays, thinkAbout: v.thinkAbout, practice: v.practice, prayer: v.prayer, adultGuide: v.adultGuide, status: v.status }
+        ? { title: v.title ?? '', scriptureFocus: v.scriptureFocus ?? '', whatItSays: v.whatItSays, thinkAbout: v.thinkAbout, practice: v.practice, prayer: v.prayer, adultGuide: v.adultGuide, story: v.story ?? null, status: v.status }
         : null;
     }
     return out;
@@ -197,7 +213,7 @@ export const FamilyAdmin = {
   async saveKids(devotionalId: string, band: Band, d: KidsDraft, language = 'pt-BR'): Promise<boolean> {
     const res = await illumineFetch(`/devotionals/${encodeURIComponent(devotionalId)}/kids/${band}`, {
       method: 'PUT',
-      body: JSON.stringify({ ...d, title: d.title.trim() || null, scriptureFocus: d.scriptureFocus.trim() || null, language }),
+      body: JSON.stringify({ ...d, title: d.title.trim() || null, scriptureFocus: d.scriptureFocus.trim() || null, story: d.story ?? null, language }),
     });
     return res.ok;
   },
