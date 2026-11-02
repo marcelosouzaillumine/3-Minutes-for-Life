@@ -29,14 +29,16 @@ export function FamilyTodayCard({ devotionalId }: { devotionalId?: string }) {
   if (!loaded) return null;
   // Sem família ainda: o mesmo botão leva a criar uma em dois passos e segue direto para a leitura.
   if (!family) {
+    const go = (tab: string) => window.dispatchEvent(new CustomEvent('app:tab', { detail: tab }));
     return (
-      <div className="fam-today">
-        <div>
-          <p className="fam-eyebrow">{t('ritual.inviteTitle', 'Leia com quem você ama')}</p>
-          <p className="fam-today__text">{t('ritual.inviteText', 'Família, casal ou grupo. Cada um no seu tempo.')}</p>
-        </div>
-        <button type="button" className="fam-btn fam-btn--secondary fam-today__btn" onClick={() => openRitual('daily')}>
-          {t('ritual.inviteCta', 'Começar')}
+      <div className="fam-today-pair">
+        <button type="button" className="fam-today fam-today--pick" onClick={() => go('family')}>
+          <p className="fam-eyebrow">{t('ritual.groupTitle', 'Ler em grupo')}</p>
+          <p className="fam-today__text">{t('ritual.groupText', 'Casal, célula ou amigos. Cada um no seu tempo.')}</p>
+        </button>
+        <button type="button" className="fam-today fam-today--pick" onClick={() => openRitual('daily', 'kids')}>
+          <p className="fam-eyebrow">{t('ritual.kidsTitle', 'Ler com as crianças')}</p>
+          <p className="fam-today__text">{t('ritual.kidsText', 'Escolha a idade e leia a versão feita para elas.')}</p>
         </button>
       </div>
     );
@@ -55,13 +57,10 @@ export function FamilyTodayCard({ devotionalId }: { devotionalId?: string }) {
           {plan && ` · ${t('fam.today.planDay', { n: plan.currentDay, defaultValue: 'plano, dia {{n}}' })}`}
         </p>
         {hasKids && (
-          <button type="button" className="fam-today__tag" onClick={() => {
-            try { localStorage.setItem('ritual.audience', 'kids'); } catch { /* sem armazenamento */ }
-            openRitual('daily');
-          }}>{t('fam.today.kids', 'Versão para crianças')} ›</button>
+          <button type="button" className="fam-today__tag" onClick={() => openRitual('daily', 'kids')}>{t('fam.today.kids', 'Versão para crianças')} ›</button>
         )}
       </div>
-      <button type="button" className="fam-btn fam-btn--primary fam-today__btn" onClick={() => openRitual(plan ? 'plan' : 'daily')}>
+      <button type="button" className="fam-btn fam-btn--primary fam-today__btn" onClick={() => openRitual(plan ? 'plan' : 'daily', 'adults')}>
         {t('fam.today.cta', 'Ler')}
       </button>
     </div>

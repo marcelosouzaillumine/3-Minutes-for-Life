@@ -18,7 +18,7 @@ const bandArt = (band: string) => (band === '4-6' ? 'young' : 'older');
 const OWN_ART: Record<string, string> = { cmvudrag10002oe2ldyzmvhaa: 'reforma-protestante' };
 const ownArt = (devotionalId: string | undefined, band: string) => (devotionalId && OWN_ART[devotionalId] ? `/ilustracoes/${OWN_ART[devotionalId]}/${band}.svg` : null);
 
-export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; onClose: () => void }) {
+export function FamilyRitual({ source, audience: forced, onClose }: { source: 'daily' | 'plan'; audience?: 'adults' | 'kids'; onClose: () => void }) {
   const { t, i18n } = useTranslation('common');
   const tt: TT = (k, d, o) => t(`ritual.${k}`, typeof d === 'string' ? { defaultValue: d, ...o } : d) as string;
 
@@ -42,6 +42,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
   const bodyRef = useRef<HTMLDivElement>(null);
   // Escolha guardada; sem escolha, abre em "Com crianças" só se já houver crianças cadastradas.
   const [picked, setAudience] = useState<'adults' | 'kids' | null>(() => {
+    if (forced) return forced;
     try { const v = localStorage.getItem('ritual.audience'); return v === 'adults' || v === 'kids' ? v : null; } catch { return null; }
   });
   const audience: 'adults' | 'kids' = picked ?? ((family?.children.length ?? 0) > 0 ? 'kids' : 'adults');
@@ -119,6 +120,7 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
 
   const pickAudience = (a: 'adults' | 'kids') => {
     setAudience(a);
+    if (forced) return;
     try { localStorage.setItem('ritual.audience', a); } catch { /* sem armazenamento */ }
   };
 
@@ -286,19 +288,23 @@ export function FamilyRitual({ source, onClose }: { source: 'daily' | 'plan'; on
             {devotional.scripture_reference && <p className="ritual__verse">{devotional.scripture_reference}</p>}
             {devotional.principle_statement && <p className="ritual__lead">{devotional.principle_statement}</p>}
             <p className="fam-note">{tt('promise', '3 minutos · ler, conversar, fazer e orar juntos')}</p>
-            <section className="ritual__who" aria-label={tt('withWhom', 'Com quem você vai ler hoje?')}>
-              <h2 className="ritual__who-title">{tt('withWhom', 'Com quem você vai ler hoje?')}</h2>
-              <div className="ritual__choices">
-                <button type="button" className={`ritual__choice${audience === 'adults' ? ' is-on' : ''}`} aria-pressed={audience === 'adults'} onClick={() => { pickAudience('adults'); go(1); }}>
-                  <strong>{tt('onlyAdults', 'Só adultos')}</strong>
-                  <span>{tt('setupAdultsNote', 'Sozinho, em casal ou em grupo')}</span>
-                </button>
-                <button type="button" className={`ritual__choice${audience === 'kids' ? ' is-on' : ''}`} aria-pressed={audience === 'kids'} onClick={() => { pickAudience('kids'); go(1); }}>
-                  <strong>{tt('withKids', 'Com crianças')}</strong>
-                  <span>{tt('setupWithKidsNote', 'Cada uma com a leitura da sua idade')}</span>
-                </button>
-              </div>
-            </section>
+            {forced ? (
+              <button type="button" className="fam-btn fam-btn--primary" onClick={() => go(1)}>{tt('start', 'Começar')}</button>
+            ) : (
+              <section className="ritual__who" aria-label={tt('withWhom', 'Com quem você vai ler hoje?')}>
+                <h2 className="ritual__who-title">{tt('withWhom', 'Com quem você vai ler hoje?')}</h2>
+                <div className="ritual__choices">
+                  <button type="button" className={`ritual__choice${audience === 'adults' ? ' is-on' : ''}`} aria-pressed={audience === 'adults'} onClick={() => { pickAudience('adults'); go(1); }}>
+                    <strong>{tt('onlyAdults', 'Só adultos')}</strong>
+                    <span>{tt('setupAdultsNote', 'Sozinho, em casal ou em grupo')}</span>
+                  </button>
+                  <button type="button" className={`ritual__choice${audience === 'kids' ? ' is-on' : ''}`} aria-pressed={audience === 'kids'} onClick={() => { pickAudience('kids'); go(1); }}>
+                    <strong>{tt('withKids', 'Com crianças')}</strong>
+                    <span>{tt('setupWithKidsNote', 'Cada uma com a leitura da sua idade')}</span>
+                  </button>
+                </div>
+              </section>
+            )}
           </>
         )}
 
