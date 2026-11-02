@@ -7,6 +7,7 @@ import { BandPicker } from './BandPicker';
 import { FamilyService, activeFamily, type Band, type Family, type FamilySummary } from '../services/FamilyService';
 import { openRitual } from '../pages/Family';
 import { readerForDay } from '../utils/ritual';
+import { storyCard } from '../utils/kidsStory';
 import '../styles/family.css';
 
 const ORDER: Band[] = ['0-3', '4-6', '7-10', '11-13'];
@@ -57,13 +58,14 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
 
   // Faixas com versão aprovada neste devocional e idioma. Sem isso a folha prometeria uma idade que a leitura não tem.
   const [avail, setAvail] = useState<Set<Band> | null>(null);
+  const [cards, setCards] = useState<Partial<Record<Band, { image: string | null; text: string }>>>({});
   useEffect(() => {
     if (!kids) return;
     let alive = true;
     (async () => {
       const id = devotionalId ?? (await DevotionalService.getDailyDevotional(getTodayInSaoPaulo(), i18n.language)).id;
       const v = await FamilyService.getKids(id, i18n.language);
-      if (alive) setAvail(new Set(v.map((x) => x.band)));
+      if (alive) { setAvail(new Set(v.map((x) => x.band))); setCards(Object.fromEntries(v.map((x) => [x.band, storyCard(x.story)]))); }
     })().catch(() => { if (alive) setAvail(null); });
     return () => { alive = false; };
   }, [kids, devotionalId, i18n.language]);
@@ -165,6 +167,7 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
             bands={options}
             value={shared}
             names={Object.fromEntries(options.map((b) => [b, fam.children.filter((c) => present.has(c.id) && c.band === b).map((c) => c.nickname)]))}
+            cards={cards}
             years={tt('years', 'anos')}
             ariaLabel={tt('sharedVersion', 'Todos ouvem a mesma leitura. Qual versão?')}
             onPick={setLead}

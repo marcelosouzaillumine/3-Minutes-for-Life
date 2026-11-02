@@ -109,6 +109,7 @@ function DilemmaForm({ story, ref_, onChange }: { story: Dilemma; ref_: Dilemma 
   const setOpt = (i: number, v: string) => set({ options: story.options.map((o, k) => (k === i ? v : o)) });
   return (
     <div className="fam-form studio__dilemma">
+      {field('teaser', 'Frase do cartão ao escolher a versão (opcional; sem ela vale a pergunta)', 1, 100)}
       {field('reference', 'Passagem bíblica, ex.: Lucas 10.38-42 (selo na abertura; Bíblia NAA em português)', 1, 60)}
       <label>Cena (opcional; https:// ou /ilustracoes/…, sem texto dentro da imagem)
         <input value={story.image ?? ''} placeholder="/ilustracoes/reforma-protestante/quadros/11-13-cena.svg" onChange={(e) => set({ image: e.target.value })} />
