@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { HtmlRenderer } from './HtmlRenderer';
 import { DevotionalService } from '../services/DevotionalService';
 import { JourneyService } from '../services/JourneyService';
+import { AnalyticsService } from '../services/AnalyticsService';
 import { BANDS, FamilyService, type Band, type Family, type KidsVersion } from '../services/FamilyService';
 import { getTodayInSaoPaulo } from '../utils/date';
 import { cleanScripture, htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks, readerForDay, versionsForChildren, withoutEmbeddedSections } from '../utils/ritual';
@@ -294,6 +295,14 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
         if (!solo && family && kidsHere.length) await FamilyService.readTogether(devotional.id, [...presentAdults], kidsHere);
       }
       setSaved(true);
+      // Modo da leitura para o painel: sozinho, em grupo de adultos ou com crianças (e as faixas delas).
+      AnalyticsService.trackEvent('reading_completed', {
+        devotional_id: devotional.id,
+        mode: solo ? 'individual' : kidsHere.length ? 'criancas' : 'grupo',
+        adults: solo ? 1 : presentAdults.size,
+        kids: kidsHere.length,
+        bands: [...new Set(perChild.map((p) => p.child.band))],
+      });
       window.dispatchEvent(new Event('notices:changed'));
       FamilyService.get().then((f) => f && setFamily(f)).catch(() => {});
     } catch { setFailed(true); }

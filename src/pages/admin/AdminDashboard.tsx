@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 import { queueStatus, QUEUE_TARGET_DAYS, type QueueStatus } from '../../utils/contentQueue';
 import { getTodayInSaoPaulo } from '../../utils/date';
-import { AdminService, type DashboardMetrics, type DailySeriesPoint, type ReadingTrends, type SearchTerms } from '../../services/AdminService';
+import { AdminService, type DashboardMetrics, type DailySeriesPoint, type ReadingModes, type ReadingTrends, type SearchTerms } from '../../services/AdminService';
 
 const ACCENT = 'var(--color-accent, #c46d53)';
 const ACCENT_SOFT = '#e8c3b6';
@@ -29,6 +29,9 @@ const TOPIC_LABELS: Record<string, string> = {
   oracao: 'Oração', saude: 'Saúde e doença', fracasso: 'Fracasso e vergonha',
 };
 
+const MODE_LABELS: Record<string, string> = { individual: 'Individual', grupo: 'Em grupo', criancas: 'Com crianças' };
+const bandLabel = (band: string) => `${band.replace('-', ' a ')} anos`;
+
 const funnelChartData = (metrics: DashboardMetrics) => [
   { label: 'Acessou', value: metrics.funnel.accessed },
   { label: 'Compartilhou', value: metrics.funnel.shared },
@@ -43,6 +46,7 @@ export function AdminDashboard() {
   const [readingTrends, setReadingTrends] = useState<ReadingTrends | null>(null);
   const [queue, setQueue] = useState<QueueStatus | null>(null);
   const [searchTerms, setSearchTerms] = useState<SearchTerms | null>(null);
+  const [readingModes, setReadingModes] = useState<ReadingModes | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [period, setPeriod] = useState('7d'); // 'today', '7d', '30d'
@@ -99,6 +103,16 @@ export function AdminDashboard() {
   // O que as pessoas procuram: acompanha o seletor de período.
   useEffect(() => {
     AdminService.getSearchTerms(period === 'today' ? 1 : period === '30d' ? 30 : 7).then(setSearchTerms);
+  }, [period]);
+
+  // Modos de leitura (individual, grupo, crianças): acompanha o seletor de período.
+  useEffect(() => {
+    const end = new Date();
+    const start = new Date();
+    if (period === '7d') start.setDate(end.getDate() - 7);
+    else if (period === '30d') start.setDate(end.getDate() - 30);
+    AdminService.getReadingModes(toLocalDateString(start), toLocalDateString(end)).then(setReadingModes);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period]);
 
   // Fila de conteúdo: dias à frente com devocional publicado.
@@ -551,6 +565,35 @@ export function AdminDashboard() {
           )}
         </div>
       )}
+
+      <div className="admin-section">
+        <h3>Como as pessoas leem</h3>
+        {readingModes && readingModes.total > 0 ? (
+          <div className="admin-table-container admin-table-responsive">
+            <table className="admin-table">
+              <thead><tr><th>Modo</th><th>Leituras</th><th>%</th></tr></thead>
+              <tbody>
+                {readingModes.modes.map(m => (
+                  <tr key={m.mode}>
+                    <td data-label="Modo">{MODE_LABELS[m.mode] ?? m.mode}</td>
+                    <td data-label="Leituras">{m.reads}</td>
+                    <td data-label="%">{((m.reads / readingModes.total) * 100).toFixed(1)}%</td>
+                  </tr>
+                ))}
+                {readingModes.bands.map(b => (
+                  <tr key={b.band}>
+                    <td data-label="Modo">Crianças · {bandLabel(b.band)}</td>
+                    <td data-label="Leituras">{b.reads}</td>
+                    <td data-label="%">—</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p style={{ color: 'var(--color-text-light)', fontSize: '0.9rem' }}>Ainda sem leituras por modo neste período.</p>
+        )}
+      </div>
 
       <div className="admin-section">
         <h3>O que as pessoas procuram</h3>
