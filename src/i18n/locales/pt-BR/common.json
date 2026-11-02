@@ -542,7 +542,11 @@
     "register": "Registrar minha leitura",
     "registered2": "Leitura registrada",
     "registerFor": "Conta para você e para o grupo {{name}}",
-    "registerForMany": "Conta para você e para {{count}} grupos"
+    "registerForMany": "Conta para você e para {{count}} grupos",
+    "readGroup": "Ler em grupo",
+    "readGroupHint": "Este devocional, passo a passo com o grupo",
+    "readKids": "Ler com as crianças",
+    "readKidsHint": "A versão feita para a idade delas"
   },
   "familyNav": "Grupo",
   "plansx": {
@@ -582,5 +586,14 @@
     "heading": "O grupo leu junto hoje",
     "together": "{{by}} registrou a leitura de hoje: o grupo {{family}} leu junto.",
     "remote": "O grupo {{family}} leu junto hoje: todos completaram a leitura."
+  },
+  "closing": {
+    "title": "Leitura registrada",
+    "group": "{{name}}: {{count}} de {{total}} já leram hoje",
+    "tomorrow": "Amanhã",
+    "tomorrowText": "Um novo devocional chega às 6h.",
+    "remind": "Lembrar de ler às 7h",
+    "eventTitle": "Ler o devocional de hoje",
+    "eventText": "Três minutos para parar, refletir e viver melhor."
   }
 }

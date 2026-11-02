@@ -3,6 +3,8 @@ import { ReminderInvite } from './ReminderInvite';
 import { FamilyTodayCard } from './FamilyTodayCard';
 import { GroupWordCard } from './GroupWordCard';
 import { GroupCelebrationBanner } from './GroupNotices';
+import { ReadingClosing } from './ReadingClosing';
+import { ReadWithOthers } from './ReadWithOthers';
 import { FamilyService } from '../services/FamilyService';
 import { useNavigate } from 'react-router-dom';
 import type { Devotional } from '../types/Devotional';
@@ -293,6 +295,7 @@ export function PrincipleView({
 
       <DevotionalHeader
         showLogo={showLogo}
+        compact={isDaily && !!user && !reading}
         onBack={onBack}
         backText={t('home.back')}
       />
@@ -312,8 +315,8 @@ export function PrincipleView({
             </span>
             <h1 className="principle-title">{devotional.title}</h1>
             <StreakLine summary={journey} />
-            {devotional.scripture_reference && <cite className="principle-scripture-reference">{devotional.scripture_reference}</cite>}
-            {devotional.principle_statement && <p className="principle-statement">{devotional.principle_statement}</p>}
+            {devotional.principle_statement && <p className="hoje-capa__quote">{devotional.principle_statement}</p>}
+            {devotional.scripture_reference && <cite className="principle-scripture-reference hoje-capa__ref">{devotional.scripture_reference}</cite>}
             <FamilyTodayCard devotionalId={devotional.id} onReadSolo={() => { setReading(true); window.scrollTo({ top: 0 }); }} />
           </section>
         ) : (<>
@@ -825,6 +828,10 @@ export function PrincipleView({
             </>
 
           )}
+
+          {isDaily && user && completed && <ReadingClosing summary={journey} />}
+
+          {!isDaily && user && <ReadWithOthers devotionalId={devotional.id} />}
 
           {isDaily && user && (groupRead || completed) && groupNames.length > 0 && <GroupWordCard completed={completed} onComplete={markComplete} />}
 

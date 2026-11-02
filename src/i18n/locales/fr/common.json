@@ -542,7 +542,11 @@
     "register": "Enregistrer ma lecture",
     "registered2": "Lecture enregistrée",
     "registerFor": "Compte pour vous et le groupe {{name}}",
-    "registerForMany": "Compte pour vous et {{count}} groupes"
+    "registerForMany": "Compte pour vous et {{count}} groupes",
+    "readGroup": "Lire en groupe",
+    "readGroupHint": "Ce dévotionnel, pas à pas avec le groupe",
+    "readKids": "Lire avec les enfants",
+    "readKidsHint": "La version faite pour leur âge"
   },
   "familyNav": "Groupe",
   "plansx": {
@@ -582,5 +586,14 @@
     "heading": "Le groupe a lu ensemble aujourd'hui",
     "together": "{{by}} a enregistré la lecture du jour : le groupe {{family}} a lu ensemble.",
     "remote": "Le groupe {{family}} a lu ensemble aujourd'hui : tous ont terminé la lecture."
+  },
+  "closing": {
+    "title": "Lecture enregistrée",
+    "group": "{{name}} : {{count}} sur {{total}} ont lu aujourd'hui",
+    "tomorrow": "Demain",
+    "tomorrowText": "Un nouveau dévotionnel arrive à 6 h.",
+    "remind": "Me rappeler de lire à 7 h",
+    "eventTitle": "Lire le dévotionnel du jour",
+    "eventText": "Trois minutes pour s'arrêter, réfléchir et mieux vivre."
   }
 }

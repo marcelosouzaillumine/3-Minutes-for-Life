@@ -14,7 +14,7 @@ type SheetKind = null | 'create' | 'join' | 'invite' | 'manage' | 'plan' | 'pray
 const initials = (name: string | null) => (name ?? '?').trim().slice(0, 2).replace(/^./, (c) => c.toUpperCase());
 
 /** Abre o Ler juntos. Com `audience`, a pessoa já chega sabendo com quem lê e a tela de escolha some. */
-export const openRitual = (source: 'daily' | 'plan' = 'daily', audience?: 'adults' | 'kids', opts?: { solo?: boolean; intro?: boolean; kidIds?: string[]; adultIdx?: number[]; band?: Band }) =>
+export const openRitual = (source: 'daily' | 'plan' = 'daily', audience?: 'adults' | 'kids', opts?: { solo?: boolean; intro?: boolean; kidIds?: string[]; adultIdx?: number[]; band?: Band; devotionalId?: string }) =>
   window.dispatchEvent(new CustomEvent('family:ritual', { detail: { source, audience, ...opts } }));
 
 /** Aba Grupo (família, casal ou amigos): cada um lê no seu tempo e todos veem quem já leu. Quem leu, a semana, o plano em andamento e o mural. */

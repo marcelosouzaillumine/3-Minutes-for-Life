@@ -10,10 +10,12 @@ const ORDER: Band[] = ['4-6', '7-10', '11-13'];
 const bandLabel = (b: Band) => b.replace('-', ' a ');
 
 /** Folha de preparo da leitura: quem está à mesa (e, com crianças, a versão) numa tela só, e a leitura começa já no primeiro passo. */
-export function ReadStartSheet({ audience, family, plan, onClose, onChanged }: {
+export function ReadStartSheet({ audience, family, plan, devotionalId, onClose, onChanged }: {
   audience: 'adults' | 'kids';
   family: Family;
   plan: boolean;
+  /** Devocional escolhido fora do Hoje (Explorar, planos); sem isso vale o do dia. */
+  devotionalId?: string;
   onClose: () => void;
   onChanged?: (f: Family) => void;
 }) {
@@ -25,7 +27,7 @@ export function ReadStartSheet({ audience, family, plan, onClose, onChanged }: {
     try { return localStorage.getItem('ritual.groupMode') === 'alone' ? 'alone' : 'together'; } catch { return 'together'; }
   });
   const pick = (m: 'together' | 'alone') => { setMode(m); try { localStorage.setItem('ritual.groupMode', m); } catch { /* sem armazenamento */ } };
-  const alone = !kids && mode === 'alone';
+  const alone = !kids && !devotionalId && mode === 'alone';
   const [fam, setFam] = useState(family);
   const [adults, setAdults] = useState<Set<number>>(() => new Set(family.members.map((_, i) => i)));
   const [present, setPresent] = useState<Set<string>>(() => new Set(family.children.map((c) => c.id)));
@@ -66,8 +68,8 @@ export function ReadStartSheet({ audience, family, plan, onClose, onChanged }: {
       window.dispatchEvent(new Event('hoje:read'));
       return;
     }
-    if (kids) openRitual('daily', 'kids', { intro: false, kidIds: [...present], band: shared ?? undefined });
-    else openRitual(plan ? 'plan' : 'daily', 'adults', { intro: false, adultIdx: [...adults] });
+    if (kids) openRitual('daily', 'kids', { intro: false, kidIds: [...present], band: shared ?? undefined, devotionalId });
+    else openRitual(plan ? 'plan' : 'daily', 'adults', { intro: false, adultIdx: [...adults], devotionalId });
   };
 
   const add = async (e: React.FormEvent) => {
@@ -93,7 +95,7 @@ export function ReadStartSheet({ audience, family, plan, onClose, onChanged }: {
           </select>
         </label>
       )}
-      {!kids && (
+      {!kids && !devotionalId && (
         <div className="fam-people" role="tablist" aria-label={tt('groupHowTitle', 'Como o grupo vai ler?')}>
           <button type="button" className={`fam-chip${!alone ? ' is-on' : ''}`} aria-pressed={!alone} onClick={() => pick('together')}>{tt('modeTogether', 'Estamos juntos agora')}</button>
           <button type="button" className={`fam-chip${alone ? ' is-on' : ''}`} aria-pressed={alone} onClick={() => pick('alone')}>{tt('modeAlone', 'Cada um no seu tempo')}</button>
