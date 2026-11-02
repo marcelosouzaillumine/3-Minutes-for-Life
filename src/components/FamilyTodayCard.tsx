@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { illumineAuth } from '../lib/illumine';
 import { FamilyService, type Family } from '../services/FamilyService';
-import { openRitual } from '../pages/Family';
+import { ReadStartSheet } from './ReadStartSheet';
 import '../styles/family.css';
 
 /** Capa do Hoje: ler sozinho em destaque e, abaixo, os caminhos em grupo e com as crianças, cada um com o seu estado. */
@@ -10,6 +10,7 @@ export function FamilyTodayCard({ devotionalId, onReadSolo }: { devotionalId?: s
   const { t, i18n } = useTranslation('common');
   const [hasKids, setHasKids] = useState(false);
   const [family, setFamily] = useState<Family | null>(null);
+  const [sheet, setSheet] = useState<'adults' | 'kids' | null>(null);
 
   useEffect(() => {
     if (!illumineAuth.isAuthenticated()) return;
@@ -41,7 +42,7 @@ export function FamilyTodayCard({ devotionalId, onReadSolo }: { devotionalId?: s
       </button>
       <p className="hoje-capa__or">{t('ritual.orWithOthers', 'Ou leia com outras pessoas')}</p>
       <div className="hoje-capa__pair">
-        <button type="button" className="hoje-capa__card" onClick={() => (family ? openRitual(plan ? 'plan' : 'daily', 'adults', { intro: false }) : goTab('family'))}>
+        <button type="button" className="hoje-capa__card" onClick={() => (family ? setSheet('adults') : goTab('family'))}>
           <b>{t('ritual.modeGroup', 'Grupo')}</b>
           <span>
             {family
@@ -52,7 +53,7 @@ export function FamilyTodayCard({ devotionalId, onReadSolo }: { devotionalId?: s
             {plan && ` · ${t('fam.today.planDay', { n: plan.currentDay, defaultValue: 'plano, dia {{n}}' })}`}
           </span>
         </button>
-        <button type="button" className="hoje-capa__card" onClick={() => openRitual('daily', 'kids', { intro: false })}>
+        <button type="button" className="hoje-capa__card" onClick={() => (family ? setSheet('kids') : goTab('kids'))}>
           <b>{t('ritual.modeKids', 'Crianças')}</b>
           <span>
             {names ? t('ritual.kidsWith', { names, defaultValue: 'Com {{names}}' }) : t('ritual.kidsText', 'Escolha a idade e leia a versão feita para elas.')}
@@ -60,6 +61,7 @@ export function FamilyTodayCard({ devotionalId, onReadSolo }: { devotionalId?: s
           </span>
         </button>
       </div>
+      {sheet && family && <ReadStartSheet audience={sheet} family={family} plan={!!plan} onClose={() => setSheet(null)} onChanged={setFamily} />}
     </div>
   );
 }

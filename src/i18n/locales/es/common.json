@@ -517,7 +517,12 @@
     "readNow": "Leer ahora",
     "readNowHint": "3 minutos · a tu ritmo",
     "orWithOthers": "O lee con otras personas",
-    "backToCover": "Volver a la portada"
+    "backToCover": "Volver a la portada",
+    "kidsSheetTitle": "¿Quién lee contigo?",
+    "groupSheetTitle": "¿Quién está en la mesa?",
+    "sheetVersion": "Leeremos la versión de {{band}} años, la del más pequeño en la mesa.",
+    "sheetSwitch": "Cambiar a {{band}}",
+    "sheetStart": "Empezar la lectura"
   },
   "familyNav": "Grupo",
   "plansx": {

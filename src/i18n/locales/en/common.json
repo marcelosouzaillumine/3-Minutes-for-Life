@@ -511,7 +511,12 @@
     "readNow": "Read now",
     "readNowHint": "3 minutes · at your own pace",
     "orWithOthers": "Or read with others",
-    "backToCover": "Back to cover"
+    "backToCover": "Back to cover",
+    "kidsSheetTitle": "Who is reading with you?",
+    "groupSheetTitle": "Who's at the table?",
+    "sheetVersion": "We'll read the {{band}} version, for the youngest at the table.",
+    "sheetSwitch": "Switch to {{band}}",
+    "sheetStart": "Start reading"
   },
   "familyNav": "Group",
   "plansx": {
