@@ -411,7 +411,9 @@
       "kids_other": "{{count}} children",
       "create": "Create another group",
       "join": "Join with a code",
-      "count": "You are in {{count}} of {{max}} possible groups."
+      "count": "You are in {{count}} of {{max}} possible groups.",
+      "switch": "Switch group · you're in {{count}}",
+      "another": "+ Create or join another group"
     }
   },
   "ritual": {
@@ -527,7 +529,9 @@
     "wordPlaceholder": "What touched you most today? Or ask for prayer.",
     "wordSend": "Send to the group",
     "wordMark": "Just mark as read",
-    "wordSent": "Done: the group can see you read."
+    "wordSent": "Done: the group can see you read.",
+    "groupLine": "Group",
+    "wordTo": "To the group"
   },
   "familyNav": "Group",
   "plansx": {

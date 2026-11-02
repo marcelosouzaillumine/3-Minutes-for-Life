@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from './Sheet';
-import { FamilyService, type Band, type Family } from '../services/FamilyService';
+import { FamilyService, activeFamily, type Band, type Family, type FamilySummary } from '../services/FamilyService';
 import { openRitual } from '../pages/Family';
 import { readerForDay } from '../utils/ritual';
 import '../styles/family.css';
@@ -35,6 +35,18 @@ export function ReadStartSheet({ audience, family, plan, onClose, onChanged }: {
   const [adding, setAdding] = useState(fam.children.length === 0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  // Quem está em mais de um grupo (família, célula…) escolhe aqui para qual deles lê.
+  const [groups, setGroups] = useState<FamilySummary[]>([]);
+  useEffect(() => { FamilyService.list().then((g) => setGroups(g.families)).catch(() => {}); }, []);
+  const switchGroup = async (id: string) => {
+    activeFamily.set(id);
+    const f = await FamilyService.get();
+    if (!f) return;
+    setFam(f); onChanged?.(f);
+    setAdults(new Set(f.members.map((_, i) => i)));
+    setPresent(new Set(f.children.map((c) => c.id)));
+    setLead(null);
+  };
 
   const bands = useMemo(
     () => [...new Set(fam.children.filter((c) => present.has(c.id)).map((c) => c.band))].sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b)),
@@ -74,6 +86,13 @@ export function ReadStartSheet({ audience, family, plan, onClose, onChanged }: {
 
   return (
     <Sheet title={kids ? tt('kidsSheetTitle', 'Quem lê com você?') : alone ? tt('groupHowTitle', 'Como o grupo vai ler?') : tt('groupSheetTitle', 'Quem está à mesa?')} onClose={onClose}>
+      {groups.length > 1 && (
+        <label className="fam-groupline">{tt('groupLine', 'Grupo')}:
+          <select value={fam.id} onChange={(e) => { switchGroup(e.target.value).catch(() => {}); }} aria-label={tt('groupLine', 'Grupo')}>
+            {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+          </select>
+        </label>
+      )}
       {!kids && (
         <div className="fam-people" role="tablist" aria-label={tt('groupHowTitle', 'Como o grupo vai ler?')}>
           <button type="button" className={`fam-chip${!alone ? ' is-on' : ''}`} aria-pressed={!alone} onClick={() => pick('together')}>{tt('modeTogether', 'Estamos juntos agora')}</button>

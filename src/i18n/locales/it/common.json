@@ -416,7 +416,9 @@
       "kids_other": "{{count}} bambini",
       "create": "Crea un altro gruppo",
       "join": "Entra con un codice",
-      "count": "Sei in {{count}} gruppi su {{max}} possibili."
+      "count": "Sei in {{count}} gruppi su {{max}} possibili.",
+      "switch": "Cambia gruppo · sei in {{count}}",
+      "another": "+ Crea o entra in un altro gruppo"
     }
   },
   "ritual": {
@@ -533,7 +535,9 @@
     "wordPlaceholder": "Cosa ti ha toccato di più oggi? Oppure chiedi una preghiera.",
     "wordSend": "Invia al gruppo",
     "wordMark": "Segna solo come letto",
-    "wordSent": "Fatto: il gruppo vede che hai letto."
+    "wordSent": "Fatto: il gruppo vede che hai letto.",
+    "groupLine": "Gruppo",
+    "wordTo": "Per il gruppo"
   },
   "familyNav": "Gruppo",
   "plansx": {

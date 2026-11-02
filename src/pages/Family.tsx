@@ -139,6 +139,11 @@ export function Family() {
           <button type="button" className="fam-pick" onClick={() => setSheet('groups')} aria-haspopup="dialog">
             <h1 className="fam-head__name">{family.name}</h1><span aria-hidden="true">▾</span>
           </button>
+          <button type="button" className="fam-link fam-groups-link" onClick={() => setSheet('groups')}>
+            {groups.families.length > 1
+              ? tt('groups.switch', 'Trocar de grupo · você está em {{count}}', { count: groups.families.length })
+              : tt('groups.another', '+ Criar ou entrar em outro grupo')}
+          </button>
           <p className="fam-head__sub">
             {family.week.streak > 0 ? tt('streak', '{{count}} dias lendo juntos', { count: family.week.streak }) : tt('streak0', 'Comecem hoje')}
             {family.meetingTime ? ` · ${family.meetingTime}` : ''}
