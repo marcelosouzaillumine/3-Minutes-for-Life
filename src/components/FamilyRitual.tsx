@@ -18,7 +18,7 @@ const bandArt = (band: string) => (band === '4-6' ? 'young' : 'older');
 const OWN_ART: Record<string, string> = { cmvudrag10002oe2ldyzmvhaa: 'reforma-protestante' };
 const ownArt = (devotionalId: string | undefined, band: string) => (devotionalId && OWN_ART[devotionalId] ? `/ilustracoes/${OWN_ART[devotionalId]}/${band}.svg` : null);
 
-export function FamilyRitual({ source, audience: forced, solo = false, intro = true, kidIds, adultIdx, band, onClose }: {
+export function FamilyRitual({ source, audience: forced, solo = false, intro = true, kidIds, adultIdx, devotionalId, band, onClose }: {
   source: 'daily' | 'plan';
   audience?: 'adults' | 'kids';
   /** Só a própria pessoa lê: não pede grupo nem escolha de quem está à mesa. */
@@ -29,6 +29,8 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
   kidIds?: string[];
   /** Adultos presentes (posições em `members`), escolhidos na folha do grupo. */
   adultIdx?: number[];
+  /** Devocional escolhido (Explorar, planos); sem isso vale o do dia ou o do plano. */
+  devotionalId?: string;
   band?: Band;
   onClose: () => void;
 
@@ -76,7 +78,9 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
     if (!family && !solo) return;
     let alive = true;
     setDevotional(null);
-    const load = useSource === 'plan' && planDay
+    const load = devotionalId
+      ? DevotionalService.getDevotional(devotionalId, i18n.language)
+      : useSource === 'plan' && planDay
       ? DevotionalService.getDevotional(planDay.devotionalId, i18n.language)
       : DevotionalService.getDailyDevotional(getTodayInSaoPaulo(), i18n.language);
     load.then(async (d) => {
@@ -86,7 +90,7 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
       if (alive) setKids(v);
     }).catch(() => alive && setFailed(true));
     return () => { alive = false; };
-  }, [family, useSource, planDay?.devotionalId, i18n.language]);
+  }, [family, useSource, planDay?.devotionalId, devotionalId, i18n.language]);
 
   const adults = useMemo(() => (family?.members ?? []).filter((_, i) => presentAdults.has(i)).map((m) => m.displayName ?? '').filter(Boolean), [family, presentAdults]);
   const dayKey = Math.floor(Date.now() / 86_400_000);
@@ -313,9 +317,9 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
         <div className="ritual__screen" key={screen.id}>
         {screen.kind === 'welcome' && (
           <>
-            <p className="fam-eyebrow fam-eyebrow--accent">{useSource === 'plan' && fam.plan ? tt('planDay', 'Plano · dia {{n}}', { n: fam.plan.currentDay }) : tt('today', 'Devocional de hoje')}</p>
+            <p className="fam-eyebrow fam-eyebrow--accent">{!devotionalId && useSource === 'plan' && fam.plan ? tt('planDay', 'Plano · dia {{n}}', { n: fam.plan.currentDay }) : tt('today', 'Devocional de hoje')}</p>
             <h1 className="ritual__title">{devotional.title}</h1>
-            {canPlan && (
+            {canPlan && !devotionalId && (
               <div className="fam-people" role="tablist">
                 <button type="button" className={`fam-chip${useSource === 'daily' ? ' is-on' : ''}`} onClick={() => setChosen('daily')}>{tt('pickDaily', 'Devocional do dia')}</button>
                 <button type="button" className={`fam-chip${useSource === 'plan' ? ' is-on' : ''}`} onClick={() => setChosen('plan')}>{tt('pickPlan', 'Do plano · dia {{n}}', { n: fam.plan?.currentDay })}</button>

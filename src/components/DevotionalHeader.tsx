@@ -2,13 +2,15 @@ import { BrandLogo } from './BrandLogo';
 
 interface DevotionalHeaderProps {
   showLogo?: boolean;
+  /** Barra mais baixa, para a capa do Hoje caber na primeira tela. */
+  compact?: boolean;
   onBack?: () => void;
   backText?: string;
 }
 
-export function DevotionalHeader({ showLogo = true, onBack, backText }: DevotionalHeaderProps) {
+export function DevotionalHeader({ showLogo = true, compact = false, onBack, backText }: DevotionalHeaderProps) {
   return (
-    <header className="devotional-header">
+    <header className={`devotional-header${compact ? ' devotional-header--compact' : ''}`}>
       {onBack && (
         <button
           type="button"

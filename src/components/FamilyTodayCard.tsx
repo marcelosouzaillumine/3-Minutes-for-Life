@@ -41,9 +41,9 @@ export function FamilyTodayCard({ devotionalId, onReadSolo }: { devotionalId?: s
         <span>{t('ritual.readNowHint', '3 minutos · no seu ritmo')}</span>
       </button>
       <p className="hoje-capa__or">{t('ritual.orWithOthers', 'Ou leia com outras pessoas')}</p>
-      <div className="hoje-capa__pair">
-        <button type="button" className="hoje-capa__card" onClick={() => (family ? setSheet('adults') : goTab('family'))}>
-          <b>{t('ritual.modeGroup', 'Grupo')}</b>
+      <div className="hoje-capa__list">
+        <button type="button" className="hoje-capa__row" onClick={() => (family ? setSheet('adults') : goTab('family'))}>
+          <span className="hoje-capa__text"><b>{t('ritual.modeGroup', 'Grupo')}</b>
           <span>
             {family
               ? (readers > 0
@@ -51,14 +51,16 @@ export function FamilyTodayCard({ devotionalId, onReadSolo }: { devotionalId?: s
                 : t('fam.today.none', 'Ninguém leu ainda hoje'))
               : t('ritual.groupText', 'Casal, célula ou amigos. Cada um no seu tempo.')}
             {plan && ` · ${t('fam.today.planDay', { n: plan.currentDay, defaultValue: 'plano, dia {{n}}' })}`}
-          </span>
+          </span></span>
+          <span aria-hidden="true">›</span>
         </button>
-        <button type="button" className="hoje-capa__card" onClick={() => (family ? setSheet('kids') : goTab('kids'))}>
-          <b>{t('ritual.modeKids', 'Crianças')}</b>
+        <button type="button" className="hoje-capa__row" onClick={() => (family ? setSheet('kids') : goTab('kids'))}>
+          <span className="hoje-capa__text"><b>{t('ritual.modeKids', 'Crianças')}</b>
           <span>
             {names ? t('ritual.kidsWith', { names, defaultValue: 'Com {{names}}' }) : t('ritual.kidsText', 'Escolha a idade e leia a versão feita para elas.')}
             {hasKids && names ? ` · ${t('ritual.kidsReady', 'versão pronta')}` : ''}
-          </span>
+          </span></span>
+          <span aria-hidden="true">›</span>
         </button>
       </div>
       {sheet && family && <ReadStartSheet audience={sheet} family={family} plan={!!plan} onClose={() => setSheet(null)} onChanged={setFamily} />}

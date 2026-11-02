@@ -536,7 +536,13 @@
     "register": "Record my reading",
     "registered2": "Reading recorded",
     "registerFor": "Counts for you and the {{name}} group",
-    "registerForMany": "Counts for you and {{count}} groups"
+    "registerForMany": "Counts for you and {{count}} groups",
+    "readGroup": "Read as a group",
+    "readGroupHint": "This devotional, step by step with the group",
+    "readKids": "Read with the kids",
+    "readKidsHint": "The version made for their age",
+    "sheetMissing": "There is no {{band}} version of this devotional yet.",
+    "sheetNone": "This devotional has no version yet for the age of those at the table ({{band}})."
   },
   "familyNav": "Group",
   "plansx": {
@@ -575,5 +581,14 @@
     "heading": "The group read together today",
     "together": "{{by}} recorded today's reading: the {{family}} group read together.",
     "remote": "The {{family}} group read together today: everyone completed the reading."
+  },
+  "closing": {
+    "title": "Reading recorded",
+    "group": "{{name}}: {{count}} of {{total}} have read today",
+    "tomorrow": "Tomorrow",
+    "tomorrowText": "A new devotional arrives at 6 a.m.",
+    "remind": "Remind me to read at 7 a.m.",
+    "eventTitle": "Read today's devotional",
+    "eventText": "Three minutes to pause, reflect and live better."
   }
 }

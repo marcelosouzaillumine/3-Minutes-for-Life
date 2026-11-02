@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from './Sheet';
+import { DevotionalService } from '../services/DevotionalService';
+import { getTodayInSaoPaulo } from '../utils/date';
 import { FamilyService, activeFamily, type Band, type Family, type FamilySummary } from '../services/FamilyService';
 import { openRitual } from '../pages/Family';
 import { readerForDay } from '../utils/ritual';
@@ -10,14 +12,16 @@ const ORDER: Band[] = ['4-6', '7-10', '11-13'];
 const bandLabel = (b: Band) => b.replace('-', ' a ');
 
 /** Folha de preparo da leitura: quem está à mesa (e, com crianças, a versão) numa tela só, e a leitura começa já no primeiro passo. */
-export function ReadStartSheet({ audience, family, plan, onClose, onChanged }: {
+export function ReadStartSheet({ audience, family, plan, devotionalId, onClose, onChanged }: {
   audience: 'adults' | 'kids';
   family: Family;
   plan: boolean;
+  /** Devocional escolhido fora do Hoje (Explorar, planos); sem isso vale o do dia. */
+  devotionalId?: string;
   onClose: () => void;
   onChanged?: (f: Family) => void;
 }) {
-  const { t } = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const tt = (k: string, d: string, o?: Record<string, unknown>) => t(`ritual.${k}`, { defaultValue: d, ...o }) as string;
   const kids = audience === 'kids';
   // Grupo à distância: cada um lê a rolagem de hoje no seu tempo. A escolha fica lembrada.
@@ -25,7 +29,7 @@ export function ReadStartSheet({ audience, family, plan, onClose, onChanged }: {
     try { return localStorage.getItem('ritual.groupMode') === 'alone' ? 'alone' : 'together'; } catch { return 'together'; }
   });
   const pick = (m: 'together' | 'alone') => { setMode(m); try { localStorage.setItem('ritual.groupMode', m); } catch { /* sem armazenamento */ } };
-  const alone = !kids && mode === 'alone';
+  const alone = !kids && !devotionalId && mode === 'alone';
   const [fam, setFam] = useState(family);
   const [adults, setAdults] = useState<Set<number>>(() => new Set(family.members.map((_, i) => i)));
   const [present, setPresent] = useState<Set<string>>(() => new Set(family.children.map((c) => c.id)));
@@ -48,15 +52,30 @@ export function ReadStartSheet({ audience, family, plan, onClose, onChanged }: {
     setLead(null);
   };
 
-  const bands = useMemo(
+  // Faixas com versão aprovada neste devocional e idioma. Sem isso a folha prometeria uma idade que a leitura não tem.
+  const [avail, setAvail] = useState<Set<Band> | null>(null);
+  useEffect(() => {
+    if (!kids) return;
+    let alive = true;
+    (async () => {
+      const id = devotionalId ?? (await DevotionalService.getDailyDevotional(getTodayInSaoPaulo(), i18n.language)).id;
+      const v = await FamilyService.getKids(id, i18n.language);
+      if (alive) setAvail(new Set(v.map((x) => x.band)));
+    })().catch(() => { if (alive) setAvail(null); });
+    return () => { alive = false; };
+  }, [kids, devotionalId, i18n.language]);
+
+  const presentBands = useMemo(
     () => [...new Set(fam.children.filter((c) => present.has(c.id)).map((c) => c.band))].sort((a, b) => ORDER.indexOf(a) - ORDER.indexOf(b)),
     [fam, present],
   );
+  const bands = avail ? presentBands.filter((b) => avail.has(b)) : presentBands;
+  const missing = avail ? presentBands.filter((b) => !avail.has(b)) : [];
   const shared = lead && bands.includes(lead) ? lead : bands[0] ?? null;
   const names = fam.members.filter((_, i) => adults.has(i)).map((m) => m.displayName ?? '').filter(Boolean);
   const reader = readerForDay(names, Math.floor(Date.now() / 86_400_000));
   const toggle = <T,>(set: Set<T>, v: T, put: (s: Set<T>) => void) => { const n = new Set(set); if (n.has(v)) n.delete(v); else n.add(v); put(n); };
-  const canStart = kids ? present.size > 0 : alone || adults.size > 0;
+  const canStart = kids ? present.size > 0 && (!avail || bands.length > 0) : alone || adults.size > 0;
 
   const start = () => {
     onClose();
@@ -66,8 +85,8 @@ export function ReadStartSheet({ audience, family, plan, onClose, onChanged }: {
       window.dispatchEvent(new Event('hoje:read'));
       return;
     }
-    if (kids) openRitual('daily', 'kids', { intro: false, kidIds: [...present], band: shared ?? undefined });
-    else openRitual(plan ? 'plan' : 'daily', 'adults', { intro: false, adultIdx: [...adults] });
+    if (kids) openRitual('daily', 'kids', { intro: false, kidIds: [...present], band: shared ?? undefined, devotionalId });
+    else openRitual(plan ? 'plan' : 'daily', 'adults', { intro: false, adultIdx: [...adults], devotionalId });
   };
 
   const add = async (e: React.FormEvent) => {
@@ -93,7 +112,7 @@ export function ReadStartSheet({ audience, family, plan, onClose, onChanged }: {
           </select>
         </label>
       )}
-      {!kids && (
+      {!kids && !devotionalId && (
         <div className="fam-people" role="tablist" aria-label={tt('groupHowTitle', 'Como o grupo vai ler?')}>
           <button type="button" className={`fam-chip${!alone ? ' is-on' : ''}`} aria-pressed={!alone} onClick={() => pick('together')}>{tt('modeTogether', 'Estamos juntos agora')}</button>
           <button type="button" className={`fam-chip${alone ? ' is-on' : ''}`} aria-pressed={alone} onClick={() => pick('alone')}>{tt('modeAlone', 'Cada um no seu tempo')}</button>
@@ -140,6 +159,13 @@ export function ReadStartSheet({ audience, family, plan, onClose, onChanged }: {
           {bands.length > 1 && bands.filter((b) => b !== shared).map((b) => (
             <button key={b} type="button" className="fam-link" onClick={() => setLead(b)}> {tt('sheetSwitch', 'Trocar para {{band}}', { band: bandLabel(b) })}</button>
           ))}
+        </p>
+      )}
+      {kids && missing.length > 0 && (
+        <p className="fam-note">
+          {bands.length > 0
+            ? tt('sheetMissing', 'Ainda não há versão de {{band}} anos para este devocional.', { band: missing.map(bandLabel).join(' e ') })
+            : tt('sheetNone', 'Este devocional ainda não tem versão para a idade de quem está na mesa ({{band}} anos).', { band: missing.map(bandLabel).join(' e ') })}
         </p>
       )}
       {reader && !alone && <p className="fam-note">{tt('reader', '{{name}} lê em voz alta', { name: reader })}</p>}
