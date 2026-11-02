@@ -46,6 +46,12 @@ export type SearchTerms = {
   topics: { topic: string; count: number }[];
 };
 
+export type ReadingModes = {
+  total: number;
+  modes: { mode: string; reads: number }[];
+  bands: { band: string; reads: number }[];
+};
+
 export type ReadingTrends = {
   global_total_reads: number;
   global_total_opens: number;
@@ -258,6 +264,21 @@ export class AdminService {
       without_results: body.withoutResults ?? 0,
       terms: (body.terms ?? []).map((t: any) => ({ term: t.term, count: t.count ?? 0, without_results: t.withoutResults ?? 0 })),
       topics: (body.topics ?? []).map((t: any) => ({ topic: t.topic, count: t.count ?? 0 })),
+    };
+  }
+
+  /** Leituras por modo (individual, grupo, crianças) e por faixa etária, no período. */
+  static async getReadingModes(startDate: string, endDate: string): Promise<ReadingModes | null> {
+    const res = await illumineFetch(`/analytics/devotionals/reading-modes?${dateRangeParams(startDate, endDate)}`);
+    if (!res.ok) {
+      console.error('[Dashboard] L1 endpoint /analytics/devotionals/reading-modes com falha:', res.status);
+      return null;
+    }
+    const body = await res.json();
+    return {
+      total: body.total ?? 0,
+      modes: (body.modes ?? []).map((m: any) => ({ mode: m.mode, reads: m.reads ?? 0 })),
+      bands: (body.bands ?? []).map((b: any) => ({ band: b.band, reads: b.reads ?? 0 })),
     };
   }
 }
