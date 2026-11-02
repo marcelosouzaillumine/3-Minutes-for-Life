@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { KidStory } from '../services/FamilyService';
-import { cleanStory, emptyStory, safeStoryImage, storyScreenCount, storyToText, validateStory } from './kidsStory';
+import { cleanStory, emptyStory, safeStoryImage, storyCard, storyScreenCount, storyToText, validateStory } from './kidsStory';
 
 const panels: KidStory = { format: 'panels', panels: [{ image: '/ilustracoes/x/1.svg', caption: 'Um.', speech: 'Oi!' }, { image: 'https://cdn.exemplo.com/2.png', caption: 'Dois.' }] };
 const dilemma: Extract<KidStory, { format: 'dilemma' }> = {
@@ -59,5 +59,24 @@ describe('referência bíblica do dilema', () => {
     const c = cleanStory({ ...dilemma, reference: ' Lucas 10.38-42 ', quoteSource: '  ' } as KidStory) as Record<string, unknown>;
     expect(c.reference).toBe('Lucas 10.38-42');
     expect('quoteSource' in c).toBe(false);
+  });
+});
+
+describe('storyCard', () => {
+  it('quadrinhos: primeira imagem e primeira legenda', () => {
+    const c = storyCard({ format: 'panels', panels: [{ image: '/ilustracoes/a/quadros/faixa-4-6-1.webp', caption: 'Primeira.' }, { image: '/ilustracoes/a/quadros/faixa-4-6-2.webp', caption: 'Segunda.' }] });
+    expect(c).toEqual({ image: '/ilustracoes/a/quadros/faixa-4-6-1.webp', text: 'Primeira.' });
+  });
+  it('dilema: primeira das imagens e a frase do cartão, ou a pergunta', () => {
+    const base = { ...dilemma, images: ['/ilustracoes/a/quadros/faixa-11-13-1.webp', '/ilustracoes/a/quadros/faixa-11-13-2.webp'] } as KidStory;
+    expect(storyCard(base).image).toBe('/ilustracoes/a/quadros/faixa-11-13-1.webp');
+    expect(storyCard(base).text).toBe((dilemma as { question: string }).question);
+    expect(storyCard({ ...base, teaser: 'Jesus está à mesa.' } as KidStory).text).toBe('Jesus está à mesa.');
+  });
+  it('sem história, nada', () => {
+    expect(storyCard(null)).toEqual({ image: null, text: '' });
+  });
+  it('limita a frase do cartão', () => {
+    expect(validateStory({ ...dilemma, teaser: 'x'.repeat(101) } as KidStory)).toMatch(/cartão/);
   });
 });

@@ -55,6 +55,8 @@ export type KidStory =
       images?: string[];
       /** Passagem bíblica da história (ex.: "Lucas 10.38-42"), mostrada como selo na abertura. */
       reference?: string;
+      /** Frase curta que aparece no cartão da faixa ao escolher a versão (até 100). Sem ela, vale a pergunta do dilema. */
+      teaser?: string;
       setup: string; question: string; options: string[];
       outcome: string; quote?: string;
       /** De onde vem a citação (ex.: "Lucas 10.42" ou "Martinho Lutero"). */
