@@ -1,73 +1,94 @@
 {
- "4-6": {
-  "format": "panels",
-  "panels": [
-   {
-    "image": "/ilustracoes/reforma-protestante/quadros/4-6-1.svg",
-    "caption": "Em casa, havia um livro muito especial.",
-    "speech": "Que livro grande!"
-   },
-   {
-    "image": "/ilustracoes/reforma-protestante/quadros/4-6-2.svg",
-    "caption": "Antes, quase ninguém podia abrir a Bíblia.",
-    "speech": "Não alcanço!"
-   },
-   {
-    "image": "/ilustracoes/reforma-protestante/quadros/4-6-3.svg",
-    "caption": "Lutero abriu a Bíblia e viu o amor de Deus.",
-    "speech": "Deus nos ama de graça!"
-   },
-   {
-    "image": "/ilustracoes/reforma-protestante/quadros/4-6-4.svg",
-    "caption": "Hoje a Bíblia é para todos!",
-    "speech": "Vamos ler juntos?"
-   }
-  ]
- },
- "7-10": {
-  "format": "panels",
-  "panels": [
-   {
-    "image": "/ilustracoes/reforma-protestante/quadros/7-10-1.svg",
-    "caption": "Wittenberg, 1517.",
-    "speech": "Algo precisa mudar."
-   },
-   {
-    "image": "/ilustracoes/reforma-protestante/quadros/7-10-2.svg",
-    "caption": "Estudando a Bíblia, ele descobriu: o perdão é um presente de Deus.",
-    "speech": "Não se compra. Se recebe!"
-   },
-   {
-    "image": "/ilustracoes/reforma-protestante/quadros/7-10-3.svg",
-    "caption": "Ele escreveu suas dúvidas e as pregou na porta da igreja.",
-    "speech": "95 ideias para conversar!"
-   },
-   {
-    "image": "/ilustracoes/reforma-protestante/quadros/7-10-4.svg",
-    "caption": "Todo mundo começou a conversar.",
-    "speech": "Será que é isso mesmo?"
-   },
-   {
-    "image": "/ilustracoes/reforma-protestante/quadros/7-10-5.svg",
-    "caption": "Depois, ele traduziu a Bíblia para o povo ler.",
-    "speech": "Agora todos entendem!"
-   }
-  ]
- },
- "11-13": {
-  "format": "dilemma",
-  "image": "/ilustracoes/reforma-protestante/quadros/11-13-cena.svg",
-  "setup": "Worms, 1521. Você é Martinho Lutero. Diante de príncipes e bispos, pedem que você negue tudo o que escreveu. Se negar, volta para casa em paz. Se recusar, pode perder tudo.",
-  "question": "O que você faria?",
-  "options": [
-   "Negar e ficar seguro",
-   "Manter o que acredito",
-   "Pedir tempo para pensar"
-  ],
-  "outcome": "Lutero pediu um dia para pensar. No dia seguinte, recusou-se a negar sem ser convencido pela Escritura. Depois disso, ficou escondido num castelo e traduziu o Novo Testamento para o alemão.",
-  "quote": "Minha consciência está presa à Palavra de Deus.",
-  "outcomeQuestion": "Alguém mudaria a escolha de agora há pouco?",
-  "today": "Naquele tempo, a imprensa espalhava ideias em semanas. Hoje, uma ideia chega ao mundo em segundos.",
-  "todayQuestion": "Quando você precisa saber se algo é verdade, onde procura primeiro?"
- }
+  "0-3": {
+    "format": "panels",
+    "panels": [
+      {
+        "image": "/ilustracoes/reforma-protestante/quadros/4-6-1.svg",
+        "caption": "Em casa, havia um livro."
+      },
+      {
+        "image": "/ilustracoes/reforma-protestante/quadros/4-6-2.svg",
+        "caption": "Antes, quase ninguém podia abrir."
+      },
+      {
+        "image": "/ilustracoes/reforma-protestante/quadros/4-6-3.svg",
+        "caption": "Lutero abriu a Bíblia e."
+      },
+      {
+        "image": "/ilustracoes/reforma-protestante/quadros/4-6-4.svg",
+        "caption": "Hoje a Bíblia é para."
+      }
+    ]
+  },
+  "4-6": {
+    "format": "panels",
+    "panels": [
+      {
+        "image": "/ilustracoes/reforma-protestante/quadros/4-6-1.svg",
+        "caption": "Em casa, havia um livro muito especial.",
+        "speech": "Que livro grande!"
+      },
+      {
+        "image": "/ilustracoes/reforma-protestante/quadros/4-6-2.svg",
+        "caption": "Antes, quase ninguém podia abrir a Bíblia.",
+        "speech": "Não alcanço!"
+      },
+      {
+        "image": "/ilustracoes/reforma-protestante/quadros/4-6-3.svg",
+        "caption": "Lutero abriu a Bíblia e viu o amor de Deus.",
+        "speech": "Deus nos ama de graça!"
+      },
+      {
+        "image": "/ilustracoes/reforma-protestante/quadros/4-6-4.svg",
+        "caption": "Hoje a Bíblia é para todos!",
+        "speech": "Vamos ler juntos?"
+      }
+    ]
+  },
+  "7-10": {
+    "format": "panels",
+    "panels": [
+      {
+        "image": "/ilustracoes/reforma-protestante/quadros/7-10-1.svg",
+        "caption": "Wittenberg, 1517.",
+        "speech": "Algo precisa mudar."
+      },
+      {
+        "image": "/ilustracoes/reforma-protestante/quadros/7-10-2.svg",
+        "caption": "Estudando a Bíblia, ele descobriu: o perdão é um presente de Deus.",
+        "speech": "Não se compra. Se recebe!"
+      },
+      {
+        "image": "/ilustracoes/reforma-protestante/quadros/7-10-3.svg",
+        "caption": "Ele escreveu suas dúvidas e as pregou na porta da igreja.",
+        "speech": "95 ideias para conversar!"
+      },
+      {
+        "image": "/ilustracoes/reforma-protestante/quadros/7-10-4.svg",
+        "caption": "Todo mundo começou a conversar.",
+        "speech": "Será que é isso mesmo?"
+      },
+      {
+        "image": "/ilustracoes/reforma-protestante/quadros/7-10-5.svg",
+        "caption": "Depois, ele traduziu a Bíblia para o povo ler.",
+        "speech": "Agora todos entendem!"
+      }
+    ]
+  },
+  "11-13": {
+    "format": "dilemma",
+    "image": "/ilustracoes/reforma-protestante/quadros/11-13-cena.svg",
+    "setup": "Worms, 1521. Você é Martinho Lutero. Diante de príncipes e bispos, pedem que você negue tudo o que escreveu. Se negar, volta para casa em paz. Se recusar, pode perder tudo.",
+    "question": "O que você faria?",
+    "options": [
+      "Negar e ficar seguro",
+      "Manter o que acredito",
+      "Pedir tempo para pensar"
+    ],
+    "outcome": "Lutero pediu um dia para pensar. No dia seguinte, recusou-se a negar sem ser convencido pela Escritura. Depois disso, ficou escondido num castelo e traduziu o Novo Testamento para o alemão.",
+    "quote": "Minha consciência está presa à Palavra de Deus.",
+    "outcomeQuestion": "Alguém mudaria a escolha de agora há pouco?",
+    "today": "Naquele tempo, a imprensa espalhava ideias em semanas. Hoje, uma ideia chega ao mundo em segundos.",
+    "todayQuestion": "Quando você precisa saber se algo é verdade, onde procura primeiro?"
+  }
 }

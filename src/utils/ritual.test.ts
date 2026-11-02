@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { guideVersion, htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks, readerForDay, versionsForChildren, withoutEmbeddedSections } from './ritual';
+import { cleanScripture, guideVersion, htmlBlocks, pageBudget, paginate, paginateFit, parseGuide, plainBlocks, readerForDay, versionsForChildren, withoutEmbeddedSections } from './ritual';
 import type { KidsVersion } from '../services/FamilyService';
 
 const v = (band: KidsVersion['band']): KidsVersion => ({
@@ -132,5 +132,18 @@ describe('withoutEmbeddedSections', () => {
   it('mantém tudo quando não há campos próprios', () => {
     const r = '<p>Texto.</p><p><strong>Oração</strong></p><p>Senhor.</p>';
     expect(withoutEmbeddedSections(r, '', null)).toHaveLength(3);
+  });
+});
+
+describe('cleanScripture', () => {
+  it('tira aspas e referência embutidas', () => {
+    expect(cleanScripture('“Maria escolheu a boa parte, e esta não lhe será tirada.” — Lucas 10.42')).toBe('Maria escolheu a boa parte, e esta não lhe será tirada.');
+    expect(cleanScripture('Por isso, afirmo a você que ela muito amou. - Lucas 7.47')).toBe('Por isso, afirmo a você que ela muito amou.');
+    expect(cleanScripture('Não vim chamar justos – 1 João 3.4-5')).toBe('Não vim chamar justos');
+  });
+  it('deixa o texto simples como está', () => {
+    expect(cleanScripture('O justo viverá pela fé.')).toBe('O justo viverá pela fé.');
+    expect(cleanScripture('Deus é amor - e fiel.')).toBe('Deus é amor - e fiel.');
+    expect(cleanScripture(null)).toBe('');
   });
 });

@@ -11,7 +11,7 @@ const family = {
 };
 const guide = 'Leia em voz baixa.\n\nPara conversar à mesa:\n- O que aperta o coração?\n- Quando você sentiu paz?\n\nAtividade em família:\nCaixinha de preocupações.\n\nOração em família:\nPai, obrigado. Amém.';
 
-const mocks = vi.hoisted(() => ({ get: vi.fn(), create: vi.fn(), addChild: vi.fn(), getKids: vi.fn() }));
+const mocks = vi.hoisted(() => ({ get: vi.fn(), create: vi.fn(), addChild: vi.fn(), getKids: vi.fn(), readTogether: vi.fn() }));
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -31,6 +31,7 @@ vi.mock('../../services/JourneyService', () => ({ JourneyService: { complete: vi
 
 import { FamilyRitual } from '../FamilyRitual';
 import { DevotionalService } from '../../services/DevotionalService';
+import { JourneyService } from '../../services/JourneyService';
 
 let root: Root;
 let host: HTMLDivElement;
@@ -110,7 +111,7 @@ describe('FamilyRitual', () => {
     await click('Continuar');
     expect(host.textContent).toContain('1 · Ler');
     await swipe(300, 100);
-    expect(host.textContent).toContain('Pergunta 1 de 2');
+    expect(host.textContent).toContain('2 · Conversar');
     await swipe(100, 300);
     expect(host.textContent).toContain('1 · Ler');
     await swipe(200, 170);
@@ -124,6 +125,17 @@ describe('FamilyRitual', () => {
     await flush(); await flush();
     await click('Continuar'); // passagem
   };
+
+  it('abre na versão da faixa escolhida na folha (11 a 13), não na mais nova', async () => {
+    const f3 = { ...family, children: [{ id: 'c1', nickname: 'Bento', band: '4-6' }, { id: 'c3', nickname: 'Lia', band: '11-13' }] };
+    const v = (band: string, title: string) => ({ ...kid(null), band, title });
+    mocks.get.mockResolvedValue(f3);
+    mocks.getKids.mockResolvedValue([v('4-6', 'Versão pequena'), v('11-13', 'Versão adolescente')]);
+    await act(async () => { root.render(<FamilyRitual source="daily" audience="kids" intro={false} kidIds={['c1', 'c3']} band="11-13" onClose={() => {}} />); });
+    await flush(); await flush();
+    expect(host.textContent).toContain('Versão adolescente');
+    expect(host.textContent).not.toContain('Versão pequena');
+  });
 
   it('quadrinhos: passagem primeiro, depois um quadro por tela, legenda e fala em texto, e só então as perguntas', async () => {
     mocks.getKids.mockResolvedValue([kid({ format: 'panels', panels: [
@@ -143,7 +155,7 @@ describe('FamilyRitual', () => {
     expect(host.textContent).toContain('Quadro 2 de 2');
     expect(host.querySelector('.kstory__speech')).toBeNull();
     await click('Continuar');
-    expect(host.textContent).toContain('Pergunta 1 de 2');
+    expect(host.textContent).toContain('2 · Conversar');
   });
 
   it('quadrinhos: se a imagem não carregar, a legenda continua na tela', async () => {
@@ -174,9 +186,8 @@ describe('FamilyRitual', () => {
     expect(host.textContent).toContain('Hoje é mais rápido.');
     expect(host.textContent).not.toContain('Onde procura?');
     await click('Continuar');
-    expect(host.textContent).toContain('Alguém mudaria?'); // as perguntas da história abrem a conversa, na ordem
-    await click('Continuar');
-    expect(host.textContent).toContain('Onde procura?');
+    expect(host.textContent).toContain('Alguém mudaria?'); // a pergunta da história abre a conversa, que é uma tela só
+    expect(host.textContent).not.toContain('Onde procura?');
   });
 
   it('sem história, a leitura em texto segue igual', async () => {
@@ -186,7 +197,7 @@ describe('FamilyRitual', () => {
     expect(host.querySelector('.kstory')).toBeNull();
   });
 
-  it('mostra uma pergunta por tela, a atividade e a oração em família do guia', async () => {
+  it('mostra uma só pergunta, a atividade e a oração em família do guia', async () => {
     mocks.get.mockResolvedValue(family);
     await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
     await flush(); await flush();
@@ -195,30 +206,53 @@ describe('FamilyRitual', () => {
     await click('Continuar'); // ler
     expect(host.textContent).toContain('1 · Ler');
     await click('Continuar'); // pergunta 1
-    expect(host.textContent).toContain('Pergunta 1 de 2');
+    expect(host.textContent).toContain('2 · Conversar');
     expect(host.textContent).toContain('O que aperta o coração?');
     expect(host.textContent).not.toContain('Leia em voz baixa.'); // guia do adulto começa recolhido
     await click('Ver como conduzir');
     expect(host.textContent).toContain('Leia em voz baixa.');
-    await click('Continuar'); // pergunta 2
-    expect(host.textContent).toContain('Pergunta 2 de 2');
+    expect(host.textContent).not.toContain('Pergunta 2 de 2'); // Conversar é uma tela só
     await click('Continuar'); // fazer
     expect(host.textContent).toContain('Caixinha de preocupações.');
     await click('Continuar'); // orar
     expect(host.textContent).toContain('Pai, obrigado. Amém.');
   });
 
-  it('sem guia no formato, usa as perguntas do "Para pensar", uma por tela', async () => {
+  it('ao concluir com crianças à mesa, registra o adulto e as crianças (mesmo com um adulto só)', async () => {
+    mocks.get.mockResolvedValue(family);
+    mocks.readTogether.mockResolvedValue(family);
+    await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
+    await flush(); await flush();
+    await click('Continuar');
+    for (let i = 0; i < 20 && !host.textContent?.includes('Concluímos juntos'); i++) await act(async () => { press(['Continuar']); });
+    await act(async () => { press(['Concluímos juntos']); });
+    await flush();
+    expect(JourneyService.complete).toHaveBeenCalled();
+    expect(mocks.readTogether).toHaveBeenCalledWith('d1', [0], ['c1']);
+  });
+
+  it('só adultos: ao concluir não envia criança nenhuma', async () => {
+    mocks.get.mockResolvedValue({ ...family, members: [...family.members, { displayName: 'Ana', role: 'adult', isMe: false, readToday: false }] });
+    mocks.readTogether.mockResolvedValue(family);
+    await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
+    await flush(); await flush();
+    await click('Só adultos');
+    for (let i = 0; i < 20 && !host.textContent?.includes('Concluímos juntos'); i++) await act(async () => { press(['Continuar', 'Começar']); });
+    await act(async () => { press(['Concluímos juntos']); });
+    await flush();
+    expect(mocks.readTogether).toHaveBeenCalledWith('d1', [0, 1], []);
+  });
+
+  it('sem guia no formato, usa as perguntas do "Para pensar", só a primeira', async () => {
     mocks.get.mockResolvedValue(family);
     mocks.getKids.mockResolvedValue([{ band: '4-6', title: null, scriptureFocus: null, whatItSays: 'Deus cuida.', thinkAbout: 'Quando você tem medo?\nO que ajuda você a ficar calmo?', practice: 'Fazer.', prayer: 'Orar.', adultGuide: 'Só um texto solto.', status: 'published' }]);
     await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
     await flush(); await flush();
     await click('Continuar'); // ler
     await click('Continuar'); // pergunta 1
-    expect(host.textContent).toContain('Pergunta 1 de 2');
+    expect(host.textContent).toContain('2 · Conversar');
     expect(host.textContent).toContain('Quando você tem medo?');
-    await click('Continuar');
-    expect(host.textContent).toContain('Pergunta 2 de 2');
+    expect(host.textContent).not.toContain('O que ajuda você a ficar calmo?'); // só a primeira pergunta
     await click('Ver como conduzir');
     expect(host.textContent).toContain('Só um texto solto.');
   });
@@ -243,7 +277,7 @@ describe('FamilyRitual', () => {
 
     await click('Continuar'); // ler
     await click('Continuar'); // pergunta 1
-    expect(host.textContent).toContain('Pergunta 1 de 3');
+    expect(host.textContent).toContain('2 · Conversar');
     expect(host.textContent).not.toContain('O que aperta o coração?');
   });
 
@@ -253,20 +287,19 @@ describe('FamilyRitual', () => {
     await flush(); await flush();
     await click('Só adultos');
     await click('Continuar'); await click('Continuar');
-    expect(host.textContent).toContain('Pergunta 1 de 3');
+    expect(host.textContent).toContain('2 · Conversar');
     expect(host.textContent).not.toContain('O que aperta o coração?');
   });
 
-  it('só adultos: usa as perguntas escritas pelo editor, uma por tela', async () => {
+  it('só adultos: usa a primeira pergunta escrita pelo editor', async () => {
     vi.mocked(DevotionalService.getDailyDevotional).mockResolvedValueOnce({ id: 'd1', title: 'A paz que guarda', reflection: '<p>x</p>', discussion_questions: 'Onde falta paz em casa?\n- O que a gratidão muda?' } as never);
     mocks.get.mockResolvedValue({ ...family, children: [] });
     await act(async () => { root.render(<FamilyRitual source="daily" onClose={() => {}} />); });
     await flush(); await flush();
     await click('Continuar'); await click('Continuar');
-    expect(host.textContent).toContain('Pergunta 1 de 2');
+    expect(host.textContent).toContain('2 · Conversar');
     expect(host.textContent).toContain('Onde falta paz em casa?');
-    await click('Continuar');
-    expect(host.textContent).toContain('O que a gratidão muda?');
+    expect(host.textContent).not.toContain('O que a gratidão muda?');
   });
 
   it('mede o espaço real da tela: com muito espaço, o texto cabe numa tela só', async () => {
@@ -282,7 +315,7 @@ describe('FamilyRitual', () => {
       await click('Continuar'); // ler (uma tela só)
       expect(host.textContent).toContain('1 · Ler');
       await click('Continuar');
-      expect(host.textContent).toContain('Pergunta 1 de');
+      expect(host.textContent).toContain('2 · Conversar');
     } finally { h.mockRestore(); w.mockRestore(); sh.mockRestore(); }
   });
 

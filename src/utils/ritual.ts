@@ -43,7 +43,7 @@ export function parseGuide(text: string | null | undefined): GuideParts | null {
 
 /** Versão que conduz a mesa: a da criança mais nova presente, ou a primeira disponível. */
 export function guideVersion(perChild: { version: KidsVersion | null }[], all: KidsVersion[]): KidsVersion | null {
-  const order = ['4-6', '7-10', '11-13'];
+  const order = ['0-3', '4-6', '7-10', '11-13'];
   const present = perChild.map((p) => p.version).filter((v): v is KidsVersion => !!v);
   const pool = present.length ? present : all;
   return [...pool].sort((a, b) => order.indexOf(a.band) - order.indexOf(b.band))[0] ?? null;
@@ -219,4 +219,15 @@ export function pageBudget(width: number, height: number): { max: number; first:
   const cols = Math.max(20, (Math.min(width, 512) - 48) / (font * 0.55));
   const fit = (n: number) => Math.max(140, Math.min(PAGE_CHARS, Math.floor(n * cols * 0.9)));
   return { max: fit(lines), first: fit(lines - 4) };
+}
+
+const QUOTES = /^[\s"'“”‘’«»]+|[\s"'“”‘’«»]+$/g;
+
+/**
+ * Versículo para a capa: tira as aspas e a referência que o cadastro às vezes embute no texto
+ * (“… — Lucas 10.42”, “… - Lucas 7.47”), porque o app já põe as aspas e mostra a referência à parte.
+ */
+export function cleanScripture(text: string | null | undefined): string {
+  const noRef = (text ?? '').replace(/\s*[—–-]\s*(?:[1-3]\s*)?[\p{L}ºª. ]{2,}\s\d+[.:,]\d+(?:\s*[-–]\s*\d+)?\s*$/u, '');
+  return noRef.replace(QUOTES, '').trim();
 }
