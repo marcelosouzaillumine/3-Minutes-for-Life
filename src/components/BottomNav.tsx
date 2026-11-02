@@ -4,6 +4,9 @@ import { AdminService } from '../services/AdminService';
 import { ConversationService } from '../services/ConversationService';
 import { CommunicationInboxService } from '../services/CommunicationInboxService';
 import { Sheet } from './Sheet';
+import { GroupNoticesSheet } from './GroupNotices';
+import { FamilyService } from '../services/FamilyService';
+import { illumineAuth } from '../lib/illumine';
 
 type Tab = 'home' | 'explore' | 'plans' | 'family' | 'kids' | 'favorites' | 'profile';
 
@@ -17,6 +20,18 @@ export function BottomNav({ currentTab, setTab }: BottomNavProps) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [more, setMore] = useState(false);
+  const [noticesOpen, setNoticesOpen] = useState(false);
+  const [noticeCount, setNoticeCount] = useState(0);
+
+  useEffect(() => {
+    if (!illumineAuth.isAuthenticated()) return;
+    let alive = true;
+    const load = () => FamilyService.notices().then((r) => { if (alive) setNoticeCount(r.unread); }).catch(() => {});
+    load();
+    window.addEventListener('notices:changed', load);
+    window.addEventListener('family:changed', load);
+    return () => { alive = false; window.removeEventListener('notices:changed', load); window.removeEventListener('family:changed', load); };
+  }, [currentTab]);
 
   useEffect(() => {
     AdminService.checkAdminRole().then(setIsAdmin);
@@ -95,9 +110,9 @@ export function BottomNav({ currentTab, setTab }: BottomNavProps) {
           <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14M5 12h14" />
           </svg>
-          {unreadCount > 0 && (
+          {unreadCount + noticeCount > 0 && (
             <span className="nav-badge" aria-hidden="true">
-              {unreadCount > 9 ? '9+' : unreadCount}
+              {unreadCount + noticeCount > 9 ? '9+' : unreadCount + noticeCount}
             </span>
           )}
         </span>
@@ -108,6 +123,13 @@ export function BottomNav({ currentTab, setTab }: BottomNavProps) {
       {more && (
         <Sheet title={t('moreNav', 'Mais')} onClose={() => setMore(false)}>
           <div className="more-list">
+            {illumineAuth.isAuthenticated() && (
+              <button type="button" className="more-row" onClick={() => { setMore(false); setNoticesOpen(true); }}>
+                <svg className="more-row__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 11-6 0" /></svg>
+                <span className="more-row__label">{t('groupNotice.title', 'Avisos do grupo')}</span>
+                {noticeCount > 0 && <span className="more-row__badge">{noticeCount > 9 ? '9+' : noticeCount}</span>}
+              </button>
+            )}
             <a className="more-row" href="/apoiar">
               <svg className="more-row__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
               <span className="more-row__label">{t('supportNav', 'Apoiar o 3 Minutes')}</span>
@@ -130,6 +152,7 @@ export function BottomNav({ currentTab, setTab }: BottomNavProps) {
           </div>
         </Sheet>
       )}
+      {noticesOpen && <GroupNoticesSheet onClose={() => setNoticesOpen(false)} />}
     </>
   );
 }

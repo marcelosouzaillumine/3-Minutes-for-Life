@@ -98,6 +98,17 @@ export const activeFamily = {
   },
 };
 
+export interface FamilyNotice {
+  id: string;
+  familyId: string;
+  familyName: string;
+  kind: string;
+  day: string;
+  data: { by?: string | null; mode?: string; family?: string } | null;
+  createdAt: string;
+  read: boolean;
+}
+
 export interface FamilySummary { id: string; name: string; role: 'owner' | 'adult'; members: number; children: number }
 
 async function call(path: string, init?: RequestInit): Promise<any> {
@@ -160,6 +171,17 @@ export const FamilyService = {
   },
   async removeChild(id: string): Promise<Family> {
     return (await call(`/families/me/children/${encodeURIComponent(id)}`, json('DELETE'))).family;
+  },
+  /** Leitura na mesa: registra os adultos presentes (posição em `members`) e avisa o grupo. */
+  async readTogether(devotionalId: string, present: number[]): Promise<Family> {
+    return (await call('/families/me/read-together', json('POST', { devotionalId, present }))).family;
+  },
+  async notices(): Promise<{ notices: FamilyNotice[]; unread: number }> {
+    const b = await call('/families/me/notices');
+    return { notices: b.notices ?? [], unread: b.unread ?? 0 };
+  },
+  async markNoticesRead(): Promise<void> {
+    await call('/families/me/notices/read', json('POST'));
   },
   async prayers(): Promise<FamilyPrayer[]> {
     return (await call('/families/me/prayers')).prayers ?? [];

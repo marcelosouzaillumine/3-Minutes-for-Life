@@ -437,7 +437,7 @@
     "prayer": "Prayer",
     "doneTitle": "You read together.",
     "almost": "Shall we record it?",
-    "doneText": "Each adult marks their own reading. Thank you for setting this time aside.",
+    "doneText": "Thank you for setting this time apart.",
     "markText": "This records your reading for today.",
     "together": "We finished together",
     "back": "Back",
@@ -531,7 +531,8 @@
     "wordMark": "Just mark as read",
     "wordSent": "Done: the group can see you read.",
     "groupLine": "Group",
-    "wordTo": "To the group"
+    "wordTo": "To the group",
+    "registered": "We recorded the reading of {{names}}."
   },
   "familyNav": "Group",
   "plansx": {
@@ -563,5 +564,12 @@
   "kidsNav": "Kids",
   "moreNav": "More",
   "moreProfile": "Profile and account",
-  "supportNav": "Support 3 Minutes"
+  "supportNav": "Support 3 Minutes",
+  "groupNotice": {
+    "title": "Group notices",
+    "empty": "When the group reads together, the notice shows up here.",
+    "heading": "The group read together today",
+    "together": "{{by}} recorded today's reading: the {{family}} group read together.",
+    "remote": "The {{family}} group read together today: everyone completed the reading."
+  }
 }

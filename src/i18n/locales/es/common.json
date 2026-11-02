@@ -442,7 +442,7 @@
     "prayer": "Oración",
     "doneTitle": "Leyeron juntos.",
     "almost": "¿Lo registramos?",
-    "doneText": "Cada adulto marca su propia lectura. Gracias por reservar este tiempo.",
+    "doneText": "Gracias por reservar este tiempo.",
     "markText": "Esto registra tu lectura de hoy.",
     "together": "Terminamos juntos",
     "back": "Atrás",
@@ -537,7 +537,8 @@
     "wordMark": "Solo marcar como leído",
     "wordSent": "Listo: el grupo ya ve que leíste.",
     "groupLine": "Grupo",
-    "wordTo": "Para el grupo"
+    "wordTo": "Para el grupo",
+    "registered": "Registramos la lectura de {{names}}."
   },
   "familyNav": "Grupo",
   "plansx": {
@@ -570,5 +571,12 @@
   "kidsNav": "Niños",
   "moreNav": "Más",
   "moreProfile": "Perfil y cuenta",
-  "supportNav": "Apoyar 3 Minutes"
+  "supportNav": "Apoyar 3 Minutes",
+  "groupNotice": {
+    "title": "Avisos del grupo",
+    "empty": "Cuando el grupo lea junto, el aviso aparece aquí.",
+    "heading": "El grupo leyó junto hoy",
+    "together": "{{by}} registró la lectura de hoy: el grupo {{family}} leyó junto.",
+    "remote": "El grupo {{family}} leyó junto hoy: todos completaron la lectura."
+  }
 }
