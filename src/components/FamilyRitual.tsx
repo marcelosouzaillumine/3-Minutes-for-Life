@@ -265,8 +265,11 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
     if (!devotional) return;
     setSaving(true);
     try {
-      await JourneyService.complete(devotional.id, devotional.legacy_id);
+      // Na mesa, quem conclui registra todos os adultos presentes; sozinho ou sem grupo, só a própria leitura.
+      if (!solo && family && family.members.length > 1) await FamilyService.readTogether(devotional.id, [...presentAdults]);
+      else await JourneyService.complete(devotional.id, devotional.legacy_id);
       setSaved(true);
+      window.dispatchEvent(new Event('notices:changed'));
       FamilyService.get().then((f) => f && setFamily(f)).catch(() => {});
     } catch { setFailed(true); }
     setSaving(false);
@@ -500,7 +503,8 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
           <div className="ritual__done">
             <span className="ritual__seal" aria-hidden="true">✓</span>
             <h1 className="ritual__title">{saved ? tt('doneTitle', 'Vocês leram juntos.') : tt('almost', 'Vamos registrar?')}</h1>
-            <p className="ritual__lead">{saved ? tt('doneText', 'Cada adulto marca a própria leitura. Obrigado por separar esse tempo.') : tt('markText', 'Isso registra a sua leitura de hoje.')}</p>
+            <p className="ritual__lead">{saved ? tt('doneText', 'Obrigado por separar esse tempo.') : tt('markText', 'Isso registra a sua leitura de hoje.')}</p>
+            {saved && adults.length > 1 && <p className="fam-note">{tt('registered', 'Registramos a leitura de {{names}}.', { names: adults.join(', ') })}</p>}
             {saved && fam.week.streak > 0 && (
               <div className="ritual__streak"><strong>{fam.week.streak}</strong><span>{tt('streakDays', { count: fam.week.streak, defaultValue: 'dias seguidos juntos' })}</span></div>
             )}

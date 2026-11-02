@@ -442,7 +442,7 @@
     "prayer": "Prière",
     "doneTitle": "Vous avez lu ensemble.",
     "almost": "On l'enregistre ?",
-    "doneText": "Chaque adulte marque sa propre lecture. Merci d'avoir pris ce temps.",
+    "doneText": "Merci d'avoir pris ce temps.",
     "markText": "Cela enregistre votre lecture d'aujourd'hui.",
     "together": "Nous avons terminé ensemble",
     "back": "Retour",
@@ -537,7 +537,8 @@
     "wordMark": "Marquer comme lu",
     "wordSent": "C'est fait : le groupe voit que vous avez lu.",
     "groupLine": "Groupe",
-    "wordTo": "Pour le groupe"
+    "wordTo": "Pour le groupe",
+    "registered": "Nous avons enregistré la lecture de {{names}}."
   },
   "familyNav": "Groupe",
   "plansx": {
@@ -570,5 +571,12 @@
   "kidsNav": "Enfants",
   "moreNav": "Plus",
   "moreProfile": "Profil et compte",
-  "supportNav": "Soutenir 3 Minutes"
+  "supportNav": "Soutenir 3 Minutes",
+  "groupNotice": {
+    "title": "Avis du groupe",
+    "empty": "Quand le groupe lira ensemble, l'avis apparaîtra ici.",
+    "heading": "Le groupe a lu ensemble aujourd'hui",
+    "together": "{{by}} a enregistré la lecture du jour : le groupe {{family}} a lu ensemble.",
+    "remote": "Le groupe {{family}} a lu ensemble aujourd'hui : tous ont terminé la lecture."
+  }
 }

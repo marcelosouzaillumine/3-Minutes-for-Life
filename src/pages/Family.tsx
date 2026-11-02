@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from '../components/Sheet';
 import { ReadStartSheet } from '../components/ReadStartSheet';
+import { GroupCelebrationBanner } from '../components/GroupNotices';
 import {
   FamilyError, FamilyService, activeFamily, inviteLink, pendingFamilyCode,
   type Band, type Family as FamilyT, type FamilySummary, type FamilyPrayer, type PlanTemplate,
@@ -133,6 +134,7 @@ export function Family() {
 
   return (
     <div className="fam">
+      <GroupCelebrationBanner />
       <header className="fam-head">
         <div>
           <p className="fam-eyebrow">{tt('title', 'Grupo')}</p>

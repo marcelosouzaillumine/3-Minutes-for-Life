@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ReminderInvite } from './ReminderInvite';
 import { FamilyTodayCard } from './FamilyTodayCard';
 import { GroupWordCard } from './GroupWordCard';
+import { GroupCelebrationBanner } from './GroupNotices';
 import { useNavigate } from 'react-router-dom';
 import type { Devotional } from '../types/Devotional';
 import { JourneyService } from '../services/JourneyService';
@@ -292,6 +293,8 @@ export function PrincipleView({
           ======================================================== */}
 
       <div className="devotional-content">
+
+        {isDaily && user && <GroupCelebrationBanner />}
 
         {isDaily && user && !reading ? (
           <section className="principle-introduction hoje-capa-wrap">
