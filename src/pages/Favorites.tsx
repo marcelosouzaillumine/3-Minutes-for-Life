@@ -29,7 +29,7 @@ export function Favorites() {
   }, [selectedDevotional, i18n.language]); // re-fetch when returning from view to catch removals
 
   if (selectedDevotional) {
-    return <PrincipleView devotional={selectedDevotional} onBack={() => setSelectedDevotional(null)} />;
+    return <PrincipleView cover devotional={selectedDevotional} onBack={() => setSelectedDevotional(null)} />;
   }
 
   if (loading) {

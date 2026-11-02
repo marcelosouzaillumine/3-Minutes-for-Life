@@ -124,7 +124,7 @@ export function Explore() {
   };
 
   if (selectedDevotional) {
-    return <PrincipleView devotional={selectedDevotional} onBack={() => setSelectedDevotional(null)} />;
+    return <PrincipleView cover devotional={selectedDevotional} onBack={() => setSelectedDevotional(null)} />;
   }
 
   if (loadingDevotional) {
