@@ -226,14 +226,19 @@
     "note": "You can change this anytime in your Profile."
   },
   "kids": {
-    "open": "Read with the kids",
-    "ages": "Ages {{range}}",
-    "whatItSays": "What the Bible says",
-    "thinkAbout": "Think about it",
-    "practice": "Try it today",
-    "prayer": "Prayer",
-    "guide": "Guide and support material",
-    "close": "Close"
+    "eyebrow": "Read with the children",
+    "title": "A reading made for their age",
+    "text": "Each age range has its own version: 4 to 6, 7 to 10 and 11 to 13. You read aloud and lead the conversation with the adult guide.",
+    "start": "Start today's reading",
+    "who": "Who reads with you",
+    "remove": "Remove",
+    "nickname": "Nickname",
+    "band": "Age range",
+    "add": "Add",
+    "setupNote": "When you start, you choose each child's age.",
+    "privacy": "Children have no account: we keep only a nickname and an age range, never a surname, photo or email.",
+    "error": "Could not finish. Try again.",
+    "loading": "Loading…"
   },
   "family": {
     "title": "Family",
@@ -478,7 +483,11 @@
     "dilemmaStep2": "The table's decision",
     "dilemmaStep3": "What happened",
     "dilemmaStep4": "And today?",
-    "dilemmaPick": "Everyone picks one and explains it in a sentence. There's no right answer yet."
+    "dilemmaPick": "Everyone picks one and explains it in a sentence. There's no right answer yet.",
+    "groupTitle": "Read as a group",
+    "groupText": "Couple, small group or friends. Each at their own pace.",
+    "kidsTitle": "Read with the children",
+    "kidsText": "Pick the age and read the version made for them."
   },
   "familyNav": "Group",
   "plansx": {
@@ -506,5 +515,8 @@
     "c3": "Gratitude",
     "c4": "A hard decision",
     "library": "Explore the library"
-  }
+  },
+  "kidsNav": "Kids",
+  "moreNav": "More",
+  "moreProfile": "Profile and account"
 }

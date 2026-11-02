@@ -226,14 +226,19 @@
     "note": "Puoi cambiare questa scelta in qualsiasi momento nel Profilo."
   },
   "kids": {
-    "open": "Leggi con i bambini",
-    "ages": "{{range}} anni",
-    "whatItSays": "Che cosa racconta la Bibbia",
-    "thinkAbout": "Per pensare",
-    "practice": "Da fare oggi",
-    "prayer": "Preghiera",
-    "guide": "Guida e materiale di supporto",
-    "close": "Chiudi"
+    "eyebrow": "Leggere con i bambini",
+    "title": "Una lettura pensata per la loro età",
+    "text": "Ogni fascia d'età ha la sua versione: da 4 a 6, da 7 a 10 e da 11 a 13 anni. Leggi ad alta voce e guidi la conversazione con la guida dell'adulto.",
+    "start": "Inizia la lettura di oggi",
+    "who": "Chi legge con te",
+    "remove": "Rimuovi",
+    "nickname": "Soprannome",
+    "band": "Fascia d'età",
+    "add": "Aggiungi",
+    "setupNote": "Quando inizi, scegli l'età di ogni bambino.",
+    "privacy": "I bambini non hanno un account: conserviamo solo il soprannome e la fascia d'età, mai cognome, foto o e-mail.",
+    "error": "Impossibile completare. Riprova.",
+    "loading": "Caricamento…"
   },
   "family": {
     "title": "Famiglia",
@@ -484,7 +489,11 @@
     "dilemmaStep2": "La decisione della tavola",
     "dilemmaStep3": "Cos’è successo",
     "dilemmaStep4": "E oggi?",
-    "dilemmaPick": "Ognuno sceglie e lo spiega in una frase. Non c’è ancora una risposta giusta."
+    "dilemmaPick": "Ognuno sceglie e lo spiega in una frase. Non c’è ancora una risposta giusta.",
+    "groupTitle": "Leggere in gruppo",
+    "groupText": "Coppia, gruppo o amici. Ognuno con i suoi tempi.",
+    "kidsTitle": "Leggere con i bambini",
+    "kidsText": "Scegli l'età e leggi la versione pensata per loro."
   },
   "familyNav": "Gruppo",
   "plansx": {
@@ -513,5 +522,8 @@
     "c3": "Gratitudine",
     "c4": "Decisione difficile",
     "library": "Esplora la biblioteca"
-  }
+  },
+  "kidsNav": "Bambini",
+  "moreNav": "Altro",
+  "moreProfile": "Profilo e account"
 }

@@ -4,6 +4,7 @@ import { Home } from './pages/Home';
 import { Explore } from './pages/Explore';
 import { Plans } from './pages/Plans';
 import { Family } from './pages/Family';
+import { Kids } from './pages/Kids';
 import { FamilyRitual } from './components/FamilyRitual';
 import { Favorites } from './pages/Favorites';
 import { Profile } from './pages/Profile';
@@ -24,7 +25,7 @@ import { AnalyticsService } from './services/AnalyticsService';
 
 const AdminLayout = lazy(() => import('./layouts/AdminLayout').then(m => ({ default: m.AdminLayout })));
 
-type Tab = 'home' | 'explore' | 'plans' | 'family' | 'favorites' | 'profile';
+type Tab = 'home' | 'explore' | 'plans' | 'family' | 'kids' | 'favorites' | 'profile';
 
 const LoadingScreen = () => (
   <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -65,9 +66,12 @@ function AppShell() {
   // Tocar na aba já ativa remonta a tela dela (volta ao início, ex.: sai do devocional aberto na Biblioteca)
   const [tabResetKey, setTabResetKey] = useState(0);
   // Ler juntos abre por cima de qualquer aba (cartão da Home, aba Família).
-  const [ritual, setRitual] = useState<'daily' | 'plan' | null>(null);
+  const [ritual, setRitual] = useState<{ source: 'daily' | 'plan'; audience?: 'adults' | 'kids' } | null>(null);
   useEffect(() => {
-    const onRitual = (e: Event) => setRitual(((e as CustomEvent).detail as 'daily' | 'plan') ?? 'daily');
+    const onRitual = (e: Event) => {
+      const d = (e as CustomEvent).detail as 'daily' | 'plan' | { source?: 'daily' | 'plan'; audience?: 'adults' | 'kids' } | undefined;
+      setRitual(typeof d === 'object' && d ? { source: d.source ?? 'daily', audience: d.audience } : { source: d ?? 'daily' });
+    };
     const onTab = (e: Event) => setCurrentTab(((e as CustomEvent).detail as Tab) ?? 'home');
     window.addEventListener('family:ritual', onRitual);
     window.addEventListener('app:tab', onTab);
@@ -83,6 +87,7 @@ function AppShell() {
       case 'explore':  return <Explore />;
       case 'plans':    return <Plans />;
       case 'family':   return <Family />;
+      case 'kids':     return <Kids />;
       case 'favorites': return <Favorites />;
       case 'profile':  return <Profile />;
       default:         return <Home onExplore={() => setCurrentTab('explore')} />;
@@ -93,7 +98,7 @@ function AppShell() {
     <div className="app-container">
       <main className="content-area" key={tabResetKey}>{renderContent()}</main>
       <BottomNav currentTab={currentTab} setTab={handleTabChange} />
-      {ritual && <FamilyRitual source={ritual} onClose={() => setRitual(null)} />}
+      {ritual && <FamilyRitual source={ritual.source} audience={ritual.audience} onClose={() => setRitual(null)} />}
     </div>
   );
 }

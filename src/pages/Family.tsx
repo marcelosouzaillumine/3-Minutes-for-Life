@@ -2,18 +2,18 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from '../components/Sheet';
 import {
-  BANDS, FamilyError, FamilyService, inviteLink, pendingFamilyCode,
-  type Band, type Family as FamilyT, type FamilyPrayer, type PlanTemplate,
+  FamilyError, FamilyService, inviteLink, pendingFamilyCode,
+  type Family as FamilyT, type FamilyPrayer, type PlanTemplate,
 } from '../services/FamilyService';
 import '../styles/family.css';
 
 type SheetKind = null | 'create' | 'join' | 'invite' | 'manage' | 'plan' | 'prayer';
 
 const initials = (name: string | null) => (name ?? '?').trim().slice(0, 2).replace(/^./, (c) => c.toUpperCase());
-const bandLabel = (b: Band) => b.replace('-', ' a ');
 
-export const openRitual = (source: 'daily' | 'plan' = 'daily') =>
-  window.dispatchEvent(new CustomEvent('family:ritual', { detail: source }));
+/** Abre o Ler juntos. Com `audience`, a pessoa já chega sabendo com quem lê e a tela de escolha some. */
+export const openRitual = (source: 'daily' | 'plan' = 'daily', audience?: 'adults' | 'kids') =>
+  window.dispatchEvent(new CustomEvent('family:ritual', { detail: { source, audience } }));
 
 /** Aba Grupo (família, casal ou amigos): cada um lê no seu tempo e todos veem quem já leu. Quem leu, a semana, o plano em andamento e o mural. */
 export function Family() {
@@ -31,8 +31,6 @@ export function Family() {
   const [name, setName] = useState('');
   const [meeting, setMeeting] = useState('');
   const [code, setCode] = useState(() => pendingFamilyCode.get() ?? '');
-  const [nick, setNick] = useState('');
-  const [band, setBand] = useState<Band>('7-10');
   const [prayerText, setPrayerText] = useState('');
   const [copied, setCopied] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
@@ -80,10 +78,9 @@ export function Family() {
         <div className="fam-hero">
           <p className="fam-eyebrow">{tt('title', 'Grupo')}</p>
           <h1 className="fam-hero__title">{tt('hero.title', 'Cada um no seu tempo, todos na mesma Palavra')}</h1>
-          <p className="fam-hero__text">{tt('hero.text', 'Três minutos por dia, com a mesma passagem para todos. Família, casal ou grupo: cada um lê quando puder e todos veem quem já leu. Se houver crianças, cada uma tem a sua versão.')}</p>
+          <p className="fam-hero__text">{tt('hero.text', 'Três minutos por dia, com a mesma passagem para todos. Família, casal ou grupo: cada um lê quando puder e todos veem quem já leu.')}</p>
           <button type="button" className="fam-btn fam-btn--primary" onClick={() => setSheet('create')}>{tt('hero.create', 'Criar o nosso grupo')}</button>
           <button type="button" className="fam-btn fam-btn--ghost" onClick={() => setSheet('join')}>{tt('hero.join', 'Tenho um código de convite')}</button>
-          <p className="fam-note">{tt('childPrivacy', 'Crianças não têm conta: guardamos só o apelido e a faixa de idade, nunca sobrenome, foto ou e-mail.')}</p>
         </div>
 
         {sheet === 'create' && (
@@ -146,13 +143,6 @@ export function Family() {
             <span className="fam-person__state">{m.readToday ? tt('read', 'leu hoje') : tt('notYet', 'ainda não')}</span>
           </div>
         ))}
-        {family.children.map((c) => (
-          <div key={c.id} className="fam-person">
-            <span className="fam-avatar fam-avatar--child">{initials(c.nickname)}</span>
-            <span className="fam-person__label">{c.nickname}</span>
-            <span className="fam-person__state">{bandLabel(c.band)}</span>
-          </div>
-        ))}
         <button type="button" className="fam-person fam-person--add" onClick={() => setSheet('invite')}>
           <span className="fam-avatar fam-avatar--add">+</span>
           <span className="fam-person__label">{tt('invite.short', 'convidar')}</span>
@@ -160,7 +150,7 @@ export function Family() {
       </section>
       <p className="fam-note">{readers > 0 ? tt('readersToday', '{{count}} de {{total}} já leram hoje', { count: readers, total: family.members.length }) : tt('noneToday', 'Ninguém leu hoje ainda.')}</p>
 
-      <button type="button" className="fam-btn fam-btn--primary fam-cta" onClick={() => openRitual('daily')}>{tt('ritual', 'Ler juntos')}</button>
+      <button type="button" className="fam-btn fam-btn--primary fam-cta" onClick={() => openRitual('daily', 'adults')}>{tt('ritual', 'Ler juntos')}</button>
 
       {/* ── Plano ── */}
       {plan && !plan.completed && (
@@ -171,7 +161,7 @@ export function Family() {
           {!plan.lockedUntilTomorrow && <p className="fam-card__text">{tt('plan.today', 'Hoje no plano: {{title}}', { title: plan.days[plan.currentDay - 1]?.title })}</p>}
           {plan.lockedUntilTomorrow
             ? <p className="fam-note">{tt('plan.locked', 'Hoje vocês já leram o dia {{n}}. O dia {{next}} libera amanhã.', { n: plan.currentDay - 1, next: plan.currentDay })}</p>
-            : <button type="button" className="fam-btn fam-btn--secondary" onClick={() => openRitual('plan')}>{tt('plan.read', 'Ler o dia do plano juntos')}</button>}
+            : <button type="button" className="fam-btn fam-btn--secondary" onClick={() => openRitual('plan', 'adults')}>{tt('plan.read', 'Ler o dia do plano juntos')}</button>}
         </section>
       )}
       {plan?.completed && plan.summary && (
@@ -263,22 +253,6 @@ export function Family() {
               <button type="submit" className="fam-btn fam-btn--secondary" disabled={busy}>{tt('save', 'Salvar')}</button>
             </form>
           )}
-
-          <h4 className="fam-section__title">{tt('children', 'Crianças')}</h4>
-          {family.children.map((c) => (
-            <div key={c.id} className="fam-row">
-              <span>{c.nickname} · {tt('ages', '{{range}} anos', { range: bandLabel(c.band) })}</span>
-              {isOwner && <button type="button" className="fam-link fam-link--muted" disabled={busy} onClick={() => run(() => FamilyService.removeChild(c.id), setFamily)}>{tt('remove', 'Remover')}</button>}
-            </div>
-          ))}
-          {isOwner && (
-            <form className="fam-inline" onSubmit={(e) => { e.preventDefault(); if (nick.trim()) run(() => FamilyService.addChild(nick.trim(), band), (f) => { setFamily(f); setNick(''); }); }}>
-              <input value={nick} onChange={(e) => setNick(e.target.value)} placeholder={tt('nickname', 'Apelido')} maxLength={20} aria-label={tt('nickname', 'Apelido')} />
-              <select value={band} onChange={(e) => setBand(e.target.value as Band)} aria-label={tt('band', 'Faixa de idade')}>{BANDS.map((b) => <option key={b} value={b}>{bandLabel(b)}</option>)}</select>
-              <button type="submit" className="fam-btn fam-btn--secondary" disabled={busy || !nick.trim()}>{tt('add', 'Adicionar')}</button>
-            </form>
-          )}
-          <p className="fam-note">{tt('childPrivacy', 'Crianças não têm conta: guardamos só o apelido e a faixa de idade, nunca sobrenome, foto ou e-mail.')}</p>
 
           {isOwner && plan && <button type="button" className="fam-btn fam-btn--ghost" disabled={busy} onClick={() => run(() => FamilyService.clearPlan(), setFamily)}>{tt('plan.stop', 'Encerrar o plano atual')}</button>}
           {isOwner && <button type="button" className="fam-btn fam-btn--ghost" disabled={busy} onClick={() => run(() => FamilyService.rotateInvite(), setFamily)}>{tt('invite.new', 'Gerar novo código de convite')}</button>}

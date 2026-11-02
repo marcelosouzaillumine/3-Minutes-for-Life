@@ -226,14 +226,19 @@
     "note": "Vous pouvez changer cela à tout moment dans votre Profil."
   },
   "kids": {
-    "open": "Lire avec les enfants",
-    "ages": "{{range}} ans",
-    "whatItSays": "Ce que raconte la Bible",
-    "thinkAbout": "Pour réfléchir",
-    "practice": "À faire aujourd'hui",
-    "prayer": "Prière",
-    "guide": "Guide et matériel d'accompagnement",
-    "close": "Fermer"
+    "eyebrow": "Lire avec les enfants",
+    "title": "Une lecture faite pour leur âge",
+    "text": "Chaque tranche d'âge a sa version : 4 à 6, 7 à 10 et 11 à 13 ans. Vous lisez à voix haute et menez la conversation avec le guide de l'adulte.",
+    "start": "Commencer la lecture du jour",
+    "who": "Qui lit avec vous",
+    "remove": "Retirer",
+    "nickname": "Surnom",
+    "band": "Tranche d'âge",
+    "add": "Ajouter",
+    "setupNote": "En commençant, vous choisissez l'âge de chaque enfant.",
+    "privacy": "Les enfants n'ont pas de compte : nous gardons seulement le surnom et la tranche d'âge, jamais de nom, photo ou e-mail.",
+    "error": "Impossible de terminer. Réessayez.",
+    "loading": "Chargement…"
   },
   "family": {
     "title": "Famille",
@@ -484,7 +489,11 @@
     "dilemmaStep2": "La décision de la table",
     "dilemmaStep3": "Ce qui s’est passé",
     "dilemmaStep4": "Et aujourd’hui ?",
-    "dilemmaPick": "Chacun choisit et l’explique en une phrase. Il n’y a pas encore de bonne réponse."
+    "dilemmaPick": "Chacun choisit et l’explique en une phrase. Il n’y a pas encore de bonne réponse.",
+    "groupTitle": "Lire en groupe",
+    "groupText": "Couple, groupe ou amis. Chacun à son rythme.",
+    "kidsTitle": "Lire avec les enfants",
+    "kidsText": "Choisissez l'âge et lisez la version faite pour eux."
   },
   "familyNav": "Groupe",
   "plansx": {
@@ -513,5 +522,8 @@
     "c3": "Gratitude",
     "c4": "Décision difficile",
     "library": "Explorer la bibliothèque"
-  }
+  },
+  "kidsNav": "Enfants",
+  "moreNav": "Plus",
+  "moreProfile": "Profil et compte"
 }
