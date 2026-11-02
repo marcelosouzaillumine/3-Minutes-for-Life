@@ -26,12 +26,12 @@ def person(x, y, s=1.0, robe='#7AA6C9', hair='#4A3523', head=None, mood='smile',
     if horn:
         arm = [(13, 58, 8, 84), (47, 58, 40, 46)]
     for (x1, y1, x2, y2) in arm:
-        o.append(f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="{robe}" stroke-width="11" stroke-linecap="round"/>')
+        o.append(f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="{dk}" stroke-width="13" stroke-linecap="round" opacity=".55"/><line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="{robe}" stroke-width="10.5" stroke-linecap="round"/>')
     o.append(f'<rect x="25" y="40" width="10" height="14" rx="4" fill="{sk2}"/>')
     if sit:
-        o.append(f'<path d="M14 52Q30 45 46 52Q51 58 51 66L53 86H7L9 66Q9 58 14 52Z" fill="{robe}"/><ellipse cx="30" cy="90" rx="34" ry="12" fill="{robe}"/>')
+        o.append(f'<path d="M14 52Q30 45 46 52Q51 58 51 66L53 86H7L9 66Q9 58 14 52Z" fill="{robe}" stroke="{dk}" stroke-width="1.2" stroke-opacity=".5"/><ellipse cx="30" cy="90" rx="34" ry="12" fill="{robe}" stroke="{dk}" stroke-width="1.2" stroke-opacity=".5"/>')
     else:
-        o.append(f'<path d="M14 52Q30 45 46 52Q51 58 52 68L58 100Q30 106 2 100L8 68Q9 58 14 52Z" fill="{robe}"/>'
+        o.append(f'<path d="M14 52Q30 45 46 52Q51 58 52 68L58 100Q30 106 2 100L8 68Q9 58 14 52Z" fill="{robe}" stroke="{dk}" stroke-width="1.2" stroke-opacity=".5"/>'
                  f'<path d="M9 74Q30 82 51 74" stroke="{sash or dk}" stroke-width="{6 if sash else 5}" fill="none" stroke-linecap="round"/><path d="M30 80V102" stroke="{dk}" stroke-width="1.5" opacity=".5"/>'
                  f'<ellipse cx="20" cy="103" rx="8" ry="3.4" fill="#5A4030"/><ellipse cx="40" cy="103" rx="8" ry="3.4" fill="#5A4030"/>')
     o.append(f'<path d="M23 48Q30 58 37 48Z" fill="{sk2}"/>')
@@ -51,7 +51,9 @@ def person(x, y, s=1.0, robe='#7AA6C9', hair='#4A3523', head=None, mood='smile',
     o.append('<ellipse cx="22.5" cy="28" rx="3.1" ry="3.5" fill="#fff"/><ellipse cx="37.5" cy="28" rx="3.1" ry="3.5" fill="#fff"/><circle cx="23" cy="28.6" r="1.9" fill="#2E2A28"/><circle cx="37" cy="28.6" r="1.9" fill="#2E2A28"/>')
     o.append('<circle cx="17" cy="35" r="3.4" fill="#E58E8E" opacity=".35"/><circle cx="43" cy="35" r="3.4" fill="#E58E8E" opacity=".35"/><path d="M30 29q-3 5 0 7" stroke="#B0805A" stroke-width="1.5" fill="none" stroke-linecap="round"/>')
     brow = '#3A2A20'
-    if mood == 'smile':
+    if mood == 'smile' and beard:
+        o.append(f'<path d="M25 39.5q5 3.5 10 0" stroke="#F4F1EA" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M19 22q4-3 7 0M34 22q4-3 7 0" stroke="{brow}" stroke-width="1.8" fill="none" stroke-linecap="round"/>')
+    elif mood == 'smile':
         o.append(f'<path d="M21 36.5q9 8 18 0" stroke="{mc}" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M19 22q4-3 7 0M34 22q4-3 7 0" stroke="{brow}" stroke-width="1.8" fill="none" stroke-linecap="round"/>')
     elif mood == 'happy':
         o.append(f'<path d="M23 36q7 8 14 0z" fill="#8A3B3B"/><path d="M19 21.5q4-3.5 7 0M34 21.5q4-3.5 7 0" stroke="{brow}" stroke-width="1.8" fill="none" stroke-linecap="round"/>')
@@ -176,8 +178,9 @@ def woman_kneel(fx, s=1.0, robe='#B84A62', veil='#8A4668', pour=True):
     o += '<path d="M33 -66q3 3 6 0M42 -66q3 3 6 0" stroke="#2E2A28" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M40 -58q3 2 6 0" stroke="#7A3B2E" stroke-width="1.8" fill="none" stroke-linecap="round"/>'
     o += '<path d="M44 -62q-3 6 0 9q3-3 0-9z" fill="#7FB8E6"/>'
     if pour:
-        o += '<g transform="translate(84,-30) rotate(82)"><path d="M-8 0h16l4 8q6 8 0 20q-4 8-12 8q-8 0-12-8q-6-12 0-20z" fill="#F4E9D8" stroke="#C9B48A" stroke-width="2"/><rect x="-5" y="-6" width="10" height="7" rx="2" fill="#C9B48A"/></g>'
-        o += '<path d="M76 -16q1 5 0 10M82 -18q1 5 0 8" stroke="#F2C94C" stroke-width="2.4" fill="none" stroke-linecap="round"/>'
+        o += f'<line x1="22" y1="-54" x2="46" y2="-42" stroke="{robe}" stroke-width="9" stroke-linecap="round"/><circle cx="47" cy="-41" r="5" fill="{SKIN}"/>'
+        o += '<g transform="translate(62,-30) rotate(112) scale(.75)"><path d="M-8 0h16l4 8q6 8 0 20q-4 8-12 8q-8 0-12-8q-6-12 0-20z" fill="#F4E9D8" stroke="#C9B48A" stroke-width="2"/><rect x="-5" y="-6" width="10" height="7" rx="2" fill="#C9B48A"/></g>'
+        o += '<path d="M66 -22q1 5 0 9M71 -21q1 5 0 7M62 -21q1 4 0 7" stroke="#F2C94C" stroke-width="2.4" fill="none" stroke-linecap="round"/>'
     return o + '</g>'
 def jar(x, y, s=1, tilt=0):
     return f'<g transform="translate({x},{y}) rotate({tilt}) scale({s})"><path d="M-8 0h16l4 8q6 8 0 20q-4 8-12 8q-8 0-12-8q-6-12 0-20z" fill="#F4E9D8" stroke="#C9B48A" stroke-width="2"/><rect x="-5" y="-6" width="10" height="7" rx="2" fill="#C9B48A"/></g>'
@@ -236,7 +239,7 @@ S[d]['4-6-1'] = house_wall() + P(116, 0, .92, **SIM, sit=True, mood='neutral') +
 S[d]['4-6-2'] = house_wall() + JE(182, 0, 1.45, sit=True, mood='smile') + feet(176, sc=1.35) + woman_kneel(172, 1.3, pour=False)
 S[d]['4-6-3'] = house_wall('#FFF3D0') + sun(60, 50, 24) + JE(130, 64, 1.2, arms='out') + P(30, 100, 1.0, **WOM, arms='hold', mood='happy') + heart(236, 80, 1.2) + heart(260, 130, .8) + spark(60, 150, .8) + spark(250, 40)
 S[d]['7-10-1'] = house_wall() + P(146, 0, .84, **SIM, sit=True, mood='neutral') + JE(206, 0, .92, sit=True) + front_table(134, 160, top_for(.88)) + P(22, 0, 1.0, **WOM, arms='hold', mood='sad') + jar(52, 164, .7)
-S[d]['7-10-2'] = house_wall() + P(244, 0, .85, **SIM, mood='frown') + JE(172, 0, 1.35, sit=True, mood='smile') + feet(166, sc=1.3) + woman_kneel(162, 1.25)
+S[d]['7-10-2'] = house_wall() + '<rect x="196" y="28" width="70" height="78" rx="4" fill="#FFF3D0" stroke="#C9B48A" stroke-width="5"/>' + P(246, 0, .78, **SIM, sit=True, mood='frown') + JE(150, 0, 1.3, sit=True, mood='smile') + front_table(236, 62, top_for(.8)) + feet(146, sc=1.3) + woman_kneel(142, 1.25)
 S[d]['7-10-3'] = house_wall() + P(30, 0, .95, **SIM, sit=True, mood='frown', arms='hold') + JE(206, 0, 1.0, sit=True, arms='out') + front_table(16, 270, top_for(.97), food=False) + coins(130, top_for(.97) - 2, 8) + coins(168, top_for(.97) - 2, 2)
 S[d]['7-10-4'] = house_wall('#FFF3D0') + sun(250, 44, 20) + P(40, 96, 1.0, **WOM, arms='hold', mood='happy') + JE(150, 66, 1.15, arms='out') + heart(110, 70, 1.1) + spark(260, 130, .9) + spark(20, 50, .8)
 S[d]['11-13-cena'] = house_wall() + P(116, 0, .82, **SIM, sit=True, mood='neutral') + JE(180, 0, .92, sit=True) + P(244, 0, .82, robe=GRN, sit=True) + front_table(100, 196, top_for(.86)) + P(24, 0, .9, **WOM, mood='sad', arms='hold') + jar(52, 168, .6)
