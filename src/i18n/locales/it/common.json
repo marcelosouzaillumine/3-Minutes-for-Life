@@ -355,7 +355,7 @@
       "today": "Oggi nel percorso: {{title}}",
       "read": "Leggere insieme il giorno del percorso",
       "next": "Iniziare il prossimo percorso",
-      "choose": "Scegliere un percorso di 7 giorni",
+      "choose": "Scegliere un percorso",
       "chooseHint": "Un cammino da leggere insieme, un giorno alla volta.",
       "sheet": "Scegli il percorso",
       "days_one": "{{count}} giorno",
@@ -366,7 +366,7 @@
       "locked": "Oggi avete già letto il giorno {{n}}. Il giorno {{next}} si sblocca domani."
     },
     "summary": {
-      "label": "Settimana conclusa",
+      "label": "Percorso concluso",
       "title": "Avete letto insieme {{n}} giorni su {{total}}",
       "word": "La parola che è rimasta",
       "prayers_one": "{{count}} preghiere per le richieste del gruppo",

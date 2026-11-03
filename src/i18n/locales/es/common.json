@@ -355,7 +355,7 @@
       "today": "Hoy en el plan: {{title}}",
       "read": "Leer el día del plan juntos",
       "next": "Empezar el próximo plan",
-      "choose": "Elegir un plan de 7 días",
+      "choose": "Elegir un plan",
       "chooseHint": "Un camino para leer juntos, un día a la vez.",
       "sheet": "Elige el plan",
       "days_one": "{{count}} días",
@@ -366,7 +366,7 @@
       "locked": "Hoy ya leyeron el día {{n}}. El día {{next}} se libera mañana."
     },
     "summary": {
-      "label": "Semana completada",
+      "label": "Plan completado",
       "title": "Leyeron juntos {{n}} de {{total}} días",
       "word": "La palabra que quedó",
       "prayers_one": "{{count}} oraciones por los pedidos del grupo",

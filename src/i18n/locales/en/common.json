@@ -353,7 +353,7 @@
       "today": "Today's reading in the plan: {{title}}",
       "read": "Read today's plan day together",
       "next": "Start the next plan",
-      "choose": "Choose a 7-day plan",
+      "choose": "Choose a plan",
       "chooseHint": "A path to read together, one day at a time.",
       "sheet": "Choose the plan",
       "days_one": "{{count}} days",
@@ -363,7 +363,7 @@
       "locked": "You've already read day {{n}} today. Day {{next}} unlocks tomorrow."
     },
     "summary": {
-      "label": "Week complete",
+      "label": "Plan complete",
       "title": "You read together {{n}} of {{total}} days",
       "word": "The word that stayed",
       "prayers_one": "{{count}} prayers for the group’s requests",
