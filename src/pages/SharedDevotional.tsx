@@ -287,16 +287,6 @@ export function SharedDevotional() {
 
           </div>}
 
-          {/* Convite no topo para quem ainda não tem conta: grupo e crianças só existem dentro do app. */}
-          {!user && (
-            <div className="shared-invite">
-              <span className="shared-invite__text">{t('shared.inviteText', 'Ler em grupo ou com as crianças?')}</span>
-              <button type="button" className="shared-invite__btn" onClick={handleCtaClick}>
-                {t('shared.inviteLink', 'Entrar ou criar conta')}
-              </button>
-            </div>
-          )}
-
           {/* ====================================================
               DEVOTIONAL
           ===================================================== */}
@@ -306,6 +296,15 @@ export function SharedDevotional() {
             <PrincipleView
               devotional={devotional}
               showLogo={true}
+              // Convite logo abaixo da logo para quem ainda não tem conta: grupo e crianças só existem dentro do app.
+              belowHeader={!user ? (
+                <div className="shared-invite">
+                  <span className="shared-invite__text">{t('shared.inviteText', 'Ler em grupo ou com as crianças?')}</span>
+                  <button type="button" className="shared-invite__btn" onClick={handleCtaClick}>
+                    {t('shared.inviteLink', 'Entrar ou criar conta')}
+                  </button>
+                </div>
+              ) : undefined}
               customAction={
                 !user
                   ? {

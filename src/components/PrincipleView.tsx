@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { ReminderInvite } from './ReminderInvite';
 import { FamilyTodayCard } from './FamilyTodayCard';
 import { GroupWordCard } from './GroupWordCard';
@@ -40,6 +40,8 @@ interface PrincipleViewProps {
   isDaily?: boolean;
   /** Devocional aberto por quem está logado (Explorar, planos, salvos): começa pela capa com ler sozinho, em grupo ou com as crianças. */
   cover?: boolean;
+  /** Faixa logo abaixo da logo, antes do conteúdo (ex.: convite na página pública). */
+  belowHeader?: ReactNode;
 }
 
 export function PrincipleView({
@@ -50,6 +52,7 @@ export function PrincipleView({
   onExplore,
   isDaily = false,
   cover = false,
+  belowHeader,
 }: PrincipleViewProps) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
@@ -312,6 +315,8 @@ export function PrincipleView({
           ======================================================== */}
 
       <div className="devotional-content">
+
+        {belowHeader}
 
         {isDaily && user && <GroupCelebrationBanner />}
 
