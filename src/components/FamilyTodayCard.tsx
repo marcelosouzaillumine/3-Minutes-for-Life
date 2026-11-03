@@ -89,7 +89,7 @@ export function FamilyTodayCard({ devotionalId, daily = true, completed = false,
             <span>{kidsLine}</span></span>
             <span aria-hidden="true">›</span>
           </button>
-          {names && <button type="button" className="hoje-capa__hint" onClick={() => goTab('kids')}>{t('ritual.kidsMore', '+ Incluir outra criança')}</button>}
+          {names && <button type="button" className="hoje-capa__hint" disabled={kidsUnavailable} onClick={() => goTab('kids')}>{t('ritual.kidsMore', '+ Incluir outra criança')}</button>}
         </div>
       </div>
       {sheet && (family || sheet === 'kids') && <ReadStartSheet audience={sheet} family={family ?? NO_GROUP} plan={!!plan} devotionalId={daily ? undefined : devotionalId} onClose={() => setSheet(null)} onChanged={setFamily} />}
