@@ -193,7 +193,7 @@ export function Family() {
       )}
       {plan?.completed && plan.summary && (
         <section className="fam-card fam-card--accent fam-summary">
-          <span className="fam-eyebrow fam-eyebrow--accent">{tt('summary.label', 'Semana concluída')}</span>
+          <span className="fam-eyebrow fam-eyebrow--accent">{tt('summary.label', 'Plano concluído')}</span>
           <h2 className="fam-card__title">{tt('summary.title', 'Vocês leram juntos {{n}} de {{total}} dias', { n: plan.summary.daysTogether, total: plan.summary.total })}</h2>
           <p className="fam-note">{tt('summary.word', 'A palavra que ficou')}</p>
           <p className="fam-summary__word">{plan.summary.word}</p>
@@ -206,7 +206,7 @@ export function Family() {
       {!plan && isOwner && templates.length > 0 && (
         <button type="button" className="fam-card fam-card--dashed" onClick={() => setSheet('plan')}>
           <span className="fam-eyebrow">{tt('plan.label', 'Plano do grupo')}</span>
-          <strong>{tt('plan.choose', 'Escolher um plano de 7 dias')}</strong>
+          <strong>{tt('plan.choose', 'Escolher um plano')}</strong>
           <span className="fam-note">{tt('plan.chooseHint', 'Uma trilha para ler junto, um dia de cada vez.')}</span>
         </button>
       )}
