@@ -85,7 +85,14 @@
     "ctaText": "Que estes três minutos não terminem aqui.",
     "ctaSubtext": "Crie sua conta gratuita para seguir planos de leitura, ler em grupo e guardar suas reflexões.",
     "ctaButton": "Quero continuar",
-    "ctaNote": "Acesso gratuito.",
+    "ctaNote": "Conteúdo totalmente gratuito.",
+    "inviteText": "Ler em grupo ou com as crianças?",
+    "inviteLink": "Entrar ou criar conta",
+    "pathsTitle": "Quer ler assim todos os dias?",
+    "pathGroupTitle": "Em grupo",
+    "pathGroupText": "Veja quem já leu e deixe uma palavra.",
+    "pathKidsTitle": "Com as crianças",
+    "pathKidsText": "A mesma passagem, na idade delas.",
     "sharedSuffix": "compartilhou esta reflexão com você."
   },
   "categories": {

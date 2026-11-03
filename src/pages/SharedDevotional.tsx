@@ -282,6 +282,16 @@ export function SharedDevotional() {
 
           </div>}
 
+          {/* Convite no topo para quem ainda não tem conta: grupo e crianças só existem dentro do app. */}
+          {!user && (
+            <div className="shared-invite">
+              <span className="shared-invite__text">{t('shared.inviteText', 'Ler em grupo ou com as crianças?')}</span>
+              <button type="button" className="shared-invite__btn" onClick={handleCtaClick}>
+                {t('shared.inviteLink', 'Entrar ou criar conta')}
+              </button>
+            </div>
+          )}
+
           {/* ====================================================
               DEVOTIONAL
           ===================================================== */}
@@ -315,6 +325,12 @@ export function SharedDevotional() {
                       'shared.ctaNote',
                       'Acesso gratuito.'
                     ),
+
+                    paths: {
+                      title: t('shared.pathsTitle', 'Quer ler assim todos os dias?'),
+                      group: { title: t('shared.pathGroupTitle', 'Em grupo'), text: t('shared.pathGroupText', 'Veja quem já leu e deixe uma palavra.') },
+                      kids: { title: t('shared.pathKidsTitle', 'Com as crianças'), text: t('shared.pathKidsText', 'A mesma passagem, na idade delas.') },
+                    },
 
                     onClick:
                       handleCtaClick,

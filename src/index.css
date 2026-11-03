@@ -1523,6 +1523,16 @@ h4 {
   color: var(--color-text-light);
 }
 
+/* Convite no topo e caminhos depois da oração (visitante sem conta) */
+.shared-invite { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin: 0 0 1.25rem; padding: 0.6rem 0.6rem 0.6rem 1rem; border-radius: 14px; background: #F6F0E4; }
+.shared-invite__text { flex: 1; min-width: 0; font-size: 0.9rem; line-height: 1.35; color: var(--color-text); }
+.shared-invite__btn { flex: none; padding: 0.5rem 0.9rem; border: 0; border-radius: 999px; background: var(--color-text); color: var(--color-bg); font: inherit; font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.shared-paths { width: 100%; margin-top: var(--devotional-section-gap); display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+.shared-paths__title { width: 100%; margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-light); }
+.shared-paths__item { width: 100%; display: flex; align-items: center; gap: 0.9rem; padding: 0.8rem; border: 1px solid var(--color-border); border-radius: 16px; background: #fff; font-size: 0.9rem; line-height: 1.4; color: var(--color-text-light); }
+.shared-paths__item b { display: block; margin-bottom: 0.1rem; font-size: 1.05rem; font-weight: 600; color: var(--color-text); }
+.shared-paths__icon { flex: none; width: 3.6rem; height: 3.6rem; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #F0E9DD; color: var(--accent-strong, #8B7355); }
+
 /* =========================================================
    SHARE GUEST CTA MODAL
 ========================================================= */
