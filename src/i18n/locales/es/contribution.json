@@ -10,10 +10,10 @@
     "buttonLoading": "Preparando pago...",
     "footer": "Entorno seguro. Puedes cancelar tu contribución mensual en cualquier momento.",
     "options": {
-      "apoio": "Apoyo (R$ 9,90/mes o R$ 59,90/año)",
+      "apoio": "Apoyo (R$ 9,90/mes o R$ 79,90/año)",
       "livre": "Valor Libre",
       "mensal": "Mensual (R$ 9,90)",
-      "anual": "Anual (R$ 59,90)",
+      "anual": "Anual (R$ 79,90)",
       "unicaLivre": "Única",
       "mensalLivre": "Mensual"
     },

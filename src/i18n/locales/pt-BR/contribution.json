@@ -10,10 +10,10 @@
     "buttonLoading": "Preparando checkout...",
     "footer": "Ambiente seguro. Você poderá cancelar sua contribuição mensal a qualquer momento.",
     "options": {
-      "apoio": "Apoio (R$ 9,90/mês ou R$ 59,90/ano)",
+      "apoio": "Apoio (R$ 9,90/mês ou R$ 79,90/ano)",
       "livre": "Valor Livre",
       "mensal": "Mensal (R$ 9,90)",
-      "anual": "Anual (R$ 59,90)",
+      "anual": "Anual (R$ 79,90)",
       "unicaLivre": "Única",
       "mensalLivre": "Mensal"
     },

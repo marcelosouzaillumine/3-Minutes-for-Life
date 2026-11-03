@@ -10,10 +10,10 @@
     "buttonLoading": "Preparing checkout...",
     "footer": "Secure environment. You can cancel your monthly contribution at any time.",
     "options": {
-      "apoio": "Support (R$ 9.90/mo or R$ 59.90/yr)",
+      "apoio": "Support (R$ 9.90/mo or R$ 79.90/yr)",
       "livre": "Custom Amount",
       "mensal": "Monthly (R$ 9.90)",
-      "anual": "Yearly (R$ 59.90)",
+      "anual": "Yearly (R$ 79.90)",
       "unicaLivre": "One-time",
       "mensalLivre": "Monthly"
     },
