@@ -76,7 +76,7 @@ export function Terms() {
           <li>Você é responsável por manter sua senha em segurança.</li>
           <li>As informações que você fornece devem ser verdadeiras.</li>
           <li>A conta é pessoal e não deve ser compartilhada. Para ler junto com outras pessoas, use os grupos, em que cada participante usa a sua própria conta.</li>
-          <li>Você pode encerrar sua conta quando quiser, escrevendo para o nosso contato.</li>
+          <li>Você pode baixar seus dados e excluir sua conta quando quiser, em Perfil › Seus dados (ou escrevendo para o nosso contato).</li>
         </ul>
 
         <h2>Grupos e leitura com crianças</h2>

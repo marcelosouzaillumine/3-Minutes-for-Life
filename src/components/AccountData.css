@@ -1,0 +1,12 @@
+.acd__hint { margin: 0 0 0.75rem; font-size: 0.9rem; color: var(--text-muted); }
+.acd__btn { width: 100%; padding: 0.85rem; border-radius: 14px; border: 1px solid var(--border-subtle); background: none; color: var(--text-strong); font: inherit; font-weight: 600; cursor: pointer; }
+.acd__btn:disabled, .acd__danger:disabled { opacity: 0.6; cursor: wait; }
+.acd__link { display: block; margin: 0.9rem auto 0; border: 0; background: none; color: #b42318; font: inherit; font-size: 0.85rem; text-decoration: underline; cursor: pointer; }
+.acd__confirm { margin-top: 0.9rem; padding: 1rem; border: 1px solid #f1c4bf; border-radius: 14px; background: #fff5f4; }
+.acd__warn { margin: 0 0 0.9rem; font-size: 0.9rem; line-height: 1.5; color: #7a271a; }
+.acd__label { display: block; margin-bottom: 0.35rem; font-size: 0.8rem; color: var(--text-muted); }
+.acd__input { width: 100%; box-sizing: border-box; padding: 0.7rem; border: 1px solid var(--border-subtle); border-radius: 10px; font: inherit; }
+.acd__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-top: 0.9rem; }
+.acd__danger { padding: 0.85rem; border-radius: 14px; border: 0; background: #b42318; color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+.acd__ok { margin: 0.75rem 0 0; font-size: 0.85rem; color: #1a6b3c; }
+.acd__err { margin: 0.75rem 0 0; font-size: 0.85rem; color: #b42318; }
