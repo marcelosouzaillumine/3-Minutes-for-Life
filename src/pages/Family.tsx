@@ -37,6 +37,9 @@ export function Family() {
 
   const [name, setName] = useState('');
   const [meeting, setMeeting] = useState('');
+  // Edição em "Gerenciar grupo": null = ainda não mexeu (mostra o valor salvo); '' = apagou de propósito.
+  const [editName, setEditName] = useState<string | null>(null);
+  const [editMeeting, setEditMeeting] = useState<string | null>(null);
   const [code, setCode] = useState(() => pendingFamilyCode.get() ?? '');
   const [prayerText, setPrayerText] = useState('');
   const [copied, setCopied] = useState(false);
@@ -80,7 +83,7 @@ export function Family() {
     return () => window.removeEventListener('family:changed', onChange);
   }, [load]);
 
-  const close = () => { setSheet(null); setError(''); setConfirmLeave(false); };
+  const close = () => { setSheet(null); setError(''); setConfirmLeave(false); setEditName(null); setEditMeeting(null); };
   const apply = (f: FamilyT) => { setFamily(f); close(); };
 
   const groupSheets = (
@@ -317,9 +320,9 @@ export function Family() {
       {sheet === 'manage' && (
         <Sheet title={tt('manage.title', 'Gerenciar grupo')} onClose={close}>
           {isOwner && (
-            <form className="fam-form" onSubmit={(e) => { e.preventDefault(); run(() => FamilyService.update(name.trim() || family.name, meeting.trim()), apply); }}>
-              <label>{tt('create.name', 'Nome do grupo')}<input value={name || family.name} onChange={(e) => setName(e.target.value)} maxLength={60} /></label>
-              <label>{tt('create.meeting', 'Horário combinado (opcional)')}<input value={meeting || family.meetingTime || ''} onChange={(e) => setMeeting(e.target.value)} maxLength={60} /></label>
+            <form className="fam-form" onSubmit={(e) => { e.preventDefault(); run(() => FamilyService.update((editName ?? family.name).trim() || family.name, (editMeeting ?? family.meetingTime ?? '').trim()), apply); }}>
+              <label>{tt('create.name', 'Nome do grupo')}<input value={editName ?? family.name} onChange={(e) => setEditName(e.target.value)} maxLength={60} /></label>
+              <label>{tt('create.meeting', 'Horário combinado (opcional)')}<input value={editMeeting ?? family.meetingTime ?? ''} onChange={(e) => setEditMeeting(e.target.value)} maxLength={60} /></label>
               <button type="submit" className="fam-btn fam-btn--secondary" disabled={busy}>{tt('save', 'Salvar')}</button>
             </form>
           )}
