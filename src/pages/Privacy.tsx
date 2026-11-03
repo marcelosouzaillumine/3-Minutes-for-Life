@@ -179,11 +179,14 @@ export function Privacy() {
           contribuições são mantidos pelo prazo exigido pela legislação fiscal.
         </p>
         <p>
-          A exclusão da conta é feita a pedido, pelo e-mail de contato. Atendido
-          o pedido, seus dados — incluindo participações em grupos, perfis de
-          crianças e mensagens no mural de oração — são removidos do sistema em
-          uso, e as cópias de segurança (backups) que ainda os contenham são
-          eliminadas em até 7 dias.
+          Você mesmo exclui a conta em Perfil › Seus dados, e também pode baixar
+          uma cópia dos seus dados ali. A exclusão é imediata: seus dados —
+          incluindo participações em grupos, perfis de crianças e mensagens no
+          mural de oração — são removidos do sistema em uso, e as cópias de
+          segurança (backups) que ainda os contenham são eliminadas em até 3
+          dias. Registros de contribuição são mantidos sem identificar você, e
+          os de consentimento e aceite dos termos ficam apenas como prova, sem
+          dados pessoais. Se preferir, peça pelo e-mail de contato.
         </p>
 
         <h2>Seus direitos</h2>
