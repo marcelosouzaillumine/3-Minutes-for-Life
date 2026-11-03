@@ -4,14 +4,14 @@
 .dash {
   --dash-gold: #e5be85;
   --dash-card-border: var(--border-subtle, #e3e0da);
-  --dash-serif: Georgia, 'Iowan Old Style', serif;
+  --dash-serif: var(--font-family);
 }
 
 .dash .admin-header h1 {
   font-family: var(--dash-serif);
-  font-weight: 500;
+  font-weight: 600;
   font-size: 1.9rem;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 /* Seletor de período em pílula */
@@ -72,7 +72,7 @@
 .dash-story__text {
   position: relative;
   z-index: 1;
-  font-family: var(--dash-serif);
+  font-family: var(--dash-serif); font-weight: 500; letter-spacing: -0.02em;
   font-size: 1.45rem;
   line-height: 1.35;
   margin: 10px 0 18px;
@@ -128,11 +128,15 @@
   margin-bottom: 6px;
 }
 .dash .dash-stats .admin-trend {
-  font-family: system-ui, -apple-system, sans-serif;
+  white-space: nowrap;
 }
 .dash .dash-stats .admin-card-value {
+  flex-wrap: wrap;
+}
+.dash .dash-stats .admin-card-value {
+  font-variant-numeric: tabular-nums;
   font-family: var(--dash-serif);
-  font-weight: 400;
+  font-weight: 600; letter-spacing: -0.02em;
   font-size: 2rem;
 }
 @media (max-width: 700px) {
@@ -153,7 +157,7 @@
 }
 .dash .admin-section h3 {
   font-family: var(--dash-serif);
-  font-weight: 500;
+  font-weight: 600; letter-spacing: -0.02em;
   font-size: 1.25rem;
   margin-bottom: 4px;
 }
@@ -206,7 +210,7 @@
   color: var(--dash-gold);
   display: grid;
   place-items: center;
-  font-family: var(--dash-serif);
+  font-family: var(--dash-serif); font-weight: 600; letter-spacing: -0.02em;
 }
 .dash-step__text {
   flex: 1;
@@ -218,7 +222,7 @@
 }
 .dash-step b {
   font-family: var(--dash-serif);
-  font-weight: 600;
+  font-weight: 600; letter-spacing: -0.02em;
   font-size: 1.35rem;
 }
 
@@ -268,7 +272,7 @@
 }
 .dash-mode b {
   font-family: var(--dash-serif);
-  font-weight: 600;
+  font-weight: 600; letter-spacing: -0.02em;
   font-size: 1.4rem;
 }
 .dash-bands {
@@ -287,7 +291,7 @@
 }
 .dash-bands b {
   display: block;
-  font-family: var(--dash-serif);
+  font-family: var(--dash-serif); font-weight: 600; letter-spacing: -0.02em;
   font-size: 1.1rem;
   color: var(--text-strong, #1f262e);
 }

@@ -42,8 +42,8 @@
 .landing-page h3 {
   color: var(--landing-text);
   font-family: var(--font-serif);
-  font-weight: 400;
-  letter-spacing: -0.01em;
+  font-weight: 500;
+  letter-spacing: -0.03em;
 }
 
 .landing-page p {
@@ -78,7 +78,7 @@
 
 .landing-logo {
   font-family: var(--font-serif);
-  font-weight: 400;
+  font-weight: 500;
   font-size: 1.5rem;
   letter-spacing: -0.01em;
   white-space: nowrap;
@@ -253,7 +253,7 @@
 }
 
 .tension-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-serif); font-weight: 500;
   font-size: var(--marketing-statement);
   color: var(--landing-text);
   line-height: 1.05;
@@ -290,11 +290,11 @@
 }
 
 .relief-statement {
-  font-family: var(--font-serif);
+  font-family: var(--font-serif); font-weight: 500;
   font-size: var(--marketing-statement);
   color: var(--landing-accent);
   line-height: 1.1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   margin-bottom: 3rem;
 }
 
@@ -308,12 +308,12 @@
 
 /* Novo tratamento visual para frases a serem "percebidas" */
 .perceived-statement {
-  font-family: var(--font-serif);
+  font-family: var(--font-serif); font-weight: 500;
   font-size: var(--marketing-statement);
   color: var(--landing-accent);
   margin: 8rem 0;
   line-height: 1.1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
 /* Visual Experience (Text over Image) */
@@ -364,7 +364,7 @@
 
 .step-title {
   font-size: var(--marketing-h3);
-  font-family: var(--font-serif);
+  font-family: var(--font-serif); font-weight: 500;
   color: #ffffff !important; /* Forçado para evitar qualquer override */
   line-height: 1.1;
   margin-bottom: 2rem;
@@ -472,7 +472,7 @@
 }
 
 .showcase-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-serif); font-weight: 500; letter-spacing: -0.03em;
   font-size: var(--marketing-h2);
   line-height: 1.2;
   margin-bottom: 1.5rem;
@@ -539,9 +539,8 @@
 }
 
 .audience-lead h2 {
-  font-family: var(--font-serif);
+  font-family: var(--font-serif); font-weight: 500;
   font-size: var(--marketing-statement);
-  font-style: italic;
   color: var(--landing-bg);
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -647,7 +646,7 @@
 
 .faq-title {
   font-size: var(--marketing-h2);
-  font-family: var(--font-serif);
+  font-family: var(--font-serif); font-weight: 500; letter-spacing: -0.03em;
   margin-bottom: 2.5rem;
   text-align: center;
 }
@@ -666,7 +665,7 @@
 }
 
 .faq-question {
-  font-family: var(--font-serif);
+  font-family: var(--font-serif); font-weight: 500;
   font-size: var(--marketing-h4);
   line-height: 1.35;
   margin-bottom: 0.75rem;
@@ -831,7 +830,7 @@
 
   .landing-nav a {
     font-size: 1.5rem;
-    font-family: var(--font-serif);
+    font-family: var(--font-serif); font-weight: 500;
   }
 
   .btn-start-nav {
@@ -840,7 +839,7 @@
     padding: 0.8rem 2rem;
     border-radius: 40px;
     margin-top: 1rem;
-    font-family: var(--font-serif);
+    font-family: var(--font-serif); font-weight: 500;
   }
 
   .landing-hero {
@@ -984,7 +983,7 @@
 }
 
 .breakdown-list strong {
-  font-family: var(--font-serif);
+  font-family: var(--font-serif); font-weight: 500;
   font-size: var(--marketing-body-lg);
   color: var(--landing-text);
 }

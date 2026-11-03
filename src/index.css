@@ -150,14 +150,9 @@
     "Segoe UI",
     sans-serif;
 
-  --font-serif:
-    "Fraunces",
-    ui-serif,
-    Georgia,
-    Cambria,
-    "Times New Roman",
-    Times,
-    serif;
+  /* Fonte única: Inter. O nome --font-serif é legado (alias) para não reescrever cada regra;
+     a hierarquia vem de peso, tamanho e espaçamento, não de uma segunda família. */
+  --font-serif: var(--font-family);
 }
 
 /* =========================================================
@@ -186,6 +181,7 @@ body {
   color: var(--color-text);
 
   font-family: var(--font-family);
+  font-optical-sizing: auto;
   line-height: 1.6;
 
   -webkit-font-smoothing: antialiased;
@@ -290,7 +286,7 @@ h4 {
   font-family: var(--font-serif);
 
   font-size: 2rem;
-  font-weight: 400;
+  font-weight: 600;
 
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -841,7 +837,7 @@ h4 {
 .relationship-card-title {
   font-family: var(--font-serif);
   font-size: 1.5rem;
-  font-weight: 400;
+  font-weight: 600; letter-spacing: -0.02em;
   margin-bottom: 0.5rem;
   color: var(--color-text);
 }
@@ -1072,7 +1068,7 @@ h4 {
   margin: 0 0 1.5rem;
   font-family: var(--font-serif);
   font-size: var(--devotional-title-size);
-  font-weight: 400;
+  font-weight: 600;
   line-height: 1.1;
   letter-spacing: -0.02em;
   color: var(--color-text);
@@ -1134,6 +1130,7 @@ h4 {
 }
 
 .devotional-signature-name {
+  /* Exceção deliberada à fonte única: a assinatura mantém o script. */
   font-family: 'Dancing Script', cursive;
   font-size: 1.9rem;
   font-weight: 600;
@@ -1192,7 +1189,7 @@ h4 {
 
 .principle-scripture-text {
   margin: 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-serif); font-weight: 500; letter-spacing: -0.02em;
   font-size: 1rem;
   line-height: 1.55;
   color: var(--color-text);
@@ -1257,8 +1254,7 @@ h4 {
   padding: 1rem 1.1rem;
   border-radius: 10px;
   background: color-mix(in srgb, var(--accent-strong) 6%, var(--color-bg));
-  font-family: var(--font-serif);
-  font-style: italic;
+  font-family: var(--font-serif); font-weight: 500;
   font-size: 1.05rem;
   line-height: 1.7;
   text-align: center;
@@ -2599,7 +2595,7 @@ a:focus-visible {
 
 .profile-row-link { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 1rem 0; background: none; border: 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); font: inherit; font-size: 1rem; color: var(--text-strong); cursor: pointer; }
 
-.kids__title { margin: 0 0 0.4rem; font-family: var(--font-serif); font-weight: 400; font-size: 1.3rem; }
+.kids__title { margin: 0 0 0.4rem; font-family: var(--font-serif); font-weight: 600; letter-spacing: -0.02em; font-size: 1.3rem; }
 
 /* =========================================================
    SEÇÕES COM IDENTIDADE (devocional adulto, leitura infantil e ritual)
@@ -2638,14 +2634,13 @@ a:focus-visible {
   padding: 1rem 1.1rem;
   border-radius: 10px;
   background: color-mix(in srgb, var(--accent-strong) 6%, var(--color-bg));
-  font-family: var(--font-serif);
-  font-style: italic;
+  font-family: var(--font-serif); font-weight: 500;
   text-align: center;
 }
 .sec-question {
   display: block;
   margin-top: 0.6rem;
-  font-family: var(--font-serif);
+  font-family: var(--font-serif); font-weight: 500; letter-spacing: -0.02em;
   font-size: 1.1em;
   color: var(--color-text);
 }
@@ -2677,4 +2672,4 @@ a:focus-visible {
 .devotional-header--cover .devotional-back { align-self: flex-start; margin-top: 0.5rem; }
 .devotional-cover { display: flex; flex-direction: column; gap: 0.4rem; width: 100%; margin-top: 0.75rem; }
 .devotional-cover__eyebrow { font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-strong); }
-.devotional-cover__title { margin: 0; font-family: var(--font-serif); font-size: clamp(1.9rem, 8vw, 2.6rem); font-weight: 400; line-height: 1.08; letter-spacing: -0.02em; color: var(--text-strong); }
+.devotional-cover__title { margin: 0; font-family: var(--font-serif); font-size: clamp(1.9rem, 8vw, 2.6rem); font-weight: 600; line-height: 1.08; letter-spacing: -0.02em; color: var(--text-strong); }
