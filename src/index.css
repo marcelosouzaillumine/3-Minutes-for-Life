@@ -760,7 +760,6 @@ h4 {
   position: relative;
   width: 100%;
   background: var(--surface);
-  border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: flex-start;
