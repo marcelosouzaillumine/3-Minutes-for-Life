@@ -39,7 +39,7 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
   const [present, setPresent] = useState<Set<string>>(() => new Set(family.children.map((c) => c.id)));
   const [lead, setLead] = useState<Band | null>(null);
   const [nick, setNick] = useState('');
-  const [band, setBand] = useState<Band>('7-10');
+  const [band, setBand] = useState<Band | ''>('');
   const [adding, setAdding] = useState(fam.children.length === 0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -98,14 +98,14 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
 
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nick.trim() || busy) return;
+    if (!nick.trim() || !band || busy) return;
     setBusy(true); setError('');
     try {
       const before = new Set(fam.children.map((c) => c.id));
-      const f = await FamilyService.addChild(nick.trim(), band);
+      const f = await FamilyService.addChild(nick.trim(), band as Band);
       setFam(f); onChanged?.(f);
       setPresent((p) => { const n = new Set(p); f.children.filter((c) => !before.has(c.id)).forEach((c) => n.add(c.id)); return n; });
-      setNick(''); setAdding(false);
+      setNick(''); setBand(''); setAdding(false);
     } catch { setError(tt('setupError', 'Não foi possível salvar agora. Tente de novo.')); }
     setBusy(false);
   };
@@ -154,9 +154,10 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
         <form className="fam-inline" onSubmit={add}>
           <input value={nick} onChange={(e) => setNick(e.target.value)} placeholder={tt('nickname', 'Apelido')} maxLength={20} aria-label={tt('nickname', 'Apelido')} />
           <select value={band} onChange={(e) => setBand(e.target.value as Band)} aria-label={tt('band', 'Faixa de idade')}>
+            <option value="" disabled>{tt('bandPlaceholder', 'Selecione a idade')}</option>
             {ORDER.map((b) => <option key={b} value={b}>{bandLabel(b)} {tt('years', 'anos')}</option>)}
           </select>
-          <button type="submit" className="fam-btn fam-btn--secondary" disabled={busy || !nick.trim()}>{tt('addChild', 'Adicionar criança')}</button>
+          <button type="submit" className="fam-btn fam-btn--secondary" disabled={busy || !nick.trim() || !band}>{tt('addChild', 'Adicionar criança')}</button>
         </form>
       )}
       {error && <p className="fam-error">{error}</p>}
