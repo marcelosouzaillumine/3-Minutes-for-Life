@@ -114,7 +114,7 @@ export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess 
               </svg>
             </div>
 
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', marginBottom: '0.75rem', fontWeight: 400 }}>
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', marginBottom: '0.75rem', fontWeight: 600, letterSpacing: '-0.02em' }}>
               {t('testimonials.authGateTitle', 'Entre para compartilhar seu testemunho')}
             </h2>
             <p style={{ color: 'var(--color-text-light)', marginBottom: '2rem', lineHeight: 1.6, fontSize: '0.95rem' }}>
@@ -141,7 +141,7 @@ export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess 
         ) : isSuccess ? (
           /* ── CENÁRIO B: CONFIRMAÇÃO DE SUCESSO ── */
           <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', marginBottom: '1rem', fontWeight: 400 }}>
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', marginBottom: '1rem', fontWeight: 600, letterSpacing: '-0.02em' }}>
               {t('testimonials.successTitle', 'Obrigado por compartilhar.')}
             </h2>
             <p style={{ color: 'var(--color-text-light)', marginBottom: '2rem', lineHeight: 1.6 }}>
@@ -154,7 +154,7 @@ export function TestimonialFormModal({ isOpen, onClose, devotionalId, onSuccess 
         ) : (
           /* ── CENÁRIO C: FORMULÁRIO DE TESTEMUNHO AUTENTICADO ── */
           <>
-            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', marginBottom: '0.5rem', fontWeight: 400 }}>
+            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', marginBottom: '0.5rem', fontWeight: 600, letterSpacing: '-0.02em' }}>
               {t('testimonials.modalTitle', 'Compartilhe sua história')}
             </h2>
             <p style={{ color: 'var(--color-text-light)', marginBottom: '2rem', lineHeight: 1.5 }}>
