@@ -325,6 +325,7 @@
     "streak_many": "{{count}} giorni di lettura insieme",
     "streak_other": "{{count}} giorni di lettura insieme",
     "streak0": "Iniziate oggi",
+    "weekHint": "Giorni pieni: il gruppo ha letto. Il contorno è oggi.",
     "manage": {
       "title": "Gestisci il gruppo"
     },
@@ -377,7 +378,7 @@
     "prayers": {
       "title": "Bacheca di preghiera",
       "new": "Nuova richiesta",
-      "empty": "Ancora nessuna richiesta. Lo vede solo il tuo gruppo.",
+      "empty": "Ancora nessuna richiesta.",
       "iPrayed": "Ho pregato",
       "pray": "Prega",
       "privacy": "Lo vede solo il tuo gruppo. Chi ha creato il gruppo modera e può rimuovere qualsiasi richiesta.",
@@ -498,6 +499,11 @@
     "addAnother": "Aggiungi un altro bambino",
     "addFirst": "Chi legge con te?",
     "sharedVersion": "Tutti ascoltano la stessa lettura. Quale versione?",
+    "whoComes": "1 · Chi è con te?",
+    "whoHint": "Tocca per aggiungere o togliere chi ascolterà ora.",
+    "pickVersion": "2 · Quale versione ascolterete?",
+    "pickVersionHint": "Tutti ascoltano la stessa lettura. Scegli l'età più adatta alla tavola.",
+    "forWho": "Per",
     "tableTitle": "Chi legge?",
     "continue": "Continua",
     "storyPanel": "Vignetta {{n}} di {{total}}",

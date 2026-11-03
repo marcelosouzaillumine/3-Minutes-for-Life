@@ -321,10 +321,11 @@
       "cta": "Entrar"
     },
     "inviteMessage": "Vem ler o devocional com a gente: {{link}}",
-    "streak_one": "{{count}} dias lendo juntos",
+    "streak_one": "{{count}} dia lendo juntos",
     "streak_many": "{{count}} dias lendo juntos",
     "streak_other": "{{count}} dias lendo juntos",
     "streak0": "Comecem hoje",
+    "weekHint": "Dias preenchidos: o grupo leu. O contorno é hoje.",
     "manage": {
       "title": "Gerenciar grupo"
     },
@@ -377,7 +378,7 @@
     "prayers": {
       "title": "Mural de oração",
       "new": "Novo pedido",
-      "empty": "Nenhum pedido ainda. Só o grupo vê.",
+      "empty": "Nenhum pedido ainda.",
       "iPrayed": "Eu orei",
       "pray": "Orar",
       "privacy": "Só o grupo vê. Quem criou o grupo modera e pode remover qualquer pedido.",
@@ -498,6 +499,11 @@
     "addAnother": "Adicionar outra criança",
     "addFirst": "Quem vai ler com você?",
     "sharedVersion": "Todos ouvem a mesma leitura. Qual versão?",
+    "whoComes": "1 · Quem está com você?",
+    "whoHint": "Toque para marcar ou tirar quem vai ouvir a leitura agora.",
+    "pickVersion": "2 · Qual versão vocês vão ouvir?",
+    "pickVersionHint": "Todos ouvem a mesma leitura. Escolha a idade que serve melhor para a mesa.",
+    "forWho": "Para",
     "tableTitle": "Quem vai ler?",
     "continue": "Continuar",
     "storyPanel": "Quadro {{n}} de {{total}}",

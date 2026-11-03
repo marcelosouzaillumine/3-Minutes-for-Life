@@ -67,9 +67,15 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
     setSaving(true);
     const r = await FamilyAdmin.saveTemplate(editing.id, { title: editing.title.trim(), description: editing.description.trim(), themeWord: editing.themeWord.trim(), items: editing.items, status, categoryId: editing.categoryId, coverUrl: editing.coverUrl, partnerKeyId: editing.partnerKeyId });
     if (r.ok) {
-      setEditing({ ...editing, id: r.template.id, status });
+      // Mostra o que o servidor guardou, não o que enviamos: se a capa não voltou, o aviso aparece na hora.
+      const keptCover = (r.template as { coverUrl?: string | null }).coverUrl ?? null;
+      setEditing({ ...editing, id: r.template.id, status, coverUrl: keptCover });
       refresh();
-      setMsg(status === 'published' ? 'Plano publicado. Já aparece para as pessoas.' : 'Rascunho salvo. Ninguém vê ainda.');
+      setMsg(
+        editing.coverUrl && keptCover !== editing.coverUrl
+          ? 'O plano foi salvo, mas o servidor não guardou a capa. Escolha a imagem de novo e, se repetir, avise a equipe técnica.'
+          : status === 'published' ? 'Plano publicado. Já aparece para as pessoas.' : 'Rascunho salvo. Ninguém vê ainda.',
+      );
     } else {
       setMsg(
         r.error === 'INVALID_PARTNER' ? 'Esse parceiro não existe mais. Escolha outro.'
@@ -178,6 +184,7 @@ export function PlansStudio({ rows }: { rows: Row[] }) {
       <div className="studio__head">
         <h4 className="studio__title">{editing.id ? 'Editar plano' : 'Novo plano'} <em className={`studio__badge studio__badge--${editing.status === 'published' ? 'done' : 'draft'}`}>{editing.status === 'published' ? 'Publicado' : 'Rascunho'}</em></h4>
         <div className="studio__head-actions">
+          {editing.status === 'published' && <button type="button" className="fam-btn fam-btn--secondary" disabled={saving} onClick={() => save('draft')}>Despublicar</button>}
           <button type="button" className="fam-btn fam-btn--primary" disabled={saving} onClick={() => save('published')}>{editing.status === 'published' ? 'Salvar alterações' : 'Publicar plano'}</button>
           <details className="studio__menu">
             <summary aria-label="Mais ações">⋯</summary>

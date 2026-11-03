@@ -127,6 +127,7 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
       )}
       {alone && <p className="fam-note">{tt('aloneHint', 'Você lê agora, no seu ritmo. Ao terminar, o grupo vê que você leu.')}</p>}
 
+      {kids && !alone && <><h3 className="fam-step">{tt('whoComes', '1 · Quem está com você?')}</h3><p className="fam-note">{tt('whoHint', 'Toque para marcar ou tirar quem vai ouvir a leitura agora.')}</p></>}
       {!alone && <div className="fam-people">
         {kids
           ? fam.children.map((c) => (
@@ -162,12 +163,14 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
 
       {kids && shared && (options.length > 1 ? (
         <>
-          <p className="fam-note">{tt('sharedVersion', 'Todos ouvem a mesma leitura. Qual versão?')}</p>
+          <h3 className="fam-step">{tt('pickVersion', '2 · Qual versão vocês vão ouvir?')}</h3>
+          <p className="fam-note">{tt('pickVersionHint', 'Todos ouvem a mesma leitura. Escolha a idade que serve melhor para a mesa.')}</p>
           <BandPicker
             bands={options}
             value={shared}
             names={Object.fromEntries(options.map((b) => [b, fam.children.filter((c) => present.has(c.id) && c.band === b).map((c) => c.nickname)]))}
             cards={cards}
+            forLabel={tt('forWho', 'Para')}
             years={tt('years', 'anos')}
             ariaLabel={tt('sharedVersion', 'Todos ouvem a mesma leitura. Qual versão?')}
             onPick={setLead}

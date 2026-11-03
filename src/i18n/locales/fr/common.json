@@ -321,10 +321,11 @@
       "cta": "Rejoindre"
     },
     "inviteMessage": "Viens lire la méditation avec nous : {{link}}",
-    "streak_one": "{{count}} jours de lecture ensemble",
+    "streak_one": "{{count}} jour de lecture ensemble",
     "streak_many": "{{count}} jours de lecture ensemble",
     "streak_other": "{{count}} jours de lecture ensemble",
     "streak0": "Commencez aujourd'hui",
+    "weekHint": "Jours remplis : le groupe a lu. Le contour, c'est aujourd'hui.",
     "manage": {
       "title": "Gérer le groupe"
     },
@@ -377,7 +378,7 @@
     "prayers": {
       "title": "Mur de prière",
       "new": "Nouvelle demande",
-      "empty": "Aucune demande pour l'instant. Seul votre groupe la voit.",
+      "empty": "Aucune demande pour l'instant.",
       "iPrayed": "J'ai prié",
       "pray": "Prier",
       "privacy": "Seul votre groupe le voit. La personne qui a créé le groupe modère et peut retirer toute demande.",
@@ -498,6 +499,11 @@
     "addAnother": "Ajouter un autre enfant",
     "addFirst": "Qui lit avec vous ?",
     "sharedVersion": "Tout le monde entend la même lecture. Quelle version ?",
+    "whoComes": "1 · Qui est avec vous ?",
+    "whoHint": "Touchez pour ajouter ou retirer ceux qui vont écouter maintenant.",
+    "pickVersion": "2 · Quelle version allez-vous écouter ?",
+    "pickVersionHint": "Tout le monde entend la même lecture. Choisissez l'âge qui convient le mieux à la table.",
+    "forWho": "Pour",
     "tableTitle": "Qui va lire ?",
     "continue": "Continuer",
     "storyPanel": "Case {{n}} sur {{total}}",

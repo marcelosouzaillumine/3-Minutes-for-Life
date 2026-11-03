@@ -7,7 +7,7 @@ const label = (b: Band) => b.replace('-', ' a ');
  * e a escolhida fica marcada, com ✓, para não haver dúvida de qual versão vai abrir.
  * Com "cards", a opção vira um cartão com a arte e uma frase do devocional naquela faixa.
  */
-export function BandPicker({ bands, value, names, years, ariaLabel, onPick, cards }: {
+export function BandPicker({ bands, value, names, years, ariaLabel, onPick, cards, forLabel }: {
   bands: Band[];
   value: Band | null;
   /** Apelidos das crianças presentes em cada faixa. */
@@ -17,6 +17,8 @@ export function BandPicker({ bands, value, names, years, ariaLabel, onPick, card
   onPick: (b: Band) => void;
   /** Imagem e frase de cada faixa neste devocional; sem isso (ou sem arte), a opção é só o botão com a idade. */
   cards?: Partial<Record<Band, { image: string | null; text: string }>>;
+  /** Prefixo da linha com os nomes ("Para: Ju"), para ficar claro que são as crianças dessa faixa. */
+  forLabel?: string;
 }) {
   const withCards = !!cards && bands.some((b) => cards[b]?.image);
   return (
@@ -31,7 +33,7 @@ export function BandPicker({ bands, value, names, years, ariaLabel, onPick, card
             <span className="bandpick__body">
               <b>{label(b)} {years}</b>
               {card?.text && <span className="bandpick__text">{card.text}</span>}
-              <span className="bandpick__who">{who}</span>
+              <span className="bandpick__who">{who && forLabel ? `${forLabel}: ${who}` : who}</span>
             </span>
             {on && <i aria-hidden="true">✓</i>}
           </button>
