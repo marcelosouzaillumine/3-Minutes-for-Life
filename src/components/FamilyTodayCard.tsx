@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { illumineAuth } from '../lib/illumine';
 import { FamilyService, type Family } from '../services/FamilyService';
+import { JourneyService } from '../services/JourneyService';
 import { ReadStartSheet } from './ReadStartSheet';
 import '../styles/family.css';
 
 /** Capa do Hoje: ler sozinho em destaque e, abaixo, os caminhos em grupo e com as crianças, cada um com o seu estado. */
-export function FamilyTodayCard({ devotionalId, daily = true, onReadSolo }: { devotionalId?: string; /** false fora do Hoje: sem estado do dia, e a leitura é a deste devocional. */ daily?: boolean; onReadSolo: () => void }) {
+export function FamilyTodayCard({ devotionalId, daily = true, completed = false, onReadSolo }: { devotionalId?: string; /** Leitura de hoje já registrada nesta sessão. */ completed?: boolean; /** false fora do Hoje: sem estado do dia, e a leitura é a deste devocional. */ daily?: boolean; onReadSolo: () => void }) {
   const { t, i18n } = useTranslation('common');
   const [hasKids, setHasKids] = useState<boolean | null>(null);
+  const [doneBefore, setDoneBefore] = useState(false);
   const [family, setFamily] = useState<Family | null>(null);
   const [sheet, setSheet] = useState<'adults' | 'kids' | null>(null);
 
@@ -27,6 +29,14 @@ export function FamilyTodayCard({ devotionalId, daily = true, onReadSolo }: { de
     FamilyService.getKids(devotionalId, i18n.language).then((v) => { if (alive) setHasKids(v.length > 0); }).catch(() => {});
     return () => { alive = false; };
   }, [devotionalId, i18n.language]);
+
+  useEffect(() => {
+    if (!daily || !devotionalId || !illumineAuth.isAuthenticated()) return;
+    let alive = true;
+    JourneyService.getStatus(devotionalId).then((st) => { if (alive && st?.completed_at) setDoneBefore(true); }).catch(() => {});
+    return () => { alive = false; };
+  }, [daily, devotionalId]);
+  const done = daily && (completed || doneBefore);
 
   const goTab = (tab: string) => window.dispatchEvent(new CustomEvent('app:tab', { detail: tab }));
   const readers = family ? family.members.filter((m) => m.readToday).length : 0;
@@ -53,9 +63,9 @@ export function FamilyTodayCard({ devotionalId, daily = true, onReadSolo }: { de
 
   return (
     <div className="hoje-capa">
-      <button type="button" className="hoje-capa__main" onClick={onReadSolo}>
-        <b>{t('ritual.readNow', 'Ler agora')}</b>
-        <span>{t('ritual.readNowHint', '3 minutos · no seu ritmo')}</span>
+      <button type="button" className={`hoje-capa__main${done ? ' is-done' : ''}`} onClick={onReadSolo}>
+        <b>{done ? t('ritual.readDone', 'Leitura de hoje concluída ✓') : t('ritual.readNow', 'Ler agora')}</b>
+        <span>{done ? t('ritual.readDoneHint', 'Toque para reler') : t('ritual.readNowHint', 'Uma pausa de 3 minutos para você')}</span>
       </button>
       <div className="hoje-capa__list">
         <div className="hoje-capa__item">
