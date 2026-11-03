@@ -32,6 +32,8 @@ interface PrincipleViewProps {
     text?: string;
     subtext?: string;
     note?: string;
+    /** Caminhos em grupo e com crianças, mostrados logo depois da oração para quem ainda não tem conta. */
+    paths?: { title: string; group: { title: string; text: string }; kids: { title: string; text: string } };
   };
   onExplore?: () => void;
   /** true apenas para o devocional do dia (Home) — define o rótulo da imagem de compartilhamento. */
@@ -642,6 +644,26 @@ export function PrincipleView({
 
             </div>
 
+          </section>
+        )}
+
+        {customAction?.variant === 'shared' && customAction.paths && (
+          <section className="shared-paths" aria-label={customAction.paths.title}>
+            <p className="shared-paths__title">{customAction.paths.title}</p>
+            <div className="shared-paths__item">
+              <span className="shared-paths__icon" aria-hidden="true">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><circle cx="9" cy="8" r="3" /><circle cx="17" cy="9" r="2.4" /><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5M15 15c3 0 5.5 1.6 5.5 4" /></svg>
+              </span>
+              <span><b>{customAction.paths.group.title}</b>{customAction.paths.group.text}</span>
+            </div>
+            <div className="shared-paths__item">
+              <span className="shared-paths__icon" aria-hidden="true">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><circle cx="12" cy="12" r="9" /><path d="M8.5 14c1 1.5 2.2 2.2 3.5 2.2s2.5-.7 3.5-2.2" /><circle cx="9" cy="10" r=".6" fill="currentColor" /><circle cx="15" cy="10" r=".6" fill="currentColor" /></svg>
+              </span>
+              <span><b>{customAction.paths.kids.title}</b>{customAction.paths.kids.text}</span>
+            </div>
+            <button type="button" onClick={customAction.onClick} className="shared-cta-button">{customAction.label}</button>
+            {customAction.note && <p className="shared-cta-note">{customAction.note}</p>}
           </section>
         )}
 

@@ -85,7 +85,14 @@
     "ctaText": "Que ces trois minutes ne s'arrêtent pas ici.",
     "ctaSubtext": "Créez votre compte gratuit pour suivre des parcours de lecture, lire en groupe et garder vos réflexions.",
     "ctaButton": "Je veux continuer",
-    "ctaNote": "Accès gratuit.",
+    "ctaNote": "Contenu entièrement gratuit.",
+    "inviteText": "Lire en groupe ou avec les enfants ?",
+    "inviteLink": "Se connecter ou créer un compte",
+    "pathsTitle": "Envie de lire ainsi chaque jour ?",
+    "pathGroupTitle": "En groupe",
+    "pathGroupText": "Voyez qui a déjà lu et laissez un mot.",
+    "pathKidsTitle": "Avec les enfants",
+    "pathKidsText": "Le même passage, à leur âge.",
     "sharedSuffix": "a partagé cette réflexion avec vous."
   },
   "categories": {
