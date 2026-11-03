@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from '../components/Sheet';
+import { getTodayInSaoPaulo } from '../utils/date';
 import { ReadStartSheet } from '../components/ReadStartSheet';
 import { GroupCelebrationBanner } from '../components/GroupNotices';
 import {
@@ -156,10 +157,12 @@ export function Family() {
 
       <div className="fam-week" aria-label={tt('week', 'Últimos 7 dias')}>
         {family.week.days.map((d) => (
-          <span key={d.date} className={`fam-week__day${d.read ? ' is-read' : ''}`}><i>{dayInitial(d.date)}</i></span>
+          <span key={d.date} className={`fam-week__day${d.read ? ' is-read' : ''}${d.date === getTodayInSaoPaulo() ? ' is-today' : ''}`}><i>{dayInitial(d.date)}</i></span>
         ))}
       </div>
+      <p className="fam-note fam-week__hint">{tt('weekHint', 'Dias preenchidos: o grupo leu. O contorno é hoje.')}</p>
 
+      <p className="fam-step">{readers > 0 ? tt('readersToday', '{{count}} de {{total}} já leram hoje', { count: readers, total: family.members.length }) : tt('noneToday', 'Ninguém leu hoje ainda.')}</p>
       <section className="fam-people" aria-label={tt('who', 'Quem lê')}>
         {family.members.map((m, i) => (
           <div key={i} className="fam-person">
@@ -173,7 +176,6 @@ export function Family() {
           <span className="fam-person__label">{tt('invite.short', 'convidar')}</span>
         </button>
       </section>
-      <p className="fam-note">{readers > 0 ? tt('readersToday', '{{count}} de {{total}} já leram hoje', { count: readers, total: family.members.length }) : tt('noneToday', 'Ninguém leu hoje ainda.')}</p>
 
       <button type="button" className="fam-btn fam-btn--primary fam-cta" onClick={() => setReadSheet({ plan: false })}>{tt('ritual', 'Ler juntos')}</button>
 

@@ -321,9 +321,10 @@
       "cta": "Join"
     },
     "inviteMessage": "Come read the devotional with us: {{link}}",
-    "streak_one": "{{count}} days reading together",
+    "streak_one": "{{count}} day reading together",
     "streak_other": "{{count}} days reading together",
     "streak0": "Start today",
+    "weekHint": "Filled days: the group read. The outline is today.",
     "manage": {
       "title": "Manage group"
     },
@@ -373,7 +374,7 @@
     "prayers": {
       "title": "Prayer wall",
       "new": "New request",
-      "empty": "No requests yet. Only your group sees this.",
+      "empty": "No requests yet.",
       "iPrayed": "I prayed",
       "pray": "Pray",
       "privacy": "Only your group sees this. Whoever created the group moderates and can remove any request.",

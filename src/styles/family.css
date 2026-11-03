@@ -24,6 +24,10 @@
 .fam-week__day { aspect-ratio: 1; border-radius: 10px; background: #F3EFE8; display: flex; align-items: center; justify-content: center; }
 .fam-week__day i { font-style: normal; font-size: 0.7rem; color: var(--text-faint); }
 .fam-week__day.is-read { background: var(--accent-strong); }
+.fam-week__day.is-today { box-shadow: inset 0 0 0 2px var(--text-strong); }
+.fam-week { margin-bottom: 0.4rem; }
+.fam-week__hint { margin: 0 0 1.25rem; }
+.fam-person { align-content: start; }
 .fam-week__day.is-read i { color: #fff; }
 
 /* Pessoas */

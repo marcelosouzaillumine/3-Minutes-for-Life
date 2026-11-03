@@ -321,10 +321,11 @@
       "cta": "Entrar"
     },
     "inviteMessage": "Vem ler o devocional com a gente: {{link}}",
-    "streak_one": "{{count}} dias lendo juntos",
+    "streak_one": "{{count}} dia lendo juntos",
     "streak_many": "{{count}} dias lendo juntos",
     "streak_other": "{{count}} dias lendo juntos",
     "streak0": "Comecem hoje",
+    "weekHint": "Dias preenchidos: o grupo leu. O contorno é hoje.",
     "manage": {
       "title": "Gerenciar grupo"
     },
@@ -377,7 +378,7 @@
     "prayers": {
       "title": "Mural de oração",
       "new": "Novo pedido",
-      "empty": "Nenhum pedido ainda. Só o grupo vê.",
+      "empty": "Nenhum pedido ainda.",
       "iPrayed": "Eu orei",
       "pray": "Orar",
       "privacy": "Só o grupo vê. Quem criou o grupo modera e pode remover qualquer pedido.",
