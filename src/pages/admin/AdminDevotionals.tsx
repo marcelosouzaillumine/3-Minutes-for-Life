@@ -6,10 +6,11 @@ import { RichTextEditor } from '../../components/admin/RichTextEditor';
 import { PrincipleView } from '../../components/PrincipleView';
 import { MediaLibraryPicker } from '../../components/admin/MediaLibraryPicker';
 import { DevotionalLanguages, type KidsSummaries } from '../../components/admin/DevotionalLanguages';
-import { BANDS, FamilyAdmin, type Band, type KidsDraft } from '../../services/FamilyService';
+import { FamilyAdmin, type Band, type KidsDraft } from '../../services/FamilyService';
 import { KidsBandEditor, KidsBandPreview, bandLabel } from '../../components/admin/KidsBandEditor';
 import { ManualTranslationEditor } from '../../components/admin/ManualTranslationEditor';
-import { publishAll, publishAllForDevotional, type PublishReport } from '../../services/PublishAllService';
+import { publishAll, publishAllForDevotional, unpublishAllForDevotional, type PublishReport } from '../../services/PublishAllService';
+import { DevotionalStatusMatrix } from '../../components/admin/DevotionalStatusMatrix';
 import '../../styles/admin.css';
 
 export function AdminDevotionals() {
@@ -32,6 +33,8 @@ export function AdminDevotionals() {
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [bandDraft, setBandDraft] = useState<KidsDraft | null>(null);
+  // Estado de cada faixa infantil, por idioma, do devocional aberto (alimenta o quadro de estado).
+  const [editKidsStates, setEditKidsStates] = useState<Awaited<ReturnType<typeof FamilyAdmin.kidsStates>>>({});
 
   // Content image state (Dica de conteúdo / Apoio ao projeto) — keyed by field name
   const [contentImageError] = useState<Record<string, string>>({});
@@ -198,7 +201,13 @@ export function AdminDevotionals() {
     const fresh = await AdminContentService.getDevotional(editingId);
     setEditForm((prev: any) => ({ ...prev, devotional_translations: fresh.devotional_translations }));
     loadKidsSummaries(languages);
+    FamilyAdmin.kidsStates(editingId).then(setEditKidsStates).catch(() => {});
   };
+
+  useEffect(() => {
+    if (editingId && editingId !== 'new') FamilyAdmin.kidsStates(editingId).then(setEditKidsStates).catch(() => {});
+    else setEditKidsStates({});
+  }, [editingId]);
 
   const langName = (iso: string) => languages.find((l) => l.iso_code === iso)?.name ?? iso;
 
@@ -221,10 +230,33 @@ export function AdminDevotionals() {
       const fresh = await AdminContentService.getDevotional(editingId);
       const report = await publishAllForDevotional(fresh, targets);
       setPublishReport(report);
-      setStudioMsg(`${report.published} item(ns) publicado(s)${report.skipped.length ? `; ${report.skipped.length} ficaram de fora (veja abaixo)` : ''}.`);
+      setStudioMsg(report.published === 0 && report.skipped.length === 0
+        ? 'Nada novo para publicar: tudo o que tem rascunho já está no ar.'
+        : `${report.published} item(ns) publicado(s)${report.skipped.length ? `; ${report.skipped.length} ficaram de fora (veja abaixo)` : ''}.`);
       await refreshStudio();
     } catch (err: any) {
       setStudioMsg('Erro ao publicar: ' + err.message);
+    } finally {
+      setPublishing(null);
+    }
+  };
+
+  const handleUnpublishFromEditor = async (only?: string) => {
+    if (!editingId || editingId === 'new' || !editForm) return;
+    const targets = only ? languages.filter((l) => l.iso_code === only) : languages;
+    const scope = only ? langName(only) : 'TODOS os idiomas';
+    if (!window.confirm(`Despublicar ${scope} deste devocional? A tradução do texto adulto e as faixas infantis voltam para rascunho e saem do app. O texto adulto em português não muda.`)) return;
+    setPublishing(only ?? 'editor');
+    try {
+      const fresh = await AdminContentService.getDevotional(editingId);
+      const report = await unpublishAllForDevotional(fresh, targets);
+      setPublishReport(report);
+      setStudioMsg(report.published === 0 && report.skipped.length === 0
+        ? 'Nada para despublicar: não havia nada no ar nesse recorte.'
+        : `${report.published} item(ns) despublicado(s)${report.skipped.length ? `; ${report.skipped.length} não foram despublicados (veja abaixo)` : ''}.`);
+      await refreshStudio();
+    } catch (err: any) {
+      setStudioMsg('Erro ao despublicar: ' + err.message);
     } finally {
       setPublishing(null);
     }
@@ -516,40 +548,30 @@ export function AdminDevotionals() {
 
         {editingId !== 'new' && (() => {
           const langMap = buildLangMap(editForm);
-          const kidsFor = (iso: string) => kidsSummaries[iso]?.[editingId!];
           const missing = languages.filter((l) => !l.is_source && !langMap[l.iso_code]).map((l) => l.iso_code);
-          const chip = (active: boolean) => ({ padding: '6px 12px', borderRadius: '999px', border: `1px solid ${active ? 'var(--color-primary)' : '#ddd'}`, background: active ? 'var(--color-primary)' : 'white', color: active ? 'white' : 'var(--color-text)', fontSize: '0.85rem', cursor: 'pointer' } as const);
           return (
-            <div style={{ marginBottom: '16px', display: 'grid', gap: '10px' }}>
-              <div role="tablist" aria-label="Idioma" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                {languages.map((l) => {
-                  const e = langMap[l.iso_code];
-                  const mark = l.is_source ? '' : !e ? ' ○' : e.state === 'draft' ? ' ●' : e.isStale || e.isPossiblyStale ? ' ⚠' : ' ✓';
-                  return <button key={l.iso_code} type="button" role="tab" aria-selected={l.iso_code === currentLang} style={chip(l.iso_code === currentLang)} onClick={() => { setCurrentLang(l.iso_code); setStudioMsg(''); }}>{l.iso_code === 'pt-BR' ? 'PT' : l.iso_code.toUpperCase()}{mark}</button>;
-                })}
-              </div>
-              <div role="tablist" aria-label="Versão" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                <button type="button" role="tab" aria-selected={version === 'adult'} style={chip(version === 'adult')} onClick={() => setVersion('adult')}>Texto adulto</button>
-                {BANDS.map((b) => (
-                  <button key={b} type="button" role="tab" aria-selected={version === b} style={chip(version === b)} onClick={() => { setVersion(b); setStudioMsg(''); }}>
-                    {bandLabel(b)}
-                  </button>
-                ))}
-              </div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.8rem', color: 'var(--color-text-light)' }}>
-                  {langName(currentLang)} · faixas infantis no ar: {kidsFor(currentLang)?.published ?? 0}/{BANDS.length}
-                </span>
-                <span style={{ flex: 1 }} />
-                {missing.length > 0 && <button type="button" disabled={publishing !== null} style={chip(false)} onClick={() => handleTranslate(missing)}>Traduzir com IA ({missing.map((m) => m.toUpperCase()).join(', ')})</button>}
-                <button type="button" disabled={publishing !== null} style={chip(false)} onClick={() => handlePublishFromEditor(currentLang)}>Publicar este idioma</button>
-                <button type="button" disabled={publishing !== null} style={{ ...chip(true), fontWeight: 'bold' }} onClick={() => handlePublishFromEditor()}>Publicar em todos os idiomas</button>
-              </div>
-              {studioMsg && <p role="status" style={{ margin: 0, fontSize: '0.85rem' }}>{studioMsg}</p>}
+            <>
+              <DevotionalStatusMatrix
+                devotional={editForm}
+                languages={languages}
+                kidsStates={editKidsStates}
+                lang={currentLang}
+                version={version}
+                busy={publishing !== null}
+                missing={missing}
+                onPick={(iso, v) => { setCurrentLang(iso); setVersion(v); setStudioMsg(''); }}
+                onPublish={(iso) => handlePublishFromEditor(iso)}
+                onUnpublish={(iso) => handleUnpublishFromEditor(iso)}
+                onTranslate={handleTranslate}
+              />
+              {studioMsg && <p role="status" style={{ margin: '0 0 12px', fontSize: '0.85rem' }}>{studioMsg}</p>}
               {publishReport && publishReport.skipped.length > 0 && (
-                <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.8rem', color: '#b45309' }}>{publishReport.skipped.map((m) => <li key={m}>{m}</li>)}</ul>
+                <ul style={{ margin: '0 0 12px', paddingLeft: '18px', fontSize: '0.8rem', color: '#b45309' }}>{publishReport.skipped.map((m) => <li key={m}>{m}</li>)}</ul>
               )}
-            </div>
+              <p style={{ margin: '0 0 8px', fontSize: '0.75rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#5A6472', fontWeight: 600 }}>
+                Editando: {langName(currentLang)} · {version === 'adult' ? 'texto adulto' : bandLabel(version)}
+              </p>
+            </>
           );
         })()}
 
