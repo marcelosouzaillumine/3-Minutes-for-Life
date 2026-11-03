@@ -1131,10 +1131,10 @@ h4 {
 }
 
 .devotional-signature-name {
-  font-family: var(--font-family);
-  font-size: 1.35rem;
+  /* Exceção deliberada à fonte única: a assinatura mantém o script. */
+  font-family: 'Dancing Script', cursive;
+  font-size: 1.9rem;
   font-weight: 600;
-  letter-spacing: -0.01em;
   color: var(--color-text, #1F262E);
   line-height: 1.1;
 }
