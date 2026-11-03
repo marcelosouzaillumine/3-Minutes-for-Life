@@ -88,6 +88,12 @@ describe('FamilyRitual', () => {
       Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, 'Bento');
       input.dispatchEvent(new Event('input', { bubbles: true }));
     });
+    const sel = host.querySelector('form select') as HTMLSelectElement;
+    expect(sel.value).toBe('');
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value')!.set!.call(sel, '7-10');
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+    });
     await act(async () => { host.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
     await flush();
     expect(mocks.addChild).toHaveBeenCalledWith('Bento', '7-10');
