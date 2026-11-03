@@ -436,3 +436,12 @@
 /* Os cards do fim da leitura moram dentro da barra de ações; sem isto ficavam espremidos ao lado dos botões. */
 .action-bar:has(> .group-word, > .reading-closing) { flex-wrap: wrap; gap: 1rem 2.5rem; }
 .action-bar > .group-word, .action-bar > .reading-closing { flex: 1 1 100%; min-width: 0; margin: 0.5rem 0; }
+
+/* Faixa sem versão neste devocional: aparece apagada e não se escolhe. */
+.bandpick__opt--off { opacity: 0.6; background: #F4F1EB; cursor: default; }
+.bandpick__img--empty { background: #EDE7DC; }
+.fam-why { margin: 0.5rem 0 0.25rem; padding: 0.8rem 1rem; border-radius: 14px; background: #F6F0E4; font-size: 0.85rem; color: var(--text-strong); }
+.fam-why b { display: block; margin-bottom: 0.3rem; font-size: 0.9rem; }
+.fam-why ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.15rem; }
+.fam-why li::before { content: '✓'; margin-right: 0.5rem; color: var(--accent-strong); font-weight: 700; }
+.fam-why small { display: block; margin-top: 0.4rem; color: var(--text-muted); font-size: 0.78rem; }
