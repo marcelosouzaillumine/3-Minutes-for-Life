@@ -132,7 +132,9 @@ export function Family() {
   const isOwner = family.role === 'owner';
   const link = inviteLink(family.inviteCode);
   const inviteMsg = tt('inviteMessage', 'Vem ler o devocional com a gente: {{link}}', { link });
-  const readers = family.members.filter((m) => m.readToday).length;
+  // Adultos e crianças do grupo contam juntos no "já leram hoje".
+  const readers = family.members.filter((m) => m.readToday).length + family.children.filter((c) => c.readToday).length;
+  const totalPeople = family.members.length + family.children.length;
   const plan = family.plan;
   const copy = async () => { try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { /* sem permissão */ } };
   // Marcos da sequência: a trilha mostra o ponto de partida e os próximos três marcos.
@@ -181,13 +183,20 @@ export function Family() {
         <p className="fam-note">{tt('streakRestart', 'Se um dia passar, é só recomeçar: o grupo continua aqui.')}</p>
       </section>
 
-      <p className="fam-step">{readers > 0 ? tt('readersToday', '{{count}} de {{total}} já leram hoje', { count: readers, total: family.members.length }) : tt('noneToday', 'Ninguém leu hoje ainda.')}</p>
+      <p className="fam-step">{readers > 0 ? tt('readersToday', '{{count}} de {{total}} já leram hoje', { count: readers, total: totalPeople }) : tt('noneToday', 'Ninguém leu hoje ainda.')}</p>
       <section className="fam-people" aria-label={tt('who', 'Quem lê')}>
         {family.members.map((m, i) => (
           <div key={i} className="fam-person">
             <span className={`fam-avatar${m.readToday ? ' is-read' : ''}`}>{initials(m.displayName)}</span>
             <span className="fam-person__label">{m.isMe ? tt('you', 'você') : m.displayName ?? tt('someone', 'Alguém')}</span>
             <span className="fam-person__state">{m.readToday ? tt('read', 'leu hoje') : tt('notYet', 'ainda não')}</span>
+          </div>
+        ))}
+        {family.children.map((c) => (
+          <div key={c.id} className="fam-person">
+            <span className={`fam-avatar${c.readToday ? ' is-read' : ''}`}>{initials(c.nickname)}</span>
+            <span className="fam-person__label">{c.nickname}</span>
+            <span className="fam-person__state">{c.readToday ? tt('read', 'leu hoje') : tt('notYet', 'ainda não')}</span>
           </div>
         ))}
         <button type="button" className="fam-person fam-person--add" onClick={() => setSheet('invite')}>
