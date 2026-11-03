@@ -2,9 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { illumineAuth } from '../lib/illumine';
 import { FamilyService, type Band, type Family } from '../services/FamilyService';
-import { openRitual } from './Family';
 import { ReadStartSheet } from '../components/ReadStartSheet';
 import '../styles/family.css';
+
+// Sem grupo ainda: a pessoa lê escolhendo só a versão; cadastrar crianças pede um grupo.
+const NO_GROUP: Family = { id: '', name: '', meetingTime: null, role: 'owner', inviteCode: '', members: [], children: [], week: { days: [], streak: 0 }, plan: null };
 
 const bandLabel = (b: Band) => b.replace('-', ' a ');
 
@@ -46,12 +48,11 @@ export function Kids() {
         <p className="fam-eyebrow">{tt('eyebrow', 'Ler com as crianças')}</p>
         <h1 className="fam-hero__title">{tt('title', 'Uma leitura feita para a idade delas')}</h1>
         <p className="fam-hero__text">{tt('text', 'Cada faixa de idade tem a sua versão: 0 a 3, 4 a 6, 7 a 10 e 11 a 13 anos. Você lê em voz alta e conduz a conversa com o guia do adulto.')}</p>
-        {!family && <button type="button" className="fam-btn fam-btn--primary" onClick={() => openRitual('daily', 'kids')}>{tt('start', 'Começar a leitura de hoje')}</button>}
       </div>
 
-      {family && (
+      {(
         <section className="fam-section">
-          <ReadStartSheet key={family.id} audience="kids" family={family} plan={false} inline onClose={() => {}} onChanged={setFamily} />
+          <ReadStartSheet key={family?.id ?? 'sem-grupo'} audience="kids" family={family ?? NO_GROUP} plan={false} inline onClose={() => {}} onChanged={setFamily} />
         </section>
       )}
 

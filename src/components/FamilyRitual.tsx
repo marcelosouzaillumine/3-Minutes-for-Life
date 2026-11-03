@@ -15,6 +15,7 @@ import { BandPicker } from './BandPicker';
 import { safeStoryImage, storyCard, storyScreenCount } from '../utils/kidsStory';
 
 /** Ler juntos: um roteiro de tela cheia, uma coisa por vez, feito para ser lido em voz alta. */
+const GUEST_ID = 'guest';
 const bandArt = (band: string) => (band === '0-3' || band === '4-6' ? 'young' : 'older');
 // Devocionais com arte nova por faixa de idade (public/ilustracoes/<pasta>/quadros/faixa-<faixa>-1.webp): a capa é o primeiro quadro da própria faixa.
 const FAIXA_ART: Record<string, string> = {
@@ -26,7 +27,7 @@ const FAIXA_ART: Record<string, string> = {
 };
 const faixaArt = (devotionalId: string | undefined, band: string) => (devotionalId && FAIXA_ART[devotionalId] ? `/ilustracoes/${FAIXA_ART[devotionalId]}/quadros/faixa-${band}-1.webp` : null);
 
-export function FamilyRitual({ source, audience: forced, solo = false, intro = true, kidIds, adultIdx, devotionalId, band, onClose }: {
+export function FamilyRitual({ source, audience: forced, solo = false, intro = true, kidIds, adultIdx, devotionalId, band, guestBand, onClose }: {
   source: 'daily' | 'plan';
   audience?: 'adults' | 'kids';
   /** Só a própria pessoa lê: não pede grupo nem escolha de quem está à mesa. */
@@ -40,6 +41,8 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
   /** Devocional escolhido (Explorar, planos); sem isso vale o do dia ou o do plano. */
   devotionalId?: string;
   band?: Band;
+  /** Leitura de uma faixa sem criança cadastrada: não registra progresso de ninguém. */
+  guestBand?: Band;
   onClose: () => void;
 
 }) {
@@ -61,6 +64,7 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [kidsLoaded, setKidsLoaded] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [dilemmaPick, setDilemmaPick] = useState<number | null>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -71,9 +75,13 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
   });
   const audience: 'adults' | 'kids' = picked ?? ((family?.children.length ?? 0) > 0 ? 'kids' : 'adults');
 
+  // Sem criança cadastrada, a faixa escolhida vira uma criança só desta leitura (não é salva).
+  const guest = useMemo(() => (guestBand && !(kidIds && kidIds.length) ? { id: GUEST_ID, nickname: '', band: guestBand } : null), [guestBand, kidIds]);
+  const kidList = useMemo(() => (guest ? [guest] : family?.children ?? []), [guest, family]);
+
   useEffect(() => { FamilyService.get().then((f) => {
     setFamily(f);
-    setPresent(new Set(kidIds ?? (f?.children ?? []).map((c) => c.id)));
+    setPresent(new Set(guest ? [GUEST_ID] : kidIds ?? (f?.children ?? []).map((c) => c.id)));
     setPresentAdults(new Set(adultIdx ?? (f?.members ?? []).map((_, i) => i)));
     setLoaded(true);
   }).catch(() => setFailed(true)); }, []);
@@ -83,9 +91,10 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
   const useSource: 'daily' | 'plan' = chosen === 'plan' && canPlan ? 'plan' : 'daily';
 
   useEffect(() => {
-    if (!family && !solo) return;
+    if (!family && !solo && !guest) return;
     let alive = true;
     setDevotional(null);
+    setKidsLoaded(false);
     const load = devotionalId
       ? DevotionalService.getDevotional(devotionalId, i18n.language)
       : useSource === 'plan' && planDay
@@ -95,7 +104,7 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
       if (!alive) return;
       setDevotional(d);
       const v = await FamilyService.getKids(d.id, i18n.language);
-      if (alive) setKids(v);
+      if (alive) { setKids(v); setKidsLoaded(true); }
     }).catch(() => alive && setFailed(true));
     return () => { alive = false; };
   }, [family, useSource, planDay?.devotionalId, devotionalId, i18n.language]);
@@ -104,13 +113,13 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
   const dayKey = Math.floor(Date.now() / 86_400_000);
   const reader = solo ? null : readerForDay(adults, dayKey);
   // Uma só escolha de público conduz todas as telas: com crianças, tudo vem da faixa delas; só adultos, do texto adulto.
-  const withKids = audience === 'kids' && (family?.children.length ?? 0) > 0;
+  const withKids = audience === 'kids' && kidList.length > 0;
   const perChild = useMemo(
-    () => (family && withKids ? versionsForChildren(family.children, present, kids) : []),
-    [family, withKids, present, kids],
+    () => (withKids ? versionsForChildren(kidList, present, kids) : []),
+    [kidList, withKids, present, kids],
   );
   // Quem fica registrado ao concluir: os adultos presentes e, na leitura com crianças, as crianças à mesa.
-  const registeredNames = useMemo(() => [...adults, ...perChild.map((p) => p.child.nickname)], [adults, perChild]);
+  const registeredNames = useMemo(() => [...adults, ...perChild.map((p) => p.child.nickname).filter(Boolean)], [adults, perChild]);
   // Uma só leitura para a mesa: todos ouvem o mesmo texto, na faixa da criança mais nova presente (ou a que o adulto escolher).
   const order = ['0-3', '4-6', '7-10', '11-13'];
   const [leadBand, setLeadBand] = useState<Band | null>(band ?? null);
@@ -127,7 +136,7 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
   const shared = useMemo(() => {
     const v = kids.find((k) => k.band === sharedBand);
     if (!v || perChild.length === 0) return [];
-    const names = perChild.map((p) => p.child.nickname).join(', ');
+    const names = perChild.map((p) => p.child.nickname).filter(Boolean).join(', ');
     return [{ child: { id: 'shared', nickname: names, band: v.band as Band }, version: v }];
   }, [perChild, kids, sharedBand]);
   const leadVersion = shared[0]?.version ?? null;
@@ -288,7 +297,7 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
     try {
       // Na mesa, quem conclui registra todos os adultos presentes; sozinho ou sem grupo, só a própria leitura.
       // As crianças que estavam à mesa também contam; só entram quando a leitura foi feita com elas.
-      const kidsHere = withKids ? perChild.map((p) => p.child.id) : [];
+      const kidsHere = withKids ? perChild.map((p) => p.child.id).filter((id) => id !== GUEST_ID) : [];
       if (!solo && family && family.members.length > 1) await FamilyService.readTogether(devotional.id, [...presentAdults], kidsHere);
       else {
         await JourneyService.complete(devotional.id, devotional.legacy_id);
@@ -298,7 +307,7 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
       // Modo da leitura para o painel: sozinho, em grupo de adultos ou com crianças (e as faixas delas).
       AnalyticsService.trackEvent('reading_completed', {
         devotional_id: devotional.id,
-        mode: solo ? 'individual' : kidsHere.length ? 'criancas' : 'grupo',
+        mode: solo ? 'individual' : withKids ? 'criancas' : 'grupo',
         adults: solo ? 1 : presentAdults.size,
         kids: kidsHere.length,
         bands: [...new Set(perChild.map((p) => p.child.band))],
@@ -319,8 +328,19 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
   }
   if (!loaded) return <div className="ritual"><div className="ritual__body"><p className="ritual__lead">…</p></div></div>;
 
-  if (!family && !solo) return <RitualSetup onClose={onClose} onCreated={(f) => { setFamily(f); setPresent(new Set(f.children.map((c) => c.id))); }} tt={tt} />;
+  if (!family && !solo && !guest) return <RitualSetup onClose={onClose} onCreated={(f) => { setFamily(f); setPresent(new Set(f.children.map((c) => c.id))); }} tt={tt} />;
   if (!devotional) return <div className="ritual"><div className="ritual__body"><p className="ritual__lead">…</p></div></div>;
+  // Escolheu crianças, mas o devocional não tem versão infantil: avisa em vez de abrir o texto dos adultos sem dizer nada.
+  if (audience === 'kids' && kidsLoaded && kids.length === 0) {
+    return (
+      <div className="ritual"><div className="ritual__body">
+        <h1 className="ritual__title">{tt('kidsUnavailableTitle', 'Indisponível hoje')}</h1>
+        <p className="ritual__lead">{tt('kidsUnavailableText', 'Este devocional ainda não tem versão para crianças.')}</p>
+        <button type="button" className="fam-btn fam-btn--primary" onClick={() => setAudience('adults')}>{tt('readAdultVersion', 'Ler a versão dos adultos')}</button>
+        <button type="button" className="fam-btn fam-btn--secondary" onClick={onClose}>{tt('back', 'Voltar')}</button>
+      </div></div>
+    );
+  }
   // Sem grupo (leitura só da pessoa): um grupo vazio faz as telas seguirem o mesmo caminho.
   const fam: Family = family ?? { id: '', name: '', meetingTime: null, role: 'owner', inviteCode: '', members: [], children: [], week: { days: [], streak: 0 }, plan: null };
 
