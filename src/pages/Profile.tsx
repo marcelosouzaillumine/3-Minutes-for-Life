@@ -19,6 +19,30 @@ import { CommunicationInboxService } from '../services/CommunicationInboxService
 import { AdminService } from '../services/AdminService';
 import { JourneySummaryCard } from '../components/JourneyStreak';
 
+const ICONS = {
+  notes: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z',
+  chat: 'M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z',
+  mail: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
+  language: 'M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129',
+  heart: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
+  bag: 'M17 9V7a4 4 0 00-8 0v2M5 9h14l-1 11H6L5 9z',
+  info: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+};
+
+/** Linha de lista do perfil: ícone fino, rótulo e seta; com selo opcional (mensagens não lidas). */
+function PfRow({ icon, label, onClick, badge = 0 }: { icon: string; label: string; onClick: () => void; badge?: number }) {
+  return (
+    <button type="button" className="pf-row" onClick={onClick}>
+      <span className="pf-row__icon">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d={icon} /></svg>
+      </span>
+      <span className="pf-row__label">{label}</span>
+      {badge > 0 && <span className="pf-row__badge" aria-label={`${badge}`}>{badge > 9 ? '9+' : badge}</span>}
+      <span className="pf-row__chev" aria-hidden="true">›</span>
+    </button>
+  );
+}
+
 export function Profile() {
   const { t } = useTranslation(['profile', 'common']);
   const { user, signOut } = useAuth();
@@ -194,210 +218,74 @@ export function Profile() {
   }
 
   return (
-    <div className="profile-container">
-      <h2 className="page-header">{t('title')}</h2>
-      
-      <div className="profile-hero">
-        <div
-          className="avatar-wrapper"
-          onClick={() => !avatarUploading && fileInputRef.current?.click()}
-          style={{ opacity: avatarUploading ? 0.6 : 1, cursor: avatarUploading ? 'wait' : 'pointer' }}
-        >
-          {avatarUrl ? (
-            <img src={avatarUrl} alt="Avatar" className="profile-avatar-img" />
-          ) : (
-            <div className="profile-avatar">
-              {user?.email?.charAt(0).toUpperCase() || 'U'}
-            </div>
-          )}
-          <div className="avatar-edit-overlay">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </div>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept="image/*"
-            disabled={avatarUploading}
-            style={{ display: 'none' }}
-          />
-        </div>
-        <div className="profile-details">
-          <p className="profile-name">{user?.name || (user as any)?.user_metadata?.full_name || (user as any)?.user_metadata?.name || t('profile:userFallback', 'Usuário')}</p>
-          <p className="profile-email">{user?.email}</p>
-          {avatarUploading && (
-            <p style={{ fontSize: '0.8rem', color: 'var(--color-text-light)', marginTop: '4px' }}>
-              {t('profile:avatar.uploading', 'Enviando foto...')}
-            </p>
-          )}
-          {avatarError && (
-            <p style={{ fontSize: '0.8rem', color: '#dc2626', marginTop: '4px' }}>
-              {avatarError}
-            </p>
-          )}
-        </div>
-      </div>
+    <div className="profile-container pf">
+      <h2 className="page-header pf-sr">{t('title')}</h2>
 
-      <div className="profile-section">
-        <h3 className="section-title">{t('settings')}</h3>
-        <div className="settings-list">
-          <div className="settings-item" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: '0.5rem', paddingBottom: '1rem' }}>
-             <div className="settings-item-left" style={{ width: '100%' }}>
-              <div className="settings-icon-bg">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-                </svg>
-              </div>
-              <span>{t('language')}</span>
-            </div>
-            <div style={{ paddingLeft: '2.5rem', width: '100%' }}>
-              <LanguageSelector />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="profile-section">
-        <h3 className="section-title">{t('yourStory')}</h3>
-
-        <JourneySummaryCard />
-        
-        <div className="settings-list" style={{ marginTop: '1rem' }}>
-          <div className="settings-item clickable" onClick={() => setShowReflections(true)}>
-            <div className="settings-item-left">
-              <div className="settings-icon-bg">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-              </div>
-              <span>{t('profile:myNotes', 'Anotações Pessoais')}</span>
-            </div>
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20" className="chevron-icon">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
-          <div className="settings-item clickable" onClick={() => setShowTestimonials(true)}>
-            <div className="settings-item-left">
-              <div className="settings-icon-bg">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
-                </svg>
-              </div>
-              <span>{t('profile:testimonials', 'Testemunhos')}</span>
-            </div>
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20" className="chevron-icon">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <div className="profile-section">
-        <h3 className="section-title">
-          {t('profile:messages.sectionTitle', 'Suas mensagens')}
-        </h3>
-
-        <div className="settings-list">
-          <div className="settings-item clickable" onClick={() => setShowMessages(true)}>
-            <div className="settings-item-left">
-              <div className="settings-icon-bg" style={{ position: 'relative' }}>
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                {unreadMessageCount > 0 && (
-                  <span className="nav-badge" aria-hidden="true">
-                    {unreadMessageCount > 9 ? '9+' : unreadMessageCount}
-                  </span>
-                )}
-              </div>
-              <span>{t('profile:messages.viewAll', 'Ver mensagens')}</span>
-            </div>
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20" className="chevron-icon">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      <div className="profile-section">
+      <header className="pf-id">
         <button
           type="button"
-          className="profile-row-link"
-          onClick={() => window.dispatchEvent(new CustomEvent('app:tab', { detail: 'family' }))}
+          className="pf-avatar"
+          onClick={() => !avatarUploading && fileInputRef.current?.click()}
+          disabled={avatarUploading}
+          aria-label={t('profile:avatar.change', 'Trocar foto')}
         >
-          <span>{t('common:familyNav', 'Família')}</span>
-          <span aria-hidden="true">›</span>
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="" className="pf-avatar__img" />
+          ) : (
+            <span className="pf-avatar__initial">{user?.email?.charAt(0).toUpperCase() || 'U'}</span>
+          )}
+          <span className="pf-avatar__edit" aria-hidden="true">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          </span>
+          <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" disabled={avatarUploading} style={{ display: 'none' }} />
         </button>
-      </div>
+        <div className="pf-id__text">
+          <p className="pf-id__name">{user?.name || (user as any)?.user_metadata?.full_name || (user as any)?.user_metadata?.name || t('profile:userFallback', 'Usuário')}</p>
+          <p className="pf-id__email">{user?.email}</p>
+          {avatarUploading && <p className="pf-id__note">{t('profile:avatar.uploading', 'Enviando foto...')}</p>}
+          {avatarError && <p className="pf-id__note pf-id__note--error">{avatarError}</p>}
+        </div>
+      </header>
 
-      <div className="profile-section">
-        <CommunicationPreferences />
-      </div>
+      <section className="pf-group">
+        <h3 className="pf-title">{t('yourStory')}</h3>
+        <JourneySummaryCard />
+        <div className="pf-list">
+          <PfRow icon={ICONS.notes} label={t('profile:myNotes', 'Anotações Pessoais')} onClick={() => setShowReflections(true)} />
+          <PfRow icon={ICONS.chat} label={t('profile:testimonials', 'Testemunhos')} onClick={() => setShowTestimonials(true)} />
+          <PfRow icon={ICONS.mail} label={t('profile:messages.viewAll', 'Ver mensagens')} badge={unreadMessageCount} onClick={() => setShowMessages(true)} />
+        </div>
+      </section>
 
-      <div className="profile-section">
-        <h3 className="section-title">{t('more')}</h3>
-        <div className="settings-list">
-          <div className="settings-item clickable" onClick={() => { navigate('/apoiar'); }}>
-             <div className="settings-item-left">
-              <div className="settings-icon-bg">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </div>
-              <span>{t('profile:supportProject', 'Apoiar o projeto')}</span>
-            </div>
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20" className="chevron-icon">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
-          <div className="settings-item clickable" onClick={() => setShowSubscriptions(true)}>
-             <div className="settings-item-left">
-              <div className="settings-icon-bg">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a4 4 0 00-8 0v2M5 9h14l-1 11H6L5 9z" />
-                </svg>
-              </div>
-              <span>{t('profile:mySubscriptions', 'Minha contribuição recorrente')}</span>
-            </div>
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20" className="chevron-icon">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
-          <div className="settings-item clickable" onClick={() => setShowAbout(true)}>
-             <div className="settings-item-left">
-              <div className="settings-icon-bg">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <span>{t('aboutApp')}</span>
-            </div>
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20" className="chevron-icon">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+      <section className="pf-group">
+        <h3 className="pf-title">{t('settings')}</h3>
+        <div className="pf-list">
+          <div className="pf-row pf-row--static">
+            <span className="pf-row__icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d={ICONS.language} /></svg></span>
+            <span className="pf-row__label">{t('language')}</span>
+            <LanguageSelector />
           </div>
         </div>
-      </div>
+        <CommunicationPreferences />
+      </section>
 
-      <div className="profile-actions">
+      <section className="pf-group">
+        <h3 className="pf-title">{t('more')}</h3>
+        <div className="pf-list">
+          <PfRow icon={ICONS.heart} label={t('profile:supportProject', 'Apoiar o projeto')} onClick={() => navigate('/apoiar')} />
+          <PfRow icon={ICONS.bag} label={t('profile:mySubscriptions', 'Minha contribuição recorrente')} onClick={() => setShowSubscriptions(true)} />
+          <PfRow icon={ICONS.info} label={t('aboutApp')} onClick={() => setShowAbout(true)} />
+        </div>
+      </section>
+
+      <div className="pf-foot">
         {isAdmin && (
-          <button onClick={copyAdminToken} className="copy-token-btn">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
+          <button type="button" onClick={copyAdminToken} className="pf-ghost">
             {tokenCopied ? 'Token copiado!' : 'Copiar token admin'}
           </button>
         )}
-        <button onClick={signOut} className="logout-btn-premium">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          {t('logout')}
-        </button>
-        <p style={{ textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-muted, #6b7280)', margin: '1rem 0 0' }}>v{__APP_VERSION__}</p>
+        <button type="button" onClick={signOut} className="pf-logout">{t('logout')}</button>
+        <p className="pf-version">v{__APP_VERSION__}</p>
       </div>
     </div>
   );
