@@ -19,6 +19,11 @@ export function SharedDevotional() {
   // /hoje: o devocional do dia aberto a quem ainda não entrou (sem "alguém compartilhou").
   const isToday = location.pathname === '/hoje';
 
+  // Quem já tem conta vê o devocional do dia dentro do app, onde estão ler em grupo e com as crianças.
+  useEffect(() => {
+    if (isToday && user) navigate('/app', { replace: true });
+  }, [isToday, user, navigate]);
+
   const [devotional, setDevotional] =
     useState<Devotional | null>(null);
 
