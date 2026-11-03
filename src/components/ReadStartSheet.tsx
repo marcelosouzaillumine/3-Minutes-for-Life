@@ -120,12 +120,17 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
         </label>
       )}
       {!kids && !devotionalId && (
-        <div className="fam-people" role="tablist" aria-label={tt('groupHowTitle', 'Como o grupo vai ler?')}>
-          <button type="button" className={`fam-chip${!alone ? ' is-on' : ''}`} aria-pressed={!alone} onClick={() => pick('together')}>{tt('modeTogether', 'Estamos juntos agora')}</button>
-          <button type="button" className={`fam-chip${alone ? ' is-on' : ''}`} aria-pressed={alone} onClick={() => pick('alone')}>{tt('modeAlone', 'Cada um no seu tempo')}</button>
+        <div className="ritual__choices" role="radiogroup" aria-label={tt('groupHowTitle', 'Como o grupo vai ler?')}>
+          <button type="button" role="radio" aria-checked={!alone} className={`ritual__choice${!alone ? ' is-on' : ''}`} onClick={() => pick('together')}>
+            <strong>{tt('modeTogether', 'Estamos juntos agora')}</strong>
+            <span>{tt('modeTogetherSub', 'Todos juntos, no mesmo momento. Você escolhe quem está à mesa.')}</span>
+          </button>
+          <button type="button" role="radio" aria-checked={alone} className={`ritual__choice${alone ? ' is-on' : ''}`} onClick={() => pick('alone')}>
+            <strong>{tt('modeAlone', 'Cada um no seu tempo')}</strong>
+            <span>{tt('aloneHint', 'Você lê agora, no seu ritmo. Ao terminar, o grupo vê que você leu.')}</span>
+          </button>
         </div>
       )}
-      {alone && <p className="fam-note">{tt('aloneHint', 'Você lê agora, no seu ritmo. Ao terminar, o grupo vê que você leu.')}</p>}
 
       {kids && !alone && <><h3 className="fam-step">{tt('whoComes', '1 · Quem está com você?')}</h3><p className="fam-note">{tt('whoHint', 'Toque para marcar ou tirar quem vai ouvir a leitura agora.')}</p></>}
       {!alone && <div className="fam-people">
@@ -192,7 +197,7 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
     </>
   );
   return inline ? <div className="fam-startinline">{body}</div> : (
-    <Sheet title={kids ? tt('kidsSheetTitle', 'Quem lê com você?') : alone ? tt('groupHowTitle', 'Como o grupo vai ler?') : tt('groupSheetTitle', 'Quem está à mesa?')} onClose={onClose}>
+    <Sheet title={kids ? tt('kidsSheetTitle', 'Quem lê com você?') : !devotionalId ? tt('groupHowTitle', 'Como o grupo vai ler?') : tt('groupSheetTitle', 'Quem está à mesa?')} onClose={onClose}>
       {body}
     </Sheet>
   );

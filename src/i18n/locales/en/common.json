@@ -527,6 +527,7 @@
     "sheetStart": "Start reading",
     "groupHowTitle": "How will the group read?",
     "modeTogether": "We're together now",
+    "modeTogetherSub": "Everyone together, at the same time. You choose who is at the table.",
     "modeAlone": "Each at their own time",
     "aloneHint": "You read now, at your own pace. When you finish, the group sees you read.",
     "aloneStart": "Read now",
