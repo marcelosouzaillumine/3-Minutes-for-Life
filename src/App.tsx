@@ -1,3 +1,4 @@
+import { LegalUpdateGate } from './components/LegalUpdateGate';
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import { Home } from './pages/Home';
@@ -143,7 +144,7 @@ function AppRoutes() {
         {/* Conector do Claude (MCP editorial): o admin autoriza aqui; a própria tela cuida do login. */}
         <Route path="/autorizar" element={<Autorizar />} />
 
-        <Route path="/app" element={<RequireAuth><AppShell /></RequireAuth>} />
+        <Route path="/app" element={<RequireAuth><LegalUpdateGate><AppShell /></LegalUpdateGate></RequireAuth>} />
 
         <Route
           path="/admin/*"
