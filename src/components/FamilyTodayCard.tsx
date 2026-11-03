@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { illumineAuth } from '../lib/illumine';
-import { FamilyService, type Family } from '../services/FamilyService';
+import { FamilyService, NO_GROUP, type Family } from '../services/FamilyService';
 import { JourneyService } from '../services/JourneyService';
 import { ReadStartSheet } from './ReadStartSheet';
 import '../styles/family.css';
@@ -53,7 +53,11 @@ export function FamilyTodayCard({ devotionalId, daily = true, completed = false,
       : missing <= 0
         ? t('ritual.groupAll', 'Todos já leram hoje ✓')
         : t('ritual.groupMissing', { count: missing, defaultValue: 'Falta {{count}} ler hoje' });
-  const kidsLine = !names
+  // Fora do Hoje o devocional pode não ter versão para crianças: o card avisa e não abre nada (antes caía no devocional de hoje).
+  const kidsUnavailable = !daily && hasKids === false;
+  const kidsLine = kidsUnavailable
+    ? t('ritual.kidsUnavailable', 'Indisponível: este devocional ainda não tem versão para crianças')
+    : !names
     ? t('ritual.kidsFirst', 'Leia a versão feita para a idade delas')
     : !daily || hasKids === null
       ? t('ritual.kidsWith', { names, defaultValue: 'Com {{names}}' })
@@ -80,7 +84,7 @@ export function FamilyTodayCard({ devotionalId, daily = true, completed = false,
           {family && <button type="button" className="hoje-capa__hint" onClick={() => goTab('family')}>{t('ritual.groupMore', '+ Convidar pessoas ou criar outro grupo')}</button>}
         </div>
         <div className="hoje-capa__item">
-          <button type="button" className="hoje-capa__row" onClick={() => (family ? setSheet('kids') : goTab('kids'))}>
+          <button type="button" className="hoje-capa__row" disabled={kidsUnavailable} onClick={() => (family || !daily ? setSheet('kids') : goTab('kids'))}>
             <span className="hoje-capa__text"><b>{t('ritual.modeKids', 'Crianças')}</b>
             <span>{kidsLine}</span></span>
             <span aria-hidden="true">›</span>
@@ -88,7 +92,7 @@ export function FamilyTodayCard({ devotionalId, daily = true, completed = false,
           {names && <button type="button" className="hoje-capa__hint" onClick={() => goTab('kids')}>{t('ritual.kidsMore', '+ Incluir outra criança')}</button>}
         </div>
       </div>
-      {sheet && family && <ReadStartSheet audience={sheet} family={family} plan={!!plan} devotionalId={daily ? undefined : devotionalId} onClose={() => setSheet(null)} onChanged={setFamily} />}
+      {sheet && (family || sheet === 'kids') && <ReadStartSheet audience={sheet} family={family ?? NO_GROUP} plan={!!plan} devotionalId={daily ? undefined : devotionalId} onClose={() => setSheet(null)} onChanged={setFamily} />}
     </div>
   );
 }

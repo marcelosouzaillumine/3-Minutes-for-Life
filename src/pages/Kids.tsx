@@ -1,12 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { illumineAuth } from '../lib/illumine';
-import { FamilyService, type Band, type Family } from '../services/FamilyService';
+import { FamilyService, NO_GROUP, type Band, type Family } from '../services/FamilyService';
 import { ReadStartSheet } from '../components/ReadStartSheet';
 import '../styles/family.css';
-
-// Sem grupo ainda: a pessoa lê escolhendo só a versão; cadastrar crianças pede um grupo.
-const NO_GROUP: Family = { id: '', name: '', meetingTime: null, role: 'owner', inviteCode: '', members: [], children: [], week: { days: [], streak: 0 }, plan: null };
 
 const bandLabel = (b: Band) => b.replace('-', ' a ');
 
