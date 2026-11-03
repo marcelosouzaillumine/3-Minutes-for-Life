@@ -256,6 +256,18 @@ export const FamilyAdmin = {
     const res = await illumineFetch(`/devotionals/kids-summary?language=${encodeURIComponent(language)}`);
     return res.ok ? (await res.json()).summary ?? {} : {};
   },
+  /** Estado de cada faixa infantil em todos os idiomas de um devocional, numa chamada só (idioma → faixa → estado). */
+  async kidsStates(devotionalId: string): Promise<Record<string, Partial<Record<Band, 'draft' | 'published'>>>> {
+    const res = await illumineFetch(`/devotionals/${encodeURIComponent(devotionalId)}/kids/admin`);
+    const versions: any[] = res.ok ? (await res.json()).versions ?? [] : [];
+    const out: Record<string, Partial<Record<Band, 'draft' | 'published'>>> = {};
+    for (const v of versions) {
+      if (!BANDS.includes(v.band)) continue;
+      const lang = v.language ?? 'pt-BR';
+      (out[lang] ??= {})[v.band as Band] = v.status === 'published' ? 'published' : 'draft';
+    }
+    return out;
+  },
   async getKids(devotionalId: string, language = 'pt-BR'): Promise<Record<Band, KidsDraft | null>> {
     const res = await illumineFetch(`/devotionals/${encodeURIComponent(devotionalId)}/kids/admin`);
     const versions: any[] = res.ok ? (await res.json()).versions ?? [] : [];

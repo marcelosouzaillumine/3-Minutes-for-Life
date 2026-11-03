@@ -5,6 +5,7 @@ import { act } from 'react';
 
 const mocks = vi.hoisted(() => ({
   kidsSummary: vi.fn(),
+  kidsStates: vi.fn(),
   getKids: vi.fn(),
   saveKids: vi.fn(),
   translateWithAi: vi.fn(),
@@ -21,7 +22,7 @@ vi.mock('../../../components/admin/ManualTranslationEditor', () => ({
 }));
 vi.mock('../../../services/FamilyService', async (orig) => ({
   ...(await orig<typeof import('../../../services/FamilyService')>()),
-  FamilyAdmin: { kidsSummary: mocks.kidsSummary, getKids: mocks.getKids, saveKids: mocks.saveKids },
+  FamilyAdmin: { kidsSummary: mocks.kidsSummary, kidsStates: mocks.kidsStates, getKids: mocks.getKids, saveKids: mocks.saveKids },
 }));
 
 import { AdminDevotionals } from '../AdminDevotionals';
@@ -40,6 +41,7 @@ const byText = (sel: string, text: string) => [...host.querySelectorAll(sel)].fi
 
 beforeEach(async () => {
   mocks.kidsSummary.mockResolvedValue({});
+  mocks.kidsStates.mockResolvedValue({});
   mocks.getKids.mockResolvedValue({ '4-6': null, '7-10': null, '11-13': null });
   mocks.translateWithAi.mockResolvedValue({ ok: true });
   vi.spyOn(AdminContentService, 'getDevotionals').mockResolvedValue([devo] as any);
@@ -62,14 +64,14 @@ describe('Conteúdo unificado', () => {
     await click(fr);
     await flush(); await flush();
     expect(host.textContent).toContain('EDITOR DE TRADUÇÃO fr');
-    expect(byText('[role="tab"]', 'IT')).toBeTruthy();
-    expect(byText('[role="tab"]', '7 a 10 anos')).toBeTruthy();
+    expect(host.querySelector('[aria-label^="Italian"]')).toBeTruthy();
+    expect(host.querySelector('[aria-label*="7 a 10 anos"]')).toBeTruthy();
   });
 
   it('abre a faixa infantil de um idioma e oferece traduzir os idiomas que faltam', async () => {
     await click(byText('h3', 'A paz'));
     await flush(); await flush();
-    await click(byText('[role="tab"]', '7 a 10 anos'));
+    await click(host.querySelector('[aria-label*="7 a 10 anos"]'));
     await flush(); await flush();
     expect(host.textContent).toContain('O que a Bíblia conta');
     const translate = byText('button', 'Traduzir com IA');
@@ -79,5 +81,24 @@ describe('Conteúdo unificado', () => {
     await click(translate);
     await flush();
     expect(mocks.translateWithAi).toHaveBeenCalledWith('d1', ['es', 'fr', 'it']);
+  });
+
+  it('despublicar em todos os idiomas volta para rascunho a tradução (inclusive a da IA) e as faixas infantis', async () => {
+    const published = {
+      ...devo,
+      devotional_translations: [{ language: 'en', translation_source: 'ai', status: 'published', title: 'Peace', reflection: 'r', principle_statement: 'p', source_content_hash: 'h' }],
+    };
+    vi.spyOn(AdminContentService, 'getDevotional').mockResolvedValue(published as any);
+    mocks.getKids.mockResolvedValue({ '0-3': null, '4-6': { title: 't', status: 'published' }, '7-10': null, '11-13': null });
+    mocks.saveKids.mockResolvedValue(true);
+    mocks.saveManualTranslation.mockResolvedValue({});
+    vi.spyOn(AdminContentService, 'saveManualTranslation').mockImplementation(mocks.saveManualTranslation);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    await click(byText('h3', 'A paz'));
+    await flush(); await flush();
+    await click(byText('button', 'Despublicar em todos os idiomas'));
+    await flush(); await flush();
+    expect(mocks.saveManualTranslation).toHaveBeenCalledWith(expect.objectContaining({ language: 'en', status: 'draft', translation_source: 'ai' }));
+    expect(mocks.saveKids).toHaveBeenCalledWith('d1', '4-6', expect.objectContaining({ status: 'draft' }), expect.any(String));
   });
 });
