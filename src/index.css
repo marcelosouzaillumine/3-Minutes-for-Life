@@ -301,7 +301,8 @@ h4 {
   width: 100%;
 
   font-size: 1.25rem;
-  font-weight: 500;
+  font-style: italic;
+  font-weight: 400;
 
   line-height: 1.45;
 
@@ -1080,7 +1081,8 @@ h4 {
   padding-left: 1.1rem;
   border-left: 3px solid var(--accent-strong);
   font-size: 1.25rem;
-  font-weight: 500;
+  font-style: italic;
+  font-weight: 400;
   line-height: 1.45;
   color: var(--color-accent);
 }
