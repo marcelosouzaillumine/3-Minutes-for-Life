@@ -77,7 +77,6 @@ export function PlanCategories({ onOpen }: Props) {
 
   return (
     <section className="plans">
-      <h3 className="plans__heading">{tt('heading', 'Planos')}</h3>
       {groups.length > 1 && (
         <div className="fam-people" role="tablist">
           <button type="button" className={`fam-chip${filter === 'all' ? ' is-on' : ''}`} onClick={() => setFilter('all')}>{tt('all', 'Todos')}</button>
