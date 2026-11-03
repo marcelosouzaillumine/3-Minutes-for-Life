@@ -87,7 +87,7 @@ export function Terms() {
         </p>
         <ul>
           <li>Os participantes de um grupo veem o andamento da leitura (quem leu o devocional do dia e a sequência do grupo) e o mural de oração daquele grupo. Os dados pessoais da sua conta não são compartilhados.</li>
-          <li>Compartilhe o link ou o código apenas com quem você quer no grupo: quem o tiver poderá pedir para entrar.</li>
+          <li>Compartilhe o link ou o código apenas com quem você quer no grupo: quem o tiver poderá entrar no grupo.</li>
           <li>No mural de oração, trate os demais com respeito. As regras de conteúdo desta página valem também ali, e podemos remover mensagens e grupos que as violem.</li>
           <li>Para ler com crianças, o adulto responsável cria perfis apenas com nome ou apelido e faixa de idade, e é responsável por conduzir a leitura e por esse cadastro. Não peça nem informe outros dados das crianças.</li>
         </ul>
