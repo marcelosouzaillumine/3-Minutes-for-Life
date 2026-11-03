@@ -318,7 +318,7 @@ export function PrincipleView({
             <StreakLine summary={journey} />
             {devotional.principle_statement && <p className="hoje-capa__quote">{devotional.principle_statement}</p>}
             {devotional.scripture_reference && <cite className="principle-scripture-reference hoje-capa__ref">{devotional.scripture_reference}</cite>}
-            <FamilyTodayCard devotionalId={devotional.id} daily={isDaily} onReadSolo={() => { setReading(true); window.scrollTo({ top: 0 }); }} />
+            <FamilyTodayCard devotionalId={devotional.id} daily={isDaily} completed={completed} onReadSolo={() => { setReading(true); window.scrollTo({ top: 0 }); }} />
           </section>
         ) : (<>
 

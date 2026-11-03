@@ -53,7 +53,7 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
   const [present, setPresent] = useState<Set<string>>(new Set());
   const [presentAdults, setPresentAdults] = useState<Set<number>>(new Set());
   const [kidNick, setKidNick] = useState('');
-  const [kidBand, setKidBand] = useState<Band>('7-10');
+  const [kidBand, setKidBand] = useState<Band | ''>('');
   const [kidBusy, setKidBusy] = useState(false);
   const [kidError, setKidError] = useState('');
   const [step, setStep] = useState(0);
@@ -421,18 +421,19 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
                     setKidBusy(true); setKidError('');
                     try {
                       const before = new Set(fam.children.map((c) => c.id));
-                      const f = await FamilyService.addChild(kidNick.trim(), kidBand);
+                      const f = await FamilyService.addChild(kidNick.trim(), kidBand as Band);
                       setFamily(f);
                       setPresent((p) => { const n = new Set(p); f.children.filter((c) => !before.has(c.id)).forEach((c) => n.add(c.id)); return n; });
-                      setKidNick('');
+                      setKidNick(''); setKidBand('');
                     } catch { setKidError(tt('setupError', 'Não foi possível salvar agora. Tente de novo.')); }
                     setKidBusy(false);
                   }}>
                     <input value={kidNick} onChange={(e) => setKidNick(e.target.value)} placeholder={tt('nickname', 'Apelido')} maxLength={20} aria-label={tt('nickname', 'Apelido')} />
                     <select value={kidBand} onChange={(e) => setKidBand(e.target.value as Band)} aria-label={tt('band', 'Faixa de idade')}>
+                      <option value="" disabled>{tt('bandPlaceholder', 'Selecione a idade')}</option>
                       {BANDS.map((b) => <option key={b} value={b}>{b.replace('-', ' a ')} {tt('years', 'anos')}</option>)}
                     </select>
-                    <button type="submit" className="fam-btn fam-btn--secondary" disabled={kidBusy || !kidNick.trim()}>{tt('addChild', 'Adicionar criança')}</button>
+                    <button type="submit" className="fam-btn fam-btn--secondary" disabled={kidBusy || !kidNick.trim() || !kidBand}>{tt('addChild', 'Adicionar criança')}</button>
                   </form>
                   {kidError && <p className="fam-error">{kidError}</p>}
                   <p className="fam-note">{tt('addOnceNote', 'Leitura de um dia só, na igreja por exemplo? Cadastre a criança aqui e remova depois em Grupo.')}</p>
@@ -580,7 +581,7 @@ type TT = (k: string, d: string | Record<string, unknown>, o?: Record<string, un
 function RitualSetup({ onClose, onCreated, tt }: { onClose: () => void; onCreated: (f: Family) => void; tt: TT }) {
   const [fam, setFam] = useState<Family | null>(null);
   const [nick, setNick] = useState('');
-  const [band, setBand] = useState<Band>('7-10');
+  const [band, setBand] = useState<Band | ''>('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -619,12 +620,13 @@ function RitualSetup({ onClose, onCreated, tt }: { onClose: () => void; onCreate
             {fam.children.map((c) => (
               <div key={c.id} className="ritual__kid"><h3>{c.nickname}</h3><p>{c.band.replace('-', ' a ')} {tt('years', 'anos')}</p></div>
             ))}
-            <form className="fam-inline" onSubmit={(e) => { e.preventDefault(); if (nick.trim()) run(() => FamilyService.addChild(nick.trim(), band), (f) => { setFam(f); setNick(''); }); }}>
+            <form className="fam-inline" onSubmit={(e) => { e.preventDefault(); if (nick.trim() && band) run(() => FamilyService.addChild(nick.trim(), band as Band), (f) => { setFam(f); setNick(''); setBand(''); }); }}>
               <input value={nick} onChange={(e) => setNick(e.target.value)} placeholder={tt('nickname', 'Apelido')} maxLength={20} aria-label={tt('nickname', 'Apelido')} autoFocus />
               <select value={band} onChange={(e) => setBand(e.target.value as Band)} aria-label={tt('band', 'Faixa de idade')}>
+                <option value="" disabled>{tt('bandPlaceholder', 'Selecione a idade')}</option>
                 {BANDS.map((b) => <option key={b} value={b}>{b.replace('-', ' a ')} {tt('years', 'anos')}</option>)}
               </select>
-              <button type="submit" className="fam-btn fam-btn--secondary" disabled={busy || !nick.trim()}>{tt('addChild', 'Adicionar criança')}</button>
+              <button type="submit" className="fam-btn fam-btn--secondary" disabled={busy || !nick.trim() || !band}>{tt('addChild', 'Adicionar criança')}</button>
             </form>
             <p className="fam-note">{tt('setupKidsNote', 'Só apelido e faixa de idade. Sem sobrenome, foto ou e-mail.')}</p>
             {error && <p className="fam-error">{error}</p>}

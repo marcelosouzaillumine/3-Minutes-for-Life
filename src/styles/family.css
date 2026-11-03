@@ -71,8 +71,11 @@
 .fam-form { display: grid; gap: 0.9rem; }
 .fam-form label { display: grid; gap: 0.35rem; font-size: 0.82rem; color: var(--text-muted); }
 .fam-form input, .fam-form textarea, .fam-inline input, .fam-inline select { padding: 0.75rem 0.85rem; border: 1px solid var(--border-subtle); border-radius: 10px; font: inherit; font-size: 1rem; color: var(--text-strong); background: var(--surface); }
-.fam-inline { display: flex; gap: 0.5rem; align-items: stretch; margin: 0.75rem 0; }
-.fam-inline input { flex: 1; min-width: 0; }
+.fam-inline { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: stretch; margin: 0.75rem 0; }
+/* Nome em cima, na largura toda; faixa de idade e botão na linha de baixo. */
+.fam-inline input { flex: 1 1 100%; min-width: 0; }
+.fam-inline select { flex: 1 1 0; min-width: 0; }
+.fam-inline select:invalid, .fam-inline select:has(option[value='']:checked) { color: var(--text-muted, #6b7280); }
 .fam-inline .fam-btn { width: auto; min-height: 0; }
 .fam-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--border-subtle); font-size: 0.95rem; }
 .fam-confirm { display: grid; gap: 0.5rem; padding: 1rem; margin-top: 1rem; border: 1px solid #f0c9c5; border-radius: 12px; }
@@ -356,11 +359,14 @@
 
 .hoje-capa { margin: 1.25rem 0 0.5rem; }
 .hoje-capa__main { display: flex; flex-direction: column; align-items: flex-start; gap: 0.15rem; width: 100%; margin-bottom: 0.5rem; padding: 1.1rem 1.25rem; border: 0; border-radius: 16px; background: var(--color-primary, #1f2430); color: #fff; font: inherit; text-align: left; cursor: pointer; }
+.hoje-capa__main.is-done { background: color-mix(in srgb, var(--accent-strong) 12%, var(--surface)); color: var(--accent-strong); border: 1px solid color-mix(in srgb, var(--accent-strong) 35%, transparent); }
 .hoje-capa__main b { font-size: 1.1rem; font-weight: 500; }
 .hoje-capa__main span { font-size: 0.85rem; opacity: 0.75; }
 .hoje-capa__or { margin: 1rem 0 0.5rem; font-size: 0.85rem; color: var(--text-muted); }
 .hoje-capa__list { display: flex; flex-direction: column; gap: 0.5rem; }
-.hoje-capa__row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.8rem 1rem; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); color: var(--text-strong); font: inherit; text-align: left; cursor: pointer; }
+.hoje-capa__item { display: flex; flex-direction: column; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); overflow: hidden; }
+.hoje-capa__hint { margin: -0.35rem 1rem 0.7rem; padding: 0; border: 0; background: none; font: inherit; font-size: 0.8rem; font-weight: 500; color: var(--accent-strong); text-align: left; cursor: pointer; }
+.hoje-capa__row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.8rem 1rem; border: 0; border-radius: 0; background: none; width: 100%; color: var(--text-strong); font: inherit; text-align: left; cursor: pointer; }
 .hoje-capa__text { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
 .hoje-capa__text b { font-weight: 500; }
 .hoje-capa__text span { font-size: 0.8rem; color: var(--text-muted); }
@@ -427,3 +433,6 @@
 .fam-streak__track b.is-on { background: var(--accent-strong); border-color: var(--accent-strong); }
 .fam-streak__stops { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); }
 .fam-streak .fam-note { margin: 0.75rem 0 0; }
+/* Os cards do fim da leitura moram dentro da barra de ações; sem isto ficavam espremidos ao lado dos botões. */
+.action-bar:has(> .group-word, > .reading-closing) { flex-wrap: wrap; gap: 1rem 2.5rem; }
+.action-bar > .group-word, .action-bar > .reading-closing { flex: 1 1 100%; min-width: 0; margin: 0.5rem 0; }

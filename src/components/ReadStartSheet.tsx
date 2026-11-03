@@ -39,7 +39,7 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
   const [present, setPresent] = useState<Set<string>>(() => new Set(family.children.map((c) => c.id)));
   const [lead, setLead] = useState<Band | null>(null);
   const [nick, setNick] = useState('');
-  const [band, setBand] = useState<Band>('7-10');
+  const [band, setBand] = useState<Band | ''>('');
   const [adding, setAdding] = useState(fam.children.length === 0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -98,14 +98,14 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
 
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nick.trim() || busy) return;
+    if (!nick.trim() || !band || busy) return;
     setBusy(true); setError('');
     try {
       const before = new Set(fam.children.map((c) => c.id));
-      const f = await FamilyService.addChild(nick.trim(), band);
+      const f = await FamilyService.addChild(nick.trim(), band as Band);
       setFam(f); onChanged?.(f);
       setPresent((p) => { const n = new Set(p); f.children.filter((c) => !before.has(c.id)).forEach((c) => n.add(c.id)); return n; });
-      setNick(''); setAdding(false);
+      setNick(''); setBand(''); setAdding(false);
     } catch { setError(tt('setupError', 'Não foi possível salvar agora. Tente de novo.')); }
     setBusy(false);
   };
@@ -120,12 +120,17 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
         </label>
       )}
       {!kids && !devotionalId && (
-        <div className="fam-people" role="tablist" aria-label={tt('groupHowTitle', 'Como o grupo vai ler?')}>
-          <button type="button" className={`fam-chip${!alone ? ' is-on' : ''}`} aria-pressed={!alone} onClick={() => pick('together')}>{tt('modeTogether', 'Estamos juntos agora')}</button>
-          <button type="button" className={`fam-chip${alone ? ' is-on' : ''}`} aria-pressed={alone} onClick={() => pick('alone')}>{tt('modeAlone', 'Cada um no seu tempo')}</button>
+        <div className="ritual__choices" role="radiogroup" aria-label={tt('groupHowTitle', 'Como o grupo vai ler?')}>
+          <button type="button" role="radio" aria-checked={!alone} className={`ritual__choice${!alone ? ' is-on' : ''}`} onClick={() => pick('together')}>
+            <strong>{tt('modeTogether', 'Estamos juntos agora')}</strong>
+            <span>{tt('modeTogetherSub', 'Todos juntos, no mesmo momento. Você escolhe quem está à mesa.')}</span>
+          </button>
+          <button type="button" role="radio" aria-checked={alone} className={`ritual__choice${alone ? ' is-on' : ''}`} onClick={() => pick('alone')}>
+            <strong>{tt('modeAlone', 'Cada um no seu tempo')}</strong>
+            <span>{tt('aloneHint', 'Você lê agora, no seu ritmo. Ao terminar, o grupo vê que você leu.')}</span>
+          </button>
         </div>
       )}
-      {alone && <p className="fam-note">{tt('aloneHint', 'Você lê agora, no seu ritmo. Ao terminar, o grupo vê que você leu.')}</p>}
 
       {kids && !alone && <><h3 className="fam-step">{tt('whoComes', '1 · Quem está com você?')}</h3><p className="fam-note">{tt('whoHint', 'Toque para marcar ou tirar quem vai ouvir a leitura agora.')}</p></>}
       {!alone && <div className="fam-people">
@@ -154,9 +159,10 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
         <form className="fam-inline" onSubmit={add}>
           <input value={nick} onChange={(e) => setNick(e.target.value)} placeholder={tt('nickname', 'Apelido')} maxLength={20} aria-label={tt('nickname', 'Apelido')} />
           <select value={band} onChange={(e) => setBand(e.target.value as Band)} aria-label={tt('band', 'Faixa de idade')}>
+            <option value="" disabled>{tt('bandPlaceholder', 'Selecione a idade')}</option>
             {ORDER.map((b) => <option key={b} value={b}>{bandLabel(b)} {tt('years', 'anos')}</option>)}
           </select>
-          <button type="submit" className="fam-btn fam-btn--secondary" disabled={busy || !nick.trim()}>{tt('addChild', 'Adicionar criança')}</button>
+          <button type="submit" className="fam-btn fam-btn--secondary" disabled={busy || !nick.trim() || !band}>{tt('addChild', 'Adicionar criança')}</button>
         </form>
       )}
       {error && <p className="fam-error">{error}</p>}
@@ -192,7 +198,7 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
     </>
   );
   return inline ? <div className="fam-startinline">{body}</div> : (
-    <Sheet title={kids ? tt('kidsSheetTitle', 'Quem lê com você?') : alone ? tt('groupHowTitle', 'Como o grupo vai ler?') : tt('groupSheetTitle', 'Quem está à mesa?')} onClose={onClose}>
+    <Sheet title={kids ? tt('kidsSheetTitle', 'Quem lê com você?') : !devotionalId ? tt('groupHowTitle', 'Como o grupo vai ler?') : tt('groupSheetTitle', 'Quem está à mesa?')} onClose={onClose}>
       {body}
     </Sheet>
   );
