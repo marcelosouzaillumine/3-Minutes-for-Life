@@ -537,6 +537,7 @@
     "sheetStart": "Commencer la lecture",
     "groupHowTitle": "Comment le groupe va-t-il lire ?",
     "modeTogether": "Nous sommes ensemble",
+    "modeTogetherSub": "Tous ensemble, au même moment. Vous choisissez qui est à table.",
     "modeAlone": "Chacun à son rythme",
     "aloneHint": "Vous lisez maintenant, à votre rythme. À la fin, le groupe voit que vous avez lu.",
     "aloneStart": "Lire maintenant",
