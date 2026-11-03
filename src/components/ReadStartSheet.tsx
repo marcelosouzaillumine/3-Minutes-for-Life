@@ -35,6 +35,12 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
   const pick = (m: 'together' | 'alone') => { setMode(m); try { localStorage.setItem('ritual.groupMode', m); } catch { /* sem armazenamento */ } };
   const alone = !kids && !devotionalId && mode === 'alone';
   const [fam, setFam] = useState(family);
+  // O grupo pode mudar por fora (criança removida em "Gerenciar crianças"): a tela acompanha na hora, sem recarregar.
+  useEffect(() => {
+    setFam(family);
+    const ids = new Set(family.children.map((c) => c.id));
+    setPresent((p) => new Set([...p].filter((id) => ids.has(id))));
+  }, [family]);
   const [adults, setAdults] = useState<Set<number>>(() => new Set(family.members.map((_, i) => i)));
   const [present, setPresent] = useState<Set<string>>(() => new Set(family.children.map((c) => c.id)));
   const [lead, setLead] = useState<Band | null>(null);
@@ -80,8 +86,9 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
   const missing = avail ? presentBands.filter((b) => !avail.has(b)) : [];
   // A escolha mostra todas as versões que existem neste devocional (inclusive de uma idade que ninguém na mesa tem); começa na mais nova de quem está à mesa.
   const options = avail ? ORDER.filter((b) => avail.has(b)) : presentBands;
-  const shared = lead && options.includes(lead) ? lead : bands[0] ?? (options.includes('7-10') ? '7-10' : options[0]) ?? null;
+  // Sem criança à mesa, a versão não vem marcada: a pessoa escolhe. Com crianças, começa pela faixa delas.
   const guest = kids && present.size === 0;
+  const shared = lead && options.includes(lead) ? lead : guest ? null : bands[0] ?? options[0] ?? null;
   const names = fam.members.filter((_, i) => adults.has(i)).map((m) => m.displayName ?? '').filter(Boolean);
   const reader = readerForDay(names, Math.floor(Date.now() / 86_400_000));
   const toggle = <T,>(set: Set<T>, v: T, put: (s: Set<T>) => void) => { const n = new Set(set); if (n.has(v)) n.delete(v); else n.add(v); put(n); };
@@ -189,7 +196,7 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
       {error && <p className="fam-error">{error}</p>}
       {kids && availFailed && <p className="fam-error">{tt('versionsError', 'Não foi possível carregar as versões agora. Tente de novo.')}</p>}
 
-      {kids && shared && (options.length > 1 || guest ? (
+      {kids && options.length > 0 && (options.length > 1 || guest ? (
         <>
           <h3 className="fam-step">{tt('pickVersion', '2 · Qual versão vocês vão ouvir?')}</h3>
           <p className="fam-note">{tt('pickVersionHint', 'Todos ouvem a mesma leitura. Escolha a idade que serve melhor para a mesa.')}</p>
@@ -206,9 +213,9 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
             onPick={setLead}
           />
         </>
-      ) : (
+      ) : shared ? (
         <p className="fam-note">{tt('sheetVersionOne', 'Vamos ler a versão de {{band}} anos.', { band: bandLabel(shared) })}</p>
-      ))}
+      ) : null)}
       {kids && missing.length > 0 && (
         <p className="fam-note">
           {options.length > 0
