@@ -2567,8 +2567,9 @@ a:focus-visible {
   border-radius: 12px;
 }
 .reminder-invite__text { margin: 0 0 0.75rem; }
-.reminder-invite__actions { display: flex; justify-content: center; align-items: center; gap: 0.75rem; }
-.reminder-invite__no { background: none; border: 0; padding: 0.25rem 0.5rem; color: var(--color-text-light, #6b7280); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.reminder-invite__actions { display: flex; flex-direction: column; align-items: stretch; gap: 0.5rem; }
+.reminder-invite__actions .btn-secondary { width: 100%; }
+.reminder-invite__no { align-self: center; white-space: nowrap; background: none; border: 0; padding: 0.4rem 0.5rem; color: var(--color-text-light, #6b7280); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 .reminder-invite__note { margin: 0.75rem 0 0; font-size: 0.8rem; color: var(--color-text-light, #6b7280); }
 .reminder-invite__err { margin: 0.5rem 0 0; font-size: 0.85rem; color: #dc2626; }
 .reminder-invite__ok { margin: 1.5rem auto 0; text-align: center; color: var(--color-text-light, #6b7280); }
