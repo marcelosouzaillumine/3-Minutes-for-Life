@@ -43,6 +43,9 @@ export interface Family {
   plan: PlanState | null;
 }
 
+// Sem grupo ainda: a pessoa lê escolhendo só a versão; cadastrar crianças pede um grupo.
+export const NO_GROUP: Family = { id: '', name: '', meetingTime: null, role: 'owner', inviteCode: '', members: [], children: [], week: { days: [], streak: 0 }, plan: null };
+
 /** Quadro de uma história em quadrinhos: arte (igual em todos os idiomas), legenda e, às vezes, a fala de um personagem. */
 export interface KidPanel { image: string; caption: string; speech?: string }
 /** História da faixa: quadrinhos (0-3, 4-6, 7-10) ou dilema com debate (11-13). Vem pronta para o idioma pedido. */
