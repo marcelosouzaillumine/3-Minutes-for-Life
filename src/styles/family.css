@@ -20,15 +20,7 @@
 .fam-hero__text { margin: 0 0 0.75rem; line-height: 1.6; color: var(--text-muted); }
 
 /* Semana */
-.fam-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.4rem; margin-bottom: 1.5rem; }
-.fam-week__day { aspect-ratio: 1; border-radius: 10px; background: #F3EFE8; display: flex; align-items: center; justify-content: center; }
-.fam-week__day i { font-style: normal; font-size: 0.7rem; color: var(--text-faint); }
-.fam-week__day.is-read { background: var(--accent-strong); }
-.fam-week__day.is-today { box-shadow: inset 0 0 0 2px var(--text-strong); }
-.fam-week { margin-bottom: 0.4rem; }
-.fam-week__hint { margin: 0 0 1.25rem; }
 .fam-person { align-content: start; }
-.fam-week__day.is-read i { color: #fff; }
 
 /* Pessoas */
 .fam-people { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.25rem; }
@@ -430,6 +422,17 @@
 .fam-manage__list { display: flex; flex-direction: column; gap: 0.35rem; padding-top: 0.25rem; }
 .fam-manage__row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
 
+/* Sequência de leitura do grupo: número em destaque e trilha de marcos (sem cobrança se quebrar). */
+.fam-streak { margin: 0 0 1.5rem; }
+.fam-streak__now { display: flex; align-items: baseline; gap: 0.5rem; margin: 0; }
+.fam-streak__now strong { font-size: 2.75rem; line-height: 1; font-weight: 600; letter-spacing: -0.03em; color: var(--accent-strong); font-variant-numeric: tabular-nums; }
+.fam-streak__now span { font-size: 1rem; font-weight: 500; color: var(--text-strong); }
+.fam-streak__track { position: relative; height: 8px; margin: 1.1rem 8px 0.6rem; border-radius: 8px; background: #EDE7DC; }
+.fam-streak__track i { position: absolute; inset: 0 auto 0 0; border-radius: 8px; background: var(--accent-strong); }
+.fam-streak__track b { position: absolute; top: -4px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: var(--surface); border: 2px solid #cdbf9f; }
+.fam-streak__track b.is-on { background: var(--accent-strong); border-color: var(--accent-strong); }
+.fam-streak__stops { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); }
+.fam-streak .fam-note { margin: 0.75rem 0 0; }
 /* Os cards do fim da leitura moram dentro da barra de ações; sem isto ficavam espremidos ao lado dos botões. */
 .action-bar:has(> .group-word, > .reading-closing) { flex-wrap: wrap; gap: 1rem 2.5rem; }
 .action-bar > .group-word, .action-bar > .reading-closing { flex: 1 1 100%; min-width: 0; margin: 0.5rem 0; }

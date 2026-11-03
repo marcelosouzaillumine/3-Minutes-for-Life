@@ -326,6 +326,13 @@
     "streak_one": "{{count}} day reading together",
     "streak_other": "{{count}} days reading together",
     "streak0": "Start today",
+    "streakUnit_one": "day reading together",
+    "streakUnit_other": "days reading together",
+    "streakNow": "today",
+    "streakDaysN": "{{count}} days",
+    "streakRestart": "If a day slips by, just start again: the group is still here.",
+    "streakTitle": "Reading streak",
+    "streakTo": "Next milestone: {{count}} days",
     "weekHint": "Filled days: the group read. The outline is today.",
     "manage": {
       "title": "Manage group"
