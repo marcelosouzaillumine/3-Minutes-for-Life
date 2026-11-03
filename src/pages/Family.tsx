@@ -327,6 +327,21 @@ export function Family() {
             </form>
           )}
 
+          {family.children.length > 0 && (
+            <div className="fam-manage fam-manage--open">
+              <p className="fam-step">{tt('manage.kids', 'Crianças do grupo')}</p>
+              <div className="fam-manage__list">
+                {family.children.map((c) => (
+                  <div key={c.id} className="fam-manage__row">
+                    <span>{c.nickname} · {c.band.replace('-', ' a ')}</span>
+                    {isOwner && <button type="button" className="fam-link fam-link--muted" disabled={busy} onClick={() => run(() => FamilyService.removeChild(c.id), setFamily)}>{tt('manage.removeKid', 'Remover')}</button>}
+                  </div>
+                ))}
+              </div>
+              {!isOwner && <p className="fam-note">{tt('manage.kidsOwnerOnly', 'Quem criou o grupo cadastrou estas crianças e é quem pode removê-las.')}</p>}
+            </div>
+          )}
+
           {isOwner && plan && <button type="button" className="fam-btn fam-btn--ghost" disabled={busy} onClick={() => run(() => FamilyService.clearPlan(), setFamily)}>{tt('plan.stop', 'Encerrar o plano atual')}</button>}
           {isOwner && <button type="button" className="fam-btn fam-btn--ghost" disabled={busy} onClick={() => run(() => FamilyService.rotateInvite(), setFamily)}>{tt('invite.new', 'Gerar novo código de convite')}</button>}
           {error && <p className="fam-error">{error}</p>}

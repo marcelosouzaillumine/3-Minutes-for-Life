@@ -419,6 +419,7 @@
 /* Aba Crianças: a escolha de quem lê e o começo da leitura ficam na própria página, sem folha por cima. */
 .fam-startinline { display: flex; flex-direction: column; gap: 0.75rem; }
 .fam-manage { margin: 0.5rem 0; font-size: 0.9rem; color: var(--text-muted); }
+.fam-manage--open { margin: 0.75rem 0; }
 .fam-manage summary { cursor: pointer; padding: 0.4rem 0; }
 .fam-manage__list { display: flex; flex-direction: column; gap: 0.35rem; padding-top: 0.25rem; }
 .fam-manage__row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }

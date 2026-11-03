@@ -67,6 +67,7 @@ export function Kids() {
             </div>
           </details>
         )}
+        {family && !isOwner && children.length > 0 && <p className="fam-note">{tt('ownerOnly', 'Estas crianças foram cadastradas por quem criou o grupo, que é quem pode removê-las (aba Grupo › ⋯ › Gerenciar grupo).')}</p>}
         {!family && <p className="fam-note">{tt('setupNote', 'Ao começar, você escolhe a idade de cada criança.')}</p>}
         {error && <p className="fam-error">{error}</p>}
         <p className="fam-note">{tt('privacy', 'Crianças não têm conta: guardamos só o apelido e a faixa de idade, nunca sobrenome, foto ou e-mail.')}</p>
