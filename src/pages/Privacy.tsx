@@ -147,7 +147,7 @@ export function Privacy() {
           <li><strong>Illumine OS (Illumine Ltda.)</strong> — plataforma própria de banco de dados, autenticação e serviços do aplicativo, hospedada na Railway</li>
           <li><strong>Railway</strong> — infraestrutura onde roda a plataforma Illumine OS</li>
           <li><strong>Vercel</strong> — hospedagem do site</li>
-          <li><strong>Provedor de mensagens de WhatsApp</strong> — envio das mensagens que você autorizar receber</li>
+          <li><strong>WhatsApp (Meta)</strong> — envio das mensagens que você autorizar receber</li>
           <li><strong>Asaas</strong> — processamento de pagamentos</li>
           <li><strong>OpenAI</strong> — tradução automática do conteúdo editorial. Seus dados pessoais e seus pedidos de oração não são enviados a este serviço.</li>
         </ul>
@@ -177,6 +177,12 @@ export function Privacy() {
           consentimento são preservados mesmo após revogação, porque é o que
           comprova quando cada escolha foi feita. Dados relacionados a
           contribuições são mantidos pelo prazo exigido pela legislação fiscal.
+        </p>
+        <p>
+          Ao excluir a conta, seus dados — incluindo participações em grupos,
+          perfis de crianças e mensagens no mural de oração — deixam de existir
+          no sistema em uso. Cópias de segurança (backups) que ainda os contenham
+          são eliminadas em até 7 dias.
         </p>
 
         <h2>Seus direitos</h2>

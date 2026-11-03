@@ -20,7 +20,7 @@ export function Terms() {
   // um foro específico.
   const forumComarca = branding?.addressCity
     ? `${branding.addressCity}${branding.addressState ? `, ${branding.addressState}` : ''}`
-    : null;
+    : 'Curitiba, Paraná';
 
   return (
     <div className="legal-page">
@@ -169,7 +169,7 @@ export function Terms() {
         <h2>Lei aplicável</h2>
         <p>
           Estes termos são regidos pela lei brasileira.
-          {forumComarca && <> Fica eleito o foro de {forumComarca} para dirimir questões deles decorrentes.</>}
+          {forumComarca && <> Fica eleito o foro da comarca de {forumComarca} para dirimir questões deles decorrentes, ressalvado o foro do domicílio do consumidor quando a lei assim determinar.</>}
         </p>
 
         <p className="legal-contact">
