@@ -63,7 +63,6 @@ export function Privacy() {
           <li>Nome</li>
           <li>E-mail</li>
           <li>Telefone, quando informado (e o seu consentimento para receber mensagens por WhatsApp, quando você der)</li>
-          <li>País, estado e cidade, quando informados</li>
           <li>Senha, armazenada de forma criptografada — nunca temos acesso a ela</li>
         </ul>
 
@@ -149,7 +148,8 @@ export function Privacy() {
           <li><strong>Vercel</strong> — hospedagem do site</li>
           <li><strong>WhatsApp (Meta)</strong> — envio das mensagens que você autorizar receber</li>
           <li><strong>Asaas</strong> — processamento de pagamentos</li>
-          <li><strong>OpenAI</strong> — tradução automática do conteúdo editorial. Seus dados pessoais e seus pedidos de oração não são enviados a este serviço.</li>
+          <li><strong>Google (Gemini)</strong> — tradução automática do conteúdo editorial. Seus dados pessoais e seus pedidos de oração não são enviados a este serviço.</li>
+          <li><strong>Google</strong> — fontes de letra exibidas no site (o seu endereço IP é visto pelo Google ao carregá-las) e o login com Google, quando você escolhe usá-lo</li>
         </ul>
 
         <h2>Comunicações</h2>
@@ -167,8 +167,8 @@ export function Privacy() {
           específico para isso, separado do cadastro e das demais comunicações.
           Usamos o seu número para lembretes do devocional, avisos do grupo e
           novidades do projeto. Você pode revogar o consentimento a qualquer
-          momento, em Perfil → Preferências de comunicação ou respondendo à
-          própria mensagem, e deixaremos de enviar.
+          momento, em Perfil → Preferências de comunicação ou pelo e-mail de
+          contato, e deixaremos de enviar.
         </p>
 
         <h2>Por quanto tempo guardamos</h2>
@@ -179,10 +179,11 @@ export function Privacy() {
           contribuições são mantidos pelo prazo exigido pela legislação fiscal.
         </p>
         <p>
-          Ao excluir a conta, seus dados — incluindo participações em grupos,
-          perfis de crianças e mensagens no mural de oração — deixam de existir
-          no sistema em uso. Cópias de segurança (backups) que ainda os contenham
-          são eliminadas em até 7 dias.
+          A exclusão da conta é feita a pedido, pelo e-mail de contato. Atendido
+          o pedido, seus dados — incluindo participações em grupos, perfis de
+          crianças e mensagens no mural de oração — são removidos do sistema em
+          uso, e as cópias de segurança (backups) que ainda os contenham são
+          eliminadas em até 7 dias.
         </p>
 
         <h2>Seus direitos</h2>
@@ -194,7 +195,7 @@ export function Privacy() {
           <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.
         </p>
         <p>
-          A exclusão da conta remove seus dados pessoais, reflexões e pedidos.
+          A exclusão da conta, quando solicitada, remove seus dados pessoais, reflexões e pedidos.
           Registros exigidos por lei e dados já anonimizados permanecem.
         </p>
 
