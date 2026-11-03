@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sheet } from '../components/Sheet';
-import { getTodayInSaoPaulo } from '../utils/date';
 import { ReadStartSheet } from '../components/ReadStartSheet';
 import { GroupCelebrationBanner } from '../components/GroupNotices';
 import {
@@ -19,8 +18,11 @@ export const openRitual = (source: 'daily' | 'plan' = 'daily', audience?: 'adult
   window.dispatchEvent(new CustomEvent('family:ritual', { detail: { source, audience, ...opts } }));
 
 /** Aba Grupo (família, casal ou amigos): cada um lê no seu tempo e todos veem quem já leu. Quem leu, a semana, o plano em andamento e o mural. */
+/** Marcos da sequência de leitura do grupo, em dias. */
+const STREAK_MILESTONES = [7, 21, 40, 100, 365];
+
 export function Family() {
-  const { t, i18n } = useTranslation('common');
+  const { t } = useTranslation('common');
   const tt = (k: string, d: string, o?: Record<string, unknown>) => t(`fam.${k}`, { defaultValue: d, ...o });
 
   const [family, setFamily] = useState<FamilyT | null>(null);
@@ -130,7 +132,15 @@ export function Family() {
   const readers = family.members.filter((m) => m.readToday).length;
   const plan = family.plan;
   const copy = async () => { try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { /* sem permissão */ } };
-  const dayInitial = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString(i18n.language, { weekday: 'narrow' });
+  // Marcos da sequência: a trilha mostra o ponto de partida e os próximos três marcos.
+  const streak = family.week.streak;
+  const next = STREAK_MILESTONES.findIndex((m) => m > streak);
+  const from = Math.min(Math.max(next, 0), STREAK_MILESTONES.length - 3);
+  const milestones = STREAK_MILESTONES.slice(from, from + 3);
+  const trackStart = from === 0 ? 0 : STREAK_MILESTONES[from - 1];
+  const trackPoints = [trackStart, ...milestones];
+  const seg = trackPoints.findIndex((pt, i) => i > 0 && streak < pt);
+  const streakFill = seg === -1 ? 100 : Math.max(2, ((seg - 1 + (streak - trackPoints[seg - 1]) / (trackPoints[seg] - trackPoints[seg - 1])) / 3) * 100);
   const setPrayersFrom = (fn: () => Promise<FamilyPrayer[]>, after?: () => void) => run(fn, (p) => { setPrayers(p); after?.(); });
 
   return (
@@ -147,20 +157,26 @@ export function Family() {
               ? tt('groups.switch', 'Trocar de grupo · você está em {{count}}', { count: groups.families.length })
               : tt('groups.another', '+ Criar ou entrar em outro grupo')}
           </button>
-          <p className="fam-head__sub">
-            {family.week.streak > 0 ? tt('streak', '{{count}} dias lendo juntos', { count: family.week.streak }) : tt('streak0', 'Comecem hoje')}
-            {family.meetingTime ? ` · ${family.meetingTime}` : ''}
-          </p>
+          {family.meetingTime && <p className="fam-head__sub">{family.meetingTime}</p>}
         </div>
         <button type="button" className="fam-icon-btn" onClick={() => setSheet('manage')} aria-label={tt('manage.title', 'Gerenciar grupo')}>⋯</button>
       </header>
 
-      <div className="fam-week" aria-label={tt('week', 'Últimos 7 dias')}>
-        {family.week.days.map((d) => (
-          <span key={d.date} className={`fam-week__day${d.read ? ' is-read' : ''}${d.date === getTodayInSaoPaulo() ? ' is-today' : ''}`}><i>{dayInitial(d.date)}</i></span>
-        ))}
-      </div>
-      <p className="fam-note fam-week__hint">{tt('weekHint', 'Dias preenchidos: o grupo leu. O contorno é hoje.')}</p>
+      <section className="fam-streak" aria-label={tt('streakTitle', 'Sequência de leitura')}>
+        <p className="fam-streak__now">
+          <strong>{streak}</strong>
+          <span>{streak > 0 ? tt('streakUnit', 'dias lendo juntos', { count: streak }) : tt('streak0', 'Comecem hoje')}</span>
+        </p>
+        <div className="fam-streak__track" role="img" aria-label={tt('streakTo', 'Próximo marco: {{count}} dias', { count: milestones[2] })}>
+          <i style={{ width: `${streakFill}%` }} />
+          {[0, 1, 2, 3].map((n) => <b key={n} className={streak >= trackPoints[n] ? 'is-on' : ''} style={{ left: `${(n / 3) * 100}%` }} />)}
+        </div>
+        <div className="fam-streak__stops">
+          <span>{streak >= trackPoints[0] && trackPoints[0] > 0 ? tt('streakDaysN', '{{count}} dias', { count: trackPoints[0] }) : tt('streakNow', 'hoje')}</span>
+          {milestones.map((m) => <span key={m}>{tt('streakDaysN', '{{count}} dias', { count: m })}</span>)}
+        </div>
+        <p className="fam-note">{tt('streakRestart', 'Se um dia passar, é só recomeçar: o grupo continua aqui.')}</p>
+      </section>
 
       <p className="fam-step">{readers > 0 ? tt('readersToday', '{{count}} de {{total}} já leram hoje', { count: readers, total: family.members.length }) : tt('noneToday', 'Ninguém leu hoje ainda.')}</p>
       <section className="fam-people" aria-label={tt('who', 'Quem lê')}>

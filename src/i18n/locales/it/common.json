@@ -325,6 +325,13 @@
     "streak_many": "{{count}} giorni di lettura insieme",
     "streak_other": "{{count}} giorni di lettura insieme",
     "streak0": "Iniziate oggi",
+    "streakUnit_one": "giorno di lettura insieme",
+    "streakUnit_other": "giorni di lettura insieme",
+    "streakNow": "oggi",
+    "streakDaysN": "{{count}} giorni",
+    "streakRestart": "Se salta un giorno, basta ricominciare: il gruppo è sempre qui.",
+    "streakTitle": "Serie di lettura",
+    "streakTo": "Prossimo traguardo: {{count}} giorni",
     "weekHint": "Giorni pieni: il gruppo ha letto. Il contorno è oggi.",
     "manage": {
       "title": "Gestisci il gruppo"
