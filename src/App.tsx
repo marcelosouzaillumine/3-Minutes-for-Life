@@ -96,7 +96,7 @@ function AppShell() {
 
   return (
     <div className="app-container">
-      <main className="content-area" key={tabResetKey}>{renderContent()}</main>
+      <main className="content-area content-area--app" key={tabResetKey}>{renderContent()}</main>
       <BottomNav currentTab={currentTab} setTab={handleTabChange} />
       {ritual && <FamilyRitual source={ritual.source} audience={ritual.audience} solo={ritual.solo} intro={ritual.intro} kidIds={ritual.kidIds} adultIdx={ritual.adultIdx} devotionalId={ritual.devotionalId} band={ritual.band} onClose={() => setRitual(null)} />}
     </div>

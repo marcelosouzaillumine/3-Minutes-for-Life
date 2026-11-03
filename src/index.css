@@ -2673,8 +2673,8 @@ a:focus-visible {
 /* a frase de destaque fica logo abaixo do título da capa */
 .devotional-header--cover + .devotional-content { padding-top: 0.5rem; }
 .devotional-header--cover .devotional-logo { height: calc(var(--devotional-header-height) * 0.78); max-height: calc(var(--devotional-header-height) * 0.78); }
-/* capa: menos espaço vazio acima da logo */
-.content-area:has(.devotional-header--cover) { padding-top: 0.75rem; }
+/* telas logadas: sem barra no topo, então o conteúdo começa perto da borda */
+.content-area.content-area--app { padding-top: 1rem; }
 .devotional-header--cover .devotional-back { align-self: flex-start; margin-top: 0.5rem; }
 .devotional-cover { display: flex; flex-direction: column; gap: 0.4rem; width: 100%; margin-top: 0.75rem; }
 .devotional-cover__eyebrow { font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-strong); }
