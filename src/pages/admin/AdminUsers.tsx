@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AdminUserService } from '../../services/AdminUserService';
+import { WhatsappOptins } from '../../components/admin/users/WhatsappOptins';
 import { UserRoleModal, RoleBadge } from '../../components/admin/users/UserRoleModal';
 import type { AdminUserItem, PaginatedUsersResult } from '../../types/AdminUser';
 
@@ -11,6 +12,7 @@ export function AdminUsers() {
   const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [tab, setTab] = useState<'users' | 'whatsapp'>('users');
 
   const [myRoles, setMyRoles] = useState<string[]>([]);
   const [selectedUser, setSelectedUser] = useState<AdminUserItem | null>(null);
@@ -74,6 +76,16 @@ export function AdminUsers() {
         </div>
       </div>
 
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+        {([['users', 'Usuários'], ['whatsapp', 'Autorizaram WhatsApp']] as const).map(([key, label]) => (
+          <button
+            key={key} type="button" onClick={() => setTab(key)} aria-pressed={tab === key}
+            style={{ width: 'auto', padding: '8px 16px', borderRadius: '999px', border: '1px solid var(--color-border)', background: tab === key ? 'var(--color-accent)' : 'transparent', color: tab === key ? '#fff' : 'var(--color-text)', fontWeight: 600, fontSize: '0.88rem', cursor: 'pointer' }}
+          >{label}</button>
+        ))}
+      </div>
+
+      {tab === 'whatsapp' ? <WhatsappOptins /> : (<>
       {/* Search Bar */}
       <div style={{
         backgroundColor: 'var(--color-bg)',
@@ -234,6 +246,8 @@ export function AdminUsers() {
           </div>
         </div>
       )}
+
+      </>)}
 
       <UserRoleModal
         user={selectedUser}

@@ -7,7 +7,26 @@ interface GetUsersParams {
   pageSize?: number;
 }
 
+export interface WhatsappOptin {
+  userId: string;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  purposes: string[];
+  since: string;
+}
+export interface WhatsappOptinsResult { total: number; withoutPhone: number; page: number; pageSize: number; users: WhatsappOptin[] }
+
 export const AdminUserService = {
+  /** Quem autorizou receber mensagens pelo WhatsApp (nome, e-mail, telefone, finalidades e desde quando). */
+  async getWhatsappOptins({ search, page = 1, pageSize = 20 }: GetUsersParams = {}): Promise<WhatsappOptinsResult> {
+    const params = new URLSearchParams({ channel: 'whatsapp', page: String(Math.max(1, page)), pageSize: String(pageSize) });
+    if (search?.trim()) params.set('search', search.trim());
+    const res = await illumineFetch(`/admin/consent/optins?${params}`);
+    if (!res.ok) throw new Error(`[AdminUserService] /admin/consent/optins falhou com status ${res.status}`);
+    return res.json();
+  },
+
   async getUsers({ search, page = 1, pageSize = 20 }: GetUsersParams = {}): Promise<PaginatedUsersResult> {
     const safePage = Math.max(1, page);
     const params = new URLSearchParams({ page: String(safePage), perPage: String(pageSize) });
