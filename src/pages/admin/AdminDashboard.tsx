@@ -14,7 +14,7 @@ import { queueStatus, QUEUE_TARGET_DAYS, type QueueStatus } from '../../utils/co
 import { getTodayInSaoPaulo } from '../../utils/date';
 import '../../styles/admin-dashboard.css';
 import { KidsIndicatorsPanel } from '../../components/admin/KidsIndicatorsPanel';
-import { AdminService, type DashboardMetrics, type DailySeriesPoint, type KidsIndicators, type ReadingModes, type ReadingTrends, type SearchTerms } from '../../services/AdminService';
+import { AdminService, periodDays, periodRanges, type PeriodId, type DashboardMetrics, type DailySeriesPoint, type KidsIndicators, type ReadingModes, type ReadingTrends, type SearchTerms } from '../../services/AdminService';
 
 const ACCENT = 'var(--color-accent, #c46d53)';
 const GOOD = '#059669';
@@ -31,19 +31,18 @@ const TOPIC_LABELS: Record<string, string> = {
 
 const MODE_LABELS: Record<string, string> = { individual: 'Individual', grupo: 'Em grupo', criancas: 'Com crianças' };
 const MODE_ICONS: Record<string, string> = { individual: '🙏', grupo: '👥', criancas: '🧒' };
-const PERIODS = [
+const PERIODS: { id: PeriodId; label: string; phrase: string }[] = [
   { id: 'today', label: 'Hoje', phrase: 'de hoje' },
   { id: '7d', label: '7 dias', phrase: 'dos últimos 7 dias' },
   { id: '30d', label: '30 dias', phrase: 'dos últimos 30 dias' },
 ];
 const bandLabel = (band: string) => `${band.replace('-', ' a ')} anos`;
 
+// Só as etapas que o gateway mede. Testemunhou / Respondido / Retornou não têm fonte de dados
+// (apareciam sempre como 0) e voltam quando houver.
 const funnelChartData = (metrics: DashboardMetrics) => [
   { label: 'Acessou', value: metrics.funnel.accessed },
   { label: 'Compartilhou', value: metrics.funnel.shared },
-  { label: 'Testemunhou', value: metrics.funnel.testified },
-  { label: 'Respondido', value: metrics.funnel.responded },
-  { label: 'Retornou', value: metrics.funnel.returned },
 ];
 
 export function AdminDashboard() {
@@ -56,40 +55,18 @@ export function AdminDashboard() {
   const [kidsIndicators, setKidsIndicators] = useState<KidsIndicators | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [period, setPeriod] = useState('7d'); // 'today', '7d', '30d'
-
-  // BUGFIX (auditoria Intelligence Center): toISOString() sempre converte
-  // para UTC, o que pode fazer o filtro "Hoje" incluir/excluir eventos perto
-  // da meia-noite de forma diferente do que o admin vê no relógio local
-  // (ex: Brasil é UTC-3). Usamos os componentes de data locais em vez disso.
-  const toLocalDateString = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
+  const [period, setPeriod] = useState<PeriodId>('7d');
 
   const fetchMetrics = async () => {
     setIsLoading(true);
     setHasError(false);
 
-    // Calcula as datas com base no período
-    const end = new Date();
-    const start = new Date();
-
-    if (period === '7d') {
-      start.setDate(end.getDate() - 7);
-    } else if (period === '30d') {
-      start.setDate(end.getDate() - 30);
-    }
-    // period === 'today': start = end, já é o valor inicial de `start`.
-
-    const startDateStr = toLocalDateString(start);
-    const endDateStr = toLocalDateString(end);
+    // Período atual e o anterior de mesmo tamanho (para as setas de tendência).
+    const { start, end, prevStart, prevEnd } = periodRanges(period);
 
     const [data, series] = await Promise.all([
-      AdminService.getDashboardMetrics(startDateStr, endDateStr),
-      AdminService.getDashboardDailySeries(startDateStr, endDateStr),
+      AdminService.getDashboardMetrics(start, end, { startDate: prevStart, endDate: prevEnd }),
+      AdminService.getDashboardDailySeries(start, end),
     ]);
 
     if (data) {
@@ -109,17 +86,14 @@ export function AdminDashboard() {
 
   // O que as pessoas procuram: acompanha o seletor de período.
   useEffect(() => {
-    AdminService.getSearchTerms(period === 'today' ? 1 : period === '30d' ? 30 : 7).then(setSearchTerms);
+    AdminService.getSearchTerms(periodDays(period)).then(setSearchTerms);
   }, [period]);
 
   // Modos de leitura (individual, grupo, crianças): acompanha o seletor de período.
   useEffect(() => {
-    const end = new Date();
-    const start = new Date();
-    if (period === '7d') start.setDate(end.getDate() - 7);
-    else if (period === '30d') start.setDate(end.getDate() - 30);
-    AdminService.getReadingModes(toLocalDateString(start), toLocalDateString(end)).then(setReadingModes);
-    AdminService.getKidsIndicators(toLocalDateString(start), toLocalDateString(end)).then(setKidsIndicators);
+    const { start, end } = periodRanges(period);
+    AdminService.getReadingModes(start, end).then(setReadingModes);
+    AdminService.getKidsIndicators(start, end).then(setKidsIndicators);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period]);
 
@@ -186,17 +160,14 @@ export function AdminDashboard() {
     return `${((current / prevStep) * 100).toFixed(1)}%`;
   };
 
-  const calcRetentionPct = (retained: number, cohort: number) => {
-    if (cohort === 0) return 0;
-    return Number(((retained / cohort) * 100).toFixed(1));
-  };
-
-  const retentionChartData = [
-    { label: 'D1', window: 'dia 1', value: calcRetentionPct(metrics.retention.d1, metrics.retention.cohort_size) },
-    { label: 'D3', window: 'dias 2–3', value: calcRetentionPct(metrics.retention.d3, metrics.retention.cohort_size) },
-    { label: 'D7', window: 'dias 4–7', value: calcRetentionPct(metrics.retention.d7, metrics.retention.cohort_size) },
-    { label: 'D30', window: 'dias 8–30', value: calcRetentionPct(metrics.retention.d30, metrics.retention.cohort_size) },
-  ];
+  // O gateway já devolve a taxa em % por dia N (1, 7, 14, 30), de todo o histórico.
+  const retentionChartData = metrics.retention.map(r => ({
+    label: `D${r.day}`,
+    window: r.day === 1 ? 'no dia seguinte à primeira leitura' : `no dia ${r.day} após a primeira leitura`,
+    value: r.rate,
+    users: r.users,
+  }));
+  const day1 = metrics.retention.find(r => r.day === 1);
 
   // O gateway devolve '—' quando não acha o título do devocional; trata como ausente.
   const topContentTitle = (item: { devotional_title?: string | null; content_id?: string }) => {
@@ -229,9 +200,7 @@ export function AdminDashboard() {
   const firstHalf = dailySeries.slice(0, halfIdx).reduce((sum, d) => sum + d.reads, 0);
   const secondHalf = dailySeries.slice(halfIdx).reduce((sum, d) => sum + d.reads, 0);
   const halfChange = dailySeries.length >= 4 && firstHalf > 0 ? Math.round(((secondHalf - firstHalf) / firstHalf) * 100) : null;
-  const returnNextDay = metrics.retention.cohort_size > 0
-    ? Math.round((metrics.retention.d1 / metrics.retention.cohort_size) * 100)
-    : null;
+  const returnNextDay = day1 && day1.users > 0 ? Math.round(day1.rate) : null;
 
   return (
     <div className="dash">
@@ -260,13 +229,13 @@ export function AdminDashboard() {
         <p className="dash-story__text">
           {readsNow > 0 ? (
             <>
-              <em>{plural(readsNow, 'leitura concluída', 'leituras concluídas')}</em>
+              <em>{plural(readsNow, 'leitura', 'leituras')}</em>
               {readsChange !== null && <>, {Math.abs(readsChange)}% {readsChange >= 0 ? 'a mais' : 'a menos'} que no período anterior</>}
               .
               {sharedPct !== null && sharedPct > 0 && <> <em>{sharedPct}%</em> foram feitas em grupo ou com crianças.</>}
             </>
           ) : (
-            <>Ainda não houve leituras concluídas {periodPhrase}.</>
+            <>Ainda não houve leituras {periodPhrase}.</>
           )}
         </p>
         <div className="dash-story__chips">
@@ -312,14 +281,6 @@ export function AdminDashboard() {
           <div className="admin-card-value">
             {fmt(metrics.intelligence.shares.current)}
             {renderTrend(metrics.intelligence.shares.current, metrics.intelligence.shares.previous)}
-          </div>
-        </div>
-
-        <div className="admin-card">
-          <div className="admin-card-title">Testemunhos Recebidos</div>
-          <div className="admin-card-value">
-            {fmt(metrics.intelligence.testimonials.current)}
-            {renderTrend(metrics.intelligence.testimonials.current, metrics.intelligence.testimonials.previous)}
           </div>
         </div>
       </div>
@@ -397,10 +358,10 @@ export function AdminDashboard() {
 
       <div className="admin-dashboard-columns">
         <div className="admin-section">
-          <h3>Retenção da Coorte</h3>
+          <h3>Retenção</h3>
           <p style={{ color: 'var(--color-text-light)', fontSize: '0.85rem', marginBottom: '12px' }}>
-            Base de {metrics.retention.cohort_size} usuários novos neste período. Cada barra é uma janela
-            própria (ex.: D3 = voltou entre o dia 2 e o dia 3) — não é cumulativo com as anteriores.
+            De todos que leram pela primeira vez há pelo menos N dias, quantos % voltaram a ler exatamente
+            no dia N. Cada barra é independente das outras e considera todo o histórico — não muda com o período.
           </p>
           <div style={{ width: '100%', height: 180 }}>
             <ResponsiveContainer>
@@ -409,7 +370,7 @@ export function AdminDashboard() {
                 <XAxis dataKey="label" tick={{ fontSize: 12, fill: 'var(--color-text)' }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: 'var(--color-text-light)' }} axisLine={false} tickLine={false} unit="%" />
                 <Tooltip
-                  formatter={(value: any, _n: any, ctx: any) => [`${value}%`, `Retornou (${ctx?.payload?.window})`]}
+                  formatter={(value: any, _n: any, ctx: any) => [`${value}% de ${ctx?.payload?.users} pessoas`, `Voltou ${ctx?.payload?.window}`]}
                   contentStyle={{ borderRadius: 8, border: '1px solid var(--color-border)', fontSize: '0.85rem' }}
                 />
                 <Bar dataKey="value" radius={[6, 6, 0, 0]} fill={ACCENT} maxBarSize={44} />
@@ -429,18 +390,18 @@ export function AdminDashboard() {
                 <div style={{ fontWeight: 600 }}>Testemunhos Pendentes</div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--color-text-light)' }}>Aguardando leitura</div>
               </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: metrics.community.pending_testimonials > 0 ? BAD : GOOD }}>
-                {metrics.community.pending_testimonials}
+              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: metrics.community.pending_testimonials === null ? MUTED : metrics.community.pending_testimonials > 0 ? BAD : GOOD }}>
+                {metrics.community.pending_testimonials ?? '—'}
               </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f9fafb', border: '1px solid var(--color-border)', padding: '16px', borderRadius: '8px' }}>
               <div>
-                <div style={{ fontWeight: 600 }}>Respostas Atrasadas</div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--color-text-light)' }}>&gt; 48h sem resposta</div>
+                <div style={{ fontWeight: 600 }}>Pedidos de Oração Pendentes</div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--color-text-light)' }}>Aguardando oração</div>
               </div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: metrics.community.delayed_responses > 0 ? BAD : GOOD }}>
-                {metrics.community.delayed_responses}
+              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: metrics.community.pending_prayers === null ? MUTED : metrics.community.pending_prayers > 0 ? BAD : GOOD }}>
+                {metrics.community.pending_prayers ?? '—'}
               </div>
             </div>
           </div>

@@ -2,34 +2,27 @@ import { illumineFetch } from '../lib/illumine';
 
 export type DashboardMetrics = {
   total_users: number;
+  /** Cartões do período: valor atual e o do período anterior de mesmo tamanho. */
   intelligence: {
     active_users: { current: number; previous: number };
     reads: { current: number; previous: number };
     shares: { current: number; previous: number };
-    testimonials: { current: number; previous: number };
   };
   funnel: {
     accessed: number;
     shared: number;
-    testified: number;
-    responded: number;
-    returned: number;
   };
-  retention: {
-    cohort_size: number;
-    d1: number;
-    d3: number;
-    d7: number;
-    d30: number;
-  };
+  /** Retenção por dia N (1, 7, 14, 30) de todo o histórico — não depende do período. `rate` já vem em %. */
+  retention: Array<{ day: number; users: number; retained: number; rate: number }>;
   top_content: Array<{
     content_id: string;
     devotional_title?: string | null;
     opens: number;
   }>;
+  /** Backlog atual (null = sem permissão ou fonte indisponível; a tela mostra "—", nunca 0). */
   community: {
-    pending_testimonials: number;
-    delayed_responses: number;
+    pending_testimonials: number | null;
+    pending_prayers: number | null;
   };
 };
 
@@ -111,6 +104,29 @@ export function dateRangeParams(startDate: string, endDate: string): URLSearchPa
   });
 }
 
+export type PeriodId = 'today' | '7d' | '30d';
+const PERIOD_DAYS: Record<PeriodId, number> = { today: 1, '7d': 7, '30d': 30 };
+
+const localDate = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+export const periodDays = (period: PeriodId) => PERIOD_DAYS[period];
+
+/**
+ * Intervalo do período (dias inclusivos, horário local do admin: "7 dias" = hoje e os 6 anteriores)
+ * e o período anterior de mesmo tamanho, usado nas tendências.
+ */
+export function periodRanges(period: PeriodId, now = new Date()) {
+  const n = PERIOD_DAYS[period];
+  const start = new Date(now);
+  start.setDate(start.getDate() - (n - 1));
+  const prevEnd = new Date(start);
+  prevEnd.setDate(prevEnd.getDate() - 1);
+  const prevStart = new Date(prevEnd);
+  prevStart.setDate(prevStart.getDate() - (n - 1));
+  return { start: localDate(start), end: localDate(now), prevStart: localDate(prevStart), prevEnd: localDate(prevEnd) };
+}
+
 export class AdminService {
   static async checkAdminRole(): Promise<boolean> {
     const res = await illumineFetch('/users/me');
@@ -129,13 +145,20 @@ export class AdminService {
     return role ? ['super_admin', 'admin'].includes(role) : false;
   }
 
-  static async getDashboardMetrics(startDate: string, endDate: string): Promise<DashboardMetrics | null> {
+  static async getDashboardMetrics(
+    startDate: string,
+    endDate: string,
+    previous?: { startDate: string; endDate: string },
+  ): Promise<DashboardMetrics | null> {
     const params = dateRangeParams(startDate, endDate);
-    const [overviewRes, retentionRes, funnelRes, perfRes] = await Promise.all([
+    const [overviewRes, retentionRes, funnelRes, perfRes, prevFunnelRes, pastoralRes] = await Promise.all([
       illumineFetch('/analytics/overview'),
       illumineFetch('/analytics/retention/day-n'),
       illumineFetch(`/analytics/devotionals/funnel?${params}`),
       illumineFetch(`/analytics/devotionals/performance?${params}`),
+      // Opcionais: sem eles a tendência some, mas os números do período aparecem.
+      previous ? illumineFetch(`/analytics/devotionals/funnel?${dateRangeParams(previous.startDate, previous.endDate)}`).catch(() => null) : Promise.resolve(null),
+      illumineFetch('/pastoral/metrics').catch(() => null),
     ]);
 
     if (!overviewRes.ok || !retentionRes.ok || !funnelRes.ok || !perfRes.ok) {
@@ -155,50 +178,45 @@ export class AdminService {
       funnelRes.json(),
       perfRes.json(),
     ]);
+    const prevFunnel = prevFunnelRes?.ok ? await prevFunnelRes.json() : null;
+    const pastoral = pastoralRes?.ok ? await pastoralRes.json() : null;
 
-    // day-N retention is returned as an array: [{ day, users, retained, rate }, ...]
-    const retArr: any[] = Array.isArray(ret) ? ret : [];
-    const findDay = (n: number) => retArr.find((r: any) => r.day === n);
+    // Pessoas distintas no período (gateway novo); cai nos totais antigos
+    // (linhas de leitura / eventos) enquanto o gateway não for atualizado.
+    const accessedOf = (f: any) => f?.accessedUsers ?? f?.accessed ?? f?.opened ?? 0;
 
-    // overview: { retention: { dau, wau, mau, totalUsers }, funnel: { opened, completed }, streaks }
-    const ovRetention = ov.retention ?? {};
-    const ovFunnel = ov.funnel ?? {};
+    // day-N retention vem como array: [{ day, users, retained, rate }, ...] (rate em %)
+    const retention = (Array.isArray(ret) ? ret : []).map((r: any) => ({
+      day: Number(r.day) || 0,
+      users: Number(r.users) || 0,
+      retained: Number(r.retained) || 0,
+      rate: Number(r.rate) || 0,
+    }));
 
     // performance: { topRead: [{ devotionalId, title, count }], ... }
     const topContent: any[] = perf.topRead ?? (Array.isArray(perf) ? perf : perf.data ?? []);
 
     return {
-      total_users: ovRetention.totalUsers ?? 0,
+      total_users: ov.retention?.totalUsers ?? 0,
+      // Tudo vem do funil do período: o /analytics/overview tem janelas fixas (24 h / 30 dias) e não aceita datas.
       intelligence: {
-        active_users: { current: ov.activeUsers?.current ?? ovRetention.dau ?? ov.dau ?? 0, previous: ov.activeUsers?.previous ?? 0 },
-        reads: { current: ov.reads?.current ?? ovFunnel.opened ?? ov.totalReads ?? 0, previous: ov.reads?.previous ?? 0 },
-        shares: { current: ov.shares?.current ?? 0, previous: ov.shares?.previous ?? 0 },
-        testimonials: { current: ov.testimonials?.current ?? 0, previous: ov.testimonials?.previous ?? 0 },
+        active_users: { current: accessedOf(funnel), previous: accessedOf(prevFunnel) },
+        reads: { current: funnel.opened ?? 0, previous: prevFunnel?.opened ?? 0 },
+        shares: { current: funnel.shared ?? 0, previous: prevFunnel?.shared ?? 0 },
       },
       funnel: {
-        // Pessoas distintas no período (gateway novo); cai nos totais antigos
-        // (linhas de leitura / eventos) enquanto o gateway não for atualizado.
-        accessed: funnel.accessedUsers ?? funnel.accessed ?? funnel.opened ?? 0,
+        accessed: accessedOf(funnel),
         shared: funnel.sharedUsers ?? funnel.shared ?? 0,
-        testified: funnel.testified ?? 0,
-        responded: funnel.responded ?? 0,
-        returned: funnel.returned ?? 0,
       },
-      retention: {
-        cohort_size: ret.cohortSize ?? ret.d1_count ?? findDay(1)?.users ?? 0,
-        d1: ret.d1 ?? findDay(1)?.rate ?? 0,
-        d3: ret.d3 ?? 0,
-        d7: ret.d7 ?? findDay(7)?.rate ?? 0,
-        d30: ret.d30 ?? findDay(30)?.rate ?? 0,
-      },
+      retention,
       top_content: topContent.slice(0, 10).map((c: any) => ({
         content_id: c.contentId ?? c.devotionalId ?? c.id,
         devotional_title: c.title ?? c.devotionalTitle ?? null,
         opens: c.opens ?? c.count ?? c.reads ?? 0,
       })),
       community: {
-        pending_testimonials: ov.pendingTestimonials ?? 0,
-        delayed_responses: ov.delayedResponses ?? 0,
+        pending_testimonials: pastoral?.testimonials?.pending ?? null,
+        pending_prayers: pastoral?.prayer_requests?.pending ?? null,
       },
     };
   }
