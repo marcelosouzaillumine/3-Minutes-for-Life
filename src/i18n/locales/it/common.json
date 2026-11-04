@@ -17,6 +17,7 @@
   "shareActions": {
     "dailyLabel": "Il devozionale di oggi",
     "imageCta": "Leggi in 3 minuti",
+    "kidsBadge": "Disponibile nella versione per bambini",
     "invalidId": "Non è possibile condividere questo contenuto al momento.",
     "message": "Una riflessione di 3 minuti per fermarsi, respirare e concentrarsi su ciò che conta davvero oggi.\\n\\nLeggila gratuitamente nell'app:\\n👉 {{url}}",
     "title": "3 Minutes for Life",
