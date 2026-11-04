@@ -39,13 +39,14 @@ export function FamilyTodayCard({ devotionalId, daily = true, completed = false,
   const done = daily && (completed || doneBefore);
 
   const goTab = (tab: string) => window.dispatchEvent(new CustomEvent('app:tab', { detail: tab }));
-  const readers = family ? family.members.filter((m) => m.readToday).length : 0;
+  // Adultos e crianças do grupo contam juntos.
+  const readers = family ? family.members.filter((m) => m.readToday).length + family.children.filter((c) => c.readToday).length : 0;
   const plan = daily && family?.plan && !family.plan.completed && !family.plan.lockedUntilTomorrow ? family.plan : null;
   const kidNames = (family?.children ?? []).map((c) => c.nickname);
   const names = kidNames.length > 2 ? `${kidNames.slice(0, 2).join(', ')} +${kidNames.length - 2}` : kidNames.join(' e ');
 
   // Sem cadastro, os cards só convidam; estado (andamento, versão pronta) só aparece quando já há grupo ou criança.
-  const missing = family ? family.members.length - readers : 0;
+  const missing = family ? family.members.length + family.children.length - readers : 0;
   const groupLine = !family || !daily
     ? t('ritual.groupFirst', 'Leia com o casal, a célula ou amigos')
     : readers === 0
