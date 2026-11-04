@@ -16,6 +16,8 @@ interface DrawData {
   label: string
   /** Chamada para a ação ("Leia em 3 minutos"), já traduzida. */
   cta?: string
+  /** Destaque "Disponível na versão infantil", já traduzido; só vem quando o devocional tem versão para crianças. */
+  kidsBadge?: string
   /** Logo horizontal sobre fundo claro (Story, Feed, Facebook). */
   logoDataUrl: string
   /** Logo vertical sobre fundo claro — usado só no WhatsApp. */
@@ -264,7 +266,28 @@ async function drawCentered(
       })
     }
 
-    // Base: chamada + site
+    // Base: destaque da versão infantil + chamada + site
+    if (d.kidsBadge) {
+      const kSize = Math.round(28 * s)
+      const kPadX = Math.round(40 * s)
+      const kPadY = Math.round(16 * s)
+      ctx.font = `700 ${kSize}px ${SANS}`
+      const kW = Math.min(IW, ctx.measureText(d.kidsBadge).width + kPadX * 2)
+      const kH = kSize + kPadY * 2
+      foot.push({
+        h: kH,
+        draw: y => {
+          ctx.fillStyle = GOLD
+          roundRectPath(ctx, cx - kW / 2, y, kW, kH, kH / 2)
+          ctx.fill()
+          ctx.font = `700 ${kSize}px ${SANS}`
+          ctx.fillStyle = NAVY
+          ctx.textAlign = 'center'
+          ctx.fillText(d.kidsBadge!, cx, y + kPadY)
+        },
+      })
+      gap(foot, 22)
+    }
     if (d.cta) {
       const cSize = Math.round(32 * s)
       const cPadX = Math.round(54 * s)
@@ -361,13 +384,22 @@ async function drawOg(ctx: CanvasRenderingContext2D, d: DrawData) {
   const ctaText = d.cta ? `${d.cta} \u2192` : ''
   const ctaW = ctaText ? ctx.measureText(ctaText).width : 0
 
-  const textW = Math.min(textMaxW, Math.max(labelW, titleW, scripW, ctaW))
+  const kidsSize = 22
+  const kidsPadX = 24
+  const kidsPadY = 10
+  ctx.font = `700 ${kidsSize}px ${SANS}`
+  const kidsTextW = d.kidsBadge ? ctx.measureText(d.kidsBadge).width : 0
+  const kidsW = d.kidsBadge ? Math.min(textMaxW, kidsTextW + kidsPadX * 2) : 0
+  const kidsH = kidsSize + kidsPadY * 2
+
+  const textW = Math.min(textMaxW, Math.max(labelW, titleW, scripW, ctaW, kidsW))
   const groupW = LW + GAP + 2 + GAP + textW
   const x0 = Math.round((w - groupW) / 2)
   const textCx = x0 + LW + GAP + 2 + GAP + textW / 2
 
   const textH = labelSize + 26 + titleLines.length * titleLine + 26 + 3
     + (d.scripture ? 26 + scripSize : 0) + (ctaText ? 34 + ctaSize : 0)
+    + (d.kidsBadge ? 26 + kidsH : 0)
   const colH = Math.min(Math.max(LH, textH), availH)
   const top = safe.top + Math.round((availH - colH) / 2)
 
@@ -408,6 +440,18 @@ async function drawOg(ctx: CanvasRenderingContext2D, d: DrawData) {
     ctx.fillStyle = NAVY
     ctx.textAlign = 'center'
     ctx.fillText(ctaText, textCx, y)
+    y += ctaSize
+  }
+
+  if (d.kidsBadge) {
+    y += 26
+    ctx.fillStyle = GOLD
+    roundRectPath(ctx, textCx - kidsW / 2, y, kidsW, kidsH, kidsH / 2)
+    ctx.fill()
+    ctx.font = `700 ${kidsSize}px ${SANS}`
+    ctx.fillStyle = NAVY
+    ctx.textAlign = 'center'
+    ctx.fillText(d.kidsBadge, textCx, y + kidsPadY)
   }
 }
 

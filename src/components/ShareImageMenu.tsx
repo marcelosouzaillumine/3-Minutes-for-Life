@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { type ShareFormat } from './ShareImageCard'
 import { createShareImage } from './createShareImage'
 import { AnalyticsService } from '../services/AnalyticsService'
+import { FamilyService } from '../services/FamilyService'
 
 interface Props {
   title?: string
@@ -88,6 +89,15 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
   const [error, setError]     = useState<string | null>(null)
   const logoRef               = useRef<string>('')
   const logoVerticalRef       = useRef<string>('')
+  const [hasKids, setHasKids] = useState(false)
+
+  // Só destaca "versão infantil" quando ela existe e está aprovada para este idioma.
+  useEffect(() => {
+    if (!devotionalId) { setHasKids(false); return }
+    let alive = true
+    FamilyService.getKids(devotionalId, i18n.language).then(v => { if (alive) setHasKids(v.length > 0) })
+    return () => { alive = false }
+  }, [devotionalId, i18n.language])
 
   // Rótulo em destaque no topo da imagem: "DEVOCIONAL DO DIA" só quando é
   // de fato o devocional de hoje; caso contrário, a categoria do devocional
@@ -125,7 +135,7 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
         principle,
         scripture,
         label: imageLabel,
-        cta: t('shareActions.imageCta', 'Leia em 3 minutos'),
+        kidsBadge: hasKids ? t('shareActions.kidsBadge', 'Disponível na versão infantil') : undefined,
         logoDataUrl: logoRef.current,
         logoVerticalDataUrl: logoVerticalRef.current,
       })
