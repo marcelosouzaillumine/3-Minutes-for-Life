@@ -36,6 +36,12 @@ interface DrawData {
  */
 interface Safe { x: number; top: number; bottom: number }
 
+/**
+ * Faixa livre (px) acima da área segura da base, reservada para o adesivo de
+ * link do Instagram. Só o Story usa: o texto termina acima dela e ela fica vazia.
+ */
+const LINK_ZONE: Partial<Record<ShareFormat, number>> = { story: 240 }
+
 const SAFE: Record<ShareFormat, Safe> = {
   story:    { x: 150, top: 320, bottom: 420 },
   feed:     { x: 130, top: 120, bottom: 120 },
@@ -168,7 +174,7 @@ async function drawCentered(
   const safe = SAFE[format]
   const cx   = w / 2
   const IW   = w - safe.x * 2
-  const availH = h - safe.top - safe.bottom
+  const availH = h - safe.top - safe.bottom - (LINK_ZONE[format] ?? 0)
 
   const logo  = await loadLogo(d.logoDataUrl)
   const ratio = logo.height / logo.width
