@@ -47,6 +47,8 @@ export function Family() {
 
   const fail = (e: unknown) => {
     const c = e instanceof FamilyError ? e.code : '';
+    // Erros definitivos do código: guardá-lo só faria a folha reabrir com o mesmo erro.
+    if (c === 'INVALID_CODE' || c === 'FAMILY_FULL' || c === 'TOO_MANY_GROUPS') pendingFamilyCode.clear();
     setError(
       c === 'INVALID_CODE' ? tt('err.code', 'Esse código não existe. Confira com quem convidou.')
       : c === 'FAMILY_FULL' ? tt('err.full', 'Este grupo já está completo.')
@@ -83,7 +85,8 @@ export function Family() {
     return () => window.removeEventListener('family:changed', onChange);
   }, [load]);
 
-  const close = () => { setSheet(null); setError(''); setConfirmLeave(false); setEditName(null); setEditMeeting(null); };
+  // Fechar a folha de entrada descarta o convite guardado: senão ele reabre a cada carregamento.
+  const close = () => { if (sheet === 'join') pendingFamilyCode.clear(); setSheet(null); setError(''); setConfirmLeave(false); setEditName(null); setEditMeeting(null); };
   const apply = (f: FamilyT) => { setFamily(f); close(); };
 
   const groupSheets = (
