@@ -6,6 +6,7 @@ import { JourneyService } from '../services/JourneyService';
 import { searchMoments, significantWords, topicsOf } from '../utils/momentSearch';
 import { AnalyticsService } from '../services/AnalyticsService';
 import { useTranslation } from 'react-i18next';
+import { KidsBadge } from '../components/KidsBadge';
 
 export function Explore() {
   const { t, i18n } = useTranslation(['library']);
@@ -153,6 +154,7 @@ export function Explore() {
               <p className="principle-list-preview">
                 {d.principle_statement || ''}
               </p>
+              <KidsBadge devotionalId={d.id} />
             </div>
           ))}
         </div>
@@ -199,6 +201,7 @@ export function Explore() {
               <div key={d.id} className="principle-list-item" onClick={() => handleSelectDevotional(d.id)}>
                 <h3 className="principle-list-title">{d.title}</h3>
                 <p className="principle-list-preview">{d.principle_statement || ''}</p>
+                <KidsBadge devotionalId={d.id} />
               </div>
             ))}
           </div>

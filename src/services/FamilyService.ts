@@ -207,6 +207,12 @@ export const FamilyService = {
     return (await call(`/families/me/prayers/${encodeURIComponent(id)}/pray`, json('POST'))).prayers ?? [];
   },
   /** Versões infantis aprovadas do devocional (vazio quando ainda não existem). */
+  /** Devocionais com versão para crianças publicada, com as faixas: { id: ['0-3', ...] }. */
+  async kidsAvailable(language: string): Promise<Record<string, string[]>> {
+    const res = await illumineFetch(`/devotionals/kids-available?language=${encodeURIComponent(language)}`);
+    if (!res.ok) throw new Error(String(res.status));
+    return (await res.json()).available ?? {};
+  },
   async getKids(devotionalId: string, language: string): Promise<KidsVersion[]> {
     try {
       const res = await illumineFetch(`/devotionals/${encodeURIComponent(devotionalId)}/kids?language=${encodeURIComponent(language)}`);

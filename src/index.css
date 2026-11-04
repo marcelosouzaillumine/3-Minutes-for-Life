@@ -2686,3 +2686,9 @@ a:focus-visible {
 .devotional-cover { display: flex; flex-direction: column; gap: 0.4rem; width: 100%; margin-top: 0.75rem; }
 .devotional-cover__eyebrow { font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-strong); }
 .devotional-cover__title { margin: 0; font-family: var(--font-serif); font-size: clamp(1.9rem, 8vw, 2.6rem); font-weight: 600; line-height: 1.08; letter-spacing: -0.02em; color: var(--text-strong); }
+
+/* Selo de versão para crianças nas listas de devocionais */
+.kids-badge { display: inline-block; margin-top: 0.4rem; padding: 0.1rem 0.55rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; line-height: 1.5; }
+.kids-badge--on { background: #eaf4ec; color: #1f6b3a; }
+.kids-badge--off { background: #f1efec; color: var(--color-text-light, #6b7280); }
+.plans__day .kids-badge { margin: 0 0 0 auto; flex: none; }
