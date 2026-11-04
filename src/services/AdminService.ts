@@ -46,6 +46,25 @@ export type SearchTerms = {
   topics: { topic: string; count: number }[];
 };
 
+export type KidsBand = {
+  band: string;
+  registeredChildren: number;
+  families: number;
+  activeChildren: number;
+  reads: number;
+  readingDays: number;
+  returningChildren: number;
+  avgReadsPerActiveChild: number;
+  publishedVersions: number;
+  coverage: number;
+  topDevotionals: { devotionalId: string; title: string; reads: number }[];
+};
+
+export type KidsIndicators = {
+  totals: { registeredChildren: number; activeChildren: number; reads: number; publishedDevotionals: number };
+  bands: KidsBand[];
+};
+
 export type ReadingModes = {
   total: number;
   modes: { mode: string; reads: number }[];
@@ -265,6 +284,17 @@ export class AdminService {
       terms: (body.terms ?? []).map((t: any) => ({ term: t.term, count: t.count ?? 0, without_results: t.withoutResults ?? 0 })),
       topics: (body.topics ?? []).map((t: any) => ({ topic: t.topic, count: t.count ?? 0 })),
     };
+  }
+
+  /** Indicadores só das crianças, por faixa de idade, no período. */
+  static async getKidsIndicators(startDate: string, endDate: string): Promise<KidsIndicators | null> {
+    const res = await illumineFetch(`/analytics/devotionals/kids?${dateRangeParams(startDate, endDate)}`);
+    if (!res.ok) {
+      console.error('[Dashboard] endpoint /analytics/devotionals/kids com falha:', res.status);
+      return null;
+    }
+    const body = await res.json();
+    return { totals: body.totals, bands: body.bands ?? [] };
   }
 
   /** Leituras por modo (individual, grupo, crianças) e por faixa etária, no período. */

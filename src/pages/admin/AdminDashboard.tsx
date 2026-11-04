@@ -13,7 +13,8 @@ import {
 import { queueStatus, QUEUE_TARGET_DAYS, type QueueStatus } from '../../utils/contentQueue';
 import { getTodayInSaoPaulo } from '../../utils/date';
 import '../../styles/admin-dashboard.css';
-import { AdminService, type DashboardMetrics, type DailySeriesPoint, type ReadingModes, type ReadingTrends, type SearchTerms } from '../../services/AdminService';
+import { KidsIndicatorsPanel } from '../../components/admin/KidsIndicatorsPanel';
+import { AdminService, type DashboardMetrics, type DailySeriesPoint, type KidsIndicators, type ReadingModes, type ReadingTrends, type SearchTerms } from '../../services/AdminService';
 
 const ACCENT = 'var(--color-accent, #c46d53)';
 const GOOD = '#059669';
@@ -52,6 +53,7 @@ export function AdminDashboard() {
   const [queue, setQueue] = useState<QueueStatus | null>(null);
   const [searchTerms, setSearchTerms] = useState<SearchTerms | null>(null);
   const [readingModes, setReadingModes] = useState<ReadingModes | null>(null);
+  const [kidsIndicators, setKidsIndicators] = useState<KidsIndicators | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [period, setPeriod] = useState('7d'); // 'today', '7d', '30d'
@@ -117,6 +119,7 @@ export function AdminDashboard() {
     if (period === '7d') start.setDate(end.getDate() - 7);
     else if (period === '30d') start.setDate(end.getDate() - 30);
     AdminService.getReadingModes(toLocalDateString(start), toLocalDateString(end)).then(setReadingModes);
+    AdminService.getKidsIndicators(toLocalDateString(start), toLocalDateString(end)).then(setKidsIndicators);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period]);
 
@@ -644,6 +647,11 @@ export function AdminDashboard() {
         ) : (
           <p className="dash-hint">Ainda sem leituras por modo neste período.</p>
         )}
+      </div>
+
+      <div className="admin-section">
+        <h3>Crianças por faixa de idade</h3>
+        <KidsIndicatorsPanel data={kidsIndicators} />
       </div>
 
       <div className="admin-section">
