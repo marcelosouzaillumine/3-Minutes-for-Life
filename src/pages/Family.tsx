@@ -30,7 +30,7 @@ export function Family() {
   const [groups, setGroups] = useState<{ families: FamilySummary[]; max: number }>({ families: [], max: 5 });
   const [prayers, setPrayers] = useState<FamilyPrayer[]>([]);
   const [templates, setTemplates] = useState<PlanTemplate[]>([]);
-  const [sheet, setSheet] = useState<SheetKind>(() => (pendingFamilyCode.get() ? 'join' : null));
+  const [sheet, setSheet] = useState<SheetKind>(() => (pendingFamilyCode.shouldOpen() ? 'join' : null));
   const [readSheet, setReadSheet] = useState<{ plan: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -41,12 +41,16 @@ export function Family() {
   const [editName, setEditName] = useState<string | null>(null);
   const [editMeeting, setEditMeeting] = useState<string | null>(null);
   const [code, setCode] = useState(() => pendingFamilyCode.get() ?? '');
+  // A folha abre sozinha uma vez por convite; depois o código segue guardado, preenchido em "Tenho um código de convite".
+  useEffect(() => { if (pendingFamilyCode.shouldOpen()) pendingFamilyCode.markShown(); }, []);
   const [prayerText, setPrayerText] = useState('');
   const [copied, setCopied] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
 
   const fail = (e: unknown) => {
     const c = e instanceof FamilyError ? e.code : '';
+    // Erros definitivos do código: guardá-lo só faria a folha reabrir com o mesmo erro.
+    if (c === 'INVALID_CODE' || c === 'FAMILY_FULL' || c === 'TOO_MANY_GROUPS') pendingFamilyCode.clear();
     setError(
       c === 'INVALID_CODE' ? tt('err.code', 'Esse código não existe. Confira com quem convidou.')
       : c === 'FAMILY_FULL' ? tt('err.full', 'Este grupo já está completo.')
