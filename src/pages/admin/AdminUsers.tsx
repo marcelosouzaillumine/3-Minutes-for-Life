@@ -1,7 +1,41 @@
 import { useEffect, useState } from 'react';
 import { AdminUserService } from '../../services/AdminUserService';
 import { UserRoleModal, RoleBadge } from '../../components/admin/users/UserRoleModal';
-import type { AdminUserItem, PaginatedUsersResult } from '../../types/AdminUser';
+import type { AdminUserItem, PaginatedUsersResult, TenantRole, WhatsappFilter } from '../../types/AdminUser';
+import '../../styles/admin-users.css';
+
+const WHATSAPP_CHIPS: { key: WhatsappFilter; label: string }[] = [
+  { key: 'all', label: 'Todos' },
+  { key: 'granted', label: 'Autorizaram' },
+  { key: 'none', label: 'Não autorizaram' },
+  { key: 'revoked', label: 'Revogaram' },
+  { key: 'granted_no_phone', label: 'Autorizaram sem telefone' },
+];
+
+const formatDate = (iso: string | null | undefined) => {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+};
+
+// +5511987654321 -> +55 11 98765-4321 (formato BR; outros países ficam como vieram).
+export function formatPhone(raw: string | null | undefined): string {
+  if (!raw) return '—';
+  const m = raw.replace(/\s/g, '').match(/^\+?55(\d{2})(9?\d{4})(\d{4})$/);
+  return m ? `+55 ${m[1]} ${m[2]}-${m[3]}` : raw;
+}
+
+function WhatsappTag({ user }: { user: AdminUserItem }) {
+  const w = user.whatsapp;
+  if (!w) return null;
+  if (w.state === 'granted') {
+    return user.phone
+      ? <span className="au-tag au-tag--ok">Autorizou · {formatDate(w.at)}</span>
+      : <span className="au-tag au-tag--warn">Autorizou · sem telefone</span>;
+  }
+  if (w.state === 'revoked') return <span className="au-tag au-tag--off">Revogou · {formatDate(w.at)}</span>;
+  return <span className="au-tag au-tag--none">Não autorizou</span>;
+}
 
 export function AdminUsers() {
   const [result, setResult] = useState<PaginatedUsersResult | null>(null);
@@ -11,22 +45,25 @@ export function AdminUsers() {
   const [searchInput, setSearchInput] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [whatsapp, setWhatsapp] = useState<WhatsappFilter>('all');
+  const [roleId, setRoleId] = useState('');
+  const [roles, setRoles] = useState<TenantRole[]>([]);
+  const [exporting, setExporting] = useState(false);
 
   const [myRoles, setMyRoles] = useState<string[]>([]);
   const [selectedUser, setSelectedUser] = useState<AdminUserItem | null>(null);
-
   const canManageRoles = myRoles.includes('super_admin');
 
   useEffect(() => {
     AdminUserService.getMyRoles().then(setMyRoles);
+    AdminUserService.getRoles().then(setRoles).catch(() => setRoles([]));
   }, []);
 
   const fetchUsers = async () => {
     setIsLoading(true);
     setErrorMessage('');
     try {
-      const data = await AdminUserService.getUsers({ search, page, pageSize: 20 });
-      setResult(data);
+      setResult(await AdminUserService.getUsers({ search, page, pageSize: 20, whatsapp, roleId: roleId || undefined }));
     } catch (err: any) {
       console.error('Failed to load users:', err);
       setErrorMessage(err.message || 'Erro ao carregar usuários.');
@@ -38,27 +75,29 @@ export function AdminUsers() {
   useEffect(() => {
     fetchUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search, page]);
+  }, [search, page, whatsapp, roleId]);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPage(1);
-    setSearch(searchInput);
-  };
+  const canSeeWhatsapp = !!result?.canSeeWhatsapp;
+  const filtersActive = !!search || whatsapp !== 'all' || !!roleId;
 
-  const formatDate = (iso: string | null) => {
-    if (!iso) return '—';
+  const changeFilter = <T,>(set: (v: T) => void, v: T) => { setPage(1); set(v); };
+  const clearAll = () => { setSearchInput(''); setSearch(''); setWhatsapp('all'); setRoleId(''); setPage(1); };
+
+  const handleExport = async () => {
+    setExporting(true);
     try {
-      return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    } catch {
-      return iso;
+      await AdminUserService.exportCsv({ search, whatsapp, roleId: roleId || undefined });
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Erro ao exportar.');
+    } finally {
+      setExporting(false);
     }
   };
 
   const handleRoleChanged = async () => {
     await fetchUsers();
     if (selectedUser) {
-      const updated = await AdminUserService.getUsers({ search, page, pageSize: 20 });
+      const updated = await AdminUserService.getUsers({ search, page, pageSize: 20, whatsapp, roleId: roleId || undefined });
       setResult(updated);
       const fresh = updated.data.find(u => u.id === selectedUser.id);
       if (fresh) setSelectedUser(fresh);
@@ -66,80 +105,69 @@ export function AdminUsers() {
   };
 
   return (
-    <div>
+    <div className="au">
       <div className="admin-header">
         <div>
           <h1>Usuários</h1>
-          <p>Diretório de contas cadastradas e gestão de papéis administrativos.</p>
+          <p>Contas cadastradas, papéis administrativos e quem autorizou receber mensagens pelo WhatsApp.</p>
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div style={{
-        backgroundColor: 'var(--color-bg)',
-        padding: '20px',
-        borderRadius: '12px',
-        border: '1px solid var(--color-border)',
-        marginBottom: '24px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
-      }}>
-        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '8px' }}>
-          <div style={{ position: 'relative', flex: 1 }}>
-            <input
-              type="text"
-              placeholder="Buscar por nome ou e-mail..."
-              value={searchInput}
-              onChange={e => setSearchInput(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px 14px 10px 36px',
-                borderRadius: '8px',
-                border: '1px solid var(--color-border)',
-                backgroundColor: 'var(--color-bg)',
-                color: 'var(--color-text)',
-                fontSize: '0.9rem',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
-            />
-            <svg
-              width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-              style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-light)' }}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+      <div className="au-filters">
+        <form className="au-search" onSubmit={e => { e.preventDefault(); changeFilter(setSearch, searchInput); }} role="search">
+          <input
+            type="search"
+            aria-label="Buscar usuários"
+            placeholder={canSeeWhatsapp ? 'Buscar por nome, e-mail ou telefone…' : 'Buscar por nome ou e-mail…'}
+            value={searchInput}
+            onChange={e => setSearchInput(e.target.value)}
+          />
+          <button type="submit" className="au-btn au-btn--primary">Buscar</button>
+        </form>
+
+        {canSeeWhatsapp && (
+          <div className="au-group" role="group" aria-label="Filtrar por WhatsApp">
+            <span className="au-group__label">WhatsApp</span>
+            <div className="au-chips">
+              {WHATSAPP_CHIPS.map(c => (
+                <button
+                  key={c.key} type="button" className="au-chip" aria-pressed={whatsapp === c.key}
+                  onClick={() => changeFilter(setWhatsapp, c.key)}
+                >
+                  {c.label}
+                  {result?.counts && <span className="au-chip__n">{result.counts[c.key]}</span>}
+                </button>
+              ))}
+            </div>
           </div>
-          <button
-            type="submit"
-            style={{
-              width: 'auto',
-              flexShrink: 0,
-              padding: '10px 18px',
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              whiteSpace: 'nowrap',
-              border: 'none',
-              borderRadius: '8px',
-              background: 'var(--color-accent)',
-              color: '#fff',
-              cursor: 'pointer',
-            }}
-          >
-            Buscar
-          </button>
-          {search && (
-            <button
-              type="button"
-              onClick={() => { setSearchInput(''); setSearch(''); setPage(1); }}
-              style={{ flexShrink: 0, padding: '10px 14px', fontSize: '0.9rem', border: '1px solid var(--color-border)', borderRadius: '8px', background: 'transparent', cursor: 'pointer' }}
-            >
-              Limpar
+        )}
+
+        {roles.length > 0 && (
+          <div className="au-group" role="group" aria-label="Filtrar por papel">
+            <span className="au-group__label">Papel</span>
+            <div className="au-chips">
+              <button type="button" className="au-chip" aria-pressed={!roleId} onClick={() => changeFilter(setRoleId, '')}>Todos</button>
+              {roles.map(r => (
+                <button key={r.id} type="button" className="au-chip" aria-pressed={roleId === r.id} onClick={() => changeFilter(setRoleId, r.id)}>{r.name}</button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="au-bar">
+          <span className="au-bar__count" aria-live="polite">
+            {result ? `${result.total} ${result.total === 1 ? 'usuário' : 'usuários'}` : ''}
+          </span>
+          {filtersActive && <button type="button" className="au-btn" onClick={clearAll}>Limpar filtros</button>}
+          {canSeeWhatsapp && (
+            <button type="button" className="au-btn" onClick={handleExport} disabled={exporting || !result?.total}>
+              {exporting ? 'Gerando…' : 'Exportar CSV'}
             </button>
           )}
-        </form>
+        </div>
       </div>
 
-      {isLoading ? (
+      {isLoading && !result ? (
         <div className="admin-loading-state" style={{ minHeight: '200px' }}>
           <div className="admin-spinner"></div>
           <p>Carregando usuários...</p>
@@ -147,62 +175,40 @@ export function AdminUsers() {
       ) : errorMessage ? (
         <div className="admin-error-state">
           <p>{errorMessage}</p>
-          <button onClick={fetchUsers} style={{ marginTop: '8px', padding: '6px 12px', background: 'var(--color-accent)', border: 'none', color: '#fff', borderRadius: '4px', cursor: 'pointer' }}>
-            Tentar novamente
-          </button>
+          <button className="au-btn au-btn--primary" onClick={fetchUsers}>Tentar novamente</button>
         </div>
       ) : !result || result.data.length === 0 ? (
         <div className="admin-empty-state" style={{ minHeight: '200px' }}>
-          {search ? 'Nenhum usuário corresponde à busca.' : 'Nenhum usuário cadastrado ainda.'}
+          {filtersActive ? 'Nenhum usuário com esses filtros.' : 'Nenhum usuário cadastrado ainda.'}
         </div>
       ) : (
-        <div className="admin-table-responsive" style={{ overflowX: 'auto', backgroundColor: 'var(--color-bg)', borderRadius: '12px', border: '1px solid var(--color-border)', marginBottom: '24px' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+        <div className={`admin-table-responsive au-table-wrap${isLoading ? ' au-table-wrap--loading' : ''}`}>
+          <table className="au-table">
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--color-border)', backgroundColor: 'var(--color-bg-secondary, rgba(0,0,0,0.02))' }}>
-                <th style={{ padding: '12px 16px', fontWeight: 600, color: 'var(--color-text-light)' }}>Usuário</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600, color: 'var(--color-text-light)' }}>Papéis</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600, color: 'var(--color-text-light)' }}>Cadastro</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600, color: 'var(--color-text-light)' }}>Último acesso</th>
-                <th style={{ padding: '12px 16px', fontWeight: 600, color: 'var(--color-text-light)', textAlign: 'right' }}>Ação</th>
+              <tr>
+                <th>Usuário</th>
+                {canSeeWhatsapp && <th>Telefone</th>}
+                {canSeeWhatsapp && <th>WhatsApp</th>}
+                <th>Papel</th>
+                <th>Cadastro</th>
+                <th aria-label="Ações" />
               </tr>
             </thead>
             <tbody>
               {result.data.map(user => (
-                <tr
-                  key={user.id}
-                  style={{ borderBottom: '1px solid var(--color-border)', transition: 'background-color 0.15s' }}
-                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.02)')}
-                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
-                >
-                  <td data-label="Usuário" style={{ padding: '12px 16px' }}>
-                    <div style={{ fontWeight: 500, color: 'var(--color-text)' }}>{user.full_name || 'Sem nome'}</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--color-text-light)' }}>{user.email}</div>
+                <tr key={user.id}>
+                  <td data-label="Usuário" className="au-cell-user">
+                    <div className="au-name" title={user.full_name ?? undefined}>{user.full_name || 'Sem nome'}</div>
+                    <div className="au-email" title={user.email ?? undefined}>{user.email || '—'}</div>
                   </td>
-                  <td data-label="Papéis" style={{ padding: '12px 16px' }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                      {user.role
-                        ? <RoleBadge role={user.role.name} />
-                        : <span style={{ color: 'var(--color-text-light)', fontSize: '0.8rem' }}>—</span>}
-                    </div>
+                  {canSeeWhatsapp && <td data-label="Telefone" className="au-nowrap">{formatPhone(user.phone)}</td>}
+                  {canSeeWhatsapp && <td data-label="WhatsApp" className="au-nowrap"><WhatsappTag user={user} /></td>}
+                  <td data-label="Papel" className="au-nowrap">
+                    {user.role ? <RoleBadge role={user.role.name} /> : <span className="au-muted">—</span>}
                   </td>
-                  <td data-label="Cadastro" style={{ padding: '12px 16px', color: 'var(--color-text-light)', whiteSpace: 'nowrap' }}>
-                    {formatDate(user.created_at)}
-                  </td>
-                  <td data-label="Último acesso" style={{ padding: '12px 16px', color: 'var(--color-text-light)', whiteSpace: 'nowrap' }}>
-                    {formatDate(user.last_sign_in_at)}
-                  </td>
-                  <td data-label="Ação" style={{ padding: '12px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                    <button
-                      onClick={() => setSelectedUser(user)}
-                      style={{
-                        padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--color-border)',
-                        background: 'transparent', color: 'var(--color-text)', fontSize: '0.85rem',
-                        cursor: 'pointer', fontWeight: 500,
-                      }}
-                    >
-                      Ver detalhes
-                    </button>
+                  <td data-label="Cadastro" className="au-nowrap au-muted">{formatDate(user.created_at)}</td>
+                  <td data-label="Ação" className="au-nowrap au-cell-action">
+                    <button className="au-btn" onClick={() => setSelectedUser(user)}>Ver detalhes</button>
                   </td>
                 </tr>
               ))}
@@ -212,25 +218,11 @@ export function AdminUsers() {
       )}
 
       {result && result.totalPages > 1 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
-          <span style={{ fontSize: '0.85rem', color: 'var(--color-text-light)' }}>
-            Página {result.page} de {result.totalPages} ({result.total} usuários)
-          </span>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              disabled={page <= 1}
-              onClick={() => setPage(p => p - 1)}
-              style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--color-border)', background: 'transparent', cursor: page <= 1 ? 'not-allowed' : 'pointer', opacity: page <= 1 ? 0.5 : 1 }}
-            >
-              &larr; Anterior
-            </button>
-            <button
-              disabled={page >= result.totalPages}
-              onClick={() => setPage(p => p + 1)}
-              style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--color-border)', background: 'transparent', cursor: page >= result.totalPages ? 'not-allowed' : 'pointer', opacity: page >= result.totalPages ? 0.5 : 1 }}
-            >
-              Próximo &rarr;
-            </button>
+        <div className="au-pager">
+          <span>Página {result.page} de {result.totalPages}</span>
+          <div>
+            <button className="au-btn" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Anterior</button>
+            <button className="au-btn" disabled={page >= result.totalPages} onClick={() => setPage(p => p + 1)}>Próximo →</button>
           </div>
         </div>
       )}

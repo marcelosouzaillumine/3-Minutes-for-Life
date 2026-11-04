@@ -1,0 +1,50 @@
+/* Lista de usuários do admin: filtros e tabela que não quebram os dados. */
+.au-filters { background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 14px; }
+.au-search { display: flex; gap: 8px; }
+.au-search input { flex: 1; min-width: 0; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--color-border); background: var(--color-bg); color: var(--color-text); font-size: 0.9rem; box-sizing: border-box; }
+.au-group { display: flex; align-items: flex-start; gap: 12px; }
+.au-group__label { flex: 0 0 76px; padding-top: 7px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-light); }
+.au-chips { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.au-chip { width: auto; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--color-border); background: transparent; color: var(--color-text); font-size: 0.85rem; font-weight: 500; white-space: nowrap; cursor: pointer; }
+.au-chip:hover { border-color: var(--color-accent); }
+.au-chip[aria-pressed="true"] { background: var(--color-accent); border-color: var(--color-accent); color: #fff; }
+.au-chip__n { font-size: 0.75rem; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: rgba(0,0,0,0.07); font-variant-numeric: tabular-nums; }
+.au-chip[aria-pressed="true"] .au-chip__n { background: rgba(255,255,255,0.25); }
+.au-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-top: 12px; border-top: 1px solid var(--color-border); }
+.au-bar__count { margin-right: auto; font-size: 0.85rem; color: var(--color-text-light); }
+.au-btn { width: auto; flex-shrink: 0; padding: 7px 14px; border-radius: 8px; border: 1px solid var(--color-border); background: transparent; color: var(--color-text); font-size: 0.85rem; font-weight: 500; white-space: nowrap; cursor: pointer; }
+.au-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.au-btn--primary { background: var(--color-accent); border-color: var(--color-accent); color: #fff; font-weight: 600; }
+
+.au-table-wrap { overflow-x: auto; background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 12px; margin-bottom: 16px; transition: opacity 0.15s; }
+.au-table-wrap--loading { opacity: 0.55; }
+.au-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; }
+.au-table th { padding: 12px 16px; font-weight: 600; font-size: 0.8rem; color: var(--color-text-light); white-space: nowrap; background: rgba(0,0,0,0.02); border-bottom: 1px solid var(--color-border); }
+.au-table td { padding: 12px 16px; border-bottom: 1px solid var(--color-border); vertical-align: middle; }
+.au-table tbody tr:last-child td { border-bottom: 0; }
+.au-table tbody tr:hover { background: rgba(0,0,0,0.02); }
+/* Dados curtos nunca quebram em duas linhas; só nome/e-mail encurtam com reticências. */
+.au-nowrap { white-space: nowrap; }
+.au-cell-user { max-width: 280px; min-width: 200px; }
+.au-name, .au-email { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.au-name { font-weight: 500; color: var(--color-text); }
+.au-email { font-size: 0.8rem; color: var(--color-text-light); }
+.au-muted { color: var(--color-text-light); }
+.au-cell-action { text-align: right; }
+
+.au-tag { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; white-space: nowrap; }
+.au-tag--ok { background: rgba(34,139,84,0.14); color: #1d7a49; }
+.au-tag--warn { background: rgba(214,140,20,0.16); color: #9a6200; }
+.au-tag--off { background: rgba(200,60,60,0.12); color: #b03030; }
+.au-tag--none { background: rgba(0,0,0,0.06); color: var(--color-text-light); }
+
+.au-pager { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; font-size: 0.85rem; color: var(--color-text-light); }
+.au-pager > div { display: flex; gap: 8px; }
+
+@media (max-width: 640px) {
+  .au-group { flex-direction: column; gap: 6px; }
+  .au-group__label { flex: none; padding-top: 0; }
+  .au-search { flex-direction: column; }
+  .au-cell-user { max-width: none; }
+  .au-cell-action { text-align: left; }
+}
