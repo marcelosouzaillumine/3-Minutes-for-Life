@@ -36,6 +36,12 @@ interface DrawData {
  */
 interface Safe { x: number; top: number; bottom: number }
 
+/**
+ * Faixa livre (px) acima da área segura da base, reservada para o adesivo de
+ * link do Instagram. Só o Story usa: o texto termina acima dela e ela fica vazia.
+ */
+const LINK_ZONE: Partial<Record<ShareFormat, number>> = { story: 240 }
+
 const SAFE: Record<ShareFormat, Safe> = {
   story:    { x: 150, top: 320, bottom: 420 },
   feed:     { x: 130, top: 120, bottom: 120 },
@@ -168,7 +174,7 @@ async function drawCentered(
   const safe = SAFE[format]
   const cx   = w / 2
   const IW   = w - safe.x * 2
-  const availH = h - safe.top - safe.bottom
+  const availH = h - safe.top - safe.bottom - (LINK_ZONE[format] ?? 0)
 
   const logo  = await loadLogo(d.logoDataUrl)
   const ratio = logo.height / logo.width
@@ -347,7 +353,7 @@ async function drawOg(ctx: CanvasRenderingContext2D, d: DrawData) {
   const availH = h - safe.top - safe.bottom
 
   const logo  = await loadLogo(d.logoVerticalDataUrl || d.logoDataUrl)
-  const LW    = 330
+  const LW    = 281
   const LH    = Math.round(LW * logo.height / logo.width)
   const GAP   = 46
   const textMaxW = IW - LW - GAP * 2 - 2 - 40
@@ -484,11 +490,11 @@ export async function createShareImage(
   if (format === 'og') {
     await drawOg(ctx, data)
   } else if (format === 'story') {
-    await drawCentered(ctx, format, data, { logo: 640, title: 50, principle: 84 })
+    await drawCentered(ctx, format, data, { logo: 544, title: 50, principle: 84 })
   } else if (format === 'feed') {
-    await drawCentered(ctx, format, data, { logo: 520, title: 42, principle: 66 })
+    await drawCentered(ctx, format, data, { logo: 442, title: 42, principle: 66 })
   } else {
-    await drawCentered(ctx, format, data, { logo: 440, title: 38, principle: 54 })
+    await drawCentered(ctx, format, data, { logo: 374, title: 38, principle: 54 })
   }
 
   return new Promise((resolve, reject) =>

@@ -120,6 +120,20 @@ export function ShareImageMenu({ title = '', principle = '', category = '', scri
     setLoading(format)
     setError(null)
 
+    // Story: o Instagram ignora o texto enviado junto, então o link do devocional
+    // vai para a área de transferência (para colar no adesivo de link). Precisa
+    // começar dentro do toque; falhar aqui nunca impede o compartilhamento.
+    if (format === 'story') {
+      const url = buildOgUrl(devotionalId, i18n.language)
+      try {
+        if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
+          navigator.clipboard.write([new ClipboardItem({ 'text/plain': url.then(u => new Blob([u], { type: 'text/plain' })) })]).catch(() => {})
+        } else {
+          url.then(u => navigator.clipboard?.writeText(u)).catch(() => {})
+        }
+      } catch { /* sem área de transferência */ }
+    }
+
     try {
       const origin = typeof window !== 'undefined' ? window.location.origin : ''
 
