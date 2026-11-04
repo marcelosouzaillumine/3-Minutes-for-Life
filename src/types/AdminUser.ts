@@ -19,6 +19,9 @@ export interface AdminUserItem {
   created_at: string;
   last_sign_in_at: string | null;
   role: TenantRole | null;
+  /** Só vem para quem gerencia consentimentos. */
+  phone?: string | null;
+  whatsapp?: { state: 'granted' | 'revoked' | 'none'; at: string | null };
 }
 
 export interface PaginatedUsersResult {
@@ -27,4 +30,9 @@ export interface PaginatedUsersResult {
   page: number;
   pageSize: number;
   totalPages: number;
+  /** Contagens dos filtros de WhatsApp (todo o tenant). Só para quem gerencia consentimentos. */
+  counts?: Record<WhatsappFilter, number>;
+  canSeeWhatsapp?: boolean;
 }
+
+export type WhatsappFilter = 'all' | 'granted' | 'none' | 'revoked' | 'granted_no_phone';
