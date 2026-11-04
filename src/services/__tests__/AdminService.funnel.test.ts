@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 vi.mock('../../lib/illumine', () => ({ illumineFetch: vi.fn() }));
 
 import { illumineFetch } from '../../lib/illumine';
-import { AdminService, dateRangeParams } from '../AdminService';
+import { AdminService, dateRangeParams, periodRanges } from '../AdminService';
 
 const mockFetch = vi.mocked(illumineFetch);
 
@@ -16,6 +16,7 @@ const respondWith = (funnel: unknown) =>
     if (path.startsWith('/analytics/retention/day-n')) return json([]);
     if (path.startsWith('/analytics/devotionals/funnel')) return json(funnel);
     if (path.startsWith('/analytics/devotionals/performance')) return json({ topRead: [] });
+    if (path.startsWith('/pastoral/metrics')) return json({ testimonials: { pending: 4 }, prayer_requests: { pending: 2 } });
     throw new Error(`endpoint inesperado: ${path}`);
   });
 
@@ -31,13 +32,7 @@ describe('AdminService — funil do dashboard', () => {
 
     const metrics = await AdminService.getDashboardMetrics('2026-09-01', '2026-09-21');
 
-    expect(metrics!.funnel).toEqual({
-      accessed: 60,
-      shared: 7,
-      testified: 0,
-      responded: 0,
-      returned: 0,
-    });
+    expect(metrics!.funnel).toEqual({ accessed: 60, shared: 7 });
     expect(metrics!.funnel).not.toHaveProperty('read');
   });
 
@@ -63,6 +58,89 @@ describe('AdminService — funil do dashboard', () => {
       expect(url).not.toContain('startDate');
       expect(url).not.toContain('endDate');
     }
+  });
+});
+
+describe('AdminService — cartões acompanham o período', () => {
+  beforeEach(() => {
+    mockFetch.mockReset();
+  });
+
+  it('usa o funil do período (não o /overview de janela fixa) e compara com o período anterior', async () => {
+    mockFetch.mockImplementation(async (path: string) => {
+      if (path.startsWith('/analytics/overview')) return json({ retention: { totalUsers: 50, dau: 999 }, funnel: { opened: 999 }, shares: { current: 999, previous: 999 } });
+      if (path.startsWith('/analytics/retention/day-n')) return json([]);
+      if (path.startsWith('/analytics/devotionals/funnel')) {
+        // período atual = 15..21; anterior = 8..14 (distinguidos pelo `from`)
+        const from = new Date(new URLSearchParams(path.split('?')[1]).get('from')!).getDate();
+        return json(from === 15
+          ? { opened: 30, shared: 5, accessedUsers: 12, sharedUsers: 3 }
+          : { opened: 20, shared: 8, accessedUsers: 10, sharedUsers: 4 });
+      }
+      if (path.startsWith('/analytics/devotionals/performance')) return json({ topRead: [] });
+      if (path.startsWith('/pastoral/metrics')) return json({ testimonials: { pending: 4 }, prayer_requests: { pending: 2 } });
+      throw new Error(`endpoint inesperado: ${path}`);
+    });
+
+    const m = await AdminService.getDashboardMetrics('2026-09-15', '2026-09-21', { startDate: '2026-09-08', endDate: '2026-09-14' });
+
+    expect(m!.intelligence).toEqual({
+      active_users: { current: 12, previous: 10 },
+      reads: { current: 30, previous: 20 },
+      shares: { current: 5, previous: 8 },
+    });
+    expect(m!.total_users).toBe(50);
+    expect(m!.community).toEqual({ pending_testimonials: 4, pending_prayers: 2 });
+  });
+
+  it('sem permissão no pastoral, a pendência é null (a tela mostra "—", não 0)', async () => {
+    mockFetch.mockImplementation(async (path: string) => {
+      if (path.startsWith('/pastoral/metrics')) return { ok: false, status: 403, json: async () => ({}) } as Response;
+      if (path.startsWith('/analytics/overview')) return json({ retention: { totalUsers: 1 } });
+      if (path.startsWith('/analytics/retention/day-n')) return json([]);
+      if (path.startsWith('/analytics/devotionals/funnel')) return json({ accessedUsers: 1, sharedUsers: 0 });
+      if (path.startsWith('/analytics/devotionals/performance')) return json({ topRead: [] });
+      throw new Error(`endpoint inesperado: ${path}`);
+    });
+
+    const m = await AdminService.getDashboardMetrics('2026-09-21', '2026-09-21');
+
+    expect(m!.community).toEqual({ pending_testimonials: null, pending_prayers: null });
+    expect(m!.intelligence.reads.previous).toBe(0);
+  });
+
+  it('retenção mantém a taxa em % por dia N, sem recalcular', async () => {
+    respondWith({ accessedUsers: 1, sharedUsers: 0 });
+    mockFetch.mockImplementation(async (path: string) => {
+      if (path.startsWith('/analytics/retention/day-n')) return json([{ day: 1, users: 200, retained: 80, rate: 40 }, { day: 7, users: 150, retained: 30, rate: 20 }]);
+      if (path.startsWith('/analytics/overview')) return json({ retention: { totalUsers: 1 } });
+      if (path.startsWith('/analytics/devotionals/funnel')) return json({});
+      if (path.startsWith('/analytics/devotionals/performance')) return json({ topRead: [] });
+      return { ok: false, status: 404, json: async () => ({}) } as Response;
+    });
+
+    const m = await AdminService.getDashboardMetrics('2026-09-21', '2026-09-21');
+
+    expect(m!.retention).toEqual([
+      { day: 1, users: 200, retained: 80, rate: 40 },
+      { day: 7, users: 150, retained: 30, rate: 20 },
+    ]);
+  });
+});
+
+describe('periodRanges', () => {
+  const now = new Date(2026, 10, 4, 15, 30); // 4/nov/2026, horário local
+
+  it('"Hoje" é só o dia de hoje e o anterior é ontem', () => {
+    expect(periodRanges('today', now)).toEqual({ start: '2026-11-04', end: '2026-11-04', prevStart: '2026-11-03', prevEnd: '2026-11-03' });
+  });
+
+  it('"7 dias" são 7 dias inclusive hoje, e o anterior são os 7 dias antes', () => {
+    expect(periodRanges('7d', now)).toEqual({ start: '2026-10-29', end: '2026-11-04', prevStart: '2026-10-22', prevEnd: '2026-10-28' });
+  });
+
+  it('"30 dias" são 30 dias inclusive hoje, e o anterior são os 30 antes', () => {
+    expect(periodRanges('30d', now)).toEqual({ start: '2026-10-06', end: '2026-11-04', prevStart: '2026-09-06', prevEnd: '2026-10-05' });
   });
 });
 
