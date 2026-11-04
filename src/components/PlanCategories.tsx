@@ -1,3 +1,4 @@
+import { KidsBadge } from './KidsBadge';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { illumineAuth } from '../lib/illumine';
@@ -64,6 +65,7 @@ export function PlanCategories({ onOpen }: Props) {
               >
                 <span className="plans__day-n">{d.done ? '✓' : d.day}</span>
                 <span>{d.title}</span>
+                <KidsBadge devotionalId={d.devotionalId} />
               </button>
             </li>
           ))}
