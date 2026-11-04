@@ -347,6 +347,8 @@ export const AdminContentService = {
     support_link_url?: string | null
     status: 'draft' | 'published'
     source_content_hash?: string | null
+    /** Linha a gravar; por padrão a manual. A pública serve qualquer linha publicada, então despublicar exige gravar também a da IA. */
+    translation_source?: 'manual' | 'ai'
   }): Promise<any> {
     if (params.status === 'published') {
       if (!params.title?.trim()) throw new Error('O título é obrigatório para publicar a tradução.')
@@ -356,7 +358,7 @@ export const AdminContentService = {
 
     const l1Body = {
       language: params.language,
-      translationSource: 'manual',
+      translationSource: params.translation_source ?? 'manual',
       title: params.title?.trim() || '',
       principleStatement: params.principle_statement?.trim() || undefined,
       scriptureReference: params.scripture_reference?.trim() || undefined,

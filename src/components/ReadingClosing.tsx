@@ -24,7 +24,8 @@ export function ReadingClosing({ summary }: { summary: JourneySummary | null }) 
   const tt = (k: string, d: string, o?: Record<string, unknown>) => t(`closing.${k}`, { defaultValue: d, ...o }) as string;
   const [family, setFamily] = useState<Family | null>(null);
   useEffect(() => { FamilyService.get().then(setFamily).catch(() => {}); }, []);
-  const readers = family ? family.members.filter((m) => m.readToday).length : 0;
+  const readers = family ? family.members.filter((m) => m.readToday).length + family.children.filter((c) => c.readToday).length : 0;
+  const totalPeople = family ? family.members.length + family.children.length : 0;
 
   const remind = () => {
     const ics = reminderIcs(tt('eventTitle', 'Ler o devocional de hoje'), tt('eventText', 'Três minutos para parar, refletir e viver melhor.'), window.location.origin);
@@ -40,8 +41,8 @@ export function ReadingClosing({ summary }: { summary: JourneySummary | null }) 
       <span className="reading-closing__seal" aria-hidden="true">✓</span>
       <h3 className="reading-closing__title">{tt('title', 'Leitura registrada')}</h3>
       {summary && summary.currentStreak >= 2 && <p className="reading-closing__line">{t('journey.streak', { count: summary.currentStreak })}</p>}
-      {family && family.members.length > 1 && (
-        <p className="reading-closing__line">{tt('group', '{{name}}: {{count}} de {{total}} já leram hoje', { name: family.name, count: readers, total: family.members.length })}</p>
+      {family && totalPeople > 1 && (
+        <p className="reading-closing__line">{tt('group', '{{name}}: {{count}} de {{total}} já leram hoje', { name: family.name, count: readers, total: totalPeople })}</p>
       )}
       <div className="reading-closing__tomorrow">
         <p className="fam-eyebrow">{tt('tomorrow', 'Amanhã')}</p>

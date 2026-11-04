@@ -10,10 +10,10 @@
     "buttonLoading": "Préparation du paiement...",
     "footer": "Environnement sécurisé. Vous pourrez annuler votre contribution mensuelle à tout moment.",
     "options": {
-      "apoio": "Soutien (R$ 9,90/mois ou R$ 59,90/an)",
+      "apoio": "Soutien (R$ 9,90/mois ou R$ 79,90/an)",
       "livre": "Montant libre",
       "mensal": "Mensuel (R$ 9,90)",
-      "anual": "Annuel (R$ 59,90)",
+      "anual": "Annuel (R$ 79,90)",
       "unicaLivre": "Unique",
       "mensalLivre": "Mensuel"
     },

@@ -24,7 +24,7 @@ interface CardProps {
 const GOLD  = '#c8994f'
 const NAVY  = '#1b2539'
 const CREAM = '#f0e8dc'
-const FONT  = "'Playfair Display', Georgia, serif"
+const FONT  = "Inter, system-ui, -apple-system, 'Segoe UI', sans-serif"
 
 const DEFAULT_LOGO          = '/branding/logo-on-dark.png'
 const DEFAULT_LOGO_VERTICAL = '/branding/logo-on-dark-vertical.png'
@@ -77,9 +77,9 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, l
           <span style={{ fontSize: px(14), color: GOLD, letterSpacing: '6px', fontWeight: 700, marginBottom: px(20) }}>
             DEVOCIONAL DO DIA
           </span>
-          <span style={{ fontSize: px(68), color: CREAM, fontWeight: 800, lineHeight: 1.05, marginBottom: px(24) }}>{title}</span>
+          <span style={{ fontSize: px(68), color: CREAM, fontWeight: 700, lineHeight: 1.05, marginBottom: px(24) }}>{title}</span>
           <div style={{ width: px(48), height: px(2), background: GOLD, borderRadius: px(1), marginBottom: px(24) }} />
-          <span style={{ fontSize: px(36), color: CREAM, fontStyle: 'italic', fontWeight: 700, lineHeight: 1.4, flex: 1 }}>{principle}</span>
+          <span style={{ fontSize: px(36), color: CREAM, fontWeight: 600, lineHeight: 1.4, flex: 1 }}>{principle}</span>
           {scripture ? <span style={{ fontSize: px(19), color: GOLD, letterSpacing: '4px', opacity: 0.75, marginTop: px(24) }}>{scripture}</span> : null}
         </div>
       </div>
@@ -99,11 +99,11 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, l
           DEVOCIONAL DO DIA
         </span>
 
-        <span style={{ fontSize: px(84), color: CREAM, fontWeight: 800, lineHeight: 1.06, marginBottom: px(44) }}>{title}</span>
+        <span style={{ fontSize: px(84), color: CREAM, fontWeight: 700, lineHeight: 1.06, marginBottom: px(44) }}>{title}</span>
 
         <div style={{ width: px(80), height: px(3), background: GOLD, borderRadius: px(2), marginBottom: px(44) }} />
 
-        <span style={{ fontSize: px(44), color: GOLD, fontStyle: 'italic', fontWeight: 700, lineHeight: 1.45, flex: 1, marginBottom: px(36) }}>{principle}</span>
+        <span style={{ fontSize: px(44), color: GOLD, fontWeight: 600, lineHeight: 1.45, flex: 1, marginBottom: px(36) }}>{principle}</span>
 
         <span style={{ fontSize: px(26), color: CREAM, letterSpacing: '8px', opacity: 0.75, marginBottom: px(24) }}>{scripture}</span>
 
@@ -127,11 +127,11 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, l
           DEVOCIONAL DO DIA
         </span>
 
-        <span style={{ fontSize: px(86), color: CREAM, fontWeight: 800, lineHeight: 1.06, marginBottom: px(56) }}>{title}</span>
+        <span style={{ fontSize: px(86), color: CREAM, fontWeight: 700, lineHeight: 1.06, marginBottom: px(56) }}>{title}</span>
 
         <div style={{ width: px(80), height: px(3), background: GOLD, borderRadius: px(2), marginBottom: px(56) }} />
 
-        <span style={{ fontSize: px(46), color: GOLD, fontStyle: 'italic', fontWeight: 700, lineHeight: 1.45, flex: 1, marginBottom: px(48) }}>{principle}</span>
+        <span style={{ fontSize: px(46), color: GOLD, fontWeight: 600, lineHeight: 1.45, flex: 1, marginBottom: px(48) }}>{principle}</span>
 
         <span style={{ fontSize: px(26), color: CREAM, letterSpacing: '8px', opacity: 0.75, marginBottom: px(28) }}>{scripture}</span>
 
@@ -155,11 +155,11 @@ export function ShareImageCard({ format, title, principle, scripture, logoSrc, l
         DEVOCIONAL DO DIA
       </span>
 
-      <span style={{ fontSize: px(108), color: CREAM, fontWeight: 800, lineHeight: 1.06, marginBottom: px(56) }}>{title}</span>
+      <span style={{ fontSize: px(108), color: CREAM, fontWeight: 700, lineHeight: 1.06, marginBottom: px(56) }}>{title}</span>
 
       <div style={{ width: px(80), height: px(3), background: GOLD, borderRadius: px(2), marginBottom: px(56) }} />
 
-      <span style={{ fontSize: px(56), color: GOLD, fontStyle: 'italic', fontWeight: 700, lineHeight: 1.45, flex: 1, marginBottom: px(52) }}>{principle}</span>
+      <span style={{ fontSize: px(56), color: GOLD, fontWeight: 600, lineHeight: 1.45, flex: 1, marginBottom: px(52) }}>{principle}</span>
 
       {scripture ? (
         <span style={{ fontSize: px(28), color: CREAM, letterSpacing: '6px', opacity: 0.75, marginBottom: px(32) }}>{scripture}</span>

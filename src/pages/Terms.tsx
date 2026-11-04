@@ -20,7 +20,7 @@ export function Terms() {
   // um foro específico.
   const forumComarca = branding?.addressCity
     ? `${branding.addressCity}${branding.addressState ? `, ${branding.addressState}` : ''}`
-    : null;
+    : 'Curitiba, Paraná';
 
   return (
     <div className="legal-page">
@@ -41,7 +41,7 @@ export function Terms() {
 
       <main className="legal-content">
         <h1>Termos de Uso</h1>
-        <p className="legal-updated">Última atualização: 25 de agosto de 2026</p>
+        <p className="legal-updated">Última atualização: 3 de novembro de 2026</p>
 
         <p className="legal-lead">
           Ao usar o 3 Minutes for Life, você concorda com os termos abaixo.
@@ -64,19 +64,47 @@ export function Terms() {
           telefone 188, 24 horas por dia.
         </p>
 
+        <h2>Quem oferece o serviço</h2>
+        <p>
+          O 3 Minutes for Life é oferecido pela <strong>Illumine Ltda.</strong>,
+          CNPJ 02.758.586/0001-83, com sede na Travessa João Bom, nº 154, Centro
+          Cívico, Curitiba/PR, CEP 80.540-300.
+        </p>
+
         <h2>Sua conta</h2>
         <ul>
           <li>Você é responsável por manter sua senha em segurança.</li>
           <li>As informações que você fornece devem ser verdadeiras.</li>
-          <li>A conta é pessoal e não deve ser compartilhada.</li>
-          <li>Você pode encerrar sua conta quando quiser, escrevendo para o nosso contato.</li>
+          <li>A conta é pessoal e não deve ser compartilhada. Para ler junto com outras pessoas, use os grupos, em que cada participante usa a sua própria conta.</li>
+          <li>Você pode baixar seus dados e excluir sua conta quando quiser, em Perfil › Seus dados (ou escrevendo para o nosso contato).</li>
         </ul>
+
+        <h2>Grupos e leitura com crianças</h2>
+        <p>
+          Você pode criar um grupo e convidar pessoas por link ou código, ou
+          entrar em um grupo para o qual foi convidado. Quem cria o grupo é o
+          seu administrador e pode removê-lo ou retirar participantes.
+        </p>
+        <ul>
+          <li>Os participantes de um grupo veem o andamento da leitura (quem leu o devocional do dia e a sequência do grupo) e o mural de oração daquele grupo. Os dados pessoais da sua conta não são compartilhados.</li>
+          <li>Compartilhe o link ou o código apenas com quem você quer no grupo: quem o tiver poderá entrar no grupo.</li>
+          <li>No mural de oração, trate os demais com respeito. As regras de conteúdo desta página valem também ali, e podemos remover mensagens e grupos que as violem.</li>
+          <li>Para ler com crianças, o adulto responsável cria perfis apenas com nome ou apelido e faixa de idade, e é responsável por conduzir a leitura e por esse cadastro. Não peça nem informe outros dados das crianças.</li>
+        </ul>
+
+        <h2>Mensagens por WhatsApp</h2>
+        <p>
+          Só enviaremos mensagens por WhatsApp se você autorizar expressamente,
+          informando o seu número. Você pode retirar a autorização quando
+          quiser, e o uso do conteúdo principal não depende dela.
+        </p>
 
         <h2>O que você envia</h2>
         <p>
           Pedidos de oração, testemunhos e reflexões pessoais continuam sendo
           seus. Ao enviar um pedido de oração ou testemunho, você autoriza que a
-          equipe responsável leia e responda.
+          equipe responsável leia e responda. O que você escreve no mural de
+          oração de um grupo fica visível para os participantes daquele grupo.
         </p>
         <p>
           Testemunhos podem ser publicados de forma anônima ou identificada,
@@ -141,7 +169,7 @@ export function Terms() {
         <h2>Lei aplicável</h2>
         <p>
           Estes termos são regidos pela lei brasileira.
-          {forumComarca && <> Fica eleito o foro de {forumComarca} para dirimir questões deles decorrentes.</>}
+          {forumComarca && <> Fica eleito o foro da comarca de {forumComarca} para dirimir questões deles decorrentes, ressalvado o foro do domicílio do consumidor quando a lei assim determinar.</>}
         </p>
 
         <p className="legal-contact">

@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { illumineAuth } from '../lib/illumine';
-import { FamilyService, type Band, type Family } from '../services/FamilyService';
-import { openRitual } from './Family';
+import { FamilyService, NO_GROUP, type Band, type Family } from '../services/FamilyService';
 import { ReadStartSheet } from '../components/ReadStartSheet';
 import '../styles/family.css';
 
@@ -46,12 +45,11 @@ export function Kids() {
         <p className="fam-eyebrow">{tt('eyebrow', 'Ler com as crianças')}</p>
         <h1 className="fam-hero__title">{tt('title', 'Uma leitura feita para a idade delas')}</h1>
         <p className="fam-hero__text">{tt('text', 'Cada faixa de idade tem a sua versão: 0 a 3, 4 a 6, 7 a 10 e 11 a 13 anos. Você lê em voz alta e conduz a conversa com o guia do adulto.')}</p>
-        {!family && <button type="button" className="fam-btn fam-btn--primary" onClick={() => openRitual('daily', 'kids')}>{tt('start', 'Começar a leitura de hoje')}</button>}
       </div>
 
-      {family && (
+      {(
         <section className="fam-section">
-          <ReadStartSheet key={family.id} audience="kids" family={family} plan={false} inline onClose={() => {}} onChanged={setFamily} />
+          <ReadStartSheet key={family?.id ?? 'sem-grupo'} audience="kids" family={family ?? NO_GROUP} plan={false} inline onClose={() => {}} onChanged={setFamily} />
         </section>
       )}
 
@@ -69,6 +67,7 @@ export function Kids() {
             </div>
           </details>
         )}
+        {family && !isOwner && children.length > 0 && <p className="fam-note">{tt('ownerOnly', 'Estas crianças foram cadastradas por quem criou o grupo, que é quem pode removê-las (aba Grupo › ⋯ › Gerenciar grupo).')}</p>}
         {!family && <p className="fam-note">{tt('setupNote', 'Ao começar, você escolhe a idade de cada criança.')}</p>}
         {error && <p className="fam-error">{error}</p>}
         <p className="fam-note">{tt('privacy', 'Crianças não têm conta: guardamos só o apelido e a faixa de idade, nunca sobrenome, foto ou e-mail.')}</p>

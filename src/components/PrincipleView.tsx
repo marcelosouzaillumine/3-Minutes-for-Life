@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { ReminderInvite } from './ReminderInvite';
 import { FamilyTodayCard } from './FamilyTodayCard';
 import { GroupWordCard } from './GroupWordCard';
@@ -32,12 +32,16 @@ interface PrincipleViewProps {
     text?: string;
     subtext?: string;
     note?: string;
+    /** Caminhos em grupo e com crianças, mostrados logo depois da oração para quem ainda não tem conta. */
+    paths?: { title: string; group: { title: string; text: string }; kids: { title: string; text: string } };
   };
   onExplore?: () => void;
   /** true apenas para o devocional do dia (Home) — define o rótulo da imagem de compartilhamento. */
   isDaily?: boolean;
   /** Devocional aberto por quem está logado (Explorar, planos, salvos): começa pela capa com ler sozinho, em grupo ou com as crianças. */
   cover?: boolean;
+  /** Faixa logo abaixo da logo, antes do conteúdo (ex.: convite na página pública). */
+  belowHeader?: ReactNode;
 }
 
 export function PrincipleView({
@@ -48,6 +52,7 @@ export function PrincipleView({
   onExplore,
   isDaily = false,
   cover = false,
+  belowHeader,
 }: PrincipleViewProps) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
@@ -311,6 +316,8 @@ export function PrincipleView({
 
       <div className="devotional-content">
 
+        {belowHeader}
+
         {isDaily && user && <GroupCelebrationBanner />}
 
         {hasCover && !reading ? (
@@ -318,7 +325,7 @@ export function PrincipleView({
             <StreakLine summary={journey} />
             {devotional.principle_statement && <p className="hoje-capa__quote">{devotional.principle_statement}</p>}
             {devotional.scripture_reference && <cite className="principle-scripture-reference hoje-capa__ref">{devotional.scripture_reference}</cite>}
-            <FamilyTodayCard devotionalId={devotional.id} daily={isDaily} onReadSolo={() => { setReading(true); window.scrollTo({ top: 0 }); }} />
+            <FamilyTodayCard devotionalId={devotional.id} daily={isDaily} completed={completed} onReadSolo={() => { setReading(true); window.scrollTo({ top: 0 }); }} />
           </section>
         ) : (<>
 
@@ -642,6 +649,26 @@ export function PrincipleView({
 
             </div>
 
+          </section>
+        )}
+
+        {customAction?.variant === 'shared' && customAction.paths && (
+          <section className="shared-paths" aria-label={customAction.paths.title}>
+            <p className="shared-paths__title">{customAction.paths.title}</p>
+            <div className="shared-paths__item">
+              <span className="shared-paths__icon" aria-hidden="true">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><circle cx="9" cy="8" r="3" /><circle cx="17" cy="9" r="2.4" /><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5M15 15c3 0 5.5 1.6 5.5 4" /></svg>
+              </span>
+              <span><b>{customAction.paths.group.title}</b>{customAction.paths.group.text}</span>
+            </div>
+            <div className="shared-paths__item">
+              <span className="shared-paths__icon" aria-hidden="true">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><circle cx="12" cy="12" r="9" /><path d="M8.5 14c1 1.5 2.2 2.2 3.5 2.2s2.5-.7 3.5-2.2" /><circle cx="9" cy="10" r=".6" fill="currentColor" /><circle cx="15" cy="10" r=".6" fill="currentColor" /></svg>
+              </span>
+              <span><b>{customAction.paths.kids.title}</b>{customAction.paths.kids.text}</span>
+            </div>
+            <button type="button" onClick={customAction.onClick} className="shared-cta-button">{customAction.label}</button>
+            {customAction.note && <p className="shared-cta-note">{customAction.note}</p>}
           </section>
         )}
 

@@ -18,8 +18,8 @@ type ContributionPlan = {
 // O apoio único tem valor livre (digitado), com o mínimo aceito pelo Asaas.
 const MIN_ONE_TIME_CENTS = 500;
 const PLAN_MAP: Record<string, ContributionPlan> = {
-  apoio_mensal: { key: 'apoio_mensal', amountCents: 1990, frequency: 'monthly' },
-  apoio_anual: { key: 'apoio_anual', amountCents: 9900, frequency: 'yearly' },
+  apoio_mensal: { key: 'apoio_mensal', amountCents: 990, frequency: 'monthly' },
+  apoio_anual: { key: 'apoio_anual', amountCents: 7990, frequency: 'yearly' },
 };
 
 export function Contribute() {
@@ -171,8 +171,8 @@ export function Contribute() {
             <div className="editorial-tier-price">
               <span className="editorial-price-main">
                 {isPortuguese
-                  ? t('mission:editorial.monthlyPriceMain', 'R$ 19,90')
-                  : (formatUsdFromBrl(19.90, usdRate) ?? '…')}
+                  ? t('mission:editorial.monthlyPriceMain', 'R$ 9,90')
+                  : (formatUsdFromBrl(9.90, usdRate) ?? '…')}
                 <small>{t('mission:editorial.monthlyPriceUnit', '/mês')}</small>
               </span>
               <span className="editorial-price-sub">
@@ -209,8 +209,8 @@ export function Contribute() {
             <div className="editorial-tier-price">
               <span className="editorial-price-main">
                 {isPortuguese
-                  ? t('mission:editorial.yearlyPriceMain', 'R$ 99,00')
-                  : (formatUsdFromBrl(99.00, usdRate) ?? '…')}
+                  ? t('mission:editorial.yearlyPriceMain', 'R$ 79,90')
+                  : (formatUsdFromBrl(79.90, usdRate) ?? '…')}
                 <small>{t('mission:editorial.yearlyPriceUnit', '/ano')}</small>
               </span>
               <span className="editorial-price-sub">

@@ -88,6 +88,12 @@ describe('FamilyRitual', () => {
       Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(input, 'Bento');
       input.dispatchEvent(new Event('input', { bubbles: true }));
     });
+    const sel = host.querySelector('form select') as HTMLSelectElement;
+    expect(sel.value).toBe('');
+    await act(async () => {
+      Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value')!.set!.call(sel, '7-10');
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+    });
     await act(async () => { host.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })); });
     await flush();
     expect(mocks.addChild).toHaveBeenCalledWith('Bento', '7-10');
@@ -331,5 +337,23 @@ describe('FamilyRitual', () => {
     await click('Continuar');
     expect(host.textContent).toContain('2 de ');
     expect(host.textContent).not.toContain('Fp 4:6');
+  });
+
+  it('escolheu crianças e o devocional não tem versão infantil: avisa "Indisponível hoje" em vez de abrir o texto dos adultos', async () => {
+    mocks.get.mockResolvedValue({ ...family, children: [] });
+    mocks.getKids.mockResolvedValue([]);
+    await act(async () => { root.render(<FamilyRitual source="daily" audience="kids" onClose={() => {}} />); });
+    await flush(); await flush();
+    expect(host.textContent).toContain('Indisponível hoje');
+    expect(host.textContent).toContain('Ler a versão dos adultos');
+    expect(host.textContent).not.toContain('A paz que guarda');
+  });
+
+  it('lê uma faixa sem criança cadastrada e não registra progresso de ninguém', async () => {
+    mocks.get.mockResolvedValue({ ...family, children: [] });
+    await act(async () => { root.render(<FamilyRitual source="daily" audience="kids" kidIds={[]} guestBand="4-6" intro={false} onClose={() => {}} />); });
+    await flush(); await flush();
+    expect(host.textContent).not.toContain('Indisponível hoje');
+    expect(host.textContent).toContain('Deus cuida.');
   });
 });

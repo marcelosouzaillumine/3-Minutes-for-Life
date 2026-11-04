@@ -19,6 +19,11 @@ export function SharedDevotional() {
   // /hoje: o devocional do dia aberto a quem ainda não entrou (sem "alguém compartilhou").
   const isToday = location.pathname === '/hoje';
 
+  // Quem já tem conta vê o devocional do dia dentro do app, onde estão ler em grupo e com as crianças.
+  useEffect(() => {
+    if (isToday && user) navigate('/app', { replace: true });
+  }, [isToday, user, navigate]);
+
   const [devotional, setDevotional] =
     useState<Devotional | null>(null);
 
@@ -291,6 +296,15 @@ export function SharedDevotional() {
             <PrincipleView
               devotional={devotional}
               showLogo={true}
+              // Convite logo abaixo da logo para quem ainda não tem conta: grupo e crianças só existem dentro do app.
+              belowHeader={!user ? (
+                <div className="shared-invite">
+                  <span className="shared-invite__text">{t('shared.inviteText', 'Ler em grupo ou com as crianças?')}</span>
+                  <button type="button" className="shared-invite__btn" onClick={handleCtaClick}>
+                    {t('shared.inviteLink', 'Entrar ou criar conta')}
+                  </button>
+                </div>
+              ) : undefined}
               customAction={
                 !user
                   ? {
@@ -315,6 +329,12 @@ export function SharedDevotional() {
                       'shared.ctaNote',
                       'Acesso gratuito.'
                     ),
+
+                    paths: {
+                      title: t('shared.pathsTitle', 'Quer ler assim todos os dias?'),
+                      group: { title: t('shared.pathGroupTitle', 'Em grupo'), text: t('shared.pathGroupText', 'Veja quem já leu e deixe uma palavra.') },
+                      kids: { title: t('shared.pathKidsTitle', 'Com as crianças'), text: t('shared.pathKidsText', 'A mesma passagem, na idade delas.') },
+                    },
 
                     onClick:
                       handleCtaClick,

@@ -1,3 +1,4 @@
+import { LegalUpdateGate } from './components/LegalUpdateGate';
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom';
 import { Home } from './pages/Home';
@@ -66,11 +67,11 @@ function AppShell() {
   // Tocar na aba já ativa remonta a tela dela (volta ao início, ex.: sai do devocional aberto na Biblioteca)
   const [tabResetKey, setTabResetKey] = useState(0);
   // Ler juntos abre por cima de qualquer aba (cartão da Home, aba Família).
-  const [ritual, setRitual] = useState<{ source: 'daily' | 'plan'; audience?: 'adults' | 'kids'; solo?: boolean; intro?: boolean; kidIds?: string[]; adultIdx?: number[]; band?: Band; devotionalId?: string } | null>(null);
+  const [ritual, setRitual] = useState<{ source: 'daily' | 'plan'; audience?: 'adults' | 'kids'; solo?: boolean; intro?: boolean; kidIds?: string[]; adultIdx?: number[]; band?: Band; guestBand?: Band; devotionalId?: string } | null>(null);
   useEffect(() => {
     const onRitual = (e: Event) => {
-      const d = (e as CustomEvent).detail as 'daily' | 'plan' | { source?: 'daily' | 'plan'; audience?: 'adults' | 'kids'; solo?: boolean; intro?: boolean; kidIds?: string[]; adultIdx?: number[]; band?: Band; devotionalId?: string } | undefined;
-      setRitual(typeof d === 'object' && d ? { source: d.source ?? 'daily', audience: d.audience, solo: d.solo, intro: d.intro, kidIds: d.kidIds, adultIdx: d.adultIdx, band: d.band, devotionalId: d.devotionalId } : { source: d ?? 'daily' });
+      const d = (e as CustomEvent).detail as 'daily' | 'plan' | { source?: 'daily' | 'plan'; audience?: 'adults' | 'kids'; solo?: boolean; intro?: boolean; kidIds?: string[]; adultIdx?: number[]; band?: Band; guestBand?: Band; devotionalId?: string } | undefined;
+      setRitual(typeof d === 'object' && d ? { source: d.source ?? 'daily', audience: d.audience, solo: d.solo, intro: d.intro, kidIds: d.kidIds, adultIdx: d.adultIdx, band: d.band, guestBand: d.guestBand, devotionalId: d.devotionalId } : { source: d ?? 'daily' });
     };
     const onTab = (e: Event) => setCurrentTab(((e as CustomEvent).detail as Tab) ?? 'home');
     window.addEventListener('family:ritual', onRitual);
@@ -96,9 +97,9 @@ function AppShell() {
 
   return (
     <div className="app-container">
-      <main className="content-area" key={tabResetKey}>{renderContent()}</main>
+      <main className="content-area content-area--app" key={tabResetKey}>{renderContent()}</main>
       <BottomNav currentTab={currentTab} setTab={handleTabChange} />
-      {ritual && <FamilyRitual source={ritual.source} audience={ritual.audience} solo={ritual.solo} intro={ritual.intro} kidIds={ritual.kidIds} adultIdx={ritual.adultIdx} devotionalId={ritual.devotionalId} band={ritual.band} onClose={() => setRitual(null)} />}
+      {ritual && <FamilyRitual source={ritual.source} audience={ritual.audience} solo={ritual.solo} intro={ritual.intro} kidIds={ritual.kidIds} adultIdx={ritual.adultIdx} devotionalId={ritual.devotionalId} band={ritual.band} guestBand={ritual.guestBand} onClose={() => setRitual(null)} />}
     </div>
   );
 }
@@ -143,7 +144,7 @@ function AppRoutes() {
         {/* Conector do Claude (MCP editorial): o admin autoriza aqui; a própria tela cuida do login. */}
         <Route path="/autorizar" element={<Autorizar />} />
 
-        <Route path="/app" element={<RequireAuth><AppShell /></RequireAuth>} />
+        <Route path="/app" element={<RequireAuth><LegalUpdateGate><AppShell /></LegalUpdateGate></RequireAuth>} />
 
         <Route
           path="/admin/*"

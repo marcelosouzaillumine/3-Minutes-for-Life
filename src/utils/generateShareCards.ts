@@ -8,16 +8,16 @@ interface CardContent {
 const BG = '#1e2535';
 const TITLE_COLOR = '#ffffff';
 const SUBTITLE_COLOR = '#c8924a';
-const FONT = "'Fraunces', 'Georgia', serif";
+const FONT = "'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif";
 
 // Cache the embedded CSS so we only fetch once per session
 let cachedFontCss: string | null = null;
 
-async function fetchFrauncesCss(): Promise<string> {
+async function fetchInterCss(): Promise<string> {
   if (cachedFontCss !== null) return cachedFontCss;
 
   const cssUrl =
-    'https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,600&display=swap';
+    'https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,600..700&display=swap';
 
   let css: string;
   try {
@@ -135,8 +135,7 @@ function buildCardEl(
     Object.assign(subEl.style, {
       fontFamily: FONT,
       fontSize: subSize,
-      fontStyle: 'italic',
-      fontWeight: '600',
+      fontWeight: '500',
       color: SUBTITLE_COLOR,
       lineHeight: '1.55',
     });
@@ -163,9 +162,9 @@ export async function captureCardAsBlob(
   const W = 540;
   const H = format === 'story' ? 960 : 540;
 
-  // Fetch and embed Fraunces font as base64 so html-to-image
+  // Fetch and embed Inter font as base64 so html-to-image
   // can inline it without cross-origin issues
-  const fontEmbedCSS = await fetchFrauncesCss();
+  const fontEmbedCSS = await fetchInterCss();
 
   const el = buildCardEl(content, format, logoSrc);
   document.body.appendChild(el);

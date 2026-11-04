@@ -1,3 +1,4 @@
+import { KidsBadge } from './KidsBadge';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { illumineAuth } from '../lib/illumine';
@@ -64,6 +65,7 @@ export function PlanCategories({ onOpen }: Props) {
               >
                 <span className="plans__day-n">{d.done ? '✓' : d.day}</span>
                 <span>{d.title}</span>
+                <KidsBadge devotionalId={d.devotionalId} />
               </button>
             </li>
           ))}
@@ -77,7 +79,6 @@ export function PlanCategories({ onOpen }: Props) {
 
   return (
     <section className="plans">
-      <h3 className="plans__heading">{tt('heading', 'Planos')}</h3>
       {groups.length > 1 && (
         <div className="fam-people" role="tablist">
           <button type="button" className={`fam-chip${filter === 'all' ? ' is-on' : ''}`} onClick={() => setFilter('all')}>{tt('all', 'Todos')}</button>

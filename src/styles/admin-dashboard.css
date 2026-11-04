@@ -1,0 +1,297 @@
+/* Intelligence Center — visual premium (Modelo C): resumo em frase, números em faixa,
+   cartões arredondados e títulos em serifa. Escopado em .dash para não afetar outras telas admin. */
+
+.dash {
+  --dash-gold: #e5be85;
+  --dash-card-border: var(--border-subtle, #e3e0da);
+  --dash-serif: var(--font-family);
+}
+
+.dash .admin-header h1 {
+  font-family: var(--dash-serif);
+  font-weight: 600;
+  font-size: 1.9rem;
+  letter-spacing: -0.02em;
+}
+
+/* Seletor de período em pílula */
+.dash-seg {
+  display: inline-flex;
+  background: #fff;
+  border: 1px solid var(--dash-card-border);
+  border-radius: 999px;
+  padding: 4px;
+  align-self: flex-start;
+}
+.dash-seg button {
+  border: 0;
+  background: transparent;
+  padding: 7px 18px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  color: var(--text-muted, #5a6472);
+  cursor: pointer;
+}
+.dash-seg button.is-on {
+  background: var(--brand-navy, #1f262e);
+  color: #fff;
+}
+.dash-seg button:focus-visible {
+  outline: 2px solid var(--accent-strong, #8a6f4a);
+  outline-offset: 2px;
+}
+
+/* Resumo em frase */
+.dash-story {
+  position: relative;
+  overflow: hidden;
+  background: var(--brand-navy, #1f262e);
+  color: #fdfdfd;
+  border-radius: 24px;
+  padding: 28px 24px;
+  margin-bottom: 20px;
+}
+.dash-story::after {
+  content: '';
+  position: absolute;
+  right: -60px;
+  top: -80px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(var(--dash-gold) 0, rgba(229, 190, 133, 0) 70%);
+  opacity: 0.3;
+  pointer-events: none;
+}
+.dash-story__eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dash-gold);
+}
+.dash-story__text {
+  position: relative;
+  z-index: 1;
+  font-family: var(--dash-serif); font-weight: 500; letter-spacing: -0.02em;
+  font-size: 1.45rem;
+  line-height: 1.35;
+  margin: 10px 0 18px;
+  max-width: 880px;
+}
+.dash-story__text em {
+  color: var(--dash-gold);
+  font-style: normal;
+}
+.dash-story__chips {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.dash-chip {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(229, 190, 133, 0.25);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 0.85rem;
+}
+.dash-chip b {
+  color: var(--dash-gold);
+  font-weight: 600;
+}
+
+/* Números em faixa única */
+.dash .dash-stats {
+  gap: 0;
+  background: #fff;
+  border: 1px solid var(--dash-card-border);
+  border-radius: 18px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.dash .dash-stats .admin-card {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 18px 20px;
+  border-left: 1px solid #efebe3;
+}
+.dash .dash-stats .admin-card:first-child {
+  border-left: 0;
+}
+.dash .dash-stats .admin-card-title {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+}
+.dash .dash-stats .admin-trend {
+  white-space: nowrap;
+}
+.dash .dash-stats .admin-card-value {
+  flex-wrap: wrap;
+}
+.dash .dash-stats .admin-card-value {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--dash-serif);
+  font-weight: 600; letter-spacing: -0.02em;
+  font-size: 2rem;
+}
+@media (max-width: 700px) {
+  .dash .dash-stats .admin-card {
+    border-left: 0;
+    border-top: 1px solid #efebe3;
+  }
+  .dash .dash-stats .admin-card:nth-child(-n + 2) {
+    border-top: 0;
+  }
+}
+
+/* Cartões das seções */
+.dash .admin-section {
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 1px 2px rgba(31, 38, 46, 0.04), 0 12px 32px -20px rgba(31, 38, 46, 0.18);
+}
+.dash .admin-section h3 {
+  font-family: var(--dash-serif);
+  font-weight: 600; letter-spacing: -0.02em;
+  font-size: 1.25rem;
+  margin-bottom: 4px;
+}
+.dash-hint {
+  color: var(--text-faint, #737270);
+  font-size: 0.85rem;
+  margin: 0 0 16px;
+}
+.dash-subtitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 20px 0 10px;
+  color: var(--text-muted, #5a6472);
+}
+
+.dash-insight {
+  margin-top: 16px;
+  background: #fbf6ec;
+  border: 1px solid #ebd9b8;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.88rem;
+  color: #5b4a2f;
+}
+.dash-insight b {
+  color: var(--accent-strong, #8a6f4a);
+}
+
+/* Jornada em etapas numeradas */
+.dash-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.dash-step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 0.95rem;
+}
+.dash-step__dot {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--brand-navy, #1f262e);
+  color: var(--dash-gold);
+  display: grid;
+  place-items: center;
+  font-family: var(--dash-serif); font-weight: 600; letter-spacing: -0.02em;
+}
+.dash-step__text {
+  flex: 1;
+}
+.dash-step__text small {
+  display: block;
+  color: var(--text-faint, #737270);
+  font-size: 0.8rem;
+}
+.dash-step b {
+  font-family: var(--dash-serif);
+  font-weight: 600; letter-spacing: -0.02em;
+  font-size: 1.35rem;
+}
+
+/* Como as pessoas leem */
+.dash-modes {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.dash-mode {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.dash-mode__icon {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: #f6efe2;
+  display: grid;
+  place-items: center;
+  font-size: 1.25rem;
+}
+.dash-mode__body {
+  flex: 1;
+  font-size: 0.95rem;
+}
+.dash-mode__body small {
+  margin-left: 8px;
+  color: var(--text-faint, #737270);
+  font-size: 0.8rem;
+}
+.dash-mode__bar {
+  display: block;
+  height: 7px;
+  background: #f0ede7;
+  border-radius: 9px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+.dash-mode__bar i {
+  display: block;
+  height: 100%;
+  background: var(--accent-strong, #8a6f4a);
+  border-radius: 9px;
+}
+.dash-mode b {
+  font-family: var(--dash-serif);
+  font-weight: 600; letter-spacing: -0.02em;
+  font-size: 1.4rem;
+}
+.dash-bands {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.dash-bands span {
+  flex: 1 1 90px;
+  text-align: center;
+  background: #f6efe2;
+  border-radius: 10px;
+  padding: 8px 4px;
+  font-size: 0.75rem;
+  color: #755d3e;
+}
+.dash-bands b {
+  display: block;
+  font-family: var(--dash-serif); font-weight: 600; letter-spacing: -0.02em;
+  font-size: 1.1rem;
+  color: var(--text-strong, #1f262e);
+}

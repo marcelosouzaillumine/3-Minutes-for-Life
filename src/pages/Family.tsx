@@ -14,12 +14,15 @@ type SheetKind = null | 'create' | 'join' | 'invite' | 'manage' | 'plan' | 'pray
 const initials = (name: string | null) => (name ?? '?').trim().slice(0, 2).replace(/^./, (c) => c.toUpperCase());
 
 /** Abre o Ler juntos. Com `audience`, a pessoa já chega sabendo com quem lê e a tela de escolha some. */
-export const openRitual = (source: 'daily' | 'plan' = 'daily', audience?: 'adults' | 'kids', opts?: { solo?: boolean; intro?: boolean; kidIds?: string[]; adultIdx?: number[]; band?: Band; devotionalId?: string }) =>
+export const openRitual = (source: 'daily' | 'plan' = 'daily', audience?: 'adults' | 'kids', opts?: { solo?: boolean; intro?: boolean; kidIds?: string[]; adultIdx?: number[]; band?: Band; /** Leitura de uma faixa sem criança cadastrada. */ guestBand?: Band; devotionalId?: string }) =>
   window.dispatchEvent(new CustomEvent('family:ritual', { detail: { source, audience, ...opts } }));
 
 /** Aba Grupo (família, casal ou amigos): cada um lê no seu tempo e todos veem quem já leu. Quem leu, a semana, o plano em andamento e o mural. */
+/** Marcos da sequência de leitura do grupo, em dias. */
+const STREAK_MILESTONES = [7, 21, 40, 100, 365];
+
 export function Family() {
-  const { t, i18n } = useTranslation('common');
+  const { t } = useTranslation('common');
   const tt = (k: string, d: string, o?: Record<string, unknown>) => t(`fam.${k}`, { defaultValue: d, ...o });
 
   const [family, setFamily] = useState<FamilyT | null>(null);
@@ -34,6 +37,9 @@ export function Family() {
 
   const [name, setName] = useState('');
   const [meeting, setMeeting] = useState('');
+  // Edição em "Gerenciar grupo": null = ainda não mexeu (mostra o valor salvo); '' = apagou de propósito.
+  const [editName, setEditName] = useState<string | null>(null);
+  const [editMeeting, setEditMeeting] = useState<string | null>(null);
   const [code, setCode] = useState(() => pendingFamilyCode.get() ?? '');
   const [prayerText, setPrayerText] = useState('');
   const [copied, setCopied] = useState(false);
@@ -77,7 +83,7 @@ export function Family() {
     return () => window.removeEventListener('family:changed', onChange);
   }, [load]);
 
-  const close = () => { setSheet(null); setError(''); setConfirmLeave(false); };
+  const close = () => { setSheet(null); setError(''); setConfirmLeave(false); setEditName(null); setEditMeeting(null); };
   const apply = (f: FamilyT) => { setFamily(f); close(); };
 
   const groupSheets = (
@@ -126,10 +132,20 @@ export function Family() {
   const isOwner = family.role === 'owner';
   const link = inviteLink(family.inviteCode);
   const inviteMsg = tt('inviteMessage', 'Vem ler o devocional com a gente: {{link}}', { link });
-  const readers = family.members.filter((m) => m.readToday).length;
+  // Adultos e crianças do grupo contam juntos no "já leram hoje".
+  const readers = family.members.filter((m) => m.readToday).length + family.children.filter((c) => c.readToday).length;
+  const totalPeople = family.members.length + family.children.length;
   const plan = family.plan;
   const copy = async () => { try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 1800); } catch { /* sem permissão */ } };
-  const dayInitial = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString(i18n.language, { weekday: 'narrow' });
+  // Marcos da sequência: a trilha mostra o ponto de partida e os próximos três marcos.
+  const streak = family.week.streak;
+  const next = STREAK_MILESTONES.findIndex((m) => m > streak);
+  const from = Math.min(Math.max(next, 0), STREAK_MILESTONES.length - 3);
+  const milestones = STREAK_MILESTONES.slice(from, from + 3);
+  const trackStart = from === 0 ? 0 : STREAK_MILESTONES[from - 1];
+  const trackPoints = [trackStart, ...milestones];
+  const seg = trackPoints.findIndex((pt, i) => i > 0 && streak < pt);
+  const streakFill = seg === -1 ? 100 : Math.max(2, ((seg - 1 + (streak - trackPoints[seg - 1]) / (trackPoints[seg] - trackPoints[seg - 1])) / 3) * 100);
   const setPrayersFrom = (fn: () => Promise<FamilyPrayer[]>, after?: () => void) => run(fn, (p) => { setPrayers(p); after?.(); });
 
   return (
@@ -146,20 +162,28 @@ export function Family() {
               ? tt('groups.switch', 'Trocar de grupo · você está em {{count}}', { count: groups.families.length })
               : tt('groups.another', '+ Criar ou entrar em outro grupo')}
           </button>
-          <p className="fam-head__sub">
-            {family.week.streak > 0 ? tt('streak', '{{count}} dias lendo juntos', { count: family.week.streak }) : tt('streak0', 'Comecem hoje')}
-            {family.meetingTime ? ` · ${family.meetingTime}` : ''}
-          </p>
+          {family.meetingTime && <p className="fam-head__sub">{family.meetingTime}</p>}
         </div>
         <button type="button" className="fam-icon-btn" onClick={() => setSheet('manage')} aria-label={tt('manage.title', 'Gerenciar grupo')}>⋯</button>
       </header>
 
-      <div className="fam-week" aria-label={tt('week', 'Últimos 7 dias')}>
-        {family.week.days.map((d) => (
-          <span key={d.date} className={`fam-week__day${d.read ? ' is-read' : ''}`}><i>{dayInitial(d.date)}</i></span>
-        ))}
-      </div>
+      <section className="fam-streak" aria-label={tt('streakTitle', 'Sequência de leitura')}>
+        <p className="fam-streak__now">
+          <strong>{streak}</strong>
+          <span>{streak > 0 ? tt('streakUnit', 'dias lendo juntos', { count: streak }) : tt('streak0', 'Comecem hoje')}</span>
+        </p>
+        <div className="fam-streak__track" role="img" aria-label={tt('streakTo', 'Próximo marco: {{count}} dias', { count: milestones[2] })}>
+          <i style={{ width: `${streakFill}%` }} />
+          {[0, 1, 2, 3].map((n) => <b key={n} className={streak >= trackPoints[n] ? 'is-on' : ''} style={{ left: `${(n / 3) * 100}%` }} />)}
+        </div>
+        <div className="fam-streak__stops">
+          <span>{streak >= trackPoints[0] && trackPoints[0] > 0 ? tt('streakDaysN', '{{count}} dias', { count: trackPoints[0] }) : tt('streakNow', 'hoje')}</span>
+          {milestones.map((m) => <span key={m}>{tt('streakDaysN', '{{count}} dias', { count: m })}</span>)}
+        </div>
+        <p className="fam-note">{tt('streakRestart', 'Se um dia passar, é só recomeçar: o grupo continua aqui.')}</p>
+      </section>
 
+      <p className="fam-step">{readers > 0 ? tt('readersToday', '{{count}} de {{total}} já leram hoje', { count: readers, total: totalPeople }) : tt('noneToday', 'Ninguém leu hoje ainda.')}</p>
       <section className="fam-people" aria-label={tt('who', 'Quem lê')}>
         {family.members.map((m, i) => (
           <div key={i} className="fam-person">
@@ -168,12 +192,18 @@ export function Family() {
             <span className="fam-person__state">{m.readToday ? tt('read', 'leu hoje') : tt('notYet', 'ainda não')}</span>
           </div>
         ))}
+        {family.children.map((c) => (
+          <div key={c.id} className="fam-person">
+            <span className={`fam-avatar${c.readToday ? ' is-read' : ''}`}>{initials(c.nickname)}</span>
+            <span className="fam-person__label">{c.nickname}</span>
+            <span className="fam-person__state">{c.readToday ? tt('read', 'leu hoje') : tt('notYet', 'ainda não')}</span>
+          </div>
+        ))}
         <button type="button" className="fam-person fam-person--add" onClick={() => setSheet('invite')}>
           <span className="fam-avatar fam-avatar--add">+</span>
           <span className="fam-person__label">{tt('invite.short', 'convidar')}</span>
         </button>
       </section>
-      <p className="fam-note">{readers > 0 ? tt('readersToday', '{{count}} de {{total}} já leram hoje', { count: readers, total: family.members.length }) : tt('noneToday', 'Ninguém leu hoje ainda.')}</p>
 
       <button type="button" className="fam-btn fam-btn--primary fam-cta" onClick={() => setReadSheet({ plan: false })}>{tt('ritual', 'Ler juntos')}</button>
 
@@ -191,7 +221,7 @@ export function Family() {
       )}
       {plan?.completed && plan.summary && (
         <section className="fam-card fam-card--accent fam-summary">
-          <span className="fam-eyebrow fam-eyebrow--accent">{tt('summary.label', 'Semana concluída')}</span>
+          <span className="fam-eyebrow fam-eyebrow--accent">{tt('summary.label', 'Plano concluído')}</span>
           <h2 className="fam-card__title">{tt('summary.title', 'Vocês leram juntos {{n}} de {{total}} dias', { n: plan.summary.daysTogether, total: plan.summary.total })}</h2>
           <p className="fam-note">{tt('summary.word', 'A palavra que ficou')}</p>
           <p className="fam-summary__word">{plan.summary.word}</p>
@@ -204,7 +234,7 @@ export function Family() {
       {!plan && isOwner && templates.length > 0 && (
         <button type="button" className="fam-card fam-card--dashed" onClick={() => setSheet('plan')}>
           <span className="fam-eyebrow">{tt('plan.label', 'Plano do grupo')}</span>
-          <strong>{tt('plan.choose', 'Escolher um plano de 7 dias')}</strong>
+          <strong>{tt('plan.choose', 'Escolher um plano')}</strong>
           <span className="fam-note">{tt('plan.chooseHint', 'Uma trilha para ler junto, um dia de cada vez.')}</span>
         </button>
       )}
@@ -299,11 +329,26 @@ export function Family() {
       {sheet === 'manage' && (
         <Sheet title={tt('manage.title', 'Gerenciar grupo')} onClose={close}>
           {isOwner && (
-            <form className="fam-form" onSubmit={(e) => { e.preventDefault(); run(() => FamilyService.update(name.trim() || family.name, meeting.trim()), apply); }}>
-              <label>{tt('create.name', 'Nome do grupo')}<input value={name || family.name} onChange={(e) => setName(e.target.value)} maxLength={60} /></label>
-              <label>{tt('create.meeting', 'Horário combinado (opcional)')}<input value={meeting || family.meetingTime || ''} onChange={(e) => setMeeting(e.target.value)} maxLength={60} /></label>
+            <form className="fam-form" onSubmit={(e) => { e.preventDefault(); run(() => FamilyService.update((editName ?? family.name).trim() || family.name, (editMeeting ?? family.meetingTime ?? '').trim()), apply); }}>
+              <label>{tt('create.name', 'Nome do grupo')}<input value={editName ?? family.name} onChange={(e) => setEditName(e.target.value)} maxLength={60} /></label>
+              <label>{tt('create.meeting', 'Horário combinado (opcional)')}<input value={editMeeting ?? family.meetingTime ?? ''} onChange={(e) => setEditMeeting(e.target.value)} maxLength={60} /></label>
               <button type="submit" className="fam-btn fam-btn--secondary" disabled={busy}>{tt('save', 'Salvar')}</button>
             </form>
+          )}
+
+          {family.children.length > 0 && (
+            <div className="fam-manage fam-manage--open">
+              <p className="fam-step">{tt('manage.kids', 'Crianças do grupo')}</p>
+              <div className="fam-manage__list">
+                {family.children.map((c) => (
+                  <div key={c.id} className="fam-manage__row">
+                    <span>{c.nickname} · {c.band.replace('-', ' a ')}</span>
+                    {isOwner && <button type="button" className="fam-link fam-link--muted" disabled={busy} onClick={() => run(() => FamilyService.removeChild(c.id), setFamily)}>{tt('manage.removeKid', 'Remover')}</button>}
+                  </div>
+                ))}
+              </div>
+              {!isOwner && <p className="fam-note">{tt('manage.kidsOwnerOnly', 'Quem criou o grupo cadastrou estas crianças e é quem pode removê-las.')}</p>}
+            </div>
           )}
 
           {isOwner && plan && <button type="button" className="fam-btn fam-btn--ghost" disabled={busy} onClick={() => run(() => FamilyService.clearPlan(), setFamily)}>{tt('plan.stop', 'Encerrar o plano atual')}</button>}

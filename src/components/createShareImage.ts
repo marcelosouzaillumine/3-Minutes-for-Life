@@ -4,7 +4,7 @@ const GOLD      = '#c8994f'   // linhas e detalhes
 const GOLD_TEXT = '#8a6a35'   // texto dourado com contraste sobre o creme
 const NAVY      = '#1b2539'
 const PAPER     = '#faf6ef'
-const SERIF     = '"Playfair Display", Georgia, serif'
+const SERIF     = 'Inter, system-ui, -apple-system, "Segoe UI", sans-serif'
 const SANS      = 'system-ui, -apple-system, "Segoe UI", sans-serif'
 
 interface DrawData {
@@ -229,13 +229,13 @@ async function drawCentered(
     gap(mid, 14)
 
     const princSize = Math.round(base.principle * s)
-    ctx.font = `italic 700 ${princSize}px ${SERIF}`
+    ctx.font = `600 ${princSize}px ${SERIF}`
     const princLines = wrapLines(ctx, d.principle, IW)
     const princLine = Math.round(princSize * 1.28)
     mid.push({
       h: princLines.length * princLine,
       draw: y => {
-        ctx.font = `italic 700 ${princSize}px ${SERIF}`
+        ctx.font = `600 ${princSize}px ${SERIF}`
         ctx.fillStyle = NAVY
         ctx.textAlign = 'center'
         princLines.forEach((l, i) => ctx.fillText(l, cx, y + i * princLine))
@@ -333,11 +333,11 @@ async function drawOg(ctx: CanvasRenderingContext2D, d: DrawData) {
   let titleSize = 76
   let titleLines: string[] = []
   for (; titleSize >= 44; titleSize -= 2) {
-    ctx.font = `800 ${titleSize}px ${SERIF}`
+    ctx.font = `700 ${titleSize}px ${SERIF}`
     titleLines = wrapLines(ctx, d.title, textMaxW)
     if (titleLines.length <= 2) break
   }
-  ctx.font = `800 ${titleSize}px ${SERIF}`
+  ctx.font = `700 ${titleSize}px ${SERIF}`
   const titleLine = Math.round(titleSize * 1.12)
 
   // Referência bíblica: sempre inteira numa linha
@@ -352,7 +352,7 @@ async function drawOg(ctx: CanvasRenderingContext2D, d: DrawData) {
   const labelSize = 20
   ctx.font = `700 ${labelSize}px ${SERIF}`
   const labelW = spacedWidth(ctx, d.label, 6)
-  ctx.font = `800 ${titleSize}px ${SERIF}`
+  ctx.font = `700 ${titleSize}px ${SERIF}`
   const titleW = Math.max(...titleLines.map(l => ctx.measureText(l).width))
   ctx.font = `400 ${scripSize}px ${SERIF}`
   const scripW = d.scripture ? spacedWidth(ctx, d.scripture, 5) : 0
@@ -384,7 +384,7 @@ async function drawOg(ctx: CanvasRenderingContext2D, d: DrawData) {
   spacedCentered(ctx, d.label, textCx, y, 6)
   y += labelSize + 26
 
-  ctx.font = `800 ${titleSize}px ${SERIF}`
+  ctx.font = `700 ${titleSize}px ${SERIF}`
   ctx.fillStyle = NAVY
   ctx.textAlign = 'center'
   titleLines.forEach((l, i) => ctx.fillText(l, textCx, y + i * titleLine))
@@ -419,10 +419,10 @@ export async function createShareImage(
 ): Promise<Blob> {
   const { w, h } = SHARE_DIMS[format]
 
-  // Pre-load Playfair Display if available
+  // Pre-load Inter if available
   await Promise.allSettled([
-    document.fonts.load(`800 100px "Playfair Display"`),
-    document.fonts.load(`italic 700 56px "Playfair Display"`),
+    document.fonts.load(`700 100px Inter`),
+    document.fonts.load(`600 56px Inter`),
   ])
 
   const canvas = document.createElement('canvas')

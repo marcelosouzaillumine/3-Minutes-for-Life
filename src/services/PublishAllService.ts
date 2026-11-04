@@ -76,3 +76,59 @@ export async function publishAll(devos: any[], languages: any[]): Promise<Publis
   }
   return total;
 }
+
+/**
+ * Volta para rascunho o que está no ar: a tradução do texto adulto (a linha manual e a da IA, porque o app
+ * serve qualquer linha publicada) e as faixas infantis, nos idiomas pedidos. Não toca no texto adulto do idioma
+ * de origem, que se controla pelo Status do devocional. O contador `published` conta itens despublicados.
+ */
+export async function unpublishAllForDevotional(devo: any, languages: any[]): Promise<PublishReport> {
+  const report: PublishReport = { published: 0, skipped: [] };
+  const langMap = buildLangMap(devo);
+  const label = (iso: string) => languages.find((l) => l.iso_code === iso)?.name ?? iso;
+
+  for (const lang of languages.filter((l) => !l.is_source)) {
+    const entry = langMap[lang.iso_code];
+    if (!entry) continue;
+    for (const t of [entry.manual, entry.ai]) {
+      if (!t || t.status !== 'published') continue;
+      try {
+        await AdminContentService.saveManualTranslation({
+          devotional_id: devo.id,
+          language: lang.iso_code,
+          title: t.title,
+          principle_statement: t.principle_statement,
+          scripture_reference: t.scripture_reference,
+          scripture_text: t.scripture_text,
+          reflection: t.reflection,
+          practical_application: t.practical_application,
+          prayer: t.prayer,
+          discussion_questions: t.discussion_questions,
+          content_tip: t.content_tip,
+          content_tip_image_url: t.content_tip_image_url,
+          content_tip_url: t.content_tip_url,
+          support_message: t.support_message,
+          support_banner_url: t.support_banner_url,
+          support_link_url: t.support_link_url,
+          status: 'draft',
+          source_content_hash: t.source_content_hash,
+          translation_source: t.translation_source === 'manual' ? 'manual' : 'ai',
+        });
+        report.published++;
+      } catch (e: any) {
+        report.skipped.push(`${devo.title} · ${label(lang.iso_code)} (adulto): ${e?.message ?? 'erro ao despublicar'}`);
+      }
+    }
+  }
+
+  for (const lang of languages) {
+    const kids = await FamilyAdmin.getKids(devo.id, lang.iso_code);
+    for (const band of BANDS) {
+      const d = kids[band];
+      if (!d || d.status !== 'published') continue;
+      if (await FamilyAdmin.saveKids(devo.id, band, { ...d, status: 'draft' }, lang.iso_code)) report.published++;
+      else report.skipped.push(`${devo.title} · ${label(lang.iso_code)} ${band}: não foi possível despublicar`);
+    }
+  }
+  return report;
+}

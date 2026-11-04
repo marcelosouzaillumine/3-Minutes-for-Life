@@ -1,6 +1,6 @@
 /* Espaço da família e folhas: tipografia de leitura, hairlines e o dourado da marca como único destaque. */
 
-.fam { padding: 1rem 1.25rem 6rem; max-width: 32rem; margin: 0 auto; color: var(--text-strong); }
+.fam { padding: 0 1.25rem 6rem; max-width: 32rem; margin: 0 auto; color: var(--text-strong); }
 .fam--loading { text-align: center; color: var(--text-muted); padding-top: 4rem; }
 
 .fam-eyebrow { margin: 0 0 0.35rem; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
@@ -11,20 +11,16 @@
 
 /* Cabeçalho */
 .fam-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.25rem; }
-.fam-head__name, .fam-hero__title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 2rem; line-height: 1.1; }
+.fam-head__name, .fam-hero__title { margin: 0; font-family: var(--font-serif); font-weight: 600; letter-spacing: -0.02em; font-size: 2rem; line-height: 1.1; }
 .fam-head__sub { margin: 0.4rem 0 0; font-size: 0.85rem; color: var(--text-muted); }
 .fam-icon-btn { flex: none; width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 1px solid var(--border-subtle); background: var(--surface); color: var(--text-strong); font-size: 1.2rem; cursor: pointer; }
 
 /* Boas-vindas */
-.fam-hero { padding-top: 0.5rem; display: grid; gap: 0.75rem; }
+.fam-hero { padding-top: 0; display: grid; gap: 0.75rem; }
 .fam-hero__text { margin: 0 0 0.75rem; line-height: 1.6; color: var(--text-muted); }
 
 /* Semana */
-.fam-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.4rem; margin-bottom: 1.5rem; }
-.fam-week__day { aspect-ratio: 1; border-radius: 10px; background: #F3EFE8; display: flex; align-items: center; justify-content: center; }
-.fam-week__day i { font-style: normal; font-size: 0.7rem; color: var(--text-faint); }
-.fam-week__day.is-read { background: var(--accent-strong); }
-.fam-week__day.is-read i { color: #fff; }
+.fam-person { align-content: start; }
 
 /* Pessoas */
 .fam-people { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.25rem; }
@@ -51,13 +47,13 @@
 .fam-card--accent { border-color: #D9C7A8; background: #FBF7F0; }
 .fam-card--dashed { border-style: dashed; cursor: pointer; }
 .fam-card__row { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; }
-.fam-card__title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 1.35rem; line-height: 1.2; }
+.fam-card__title { margin: 0; font-family: var(--font-serif); font-weight: 600; letter-spacing: -0.02em; font-size: 1.35rem; line-height: 1.2; }
 .fam-card__text { margin: 0; font-size: 0.9rem; line-height: 1.55; color: var(--text-muted); }
 .fam-dots { display: flex; gap: 0.35rem; }
 .fam-dot { flex: 1; height: 4px; border-radius: 2px; background: #E7E0D3; }
 .fam-dot.is-done { background: var(--accent-strong); }
 .fam-dot.is-now { background: var(--accent-strong); opacity: 0.45; }
-.fam-summary__word { margin: 0; font-family: var(--font-serif); font-size: 2.2rem; line-height: 1.1; }
+.fam-summary__word { margin: 0; font-family: var(--font-serif); font-weight: 600; letter-spacing: -0.02em; font-size: 2.2rem; line-height: 1.1; }
 
 /* Seções e mural */
 .fam-section { margin-top: 1.5rem; }
@@ -75,8 +71,11 @@
 .fam-form { display: grid; gap: 0.9rem; }
 .fam-form label { display: grid; gap: 0.35rem; font-size: 0.82rem; color: var(--text-muted); }
 .fam-form input, .fam-form textarea, .fam-inline input, .fam-inline select { padding: 0.75rem 0.85rem; border: 1px solid var(--border-subtle); border-radius: 10px; font: inherit; font-size: 1rem; color: var(--text-strong); background: var(--surface); }
-.fam-inline { display: flex; gap: 0.5rem; align-items: stretch; margin: 0.75rem 0; }
-.fam-inline input { flex: 1; min-width: 0; }
+.fam-inline { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: stretch; margin: 0.75rem 0; }
+/* Nome em cima, na largura toda; faixa de idade e botão na linha de baixo. */
+.fam-inline input { flex: 1 1 100%; min-width: 0; }
+.fam-inline select { flex: 1 1 0; min-width: 0; }
+.fam-inline select:invalid, .fam-inline select:has(option[value='']:checked) { color: var(--text-muted, #6b7280); }
 .fam-inline .fam-btn { width: auto; min-height: 0; }
 .fam-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--border-subtle); font-size: 0.95rem; }
 .fam-confirm { display: grid; gap: 0.5rem; padding: 1rem; margin-top: 1rem; border: 1px solid #f0c9c5; border-radius: 12px; }
@@ -87,7 +86,7 @@
 .sheet { width: 100%; max-width: 32rem; max-height: 88vh; overflow-y: auto; background: var(--canvas); border-radius: 22px 22px 0 0; padding: 0.5rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom)); }
 .sheet__grip { width: 2.5rem; height: 4px; border-radius: 2px; background: #D8D3CA; margin: 0.35rem auto 0.9rem; }
 .sheet__head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-.sheet__title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 1.4rem; }
+.sheet__title { margin: 0; font-family: var(--font-serif); font-weight: 600; letter-spacing: -0.02em; font-size: 1.4rem; }
 .sheet__close { background: none; border: 0; font-size: 1.6rem; line-height: 1; color: var(--text-muted); cursor: pointer; }
 .sheet__body { display: grid; gap: 0.85rem; }
 
@@ -100,7 +99,7 @@
 .ritual__progress i { flex: 1; height: 3px; border-radius: 2px; background: #E7E0D3; }
 .ritual__progress i.is-on { background: var(--accent-strong); }
 .ritual__body { flex: 1; overflow-y: auto; width: 100%; max-width: var(--ritual-col); margin: 0 auto; padding: 1rem max(var(--ritual-gutter), env(safe-area-inset-right)) 1.5rem max(var(--ritual-gutter), env(safe-area-inset-left)); box-sizing: border-box; display: grid; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 1rem; }
-.ritual__title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 2rem; line-height: 1.15; }
+.ritual__title { margin: 0; font-family: var(--font-serif); font-weight: 600; letter-spacing: -0.02em; font-size: 2rem; line-height: 1.15; }
 .ritual__verse { margin: 0; font-size: 0.95rem; font-weight: 600; letter-spacing: 0.04em; color: var(--accent, currentColor); }
 .ritual__lead { margin: 0; font-size: 1.05rem; line-height: 1.6; color: var(--text-muted); }
 /* Mesmo cartão do devocional principal (.principle-scripture), com letra maior por ser leitura em voz alta. */
@@ -108,7 +107,7 @@
 .ritual__body .principle-scripture--ritual .principle-scripture-text { font-size: 1.5rem; line-height: 1.55; }
 .ritual__body .principle-scripture--ritual .principle-scripture-reference { margin-top: 0.9rem; font-size: 0.85rem; }
 .ritual__text { font-size: clamp(1rem, 4.4vw, 1.15rem); line-height: 1.7; }
-.ritual__prayer { font-family: var(--font-serif); }
+.ritual__prayer { font-family: var(--font-serif); font-weight: 500; letter-spacing: -0.02em; }
 .ritual__kid { padding: 1rem 1.1rem; border: 1px solid var(--border-subtle); border-radius: 14px; }
 .ritual__kid h3 { margin: 0 0 0.4rem; font-size: 0.8rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-strong); }
 .ritual__kid p { margin: 0 0 0.5rem; font-size: clamp(1rem, 4.4vw, 1.15rem); line-height: 1.7; }
@@ -132,7 +131,7 @@
 .ritual__amen { font-style: italic; }
 .ritual__choices { display: grid; gap: 0.75rem; }
 .ritual__choice { display: grid; gap: 0.2rem; text-align: left; width: 100%; padding: 1.1rem 1.2rem; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); color: var(--text-strong); font: inherit; cursor: pointer; }
-.ritual__choice strong { font-family: var(--font-serif); font-weight: 400; font-size: 1.25rem; }
+.ritual__choice strong { font-family: var(--font-serif); font-weight: 600; letter-spacing: -0.02em; font-size: 1.25rem; }
 .ritual__choice span { font-size: 0.9rem; color: var(--text-muted); }
 .ritual__choice:disabled { opacity: 0.6; }
 .ritual__done { display: grid; gap: 1rem; justify-items: center; text-align: center; padding-top: 2rem; }
@@ -153,7 +152,7 @@
 .studio__badge { flex: none; font-style: normal; font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 999px; background: #F3EFE8; color: var(--text-muted); }
 .studio__badge--done { background: #E6F0E4; color: #2f6b2a; }
 .studio__badge--draft { background: #FBF1DC; color: #8a5a00; }
-.studio__title { margin: 0.5rem 0 1rem; font-family: var(--font-serif); font-weight: 400; font-size: 1.4rem; }
+.studio__title { margin: 0.5rem 0 1rem; font-family: var(--font-serif); font-weight: 600; letter-spacing: -0.02em; font-size: 1.4rem; }
 .studio__grid { display: grid; gap: 1.25rem; }
 @media (min-width: 960px) { .studio__grid { grid-template-columns: 1fr 1.2fr 0.9fr; align-items: start; } }
 .studio__summary { cursor: pointer; font-weight: 500; font-size: 0.9rem; color: var(--text-strong); }
@@ -162,7 +161,7 @@
 .studio__source, .studio__screen { font-size: 0.88rem; line-height: 1.6; padding: 1rem; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); }
 .studio__screen h5 { margin: 0.8rem 0 0.2rem; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); }
 .studio__screen p { margin: 0; }
-.studio__screen blockquote { margin: 0.5rem 0; padding-left: 0.8rem; border-left: 2px solid var(--accent-strong); font-family: var(--font-serif); }
+.studio__screen blockquote { margin: 0.5rem 0; padding-left: 0.8rem; border-left: 2px solid var(--accent-strong); font-family: var(--font-serif); font-weight: 500; letter-spacing: -0.02em; }
 .studio__actions { display: flex; gap: 0.6rem; margin: 1rem 0; }
 .studio__order { list-style: none; margin: 0 0 0.5rem; padding: 0; display: grid; gap: 0.3rem; }
 .studio__order li { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; padding: 0.5rem 0.8rem; border: 1px solid var(--border-subtle); border-radius: 10px; font-size: 0.9rem; }
@@ -179,7 +178,7 @@
 .studio__bar-top .fam-note { margin: 0; max-width: 34rem; }
 .studio__new { width: auto; flex: none; }
 .studio__empty { margin-top: 1.5rem; padding: 2rem 1.5rem; text-align: center; border: 1px dashed var(--border-subtle); border-radius: 16px; display: grid; gap: 0.6rem; justify-items: center; }
-.studio__empty h4 { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 1.4rem; }
+.studio__empty h4 { margin: 0; font-family: var(--font-serif); font-weight: 600; letter-spacing: -0.02em; font-size: 1.4rem; }
 .studio__empty p { margin: 0; color: var(--text-muted); max-width: 26rem; }
 .studio__empty .fam-btn { width: auto; }
 .studio__panel { margin: 0.75rem 0; padding: 1rem; border: 1px solid var(--border-subtle); border-radius: 12px; display: grid; gap: 0.75rem; }
@@ -204,7 +203,7 @@
 .studio__checks li.is-ok { color: #2f6b2a; }
 .fam-form label .fam-note { margin: 0.1rem 0 0; }
 
-.ritual__kid-title { font-family: var(--font-serif); font-size: 1.35rem !important; line-height: 1.25; }
+.ritual__kid-title { font-family: var(--font-serif); font-weight: 600; letter-spacing: -0.02em; font-size: 1.35rem !important; line-height: 1.25; }
 
 /* Ritual em tela maior: coluna de leitura em voz alta mais larga. */
 @media (min-width: 768px) { .ritual__body { max-width: 40rem; } }
@@ -212,18 +211,18 @@
 /* ── Ler em família: momentos da mesa ── */
 .ritual__tag { justify-self: start; padding: 0.15rem 0.6rem; border-radius: 999px; background: #F4EEE4; color: var(--accent-strong); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.04em; }
 .ritual__question { padding: 1.75rem 1.4rem; border: 1px solid var(--border-subtle); border-radius: 18px; background: var(--surface); }
-.ritual__question p { margin: 0; font-family: var(--font-serif); font-size: 1.6rem; line-height: 1.35; }.ritual__guide { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed var(--border-subtle); }
+.ritual__question p { margin: 0; font-family: var(--font-serif); font-weight: 500; letter-spacing: -0.02em; font-size: 1.6rem; line-height: 1.35; }.ritual__guide { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed var(--border-subtle); }
 .ritual__guide-toggle { width: 100%; min-height: 2.75rem; font-size: 0.95rem; }
 .ritual__guide-note { margin: 0.35rem 0 0.5rem; text-align: center; }
 .ritual__guide-body { padding: 0.75rem 1rem; border-radius: 12px; background: #F4EEE4; font-size: 0.95rem; line-height: 1.6; }
 .ritual__guide-body p { margin: 0 0 0.5rem; }
 .ritual__streak { display: grid; justify-items: center; gap: 0.1rem; padding: 1rem; border: 1px solid var(--border-subtle); border-radius: 14px; }
-.ritual__streak strong { font-family: var(--font-serif); font-size: 2.2rem; font-weight: 400; color: var(--accent-strong); }
+.ritual__streak strong { font-family: var(--font-serif); font-size: 2.2rem; font-weight: 600; letter-spacing: -0.02em; color: var(--accent-strong); }
 .ritual__streak span { font-size: 0.85rem; color: var(--text-muted); }
 
 /* Boas-vindas: escolha de público em cartões e cadastro de criança empilhado (nada passa da largura da tela) */
 .ritual__who { display: grid; gap: 0.75rem; }
-.ritual__who-title { margin: 0.5rem 0 0; font-family: var(--font-serif); font-weight: 400; font-size: 1.3rem; color: var(--text-strong); }
+.ritual__who-title { margin: 0.5rem 0 0; font-family: var(--font-serif); font-weight: 600; letter-spacing: -0.02em; font-size: 1.3rem; color: var(--text-strong); }
 .ritual__who-sub { margin: 0; font-size: 0.85rem; font-weight: 500; color: var(--text-strong); }
 .ritual__choice.is-on { border-color: var(--accent-strong); background: color-mix(in srgb, var(--accent-strong) 8%, var(--surface)); }
 .ritual__kids-box { display: grid; gap: 0.75rem; padding: 1rem; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); min-width: 0; }
@@ -248,14 +247,17 @@
 .bandpick__body { display: grid; gap: 0.15rem; justify-items: center; min-width: 0; }
 .bandpick--cards { grid-template-columns: 1fr; }
 .bandpick__opt--card { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 1.6rem 0.5rem 0.5rem; text-align: left; }
-.bandpick__opt--card.is-on { background: var(--surface-alt, #FAF8F4); color: var(--text-strong); box-shadow: inset 0 0 0 1px var(--text-strong); }
+.bandpick__opt--card.is-on { background: var(--surface-alt, #FAF8F4); color: var(--text-strong); border-color: var(--accent-strong); box-shadow: inset 0 0 0 1px var(--accent-strong); }
+.bandpick__opt--card.is-on .bandpick__text { color: var(--text-strong); }
 .bandpick__img { flex: none; width: 5.75rem; height: 4rem; object-fit: cover; border-radius: 10px; }
 .bandpick__opt--card .bandpick__body { justify-items: start; gap: 0.25rem; }
 .bandpick__opt--card b { display: inline-block; padding: 0.1rem 0.6rem; border-radius: 999px; background: var(--accent-strong); color: #fff; font-size: 0.72rem; }
-.bandpick__opt--card .bandpick__text { min-height: 0; font-family: var(--font-serif); font-size: 0.92rem; line-height: 1.3; color: var(--text-strong); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.bandpick__opt--card .bandpick__text { min-height: 0; font-family: var(--font-serif); font-weight: 500; font-size: 0.92rem; line-height: 1.3; color: var(--text-strong); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .bandpick__opt--card .bandpick__who { min-height: 0; font-size: 0.72rem; color: var(--text-muted); }
 .bandpick__opt--card.is-on .bandpick__who { color: var(--text-muted); }
 .bandpick__opt--card i { top: 0.4rem; right: 0.6rem; }
+.bandpick__opt--card.is-on i { display: grid; place-items: center; width: 1.3rem; height: 1.3rem; border-radius: 50%; background: var(--accent-strong); color: #fff; font-size: 0.8rem; }
+.fam-step { margin: 1.25rem 0 0.1rem; font-size: 0.95rem; font-weight: 600; color: var(--text-strong); }
 
 /* Ilustrações: ícone de cada etapa e cena da versão infantil */
 .ritual__tag { display: inline-flex; align-items: center; gap: 0.4rem; }
@@ -302,7 +304,8 @@
 .kstory .fam-eyebrow { margin: 0; }
 .kstory__cap, .kstory__speech { margin: 0; color: #2b2b2b; font-weight: 600; line-height: 1.45; overflow-wrap: anywhere; }
 .kstory__cap { padding: 0.6rem 0.85rem; background: #FFE9A8; border: 2px solid #2b2b2b; border-radius: 10px; font-size: clamp(1rem, 4.3vw, 1.2rem); }
-.kstory[data-format='dilemma'] .kstory__art { width: min(100%, max(14rem, calc((100dvh - 30rem) * 1.25))); justify-self: start; }
+/* mesma largura da arte dos quadrinhos (0-3, 4-6, 7-10): a imagem do 11-13 não pode ficar menor */
+.kstory[data-format='dilemma'] .kstory__art { width: min(100%, max(14rem, calc((100dvh - 26rem) * 1.25))); justify-self: start; }
 .kstory__art { margin: 0; justify-self: stretch; width: 100%; aspect-ratio: 5 / 4; overflow: hidden; background: #fff; border: 3px solid #2b2b2b; border-radius: 10px; }
 .kstory__art img { display: block; width: 100%; height: 100%; object-fit: cover; user-select: none; -webkit-user-drag: none; }
 .kstory__speech { position: relative; justify-self: start; max-width: min(100%, 26rem); margin-top: 0.35rem; padding: 0.55rem 0.95rem; background: #fff; border: 2px solid #2b2b2b; border-radius: 18px; font-family: 'Chalkboard SE', 'Comic Sans MS', var(--font-sans, system-ui), sans-serif; font-size: clamp(1rem, 4.2vw, 1.15rem); }
@@ -310,11 +313,11 @@
 .kstory__speech::before { top: -0.7rem; border-width: 0 0.5rem 0.7rem; border-bottom-color: #2b2b2b; }
 .kstory__speech::after { top: calc(-0.7rem + 3px); border-width: 0 0.5rem 0.7rem; border-bottom-color: #fff; }
 .kstory__text { margin: 0; font-size: clamp(1rem, 4.4vw, 1.15rem); line-height: 1.7; overflow-wrap: anywhere; }
-.kstory__q { margin: 0; font-family: var(--font-serif); font-size: clamp(1.2rem, 5.2vw, 1.5rem); line-height: 1.35; overflow-wrap: anywhere; }
+.kstory__q { margin: 0; font-family: var(--font-serif); font-weight: 500; letter-spacing: -0.02em; font-size: clamp(1.2rem, 5.2vw, 1.5rem); line-height: 1.35; overflow-wrap: anywhere; }
 .kstory__opts { display: grid; gap: 0.6rem; }
 .kstory__opt { min-height: 3rem; padding: 0.7rem 0.95rem; text-align: left; font: inherit; font-size: clamp(1rem, 4.2vw, 1.1rem); line-height: 1.4; color: var(--text-strong); background: transparent; border: 1.5px solid var(--border-subtle); border-radius: 12px; cursor: pointer; overflow-wrap: anywhere; }
 .kstory__opt.is-on { border-color: var(--text-strong); background: var(--surface); font-weight: 600; }
-.kstory__quote { margin: 0; padding: 0.9rem 1rem; background: #2E3550; color: #F3E6B8; border-radius: 12px; font-family: var(--font-serif); font-size: clamp(1.1rem, 4.8vw, 1.3rem); line-height: 1.5; overflow-wrap: anywhere; }
+.kstory__quote { margin: 0; padding: 0.9rem 1rem; background: #2E3550; color: #F3E6B8; border-radius: 12px; font-family: var(--font-serif); font-weight: 500; letter-spacing: -0.02em; font-size: clamp(1.1rem, 4.8vw, 1.3rem); line-height: 1.5; overflow-wrap: anywhere; }
 .kstory__cite { display: block; margin-top: 0.4rem; font-family: var(--font-sans, inherit); font-style: normal; font-size: 0.85rem; letter-spacing: 0.02em; opacity: 0.8; }
 .kstory__ref { margin: 0; justify-self: start; padding: 0.2rem 0.7rem; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em; color: var(--text-strong); border: 1px solid var(--border-subtle); border-radius: 999px; }
 @media (min-width: 768px) { .kstory[data-format='panels'] { width: min(100%, max(14rem, calc((100dvh - 27rem) * 1.25))); } }
@@ -349,18 +352,22 @@
 /* Capa da leitura infantil: faixa, título grande e só depois a passagem, menor */
 .ritual__cover { display: grid; gap: 0.35rem; }
 .ritual__cover .fam-eyebrow { margin: 0; }
-.ritual__cover-title { margin: 0; font-family: var(--font-serif); font-weight: 400; font-size: 2rem; line-height: 1.15; color: var(--text-strong); }
+.ritual__cover-title { margin: 0; font-family: var(--font-serif); font-weight: 600; letter-spacing: -0.02em; font-size: 2rem; line-height: 1.15; color: var(--text-strong); }
 .ritual__body .principle-scripture--compact { padding: 0.9rem 1.1rem; }
 .ritual__body .principle-scripture--compact .principle-scripture-text { font-size: 1.1rem; line-height: 1.55; font-style: italic; }
 .ritual__body .principle-scripture--compact .principle-scripture-reference { margin: 0 0 0.35rem; font-size: 0.75rem; }
 
 .hoje-capa { margin: 1.25rem 0 0.5rem; }
 .hoje-capa__main { display: flex; flex-direction: column; align-items: flex-start; gap: 0.15rem; width: 100%; margin-bottom: 0.5rem; padding: 1.1rem 1.25rem; border: 0; border-radius: 16px; background: var(--color-primary, #1f2430); color: #fff; font: inherit; text-align: left; cursor: pointer; }
+.hoje-capa__main.is-done { background: color-mix(in srgb, var(--accent-strong) 12%, var(--surface)); color: var(--accent-strong); border: 1px solid color-mix(in srgb, var(--accent-strong) 35%, transparent); }
 .hoje-capa__main b { font-size: 1.1rem; font-weight: 500; }
 .hoje-capa__main span { font-size: 0.85rem; opacity: 0.75; }
 .hoje-capa__or { margin: 1rem 0 0.5rem; font-size: 0.85rem; color: var(--text-muted); }
 .hoje-capa__list { display: flex; flex-direction: column; gap: 0.5rem; }
-.hoje-capa__row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.8rem 1rem; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); color: var(--text-strong); font: inherit; text-align: left; cursor: pointer; }
+.hoje-capa__item { display: flex; flex-direction: column; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); overflow: hidden; }
+.hoje-capa__hint { margin: -0.35rem 1rem 0.7rem; padding: 0; border: 0; background: none; font: inherit; font-size: 0.8rem; font-weight: 500; color: var(--accent-strong); text-align: left; cursor: pointer; }
+.hoje-capa__row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.8rem 1rem; border: 0; border-radius: 0; background: none; width: 100%; color: var(--text-strong); font: inherit; text-align: left; cursor: pointer; }
+.hoje-capa__row:disabled, .hoje-capa__hint:disabled { cursor: default; opacity: 0.6; }
 .hoje-capa__text { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
 .hoje-capa__text b { font-weight: 500; }
 .hoje-capa__text span { font-size: 0.8rem; color: var(--text-muted); }
@@ -391,7 +398,7 @@
 .group-word { margin: 1.5rem 0; padding: 1rem; border: 1px solid var(--accent-strong, var(--border-subtle)); border-radius: 14px; background: var(--surface); }
 .group-word__title { margin: 0 0 0.25rem; font-weight: 500; }
 .group-word textarea { width: 100%; margin: 0.5rem 0 0.75rem; padding: 0.6rem 0.75rem; font: inherit; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--canvas); color: inherit; resize: vertical; }
-.fam-groups-link { display: inline-block; margin-top: 0.25rem; font-size: 0.85rem; }
+.fam-groups-link { display: block; margin-top: 0.25rem; font-size: 0.85rem; }
 .celebration-banner { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin: 0 0 1rem; padding: 0.7rem 0.9rem; border: 1px solid #c9dfc4; border-radius: 12px; background: #f1f8ee; color: #245a20; font-size: 0.9rem; }
 .celebration-banner button { flex: none; border: 0; background: none; font-size: 1.2rem; line-height: 1; color: inherit; cursor: pointer; }
 .notice-list { display: flex; flex-direction: column; gap: 0.6rem; }
@@ -399,11 +406,11 @@
 .notice-item.is-new { border-color: var(--accent-strong, #8a7048); }
 .notice-item p { margin: 0.15rem 0; font-size: 0.9rem; }
 .notice-item small { color: var(--text-muted); }
-.hoje-capa__quote { margin: 0 0 0.4rem; font-family: var(--font-serif); font-style: italic; font-weight: 300; font-size: 1.2rem; line-height: 1.5; color: var(--text-strong); }
+.hoje-capa__quote { margin: 0 0 0.4rem; font-family: var(--font-serif); font-style: italic; font-weight: 400; font-size: 1.2rem; line-height: 1.5; color: var(--text-strong); }
 .hoje-capa__ref { margin: 0 0 0.25rem; }
 .reading-closing { margin: 1.5rem 0; padding: 1.25rem 1rem; text-align: center; border: 1px solid #c9dfc4; border-radius: 16px; background: #f6faf4; }
 .reading-closing__seal { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border-radius: 50%; background: #e7efe3; color: #2f6b2a; font-size: 1.5rem; }
-.reading-closing__title { margin: 0.5rem 0 0.25rem; font-family: var(--font-serif); font-weight: 400; font-size: 1.4rem; }
+.reading-closing__title { margin: 0.5rem 0 0.25rem; font-family: var(--font-serif); font-weight: 600; letter-spacing: -0.02em; font-size: 1.4rem; }
 .reading-closing__line { margin: 0.15rem 0; font-size: 0.9rem; color: var(--text-muted); }
 .reading-closing__tomorrow { margin-top: 1rem; padding: 0.9rem; text-align: left; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--surface); }
 .reading-closing__tomorrow p { margin: 0 0 0.5rem; }
@@ -412,6 +419,31 @@
 /* Aba Crianças: a escolha de quem lê e o começo da leitura ficam na própria página, sem folha por cima. */
 .fam-startinline { display: flex; flex-direction: column; gap: 0.75rem; }
 .fam-manage { margin: 0.5rem 0; font-size: 0.9rem; color: var(--text-muted); }
+.fam-manage--open { margin: 0.75rem 0; }
 .fam-manage summary { cursor: pointer; padding: 0.4rem 0; }
 .fam-manage__list { display: flex; flex-direction: column; gap: 0.35rem; padding-top: 0.25rem; }
 .fam-manage__row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+
+/* Sequência de leitura do grupo: número em destaque e trilha de marcos (sem cobrança se quebrar). */
+.fam-streak { margin: 0 0 1.5rem; }
+.fam-streak__now { display: flex; align-items: baseline; gap: 0.5rem; margin: 0; }
+.fam-streak__now strong { font-size: 2.75rem; line-height: 1; font-weight: 600; letter-spacing: -0.03em; color: var(--accent-strong); font-variant-numeric: tabular-nums; }
+.fam-streak__now span { font-size: 1rem; font-weight: 500; color: var(--text-strong); }
+.fam-streak__track { position: relative; height: 8px; margin: 1.1rem 8px 0.6rem; border-radius: 8px; background: #EDE7DC; }
+.fam-streak__track i { position: absolute; inset: 0 auto 0 0; border-radius: 8px; background: var(--accent-strong); }
+.fam-streak__track b { position: absolute; top: -4px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: var(--surface); border: 2px solid #cdbf9f; }
+.fam-streak__track b.is-on { background: var(--accent-strong); border-color: var(--accent-strong); }
+.fam-streak__stops { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); }
+.fam-streak .fam-note { margin: 0.75rem 0 0; }
+/* Os cards do fim da leitura moram dentro da barra de ações; sem isto ficavam espremidos ao lado dos botões. */
+.action-bar:has(> .group-word, > .reading-closing) { flex-wrap: wrap; gap: 1rem 2.5rem; }
+.action-bar > .group-word, .action-bar > .reading-closing { flex: 1 1 100%; min-width: 0; margin: 0.5rem 0; }
+
+/* Faixa sem versão neste devocional: aparece apagada e não se escolhe. */
+.bandpick__opt--off { opacity: 0.6; background: #F4F1EB; cursor: default; }
+.bandpick__img--empty { background: #EDE7DC; }
+.fam-why { margin: 0.5rem 0 0.25rem; padding: 0.8rem 1rem; border-radius: 14px; background: #F6F0E4; font-size: 0.85rem; color: var(--text-strong); }
+.fam-why b { display: block; margin-bottom: 0.3rem; font-size: 0.9rem; }
+.fam-why ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.15rem; }
+.fam-why li::before { content: '✓'; margin-right: 0.5rem; color: var(--accent-strong); font-weight: 700; }
+.fam-why small { display: block; margin-top: 0.4rem; color: var(--text-muted); font-size: 0.78rem; }

@@ -173,7 +173,7 @@ export function PrayerRequestModal({ isOpen: controlledIsOpen, onClose, devotion
 
             <h2
               id="prayer-modal-title"
-              style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', marginBottom: '0.75rem', fontWeight: 400 }}
+              style={{ fontFamily: 'var(--font-serif)', fontSize: '1.6rem', marginBottom: '0.75rem', fontWeight: 600, letterSpacing: '-0.02em' }}
             >
               {t('prayerRequest.authGateTitle', 'Entre para compartilhar seu pedido de oração')}
             </h2>
@@ -218,7 +218,7 @@ export function PrayerRequestModal({ isOpen: controlledIsOpen, onClose, devotion
 
             <h2
               id="prayer-modal-title"
-              style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', marginBottom: '1rem', fontWeight: 400 }}
+              style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', marginBottom: '1rem', fontWeight: 600, letterSpacing: '-0.02em' }}
             >
               {t('prayerRequest.successTitle', 'Recebemos seu pedido.')}
             </h2>
@@ -253,7 +253,7 @@ export function PrayerRequestModal({ isOpen: controlledIsOpen, onClose, devotion
 
             <h2
               id="prayer-modal-title"
-              style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', marginBottom: '0.5rem', fontWeight: 400 }}
+              style={{ fontFamily: 'var(--font-serif)', fontSize: '1.8rem', marginBottom: '0.5rem', fontWeight: 600, letterSpacing: '-0.02em' }}
             >
               {t('prayerRequest.title', 'Podemos orar por você?')}
             </h2>

@@ -1,0 +1,21 @@
+.legalup { position: fixed; inset: 0; z-index: 1000; background: var(--canvas); overflow-y: auto; display: flex; justify-content: center; padding: 20px 16px 32px; }
+.legalup__card { width: 100%; max-width: 460px; }
+.legalup__eyebrow { margin: 8px 0 0; font-size: 11.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-muted); }
+.legalup__title { margin: 4px 0 8px; font-size: 23px; line-height: 1.2; letter-spacing: -.02em; color: var(--text-strong); }
+.legalup__lead { margin: 0 0 12px; font-size: 14px; line-height: 1.5; color: var(--text-muted); }
+.legalup__changes { background: #F6F0E4; border-radius: 14px; padding: 12px 14px; font-size: 13.5px; line-height: 1.55; color: var(--text-strong); margin-bottom: 12px; }
+.legalup__changes b { display: block; margin-bottom: 4px; }
+.legalup__changes ul { margin: 0; padding-left: 18px; }
+.legalup__links { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0 0 14px; font-size: 13px; font-weight: 500; }
+.legalup__links a { color: var(--accent-strong); }
+.legalup__check { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; line-height: 1.45; margin: 10px 0; color: var(--text-strong); }
+.legalup__check input { width: 20px; height: 20px; margin: 1px 0 0; flex: none; accent-color: var(--accent-strong); }
+.legalup__check em, .legalup__wa h2 em { font-style: normal; font-size: 11px; font-weight: 600; color: var(--accent-strong); margin-left: 4px; }
+.legalup__wa { border: 1px solid var(--border-subtle); border-radius: 16px; padding: 14px; background: var(--surface); margin: 12px 0; }
+.legalup__wa h2 { margin: 0 0 4px; font-size: 15.5px; font-weight: 600; }
+.legalup__wa p { margin: 0 0 10px; font-size: 13px; line-height: 1.45; color: var(--text-muted); }
+.legalup__phone { width: 100%; box-sizing: border-box; border: 1px solid #d9d2c4; border-radius: 10px; padding: 12px 13px; font-size: 16px; font-family: inherit; color: var(--text-strong); background: #fff; margin-bottom: 8px; }
+.legalup__small { font-size: 12px !important; color: var(--text-faint) !important; margin: 4px 0 0 !important; }
+.legalup__err { margin: 0 0 8px; font-size: 12.5px; color: #B3261E; }
+.legalup__cta { width: 100%; margin-top: 14px; border: 0; border-radius: 14px; padding: 15px; font-size: 16px; font-weight: 500; font-family: inherit; background: var(--brand-navy); color: #fff; cursor: pointer; }
+.legalup__cta:disabled { background: #c9c3b6; cursor: not-allowed; }

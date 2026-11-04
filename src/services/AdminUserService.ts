@@ -1,21 +1,30 @@
 import { illumineFetch } from '../lib/illumine';
-import type { AdminUserItem, AppRole, TenantRole, PaginatedUsersResult } from '../types/AdminUser';
+import type { AdminUserItem, AppRole, TenantRole, PaginatedUsersResult, WhatsappFilter } from '../types/AdminUser';
 
 interface GetUsersParams {
   search?: string;
   page?: number;
   pageSize?: number;
+  whatsapp?: WhatsappFilter;
+  roleId?: string;
+}
+
+function directoryParams(f: { search?: string; whatsapp?: WhatsappFilter; roleId?: string }): string {
+  const params = new URLSearchParams();
+  if (f.search?.trim()) params.set('search', f.search.trim());
+  if (f.whatsapp && f.whatsapp !== 'all') params.set('whatsapp', f.whatsapp);
+  if (f.roleId) params.set('roleId', f.roleId);
+  return params.toString();
 }
 
 export const AdminUserService = {
-  async getUsers({ search, page = 1, pageSize = 20 }: GetUsersParams = {}): Promise<PaginatedUsersResult> {
+  /** Diretório com busca, papel e situação do WhatsApp (GET /users/directory). */
+  async getUsers({ search, page = 1, pageSize = 20, whatsapp = 'all', roleId }: GetUsersParams = {}): Promise<PaginatedUsersResult> {
     const safePage = Math.max(1, page);
-    const params = new URLSearchParams({ page: String(safePage), perPage: String(pageSize) });
-    if (search?.trim()) params.set('search', search.trim());
-    const res = await illumineFetch(`/users?${params}`);
-    if (!res.ok) throw new Error(`[AdminUserService] L1 /users falhou com status ${res.status}`);
+    const res = await illumineFetch(`/users/directory?${directoryParams({ search, whatsapp, roleId })}&page=${safePage}&pageSize=${pageSize}`);
+    if (!res.ok) throw new Error(`[AdminUserService] /users/directory falhou com status ${res.status}`);
     const body = await res.json();
-    const users: any[] = body.users ?? body.data ?? [];
+    const users: any[] = body.users ?? [];
     return {
       data: users.map((u): AdminUserItem => ({
         id: u.id,
@@ -24,14 +33,29 @@ export const AdminUserService = {
         avatar_url: u.avatar ?? null,
         created_at: u.createdAt,
         last_sign_in_at: null,
-        // GET /users inclui { role: { id, name } | null } por usuário (papel único por tenant).
         role: u.role ? { id: u.role.id, name: u.role.name } : null,
+        phone: u.phone ?? null,
+        whatsapp: u.whatsapp,
       })),
       total: body.total ?? users.length,
       page: body.page ?? safePage,
       pageSize: body.perPage ?? pageSize,
-      totalPages: body.totalPages ?? Math.max(1, Math.ceil((body.total ?? users.length) / pageSize)),
+      totalPages: body.totalPages ?? 1,
+      counts: body.counts,
+      canSeeWhatsapp: !!body.canSeeWhatsapp,
     };
+  },
+
+  /** Baixa a lista filtrada em CSV (só para quem gerencia consentimentos). */
+  async exportCsv(filters: { search?: string; whatsapp?: WhatsappFilter; roleId?: string }): Promise<void> {
+    const res = await illumineFetch(`/users/directory?${directoryParams(filters)}&format=csv`);
+    if (!res.ok) throw new Error(`[AdminUserService] exportação falhou com status ${res.status}`);
+    const url = URL.createObjectURL(await res.blob());
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'usuarios.csv';
+    a.click();
+    URL.revokeObjectURL(url);
   },
 
   async getMyRoles(): Promise<AppRole[]> {

@@ -9,14 +9,14 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Cell,
 } from 'recharts';
 import { queueStatus, QUEUE_TARGET_DAYS, type QueueStatus } from '../../utils/contentQueue';
 import { getTodayInSaoPaulo } from '../../utils/date';
-import { AdminService, type DashboardMetrics, type DailySeriesPoint, type ReadingModes, type ReadingTrends, type SearchTerms } from '../../services/AdminService';
+import '../../styles/admin-dashboard.css';
+import { KidsIndicatorsPanel } from '../../components/admin/KidsIndicatorsPanel';
+import { AdminService, type DashboardMetrics, type DailySeriesPoint, type KidsIndicators, type ReadingModes, type ReadingTrends, type SearchTerms } from '../../services/AdminService';
 
 const ACCENT = 'var(--color-accent, #c46d53)';
-const ACCENT_SOFT = '#e8c3b6';
 const GOOD = '#059669';
 const BAD = '#dc2626';
 const MUTED = '#9ca3af';
@@ -30,6 +30,12 @@ const TOPIC_LABELS: Record<string, string> = {
 };
 
 const MODE_LABELS: Record<string, string> = { individual: 'Individual', grupo: 'Em grupo', criancas: 'Com crianças' };
+const MODE_ICONS: Record<string, string> = { individual: '🙏', grupo: '👥', criancas: '🧒' };
+const PERIODS = [
+  { id: 'today', label: 'Hoje', phrase: 'de hoje' },
+  { id: '7d', label: '7 dias', phrase: 'dos últimos 7 dias' },
+  { id: '30d', label: '30 dias', phrase: 'dos últimos 30 dias' },
+];
 const bandLabel = (band: string) => `${band.replace('-', ' a ')} anos`;
 
 const funnelChartData = (metrics: DashboardMetrics) => [
@@ -47,6 +53,7 @@ export function AdminDashboard() {
   const [queue, setQueue] = useState<QueueStatus | null>(null);
   const [searchTerms, setSearchTerms] = useState<SearchTerms | null>(null);
   const [readingModes, setReadingModes] = useState<ReadingModes | null>(null);
+  const [kidsIndicators, setKidsIndicators] = useState<KidsIndicators | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [period, setPeriod] = useState('7d'); // 'today', '7d', '30d'
@@ -112,6 +119,7 @@ export function AdminDashboard() {
     if (period === '7d') start.setDate(end.getDate() - 7);
     else if (period === '30d') start.setDate(end.getDate() - 30);
     AdminService.getReadingModes(toLocalDateString(start), toLocalDateString(end)).then(setReadingModes);
+    AdminService.getKidsIndicators(toLocalDateString(start), toLocalDateString(end)).then(setKidsIndicators);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period]);
 
@@ -204,32 +212,89 @@ export function AdminDashboard() {
 
   const funnelData = funnelChartData(metrics);
 
+  // Resumo em frase (Modelo C): tudo calculado dos dados já carregados.
+  const periodPhrase = PERIODS.find(p => p.id === period)?.phrase ?? '';
+  const fmt = (n: number) => n.toLocaleString('pt-BR');
+  const plural = (n: number, one: string, many: string) => `${fmt(n)} ${n === 1 ? one : many}`;
+  const { current: readsNow, previous: readsBefore } = metrics.intelligence.reads;
+  const readsChange = readsBefore > 0 ? Math.round(((readsNow - readsBefore) / readsBefore) * 100) : null;
+  const sharedModes = readingModes && readingModes.total > 0
+    ? readingModes.modes.filter(m => m.mode !== 'individual').reduce((sum, m) => sum + m.reads, 0)
+    : null;
+  const sharedPct = sharedModes !== null && readingModes ? Math.round((sharedModes / readingModes.total) * 100) : null;
+  const bestDay = dailySeries.length > 1
+    ? dailySeries.reduce((best, d) => (d.reads > best.reads ? d : best), dailySeries[0])
+    : null;
+  const halfIdx = Math.floor(dailySeries.length / 2);
+  const firstHalf = dailySeries.slice(0, halfIdx).reduce((sum, d) => sum + d.reads, 0);
+  const secondHalf = dailySeries.slice(halfIdx).reduce((sum, d) => sum + d.reads, 0);
+  const halfChange = dailySeries.length >= 4 && firstHalf > 0 ? Math.round(((secondHalf - firstHalf) / firstHalf) * 100) : null;
+  const returnNextDay = metrics.retention.cohort_size > 0
+    ? Math.round((metrics.retention.d1 / metrics.retention.cohort_size) * 100)
+    : null;
+
   return (
-    <div>
+    <div className="dash">
       <div className="admin-header">
         <div>
           <h1>Intelligence Center</h1>
           <p>Visão gerencial de alcance, engajamento e relacionamento.</p>
         </div>
-        <div className="admin-period-selector">
-          <select value={period} onChange={e => setPeriod(e.target.value)}>
-            <option value="today">Hoje</option>
-            <option value="7d">Últimos 7 dias</option>
-            <option value="30d">Últimos 30 dias</option>
-          </select>
+        <div className="dash-seg" role="group" aria-label="Período">
+          {PERIODS.map(p => (
+            <button
+              key={p.id}
+              type="button"
+              className={period === p.id ? 'is-on' : ''}
+              aria-pressed={period === p.id}
+              onClick={() => setPeriod(p.id)}
+            >
+              {p.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="admin-grid">
+      <section className="dash-story" aria-label={`Resumo ${periodPhrase}`}>
+        <div className="dash-story__eyebrow">O resumo {periodPhrase}</div>
+        <p className="dash-story__text">
+          {readsNow > 0 ? (
+            <>
+              <em>{plural(readsNow, 'leitura concluída', 'leituras concluídas')}</em>
+              {readsChange !== null && <>, {Math.abs(readsChange)}% {readsChange >= 0 ? 'a mais' : 'a menos'} que no período anterior</>}
+              .
+              {sharedPct !== null && sharedPct > 0 && <> <em>{sharedPct}%</em> foram feitas em grupo ou com crianças.</>}
+            </>
+          ) : (
+            <>Ainda não houve leituras concluídas {periodPhrase}.</>
+          )}
+        </p>
+        <div className="dash-story__chips">
+          {bestDay && bestDay.reads > 0 && (
+            <span className="dash-chip">
+              🔥 Melhor dia:{' '}
+              <b>{new Date(`${bestDay.day}T00:00:00`).toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit' })}, {plural(bestDay.reads, 'leitura', 'leituras')}</b>
+            </span>
+          )}
+          {returnNextDay !== null && (
+            <span className="dash-chip">🔁 <b>{returnNextDay}%</b> voltam no dia seguinte</span>
+          )}
+          {queue && queue.missing.length > 0 && (
+            <span className="dash-chip dash-chip--warn">⚠️ <b>{plural(queue.missing.length, 'dia', 'dias')}</b> sem devocional na fila</span>
+          )}
+        </div>
+      </section>
+
+      <div className="admin-grid dash-stats">
         <div className="admin-card">
           <div className="admin-card-title">Usuários Cadastrados</div>
-          <div className="admin-card-value">{metrics.total_users}</div>
+          <div className="admin-card-value">{fmt(metrics.total_users)}</div>
         </div>
 
         <div className="admin-card">
           <div className="admin-card-title">Usuários Ativos</div>
           <div className="admin-card-value">
-            {metrics.intelligence.active_users.current}
+            {fmt(metrics.intelligence.active_users.current)}
             {renderTrend(metrics.intelligence.active_users.current, metrics.intelligence.active_users.previous)}
           </div>
         </div>
@@ -237,7 +302,7 @@ export function AdminDashboard() {
         <div className="admin-card">
           <div className="admin-card-title">Leituras</div>
           <div className="admin-card-value">
-            {metrics.intelligence.reads.current}
+            {fmt(metrics.intelligence.reads.current)}
             {renderTrend(metrics.intelligence.reads.current, metrics.intelligence.reads.previous)}
           </div>
         </div>
@@ -245,7 +310,7 @@ export function AdminDashboard() {
         <div className="admin-card">
           <div className="admin-card-title">Compartilhamentos</div>
           <div className="admin-card-value">
-            {metrics.intelligence.shares.current}
+            {fmt(metrics.intelligence.shares.current)}
             {renderTrend(metrics.intelligence.shares.current, metrics.intelligence.shares.previous)}
           </div>
         </div>
@@ -253,7 +318,7 @@ export function AdminDashboard() {
         <div className="admin-card">
           <div className="admin-card-title">Testemunhos Recebidos</div>
           <div className="admin-card-value">
-            {metrics.intelligence.testimonials.current}
+            {fmt(metrics.intelligence.testimonials.current)}
             {renderTrend(metrics.intelligence.testimonials.current, metrics.intelligence.testimonials.previous)}
           </div>
         </div>
@@ -303,50 +368,31 @@ export function AdminDashboard() {
           <span><span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: ACCENT, marginRight: 6 }}></span>Leituras</span>
           <span><span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 2, background: GOOD, marginRight: 6 }}></span>Usuários ativos</span>
         </div>
+        {halfChange !== null && (
+          <div className="dash-insight">
+            <b>Em resumo:</b> na segunda metade do período houve {Math.abs(halfChange)}% {halfChange >= 0 ? 'mais' : 'menos'} leituras que na primeira.
+          </div>
+        )}
       </div>
 
       {/* ---------------- FUNIL ---------------- */}
       <div className="admin-section">
         <h3>Jornada da Comunidade</h3>
-        <div style={{ width: '100%', height: 240 }}>
-          <ResponsiveContainer>
-            <BarChart data={funnelData} layout="vertical" margin={{ top: 4, right: 24, left: 8, bottom: 4 }}>
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--color-border)" />
-              <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--color-text-light)' }} axisLine={false} tickLine={false} allowDecimals={false} />
-              <YAxis
-                type="category"
-                dataKey="label"
-                width={92}
-                tick={{ fontSize: 12, fill: 'var(--color-text)' }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <Tooltip
-                formatter={(value: any) => [value, 'Usuários']}
-                contentStyle={{ borderRadius: 8, border: '1px solid var(--color-border)', fontSize: '0.85rem' }}
-              />
-              <Bar dataKey="value" radius={[0, 6, 6, 0]} maxBarSize={26}>
-                {funnelData.map((_, i) => (
-                  <Cell key={i} fill={i === 0 ? ACCENT : ACCENT_SOFT} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="admin-funnel-container" style={{ marginTop: '4px' }}>
+        <p className="dash-hint">Da primeira visita até o retorno</p>
+        <ol className="dash-steps">
           {funnelData.map((step, i) => {
-            const prev = i === 0 ? metrics.funnel.accessed : funnelData[i - 1].value;
             return (
-              <div className="admin-funnel-step" key={step.label}>
-                <div className="admin-funnel-info">
-                  <div className="admin-funnel-label">{step.label}</div>
-                  <div className="admin-funnel-value">{step.value}</div>
-                </div>
-                <div className="admin-funnel-rate">{i === 0 ? '100%' : calcConversion(step.value, prev)}</div>
-              </div>
+              <li className="dash-step" key={step.label}>
+                <span className="dash-step__dot">{i + 1}</span>
+                <span className="dash-step__text">
+                  {step.label}
+                  <small>{i === 0 ? '100%' : `${calcConversion(step.value, metrics.funnel.accessed)} de quem acessou`}</small>
+                </span>
+                <b>{fmt(step.value)}</b>
+              </li>
             );
           })}
-        </div>
+        </ol>
       </div>
 
       <div className="admin-dashboard-columns">
@@ -568,31 +614,44 @@ export function AdminDashboard() {
 
       <div className="admin-section">
         <h3>Como as pessoas leem</h3>
+        <p className="dash-hint">Cada leitura concluída no período</p>
         {readingModes && readingModes.total > 0 ? (
-          <div className="admin-table-container admin-table-responsive">
-            <table className="admin-table">
-              <thead><tr><th>Modo</th><th>Leituras</th><th>%</th></tr></thead>
-              <tbody>
-                {readingModes.modes.map(m => (
-                  <tr key={m.mode}>
-                    <td data-label="Modo">{MODE_LABELS[m.mode] ?? m.mode}</td>
-                    <td data-label="Leituras">{m.reads}</td>
-                    <td data-label="%">{((m.reads / readingModes.total) * 100).toFixed(1)}%</td>
-                  </tr>
-                ))}
-                {readingModes.bands.map(b => (
-                  <tr key={b.band}>
-                    <td data-label="Modo">Crianças · {bandLabel(b.band)}</td>
-                    <td data-label="Leituras">{b.reads}</td>
-                    <td data-label="%">—</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <>
+            <div className="dash-modes">
+              {readingModes.modes.map(m => {
+                const pct = Math.round((m.reads / readingModes.total) * 100);
+                return (
+                  <div className="dash-mode" key={m.mode}>
+                    <span className="dash-mode__icon" aria-hidden="true">{MODE_ICONS[m.mode] ?? '📖'}</span>
+                    <span className="dash-mode__body">
+                      {MODE_LABELS[m.mode] ?? m.mode}
+                      <small>{plural(m.reads, 'leitura', 'leituras')}</small>
+                      <span className="dash-mode__bar"><i style={{ width: `${pct}%` }} /></span>
+                    </span>
+                    <b>{pct}%</b>
+                  </div>
+                );
+              })}
+            </div>
+            {readingModes.bands.length > 0 && (
+              <>
+                <h4 className="dash-subtitle">Versões usadas com as crianças</h4>
+                <div className="dash-bands">
+                  {readingModes.bands.map(b => (
+                    <span key={b.band}><b>{b.reads}</b>{bandLabel(b.band)}</span>
+                  ))}
+                </div>
+              </>
+            )}
+          </>
         ) : (
-          <p style={{ color: 'var(--color-text-light)', fontSize: '0.9rem' }}>Ainda sem leituras por modo neste período.</p>
+          <p className="dash-hint">Ainda sem leituras por modo neste período.</p>
         )}
+      </div>
+
+      <div className="admin-section">
+        <h3>Crianças por faixa de idade</h3>
+        <KidsIndicatorsPanel data={kidsIndicators} />
       </div>
 
       <div className="admin-section">

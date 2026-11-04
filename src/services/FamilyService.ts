@@ -43,6 +43,9 @@ export interface Family {
   plan: PlanState | null;
 }
 
+// Sem grupo ainda: a pessoa lê escolhendo só a versão; cadastrar crianças pede um grupo.
+export const NO_GROUP: Family = { id: '', name: '', meetingTime: null, role: 'owner', inviteCode: '', members: [], children: [], week: { days: [], streak: 0 }, plan: null };
+
 /** Quadro de uma história em quadrinhos: arte (igual em todos os idiomas), legenda e, às vezes, a fala de um personagem. */
 export interface KidPanel { image: string; caption: string; speech?: string }
 /** História da faixa: quadrinhos (0-3, 4-6, 7-10) ou dilema com debate (11-13). Vem pronta para o idioma pedido. */
@@ -204,6 +207,12 @@ export const FamilyService = {
     return (await call(`/families/me/prayers/${encodeURIComponent(id)}/pray`, json('POST'))).prayers ?? [];
   },
   /** Versões infantis aprovadas do devocional (vazio quando ainda não existem). */
+  /** Devocionais com versão para crianças publicada, com as faixas: { id: ['0-3', ...] }. */
+  async kidsAvailable(language: string): Promise<Record<string, string[]>> {
+    const res = await illumineFetch(`/devotionals/kids-available?language=${encodeURIComponent(language)}`);
+    if (!res.ok) throw new Error(String(res.status));
+    return (await res.json()).available ?? {};
+  },
   async getKids(devotionalId: string, language: string): Promise<KidsVersion[]> {
     try {
       const res = await illumineFetch(`/devotionals/${encodeURIComponent(devotionalId)}/kids?language=${encodeURIComponent(language)}`);
@@ -255,6 +264,18 @@ export const FamilyAdmin = {
   async kidsSummary(language = 'pt-BR'): Promise<Record<string, { draft: number; published: number }>> {
     const res = await illumineFetch(`/devotionals/kids-summary?language=${encodeURIComponent(language)}`);
     return res.ok ? (await res.json()).summary ?? {} : {};
+  },
+  /** Estado de cada faixa infantil em todos os idiomas de um devocional, numa chamada só (idioma → faixa → estado). */
+  async kidsStates(devotionalId: string): Promise<Record<string, Partial<Record<Band, 'draft' | 'published'>>>> {
+    const res = await illumineFetch(`/devotionals/${encodeURIComponent(devotionalId)}/kids/admin`);
+    const versions: any[] = res.ok ? (await res.json()).versions ?? [] : [];
+    const out: Record<string, Partial<Record<Band, 'draft' | 'published'>>> = {};
+    for (const v of versions) {
+      if (!BANDS.includes(v.band)) continue;
+      const lang = v.language ?? 'pt-BR';
+      (out[lang] ??= {})[v.band as Band] = v.status === 'published' ? 'published' : 'draft';
+    }
+    return out;
   },
   async getKids(devotionalId: string, language = 'pt-BR'): Promise<Record<Band, KidsDraft | null>> {
     const res = await illumineFetch(`/devotionals/${encodeURIComponent(devotionalId)}/kids/admin`);

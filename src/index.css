@@ -150,14 +150,9 @@
     "Segoe UI",
     sans-serif;
 
-  --font-serif:
-    "Fraunces",
-    ui-serif,
-    Georgia,
-    Cambria,
-    "Times New Roman",
-    Times,
-    serif;
+  /* Fonte única: Inter. O nome --font-serif é legado (alias) para não reescrever cada regra;
+     a hierarquia vem de peso, tamanho e espaçamento, não de uma segunda família. */
+  --font-serif: var(--font-family);
 }
 
 /* =========================================================
@@ -186,6 +181,7 @@ body {
   color: var(--color-text);
 
   font-family: var(--font-family);
+  font-optical-sizing: auto;
   line-height: 1.6;
 
   -webkit-font-smoothing: antialiased;
@@ -290,7 +286,7 @@ h4 {
   font-family: var(--font-serif);
 
   font-size: 2rem;
-  font-weight: 400;
+  font-weight: 600;
 
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -305,7 +301,8 @@ h4 {
   width: 100%;
 
   font-size: 1.25rem;
-  font-weight: 500;
+  font-style: italic;
+  font-weight: 400;
 
   line-height: 1.45;
 
@@ -760,7 +757,6 @@ h4 {
   position: relative;
   width: 100%;
   background: var(--surface);
-  border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -842,7 +838,7 @@ h4 {
 .relationship-card-title {
   font-family: var(--font-serif);
   font-size: 1.5rem;
-  font-weight: 400;
+  font-weight: 600; letter-spacing: -0.02em;
   margin-bottom: 0.5rem;
   color: var(--color-text);
 }
@@ -1073,7 +1069,7 @@ h4 {
   margin: 0 0 1.5rem;
   font-family: var(--font-serif);
   font-size: var(--devotional-title-size);
-  font-weight: 400;
+  font-weight: 600;
   line-height: 1.1;
   letter-spacing: -0.02em;
   color: var(--color-text);
@@ -1085,7 +1081,8 @@ h4 {
   padding-left: 1.1rem;
   border-left: 3px solid var(--accent-strong);
   font-size: 1.25rem;
-  font-weight: 500;
+  font-style: italic;
+  font-weight: 400;
   line-height: 1.45;
   color: var(--color-accent);
 }
@@ -1135,6 +1132,7 @@ h4 {
 }
 
 .devotional-signature-name {
+  /* Exceção deliberada à fonte única: a assinatura mantém o script. */
   font-family: 'Dancing Script', cursive;
   font-size: 1.9rem;
   font-weight: 600;
@@ -1193,7 +1191,7 @@ h4 {
 
 .principle-scripture-text {
   margin: 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-serif); font-weight: 500; letter-spacing: -0.02em;
   font-size: 1rem;
   line-height: 1.55;
   color: var(--color-text);
@@ -1258,8 +1256,7 @@ h4 {
   padding: 1rem 1.1rem;
   border-radius: 10px;
   background: color-mix(in srgb, var(--accent-strong) 6%, var(--color-bg));
-  font-family: var(--font-serif);
-  font-style: italic;
+  font-family: var(--font-serif); font-weight: 500;
   font-size: 1.05rem;
   line-height: 1.7;
   text-align: center;
@@ -1525,6 +1522,16 @@ h4 {
   line-height: 1.4;
   color: var(--color-text-light);
 }
+
+/* Convite no topo e caminhos depois da oração (visitante sem conta) */
+.shared-invite { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin: 0 0 1.25rem; padding: 0.6rem 0.6rem 0.6rem 1rem; border-radius: 14px; background: #F6F0E4; }
+.shared-invite__text { flex: 1; min-width: 0; font-size: 0.9rem; line-height: 1.35; color: var(--color-text); }
+.shared-invite__btn { flex: none; padding: 0.5rem 0.9rem; border: 0; border-radius: 999px; background: var(--color-text); color: var(--color-bg); font: inherit; font-size: 0.82rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.shared-paths { width: 100%; margin-top: var(--devotional-section-gap); display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+.shared-paths__title { width: 100%; margin: 0; font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-light); }
+.shared-paths__item { width: 100%; display: flex; align-items: center; gap: 0.9rem; padding: 0.8rem; border: 1px solid var(--color-border); border-radius: 16px; background: #fff; font-size: 0.9rem; line-height: 1.4; color: var(--color-text-light); }
+.shared-paths__item b { display: block; margin-bottom: 0.1rem; font-size: 1.05rem; font-weight: 600; color: var(--color-text); }
+.shared-paths__icon { flex: none; width: 3.6rem; height: 3.6rem; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #F0E9DD; color: var(--accent-strong, #8B7355); }
 
 /* =========================================================
    SHARE GUEST CTA MODAL
@@ -2560,8 +2567,9 @@ a:focus-visible {
   border-radius: 12px;
 }
 .reminder-invite__text { margin: 0 0 0.75rem; }
-.reminder-invite__actions { display: flex; justify-content: center; align-items: center; gap: 0.75rem; }
-.reminder-invite__no { background: none; border: 0; padding: 0.25rem 0.5rem; color: var(--color-text-light, #6b7280); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.reminder-invite__actions { display: flex; flex-direction: column; align-items: stretch; gap: 0.5rem; }
+.reminder-invite__actions .btn-secondary { width: 100%; }
+.reminder-invite__no { align-self: center; white-space: nowrap; background: none; border: 0; padding: 0.4rem 0.5rem; color: var(--color-text-light, #6b7280); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 .reminder-invite__note { margin: 0.75rem 0 0; font-size: 0.8rem; color: var(--color-text-light, #6b7280); }
 .reminder-invite__err { margin: 0.5rem 0 0; font-size: 0.85rem; color: #dc2626; }
 .reminder-invite__ok { margin: 1.5rem auto 0; text-align: center; color: var(--color-text-light, #6b7280); }
@@ -2600,7 +2608,7 @@ a:focus-visible {
 
 .profile-row-link { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 1rem 0; background: none; border: 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); font: inherit; font-size: 1rem; color: var(--text-strong); cursor: pointer; }
 
-.kids__title { margin: 0 0 0.4rem; font-family: var(--font-serif); font-weight: 400; font-size: 1.3rem; }
+.kids__title { margin: 0 0 0.4rem; font-family: var(--font-serif); font-weight: 600; letter-spacing: -0.02em; font-size: 1.3rem; }
 
 /* =========================================================
    SEÇÕES COM IDENTIDADE (devocional adulto, leitura infantil e ritual)
@@ -2639,14 +2647,13 @@ a:focus-visible {
   padding: 1rem 1.1rem;
   border-radius: 10px;
   background: color-mix(in srgb, var(--accent-strong) 6%, var(--color-bg));
-  font-family: var(--font-serif);
-  font-style: italic;
+  font-family: var(--font-serif); font-weight: 500;
   text-align: center;
 }
 .sec-question {
   display: block;
   margin-top: 0.6rem;
-  font-family: var(--font-serif);
+  font-family: var(--font-serif); font-weight: 500; letter-spacing: -0.02em;
   font-size: 1.1em;
   color: var(--color-text);
 }
@@ -2672,8 +2679,16 @@ a:focus-visible {
 .devotional-header--cover { border: 0; border-radius: 0; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 0.5rem; padding: 0.35rem 0 0.25rem; min-height: 0; }
 /* a frase de destaque fica logo abaixo do título da capa */
 .devotional-header--cover + .devotional-content { padding-top: 0.5rem; }
-.devotional-header--cover .devotional-logo { height: calc(var(--devotional-header-height) * 0.6); max-height: calc(var(--devotional-header-height) * 0.6); }
+.devotional-header--cover .devotional-logo { height: calc(var(--devotional-header-height) * 0.78); max-height: calc(var(--devotional-header-height) * 0.78); }
+/* telas logadas: sem barra no topo, então o conteúdo começa perto da borda */
+.content-area.content-area--app { padding-top: 1rem; }
 .devotional-header--cover .devotional-back { align-self: flex-start; margin-top: 0.5rem; }
 .devotional-cover { display: flex; flex-direction: column; gap: 0.4rem; width: 100%; margin-top: 0.75rem; }
 .devotional-cover__eyebrow { font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-strong); }
-.devotional-cover__title { margin: 0; font-family: var(--font-serif); font-size: clamp(1.9rem, 8vw, 2.6rem); font-weight: 400; line-height: 1.08; letter-spacing: -0.02em; color: var(--text-strong); }
+.devotional-cover__title { margin: 0; font-family: var(--font-serif); font-size: clamp(1.9rem, 8vw, 2.6rem); font-weight: 600; line-height: 1.08; letter-spacing: -0.02em; color: var(--text-strong); }
+
+/* Selo de versão para crianças nas listas de devocionais */
+.kids-badge { display: inline-block; margin-top: 0.4rem; padding: 0.1rem 0.55rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; line-height: 1.5; }
+.kids-badge--on { background: #eaf4ec; color: #1f6b3a; }
+.kids-badge--off { background: #f1efec; color: var(--color-text-light, #6b7280); }
+.plans__day .kids-badge { margin: 0 0 0 auto; flex: none; }

@@ -35,12 +35,19 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
   const pick = (m: 'together' | 'alone') => { setMode(m); try { localStorage.setItem('ritual.groupMode', m); } catch { /* sem armazenamento */ } };
   const alone = !kids && !devotionalId && mode === 'alone';
   const [fam, setFam] = useState(family);
+  // O grupo pode mudar por fora (criança removida em "Gerenciar crianças"): a tela acompanha na hora, sem recarregar.
+  useEffect(() => {
+    setFam(family);
+    const ids = new Set(family.children.map((c) => c.id));
+    setPresent((p) => new Set([...p].filter((id) => ids.has(id))));
+  }, [family]);
   const [adults, setAdults] = useState<Set<number>>(() => new Set(family.members.map((_, i) => i)));
   const [present, setPresent] = useState<Set<string>>(() => new Set(family.children.map((c) => c.id)));
   const [lead, setLead] = useState<Band | null>(null);
   const [nick, setNick] = useState('');
-  const [band, setBand] = useState<Band>('7-10');
-  const [adding, setAdding] = useState(fam.children.length === 0);
+  const [band, setBand] = useState<Band | ''>('');
+  // Cadastrar a criança é opcional: sem ninguém cadastrado, a pessoa só escolhe a versão e lê.
+  const [adding, setAdding] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   // Quem está em mais de um grupo (família, célula…) escolhe aqui para qual deles lê.
@@ -58,6 +65,7 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
 
   // Faixas com versão aprovada neste devocional e idioma. Sem isso a folha prometeria uma idade que a leitura não tem.
   const [avail, setAvail] = useState<Set<Band> | null>(null);
+  const [availFailed, setAvailFailed] = useState(false);
   const [cards, setCards] = useState<Partial<Record<Band, { image: string | null; text: string }>>>({});
   useEffect(() => {
     if (!kids) return;
@@ -66,7 +74,7 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
       const id = devotionalId ?? (await DevotionalService.getDailyDevotional(getTodayInSaoPaulo(), i18n.language)).id;
       const v = await FamilyService.getKids(id, i18n.language);
       if (alive) { setAvail(new Set(v.map((x) => x.band))); setCards(Object.fromEntries(v.map((x) => [x.band, storyCard(x.story)]))); }
-    })().catch(() => { if (alive) setAvail(null); });
+    })().catch(() => { if (alive) { setAvail(null); setAvailFailed(true); } });
     return () => { alive = false; };
   }, [kids, devotionalId, i18n.language]);
 
@@ -78,11 +86,14 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
   const missing = avail ? presentBands.filter((b) => !avail.has(b)) : [];
   // A escolha mostra todas as versões que existem neste devocional (inclusive de uma idade que ninguém na mesa tem); começa na mais nova de quem está à mesa.
   const options = avail ? ORDER.filter((b) => avail.has(b)) : presentBands;
-  const shared = lead && options.includes(lead) ? lead : bands[0] ?? options[0] ?? null;
+  // Sem criança à mesa, a versão não vem marcada: a pessoa escolhe. Com crianças, começa pela faixa delas.
+  const guest = kids && present.size === 0;
+  const shared = lead && options.includes(lead) ? lead : guest ? null : bands[0] ?? options[0] ?? null;
   const names = fam.members.filter((_, i) => adults.has(i)).map((m) => m.displayName ?? '').filter(Boolean);
   const reader = readerForDay(names, Math.floor(Date.now() / 86_400_000));
   const toggle = <T,>(set: Set<T>, v: T, put: (s: Set<T>) => void) => { const n = new Set(set); if (n.has(v)) n.delete(v); else n.add(v); put(n); };
-  const canStart = kids ? present.size > 0 && (!avail || options.length > 0) : alone || adults.size > 0;
+  // Crianças: sem versão carregada (ou com erro) a leitura não abre; senão cairia no texto dos adultos sem aviso.
+  const canStart = kids ? !!avail && options.length > 0 && !!shared : alone || adults.size > 0;
 
   const start = () => {
     onClose();
@@ -92,20 +103,20 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
       window.dispatchEvent(new Event('hoje:read'));
       return;
     }
-    if (kids) openRitual('daily', 'kids', { intro: false, kidIds: [...present], band: shared ?? undefined, devotionalId });
+    if (kids) openRitual('daily', 'kids', { intro: false, kidIds: [...present], band: shared ?? undefined, guestBand: guest ? shared ?? undefined : undefined, devotionalId });
     else openRitual(plan ? 'plan' : 'daily', 'adults', { intro: false, adultIdx: [...adults], devotionalId });
   };
 
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nick.trim() || busy) return;
+    if (!nick.trim() || !band || busy) return;
     setBusy(true); setError('');
     try {
       const before = new Set(fam.children.map((c) => c.id));
-      const f = await FamilyService.addChild(nick.trim(), band);
+      const f = await FamilyService.addChild(nick.trim(), band as Band);
       setFam(f); onChanged?.(f);
       setPresent((p) => { const n = new Set(p); f.children.filter((c) => !before.has(c.id)).forEach((c) => n.add(c.id)); return n; });
-      setNick(''); setAdding(false);
+      setNick(''); setBand(''); setAdding(false);
     } catch { setError(tt('setupError', 'Não foi possível salvar agora. Tente de novo.')); }
     setBusy(false);
   };
@@ -120,13 +131,19 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
         </label>
       )}
       {!kids && !devotionalId && (
-        <div className="fam-people" role="tablist" aria-label={tt('groupHowTitle', 'Como o grupo vai ler?')}>
-          <button type="button" className={`fam-chip${!alone ? ' is-on' : ''}`} aria-pressed={!alone} onClick={() => pick('together')}>{tt('modeTogether', 'Estamos juntos agora')}</button>
-          <button type="button" className={`fam-chip${alone ? ' is-on' : ''}`} aria-pressed={alone} onClick={() => pick('alone')}>{tt('modeAlone', 'Cada um no seu tempo')}</button>
+        <div className="ritual__choices" role="radiogroup" aria-label={tt('groupHowTitle', 'Como o grupo vai ler?')}>
+          <button type="button" role="radio" aria-checked={!alone} className={`ritual__choice${!alone ? ' is-on' : ''}`} onClick={() => pick('together')}>
+            <strong>{tt('modeTogether', 'Estamos juntos agora')}</strong>
+            <span>{tt('modeTogetherSub', 'Todos juntos, no mesmo momento. Você escolhe quem está à mesa.')}</span>
+          </button>
+          <button type="button" role="radio" aria-checked={alone} className={`ritual__choice${alone ? ' is-on' : ''}`} onClick={() => pick('alone')}>
+            <strong>{tt('modeAlone', 'Cada um no seu tempo')}</strong>
+            <span>{tt('aloneHint', 'Você lê agora, no seu ritmo. Ao terminar, o grupo vê que você leu.')}</span>
+          </button>
         </div>
       )}
-      {alone && <p className="fam-note">{tt('aloneHint', 'Você lê agora, no seu ritmo. Ao terminar, o grupo vê que você leu.')}</p>}
 
+      {kids && !alone && <><h3 className="fam-step">{tt('whoComes', '1 · Quem está com você?')}</h3><p className="fam-note">{tt('whoHint', 'Toque para marcar ou tirar quem vai ouvir a leitura agora.')}</p></>}
       {!alone && <div className="fam-people">
         {kids
           ? fam.children.map((c) => (
@@ -141,41 +158,64 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
                 <span className="fam-person__label">{m.isMe ? tt('you', 'você') : m.displayName ?? tt('someone', 'Alguém')}</span>
               </button>
             ))}
-        {kids && !adding && (
+        {kids && !adding && fam.id && (
           <button type="button" className="fam-person" onClick={() => setAdding(true)}>
             <span className="fam-avatar fam-avatar--add">+</span>
-            <span className="fam-person__label">{tt('addShort', 'Adicionar')}</span>
+            <span className="fam-person__label">{fam.children.length === 0 ? tt('addOptional', 'Criança (opcional)') : tt('addShort', 'Adicionar')}</span>
           </button>
         )}
       </div>}
 
+      {kids && guest && !adding && fam.id && (
+        <div className="fam-why">
+          <b>{tt('whyTitle', 'Por que cadastrar?')}</b>
+          <ul>
+            <li>{tt('why1', 'Acompanha os dias de leitura de cada criança')}</li>
+            <li>{tt('why2', 'Deixa a idade pronta na próxima leitura')}</li>
+            <li>{tt('why3', 'Registra a leitura dela junto com a sua')}</li>
+          </ul>
+          <small>{tt('whyOptional', 'Não é obrigatório: dá para ler escolhendo só a versão.')}</small>
+        </div>
+      )}
+      {kids && guest && !fam.id && <p className="fam-note">{tt('needGroup', 'Para cadastrar crianças e acompanhar os dias de leitura, crie um grupo na aba Grupo.')}</p>}
+
       {kids && adding && (
+        <>
+        <p className="fam-note">{tt('registerLead', 'Cadastre a criança para acompanhar os dias de leitura dela e já deixar a idade escolhida da próxima vez.')}</p>
         <form className="fam-inline" onSubmit={add}>
           <input value={nick} onChange={(e) => setNick(e.target.value)} placeholder={tt('nickname', 'Apelido')} maxLength={20} aria-label={tt('nickname', 'Apelido')} />
           <select value={band} onChange={(e) => setBand(e.target.value as Band)} aria-label={tt('band', 'Faixa de idade')}>
+            <option value="" disabled>{tt('bandPlaceholder', 'Selecione a idade')}</option>
             {ORDER.map((b) => <option key={b} value={b}>{bandLabel(b)} {tt('years', 'anos')}</option>)}
           </select>
-          <button type="submit" className="fam-btn fam-btn--secondary" disabled={busy || !nick.trim()}>{tt('addChild', 'Adicionar criança')}</button>
+          <button type="submit" className="fam-btn fam-btn--secondary" disabled={busy || !nick.trim() || !band}>{tt('addChild', 'Adicionar criança')}</button>
         </form>
+        <p className="fam-note">{tt('privacyLine', 'Guardamos só o apelido e a faixa de idade, nunca sobrenome, foto ou e-mail.')}</p>
+        </>
       )}
       {error && <p className="fam-error">{error}</p>}
+      {kids && availFailed && <p className="fam-error">{tt('versionsError', 'Não foi possível carregar as versões agora. Tente de novo.')}</p>}
 
-      {kids && shared && (options.length > 1 ? (
+      {kids && options.length > 0 && (options.length > 1 || guest ? (
         <>
-          <p className="fam-note">{tt('sharedVersion', 'Todos ouvem a mesma leitura. Qual versão?')}</p>
+          <h3 className="fam-step">{tt('pickVersion', '2 · Qual versão vocês vão ouvir?')}</h3>
+          <p className="fam-note">{tt('pickVersionHint', 'Todos ouvem a mesma leitura. Escolha a idade que serve melhor para a mesa.')}</p>
           <BandPicker
             bands={options}
+            unavailable={avail ? ORDER.filter((b) => !avail.has(b)) : []}
+            unavailableLabel={tt('unavailable', 'Indisponível')}
             value={shared}
             names={Object.fromEntries(options.map((b) => [b, fam.children.filter((c) => present.has(c.id) && c.band === b).map((c) => c.nickname)]))}
             cards={cards}
+            forLabel={tt('forWho', 'Para')}
             years={tt('years', 'anos')}
             ariaLabel={tt('sharedVersion', 'Todos ouvem a mesma leitura. Qual versão?')}
             onPick={setLead}
           />
         </>
-      ) : (
+      ) : shared ? (
         <p className="fam-note">{tt('sheetVersionOne', 'Vamos ler a versão de {{band}} anos.', { band: bandLabel(shared) })}</p>
-      ))}
+      ) : null)}
       {kids && missing.length > 0 && (
         <p className="fam-note">
           {options.length > 0
@@ -189,7 +229,7 @@ export function ReadStartSheet({ audience, family, plan, devotionalId, inline = 
     </>
   );
   return inline ? <div className="fam-startinline">{body}</div> : (
-    <Sheet title={kids ? tt('kidsSheetTitle', 'Quem lê com você?') : alone ? tt('groupHowTitle', 'Como o grupo vai ler?') : tt('groupSheetTitle', 'Quem está à mesa?')} onClose={onClose}>
+    <Sheet title={kids ? tt('kidsSheetTitle', 'Quem lê com você?') : !devotionalId ? tt('groupHowTitle', 'Como o grupo vai ler?') : tt('groupSheetTitle', 'Quem está à mesa?')} onClose={onClose}>
       {body}
     </Sheet>
   );

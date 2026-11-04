@@ -701,3 +701,28 @@
 .recharts-surface:focus {
   outline: none;
 }
+
+/* Quadro de estado do devocional (idiomas × versões) */
+.dm { background: #fff; border: 1px solid #e3e0da; border-radius: 14px; padding: 16px 18px; margin-bottom: 16px; }
+.dm__title { margin: 0 0 8px; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: #5A6472; }
+.dm__scroll { overflow-x: auto; }
+.dm__table { border-collapse: separate; border-spacing: 6px; width: 100%; min-width: 760px; }
+.dm__table th { font-size: 0.78rem; color: #5A6472; font-weight: 600; text-align: center; }
+.dm__lang { text-align: left !important; white-space: nowrap; font-size: 0.95rem !important; color: #1F262E !important; }
+.dm__tag { margin-left: 6px; padding: 2px 8px; border-radius: 999px; background: #f1efea; color: #5A6472; font-size: 0.72rem; font-weight: 600; }
+.dm__pill { width: 100%; min-width: 92px; padding: 6px 10px; border-radius: 999px; border: 1px solid transparent; font: inherit; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+.dm__pill--ok { background: #e8f3e6; color: #2f6b2a; }
+.dm__pill--dr { background: #fdf3dc; color: #9a6a00; }
+.dm__pill--em { background: #f1efea; color: #6b7280; }
+.dm__pill--st { background: #fde9e7; color: #b42318; }
+.dm__pill.is-on { outline: 2px solid #1F262E; outline-offset: 2px; }
+.dm__row-actions { white-space: nowrap; text-align: right; }
+.dm__btn { padding: 8px 14px; border-radius: 10px; border: 1px solid #d9d4cb; background: #fff; color: #1F262E; font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+.dm__btn--sm { padding: 5px 10px; font-size: 0.78rem; }
+.dm__btn--primary { background: var(--color-primary, #8A6F4A); border-color: var(--color-primary, #8A6F4A); color: #fff; }
+.dm__btn--danger { color: #b42318; border-color: #f0c9c5; }
+.dm__btn:disabled { opacity: 0.5; cursor: wait; }
+.dm__foot { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; border-top: 1px solid #eee; margin-top: 6px; padding-top: 12px; }
+.dm__note { flex: 1; min-width: 240px; margin: 0; font-size: 0.8rem; color: #5A6472; }
+.dm__foot-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.dm__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
