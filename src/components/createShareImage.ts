@@ -347,7 +347,7 @@ async function drawOg(ctx: CanvasRenderingContext2D, d: DrawData) {
   const availH = h - safe.top - safe.bottom
 
   const logo  = await loadLogo(d.logoVerticalDataUrl || d.logoDataUrl)
-  const LW    = 330
+  const LW    = 281
   const LH    = Math.round(LW * logo.height / logo.width)
   const GAP   = 46
   const textMaxW = IW - LW - GAP * 2 - 2 - 40
@@ -484,11 +484,11 @@ export async function createShareImage(
   if (format === 'og') {
     await drawOg(ctx, data)
   } else if (format === 'story') {
-    await drawCentered(ctx, format, data, { logo: 640, title: 50, principle: 84 })
+    await drawCentered(ctx, format, data, { logo: 544, title: 50, principle: 84 })
   } else if (format === 'feed') {
-    await drawCentered(ctx, format, data, { logo: 520, title: 42, principle: 66 })
+    await drawCentered(ctx, format, data, { logo: 442, title: 42, principle: 66 })
   } else {
-    await drawCentered(ctx, format, data, { logo: 440, title: 38, principle: 54 })
+    await drawCentered(ctx, format, data, { logo: 374, title: 38, principle: 54 })
   }
 
   return new Promise((resolve, reject) =>
