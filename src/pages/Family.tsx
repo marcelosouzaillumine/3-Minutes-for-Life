@@ -30,7 +30,7 @@ export function Family() {
   const [groups, setGroups] = useState<{ families: FamilySummary[]; max: number }>({ families: [], max: 5 });
   const [prayers, setPrayers] = useState<FamilyPrayer[]>([]);
   const [templates, setTemplates] = useState<PlanTemplate[]>([]);
-  const [sheet, setSheet] = useState<SheetKind>(() => (pendingFamilyCode.get() ? 'join' : null));
+  const [sheet, setSheet] = useState<SheetKind>(() => (pendingFamilyCode.shouldOpen() ? 'join' : null));
   const [readSheet, setReadSheet] = useState<{ plan: boolean } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -41,6 +41,8 @@ export function Family() {
   const [editName, setEditName] = useState<string | null>(null);
   const [editMeeting, setEditMeeting] = useState<string | null>(null);
   const [code, setCode] = useState(() => pendingFamilyCode.get() ?? '');
+  // A folha abre sozinha uma vez por convite; depois o código segue guardado, preenchido em "Tenho um código de convite".
+  useEffect(() => { if (pendingFamilyCode.shouldOpen()) pendingFamilyCode.markShown(); }, []);
   const [prayerText, setPrayerText] = useState('');
   const [copied, setCopied] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
@@ -85,8 +87,7 @@ export function Family() {
     return () => window.removeEventListener('family:changed', onChange);
   }, [load]);
 
-  // Fechar a folha de entrada descarta o convite guardado: senão ele reabre a cada carregamento.
-  const close = () => { if (sheet === 'join') pendingFamilyCode.clear(); setSheet(null); setError(''); setConfirmLeave(false); setEditName(null); setEditMeeting(null); };
+  const close = () => { setSheet(null); setError(''); setConfirmLeave(false); setEditName(null); setEditMeeting(null); };
   const apply = (f: FamilyT) => { setFamily(f); close(); };
 
   const groupSheets = (

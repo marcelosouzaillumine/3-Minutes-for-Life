@@ -226,10 +226,15 @@ export const FamilyService = {
 
 // Código recebido por link, guardado até a pessoa entrar na conta.
 const PENDING_KEY = 'family:pending-code';
+const SHOWN_KEY = 'family:pending-code-shown';
 export const pendingFamilyCode = {
-  set(code: string) { try { localStorage.setItem(PENDING_KEY, code); } catch { /* sem armazenamento */ } },
+  /** Chegada por link: guarda o código e volta a abrir a folha de entrada uma vez. */
+  set(code: string) { try { localStorage.setItem(PENDING_KEY, code); localStorage.removeItem(SHOWN_KEY); } catch { /* sem armazenamento */ } },
   get(): string | null { try { return localStorage.getItem(PENDING_KEY); } catch { return null; } },
-  clear() { try { localStorage.removeItem(PENDING_KEY); } catch { /* idem */ } },
+  /** Há convite guardado que ainda não foi mostrado na folha de entrada. */
+  shouldOpen(): boolean { try { return !!localStorage.getItem(PENDING_KEY) && !localStorage.getItem(SHOWN_KEY); } catch { return false; } },
+  markShown() { try { localStorage.setItem(SHOWN_KEY, '1'); } catch { /* idem */ } },
+  clear() { try { localStorage.removeItem(PENDING_KEY); localStorage.removeItem(SHOWN_KEY); } catch { /* idem */ } },
 };
 
 // ─── Admin: conteúdo da família ────────────────────────────────────────────

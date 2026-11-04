@@ -63,7 +63,7 @@ function FamilyInviteLanding() {
 // The /app shell with bottom navigation and tab routing
 function AppShell() {
   // Com um convite de família pendente, abre direto na aba Família.
-  const [currentTab, setCurrentTab] = useState<Tab>(() => (pendingFamilyCode.get() ? 'family' : 'home'));
+  const [currentTab, setCurrentTab] = useState<Tab>(() => (pendingFamilyCode.shouldOpen() ? 'family' : 'home'));
   // Tocar na aba já ativa remonta a tela dela (volta ao início, ex.: sai do devocional aberto na Biblioteca)
   const [tabResetKey, setTabResetKey] = useState(0);
   // Ler juntos abre por cima de qualquer aba (cartão da Home, aba Família).
