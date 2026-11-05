@@ -33,8 +33,6 @@ service-role-keys
 *.illumine-backup
 *.orig
 *.save
-check_supabase*.js
-check_supabase*.ts
 test-*.js
 test-*.ts
 diagnostic_*.js
