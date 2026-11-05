@@ -245,8 +245,8 @@ export function AdminBottomNav() {
       </Link>
 
       <Link
-        to="/admin/kids"
-        className={`nav-item ${pathname.includes('/kids') ? 'active' : ''}`}
+        to="/admin/plans"
+        className={`nav-item ${pathname.includes('/plans') || pathname.includes('/kids') ? 'active' : ''}`}
         style={{ textDecoration: 'none' }}
       >
         <svg className="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { AdminService } from '../services/AdminService';
 
@@ -243,8 +243,13 @@ export function AdminLayout() {
     // PLANOS (as versões infantis ficam no editor de Conteúdo)
     // -----------------------------------------------------
 
-    if (pathname === '/admin/kids') {
+    if (pathname === '/admin/plans') {
       return <AdminKids />;
+    }
+
+    // Endereço antigo da tela de Planos: mantém links salvos funcionando.
+    if (pathname === '/admin/kids') {
+      return <Navigate to="/admin/plans" replace />;
     }
 
     // -----------------------------------------------------
