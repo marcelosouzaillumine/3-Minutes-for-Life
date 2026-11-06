@@ -1,8 +1,9 @@
 import { type ShareFormat, SHARE_DIMS } from './ShareImageCard'
 
 const GOLD      = '#c8994f'   // linhas e detalhes
-const GOLD_TEXT = '#8a6a35'   // texto dourado com contraste sobre o creme
+const GOLD_TEXT = '#74561f'   // texto dourado com contraste sobre o creme
 const NAVY      = '#1b2539'
+const SLATE     = '#5b4a2e'
 const PAPER     = '#faf6ef'
 const SERIF     = 'Inter, system-ui, -apple-system, "Segoe UI", sans-serif'
 const SANS      = 'system-ui, -apple-system, "Segoe UI", sans-serif'
@@ -14,8 +15,6 @@ interface DrawData {
   /** Rótulo de destaque acima do título — "DEVOCIONAL DO DIA" ou a categoria,
    *  já traduzido e em caixa alta, calculado pelo chamador. */
   label: string
-  /** Chamada para a ação ("Leia em 3 minutos"), já traduzida. */
-  cta?: string
   /** Destaque "Disponível na versão infantil", já traduzido; só vem quando o devocional tem versão para crianças. */
   kidsBadge?: string
   /** Logo horizontal sobre fundo claro (Story, Feed, Facebook). */
@@ -43,7 +42,7 @@ interface Safe { x: number; top: number; bottom: number }
 const LINK_ZONE: Partial<Record<ShareFormat, number>> = { story: 240 }
 
 const SAFE: Record<ShareFormat, Safe> = {
-  story:    { x: 150, top: 320, bottom: 420 },
+  story:    { x: 200, top: 320, bottom: 420 },
   feed:     { x: 130, top: 120, bottom: 120 },
   facebook: { x: 120, top: 100, bottom: 100 },
   og:       { x: 80,  top: 70,  bottom: 70  },
@@ -191,55 +190,28 @@ async function drawCentered(
     const LW = Math.round(base.logo * s)
     const LH = Math.round(LW * ratio)
     top.push({ h: LH, draw: y => drawLogo(ctx, logo, cx - LW / 2, y, LW, LH) })
-    gap(top, 44)
+    gap(top, 64)
 
-    const labelSize = Math.round(22 * s)
-    top.push({
-      h: labelSize,
-      draw: y => {
-        ctx.font = `700 ${labelSize}px ${SERIF}`
-        ctx.fillStyle = GOLD_TEXT
-        spacedCentered(ctx, d.label, cx, y, 7)
-      },
-    })
-    gap(top, 18)
-
+    // Meio: título (rótulo da frase), frase e referência
     const titleSize = Math.round(base.title * s)
-    ctx.font = `700 ${titleSize}px ${SERIF}`
+    ctx.font = `600 ${titleSize}px ${SERIF}`
     const titleLines = wrapLines(ctx, d.title, IW)
-    const titleLine = Math.round(titleSize * 1.15)
-    top.push({
+    const titleLine = Math.round(titleSize * 1.25)
+    mid.push({
       h: titleLines.length * titleLine,
       draw: y => {
-        ctx.font = `700 ${titleSize}px ${SERIF}`
-        ctx.fillStyle = NAVY
+        ctx.font = `600 ${titleSize}px ${SERIF}`
+        ctx.fillStyle = SLATE
         ctx.textAlign = 'center'
         titleLines.forEach((l, i) => ctx.fillText(l, cx, y + i * titleLine))
       },
     })
-    gap(top, 26)
-    top.push({
-      h: 3,
-      draw: y => { ctx.fillStyle = GOLD; ctx.fillRect(cx - 32, y, 64, 3) },
-    })
-
-    // Meio: aspas, frase, referência
-    const quoteH = Math.round(50 * s)
-    mid.push({
-      h: quoteH,
-      draw: y => {
-        ctx.font = `700 ${Math.round(140 * s)}px ${SERIF}`
-        ctx.fillStyle = GOLD
-        ctx.textAlign = 'center'
-        ctx.fillText('\u201C', cx, y - Math.round(18 * s))
-      },
-    })
-    gap(mid, 14)
+    gap(mid, 44)
 
     const princSize = Math.round(base.principle * s)
     ctx.font = `600 ${princSize}px ${SERIF}`
     const princLines = wrapLines(ctx, d.principle, IW)
-    const princLine = Math.round(princSize * 1.28)
+    const princLine = Math.round(princSize * 1.4)
     mid.push({
       h: princLines.length * princLine,
       draw: y => {
@@ -251,23 +223,15 @@ async function drawCentered(
     })
 
     if (d.scripture) {
-      gap(mid, 48)
-      const sSize = Math.round(30 * s)
-      const sPadX = Math.round(40 * s)
-      const sPadY = Math.round(15 * s)
-      ctx.font = `400 ${sSize}px ${SERIF}`
-      const sW = Math.min(IW, spacedWidth(ctx, d.scripture, 5) + sPadX * 2)
-      const sH = sSize + sPadY * 2
+      gap(mid, 56)
+      const sSize = Math.round(40 * s)
+      ctx.font = `600 ${sSize}px ${SERIF}`
       mid.push({
-        h: sH,
+        h: sSize,
         draw: y => {
-          ctx.strokeStyle = GOLD_TEXT
-          ctx.lineWidth = 2
-          roundRectPath(ctx, cx - sW / 2, y, sW, sH, sH / 2)
-          ctx.stroke()
-          ctx.font = `400 ${sSize}px ${SERIF}`
+          ctx.font = `600 ${sSize}px ${SERIF}`
           ctx.fillStyle = GOLD_TEXT
-          spacedCentered(ctx, d.scripture!, cx, y + sPadY, 5)
+          spacedCentered(ctx, d.scripture!, cx, y, 5)
         },
       })
     }
@@ -275,56 +239,27 @@ async function drawCentered(
     // Base: destaque da versão infantil + chamada + site
     if (d.kidsBadge) {
       const kSize = Math.round(28 * s)
-      const kPadX = Math.round(40 * s)
-      const kPadY = Math.round(16 * s)
-      ctx.font = `700 ${kSize}px ${SANS}`
+      const kPadX = Math.round(36 * s)
+      const kPadY = Math.round(14 * s)
+      ctx.font = `600 ${kSize}px ${SANS}`
       const kW = Math.min(IW, ctx.measureText(d.kidsBadge).width + kPadX * 2)
       const kH = kSize + kPadY * 2
       foot.push({
         h: kH,
         draw: y => {
-          ctx.fillStyle = GOLD
+          ctx.strokeStyle = GOLD_TEXT
+          ctx.lineWidth = 2
           roundRectPath(ctx, cx - kW / 2, y, kW, kH, kH / 2)
-          ctx.fill()
-          ctx.font = `700 ${kSize}px ${SANS}`
-          ctx.fillStyle = NAVY
+          ctx.stroke()
+          ctx.font = `600 ${kSize}px ${SANS}`
+          ctx.fillStyle = GOLD_TEXT
           ctx.textAlign = 'center'
           ctx.fillText(d.kidsBadge!, cx, y + kPadY)
         },
       })
-      gap(foot, 22)
+      gap(foot, 32)
     }
-    if (d.cta) {
-      const cSize = Math.round(32 * s)
-      const cPadX = Math.round(54 * s)
-      const cPadY = Math.round(20 * s)
-      ctx.font = `600 ${cSize}px ${SANS}`
-      const cW = Math.min(IW, ctx.measureText(d.cta).width + cPadX * 2)
-      const cH = cSize + cPadY * 2
-      foot.push({
-        h: cH,
-        draw: y => {
-          ctx.fillStyle = NAVY
-          roundRectPath(ctx, cx - cW / 2, y, cW, cH, cH / 2)
-          ctx.fill()
-          ctx.font = `600 ${cSize}px ${SANS}`
-          ctx.fillStyle = PAPER
-          ctx.textAlign = 'center'
-          ctx.fillText(d.cta!, cx, y + cPadY)
-        },
-      })
-      gap(foot, 22)
-    }
-    const siteSize = Math.round(24 * s)
-    foot.push({
-      h: Math.round(siteSize * 1.3),
-      draw: y => {
-        ctx.font = `400 ${siteSize}px ${SERIF}`
-        ctx.fillStyle = GOLD_TEXT
-        spacedCentered(ctx, '3minutesforlife.com', cx, y, 4)
-      },
-    })
-    return { top, mid, foot, minGap: Math.round(60 * s) }
+    return { top, mid, foot, minGap: Math.round(90 * s) }
   }
 
   // Reduz a escala até caber, deixando respiro mínimo entre os três grupos
@@ -370,42 +305,35 @@ async function drawOg(ctx: CanvasRenderingContext2D, d: DrawData) {
   const titleLine = Math.round(titleSize * 1.12)
 
   // Referência bíblica: sempre inteira numa linha
-  let scripSize = 34
+  let scripSize = 36
   if (d.scripture) {
     for (; scripSize >= 18; scripSize -= 1) {
-      ctx.font = `400 ${scripSize}px ${SERIF}`
+      ctx.font = `600 ${scripSize}px ${SERIF}`
       if (spacedWidth(ctx, d.scripture, 5) <= textMaxW) break
     }
   }
 
-  const labelSize = 20
-  ctx.font = `700 ${labelSize}px ${SERIF}`
-  const labelW = spacedWidth(ctx, d.label, 6)
   ctx.font = `700 ${titleSize}px ${SERIF}`
   const titleW = Math.max(...titleLines.map(l => ctx.measureText(l).width))
-  ctx.font = `400 ${scripSize}px ${SERIF}`
+  ctx.font = `600 ${scripSize}px ${SERIF}`
   const scripW = d.scripture ? spacedWidth(ctx, d.scripture, 5) : 0
-  const ctaSize = 28
-  ctx.font = `600 ${ctaSize}px ${SANS}`
-  const ctaText = d.cta ? `${d.cta} \u2192` : ''
-  const ctaW = ctaText ? ctx.measureText(ctaText).width : 0
 
   const kidsSize = 22
   const kidsPadX = 24
   const kidsPadY = 10
-  ctx.font = `700 ${kidsSize}px ${SANS}`
+  ctx.font = `600 ${kidsSize}px ${SANS}`
   const kidsTextW = d.kidsBadge ? ctx.measureText(d.kidsBadge).width : 0
   const kidsW = d.kidsBadge ? Math.min(textMaxW, kidsTextW + kidsPadX * 2) : 0
   const kidsH = kidsSize + kidsPadY * 2
 
-  const textW = Math.min(textMaxW, Math.max(labelW, titleW, scripW, ctaW, kidsW))
+  const textW = Math.min(textMaxW, Math.max(titleW, scripW, kidsW))
   const groupW = LW + GAP + 2 + GAP + textW
   const x0 = Math.round((w - groupW) / 2)
   const textCx = x0 + LW + GAP + 2 + GAP + textW / 2
 
-  const textH = labelSize + 26 + titleLines.length * titleLine + 26 + 3
-    + (d.scripture ? 26 + scripSize : 0) + (ctaText ? 34 + ctaSize : 0)
-    + (d.kidsBadge ? 26 + kidsH : 0)
+  const textH = titleLines.length * titleLine
+    + (d.scripture ? 34 + scripSize : 0)
+    + (d.kidsBadge ? 34 + kidsH : 0)
   const colH = Math.min(Math.max(LH, textH), availH)
   const top = safe.top + Math.round((availH - colH) / 2)
 
@@ -417,45 +345,28 @@ async function drawOg(ctx: CanvasRenderingContext2D, d: DrawData) {
 
   let y = top + Math.round((colH - textH) / 2)
 
-  ctx.font = `700 ${labelSize}px ${SERIF}`
-  ctx.fillStyle = GOLD_TEXT
-  spacedCentered(ctx, d.label, textCx, y, 6)
-  y += labelSize + 26
-
   ctx.font = `700 ${titleSize}px ${SERIF}`
   ctx.fillStyle = NAVY
   ctx.textAlign = 'center'
   titleLines.forEach((l, i) => ctx.fillText(l, textCx, y + i * titleLine))
-  y += titleLines.length * titleLine + 26
-
-  ctx.fillStyle = GOLD
-  ctx.fillRect(textCx - 28, y, 56, 3)
-  y += 3
+  y += titleLines.length * titleLine
 
   if (d.scripture) {
-    y += 26
-    ctx.font = `400 ${scripSize}px ${SERIF}`
+    y += 34
+    ctx.font = `600 ${scripSize}px ${SERIF}`
     ctx.fillStyle = GOLD_TEXT
     spacedCentered(ctx, d.scripture, textCx, y, 5)
     y += scripSize
   }
 
-  if (ctaText) {
-    y += 34
-    ctx.font = `600 ${ctaSize}px ${SANS}`
-    ctx.fillStyle = NAVY
-    ctx.textAlign = 'center'
-    ctx.fillText(ctaText, textCx, y)
-    y += ctaSize
-  }
-
   if (d.kidsBadge) {
-    y += 26
-    ctx.fillStyle = GOLD
+    y += 34
+    ctx.strokeStyle = GOLD_TEXT
+    ctx.lineWidth = 2
     roundRectPath(ctx, textCx - kidsW / 2, y, kidsW, kidsH, kidsH / 2)
-    ctx.fill()
-    ctx.font = `700 ${kidsSize}px ${SANS}`
-    ctx.fillStyle = NAVY
+    ctx.stroke()
+    ctx.font = `600 ${kidsSize}px ${SANS}`
+    ctx.fillStyle = GOLD_TEXT
     ctx.textAlign = 'center'
     ctx.fillText(d.kidsBadge, textCx, y + kidsPadY)
   }
@@ -490,9 +401,9 @@ export async function createShareImage(
   if (format === 'og') {
     await drawOg(ctx, data)
   } else if (format === 'story') {
-    await drawCentered(ctx, format, data, { logo: 544, title: 50, principle: 84 })
+    await drawCentered(ctx, format, data, { logo: 544, title: 44, principle: 88 })
   } else if (format === 'feed') {
-    await drawCentered(ctx, format, data, { logo: 442, title: 42, principle: 66 })
+    await drawCentered(ctx, format, data, { logo: 442, title: 36, principle: 68 })
   } else {
     await drawCentered(ctx, format, data, { logo: 374, title: 38, principle: 54 })
   }
