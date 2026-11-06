@@ -39,10 +39,10 @@ interface Safe { x: number; top: number; bottom: number }
  * Faixa livre (px) acima da área segura da base, reservada para o adesivo de
  * link do Instagram. Só o Story usa: o texto termina acima dela e ela fica vazia.
  */
-const LINK_ZONE: Partial<Record<ShareFormat, number>> = { story: 240 }
+const LINK_ZONE: Partial<Record<ShareFormat, number>> = { story: 220 }
 
 const SAFE: Record<ShareFormat, Safe> = {
-  story:    { x: 200, top: 320, bottom: 420 },
+  story:    { x: 160, top: 300, bottom: 300 },
   feed:     { x: 130, top: 120, bottom: 120 },
   facebook: { x: 120, top: 100, bottom: 100 },
   og:       { x: 80,  top: 70,  bottom: 70  },
@@ -194,19 +194,19 @@ async function drawCentered(
 
     // Meio: título (rótulo da frase), frase e referência
     const titleSize = Math.round(base.title * s)
-    ctx.font = `600 ${titleSize}px ${SERIF}`
+    ctx.font = `700 ${titleSize}px ${SERIF}`
     const titleLines = wrapLines(ctx, d.title, IW)
     const titleLine = Math.round(titleSize * 1.25)
     mid.push({
       h: titleLines.length * titleLine,
       draw: y => {
-        ctx.font = `600 ${titleSize}px ${SERIF}`
+        ctx.font = `700 ${titleSize}px ${SERIF}`
         ctx.fillStyle = SLATE
         ctx.textAlign = 'center'
         titleLines.forEach((l, i) => ctx.fillText(l, cx, y + i * titleLine))
       },
     })
-    gap(mid, 44)
+    gap(mid, 40)
 
     const princSize = Math.round(base.principle * s)
     ctx.font = `600 ${princSize}px ${SERIF}`
@@ -223,28 +223,29 @@ async function drawCentered(
     })
 
     if (d.scripture) {
-      gap(mid, 56)
-      const sSize = Math.round(40 * s)
-      ctx.font = `600 ${sSize}px ${SERIF}`
+      gap(mid, 48)
+      const sSize = Math.round(44 * s)
+      ctx.font = `700 ${sSize}px ${SERIF}`
       mid.push({
         h: sSize,
         draw: y => {
-          ctx.font = `600 ${sSize}px ${SERIF}`
+          ctx.font = `700 ${sSize}px ${SERIF}`
           ctx.fillStyle = GOLD_TEXT
           spacedCentered(ctx, d.scripture!, cx, y, 5)
         },
       })
     }
 
-    // Base: destaque da versão infantil + chamada + site
+    // Selo da versão infantil: fica colado à referência, no mesmo bloco
     if (d.kidsBadge) {
+      gap(mid, 44)
       const kSize = Math.round(28 * s)
       const kPadX = Math.round(36 * s)
       const kPadY = Math.round(14 * s)
       ctx.font = `600 ${kSize}px ${SANS}`
       const kW = Math.min(IW, ctx.measureText(d.kidsBadge).width + kPadX * 2)
       const kH = kSize + kPadY * 2
-      foot.push({
+      mid.push({
         h: kH,
         draw: y => {
           ctx.strokeStyle = GOLD_TEXT
@@ -257,26 +258,25 @@ async function drawCentered(
           ctx.fillText(d.kidsBadge!, cx, y + kPadY)
         },
       })
-      gap(foot, 32)
     }
-    return { top, mid, foot, minGap: Math.round(90 * s) }
+    return { top, mid, foot, minGap: Math.round(96 * s) }
   }
 
   // Reduz a escala até caber, deixando respiro mínimo entre os três grupos
   let s = 1
   let L = build(s)
-  while (sum(L.top) + sum(L.mid) + sum(L.foot) + L.minGap * 2 > availH && s > 0.45) {
+  while (sum(L.top) + sum(L.mid) + sum(L.foot) + L.minGap > availH && s > 0.45) {
     s = Math.round((s - 0.04) * 100) / 100
     L = build(s)
   }
 
   const draw = (bs: Block[], y: number) => { for (const b of bs) { b.draw(y); y += b.h } }
   const topH = sum(L.top), midH = sum(L.mid), footH = sum(L.foot)
-  const footY = safe.top + availH - footH
-  const midY  = safe.top + topH + Math.round((footY - (safe.top + topH) - midH) / 2)
-  draw(L.top, safe.top)
-  draw(L.mid, midY)
-  draw(L.foot, footY)
+  const stackH = topH + L.minGap + midH + footH
+  const y0 = safe.top + Math.max(0, Math.round((availH - stackH) / 2))
+  draw(L.top, y0)
+  draw(L.mid, y0 + topH + L.minGap)
+  draw(L.foot, y0 + topH + L.minGap + midH)
 }
 
 // ─── WhatsApp (1200 × 630) ────────────────────────────────────────────────────
@@ -401,7 +401,7 @@ export async function createShareImage(
   if (format === 'og') {
     await drawOg(ctx, data)
   } else if (format === 'story') {
-    await drawCentered(ctx, format, data, { logo: 544, title: 44, principle: 88 })
+    await drawCentered(ctx, format, data, { logo: 600, title: 58, principle: 112 })
   } else if (format === 'feed') {
     await drawCentered(ctx, format, data, { logo: 442, title: 36, principle: 68 })
   } else {
