@@ -12,6 +12,7 @@ const AdminDevotionals = lazy(() => import('../pages/admin/AdminDevotionals').th
 const AdminUsers = lazy(() => import('../pages/admin/AdminUsers').then(m => ({ default: m.AdminUsers })));
 const AdminKids = lazy(() => import('../pages/admin/AdminKids').then(m => ({ default: m.AdminKids })));
 const AdminMedia = lazy(() => import('../pages/admin/AdminMedia').then(m => ({ default: m.AdminMedia })));
+const AdminCuration = lazy(() => import('../pages/admin/AdminCuration').then(m => ({ default: m.AdminCuration })));
 const AdminSupporters = lazy(() => import('../pages/admin/AdminSupporters').then(m => ({ default: m.AdminSupporters })));
 
 const RelationshipOverview = lazy(() => import('../pages/admin/relationship/RelationshipOverview').then(m => ({ default: m.RelationshipOverview })));
@@ -138,6 +139,10 @@ export function AdminLayout() {
 
       return <AdminDevotionals />;
 
+    }
+
+    if (pathname === '/admin/curation') {
+      return <AdminCuration />;
     }
 
     // -----------------------------------------------------
