@@ -6,6 +6,7 @@ import {
   formatDatePtBr,
   type CurationDevotional,
 } from '../../lib/bible';
+import '../../styles/admin-users.css';
 import '../../styles/admin-curation.css';
 
 type Tab = 'versiculos' | 'livros';
@@ -106,82 +107,105 @@ export function AdminCuration() {
 
   if (loading) {
     return (
-      <div className="admin-section" style={{ textAlign: 'center' }}>
-        <div className="admin-spinner" />
+      <div className="admin-loading-state" style={{ minHeight: '200px' }}>
+        <div className="admin-spinner"></div>
       </div>
     );
   }
 
-  return (
-    <div className="admin-section cur">
-      <h3>Curadoria de versículos</h3>
-      {error && <p className="cur-error">{error}</p>}
+  const filtersActive = !!(query || category || onlyRepeated || testament !== 'todos');
+  const clearAll = () => { setQuery(''); setCategory(''); setOnlyRepeated(false); setTestament('todos'); };
 
-      <div className="cur-kpis">
+  return (
+    <div className="au cur">
+      <div className="admin-header">
+        <div>
+          <h1>Curadoria de versículos</h1>
+          <p>Versículos já trabalhados nos devocionais publicados, repetições e a cobertura de cada livro da Bíblia.</p>
+        </div>
+      </div>
+
+      {error && <div className="admin-error-state"><p>{error}</p></div>}
+
+      <div className="admin-grid">
         <div className="admin-card"><div className="admin-card-title">Devocionais publicados</div><div className="admin-card-value">{devos.length}</div></div>
         <div className="admin-card"><div className="admin-card-title">Referências distintas</div><div className="admin-card-value">{report.groups.length}</div></div>
-        <div className="admin-card"><div className="admin-card-title">Livros trabalhados</div><div className="admin-card-value">{report.booksTouched} <small>de 66</small></div></div>
-        <div className="admin-card"><div className="admin-card-title">Versículos da Bíblia</div><div className="admin-card-value">{report.totalWorkedVerses.toLocaleString('pt-BR')} <small>({pct(totalPct)})</small></div></div>
+        <div className="admin-card"><div className="admin-card-title">Livros trabalhados</div><div className="admin-card-value">{report.booksTouched}<small>de 66</small></div></div>
+        <div className="admin-card"><div className="admin-card-title">Versículos da Bíblia</div><div className="admin-card-value">{report.totalWorkedVerses.toLocaleString('pt-BR')}<small>{pct(totalPct)} do total</small></div></div>
         <div className="admin-card"><div className="admin-card-title">Versículos repetidos</div><div className="admin-card-value">{repeatedCount}</div></div>
       </div>
 
-      <div className="cur-tabs" role="tablist">
-        <button role="tab" aria-selected={tab === 'versiculos'} className={tab === 'versiculos' ? 'on' : ''} onClick={() => setTab('versiculos')}>Versículos</button>
-        <button role="tab" aria-selected={tab === 'livros'} className={tab === 'livros' ? 'on' : ''} onClick={() => setTab('livros')}>Livros da Bíblia</button>
-      </div>
+      <div className="au-filters">
+        <div className="au-group">
+          <span className="au-group__label">Ver por</span>
+          <div className="au-chips">
+            <button type="button" className="au-chip" aria-pressed={tab === 'versiculos'} onClick={() => setTab('versiculos')}>Versículos</button>
+            <button type="button" className="au-chip" aria-pressed={tab === 'livros'} onClick={() => setTab('livros')}>Livros da Bíblia</button>
+          </div>
+        </div>
 
-      <div className="cur-filters">
-        {tab === 'versiculos' && (
-          <>
-            <input type="search" placeholder="Buscar versículo ou título" value={query} onChange={(e) => setQuery(e.target.value)} />
-            <select value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Categoria">
-              <option value="">Todas as categorias</option>
-              {categories.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </>
-        )}
-        {tab === 'versiculos' && (
-          <select value={testament} onChange={(e) => setTestament(e.target.value as Testament)} aria-label="Testamento">
-            <option value="todos">Toda a Bíblia</option>
-            <option value="AT">Antigo Testamento</option>
-            <option value="NT">Novo Testamento</option>
-          </select>
-        )}
         {tab === 'versiculos' ? (
-          <label className="cur-check"><input type="checkbox" checked={onlyRepeated} onChange={(e) => setOnlyRepeated(e.target.checked)} /> Só com mais de um devocional</label>
+          <>
+            <div className="au-search">
+              <input type="search" aria-label="Buscar versículo ou título" placeholder="Buscar por versículo ou título…" value={query} onChange={(e) => setQuery(e.target.value)} />
+              <select className="cur-select" value={category} onChange={(e) => setCategory(e.target.value)} aria-label="Categoria">
+                <option value="">Todas as categorias</option>
+                {categories.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div className="au-group">
+              <span className="au-group__label">Testamento</span>
+              <div className="au-chips">
+                {([['todos', 'Todos'], ['AT', 'Antigo'], ['NT', 'Novo']] as const).map(([k, l]) => (
+                  <button key={k} type="button" className="au-chip" aria-pressed={testament === k} onClick={() => setTestament(k)}>{l}</button>
+                ))}
+                <button type="button" className="au-chip" aria-pressed={onlyRepeated} onClick={() => setOnlyRepeated(!onlyRepeated)}>Só repetidos</button>
+              </div>
+            </div>
+            <div className="au-bar">
+              <span className="au-bar__count">{groups.length} {groups.length === 1 ? 'versículo' : 'versículos'}</span>
+              {filtersActive && <button type="button" className="au-btn" onClick={clearAll}>Limpar filtros</button>}
+            </div>
+          </>
         ) : (
           <>
-            <select value={bookSort} onChange={(e) => setBookSort(e.target.value as BookSort)} aria-label="Ordenar">
-              <option value="biblia">Ordem da Bíblia</option>
-              <option value="devocionais">Mais devocionais</option>
-              <option value="percentual">Maior percentual</option>
-            </select>
-            <button type="button" className="cur-link" onClick={() => { setClosedTestaments(new Set()); setOpenBooks(new Set(report.books.filter((b) => b.devotionalCount > 0).map((b) => b.book.id))); }}>Expandir tudo</button>
-            <button type="button" className="cur-link" onClick={() => { setClosedTestaments(new Set()); setOpenBooks(new Set()); }}>Recolher livros</button>
+            <div className="au-group">
+              <span className="au-group__label">Ordenar</span>
+              <div className="au-chips">
+                {([['biblia', 'Ordem da Bíblia'], ['devocionais', 'Mais devocionais'], ['percentual', 'Maior percentual']] as const).map(([k, l]) => (
+                  <button key={k} type="button" className="au-chip" aria-pressed={bookSort === k} onClick={() => setBookSort(k)}>{l}</button>
+                ))}
+              </div>
+            </div>
+            <div className="au-bar">
+              <span className="au-bar__count">{report.booksTouched} de 66 livros com devocional</span>
+              <button type="button" className="au-btn" onClick={() => { setClosedTestaments(new Set()); setOpenBooks(new Set(report.books.filter((b) => b.devotionalCount > 0).map((b) => b.book.id))); }}>Expandir tudo</button>
+              <button type="button" className="au-btn" onClick={() => { setClosedTestaments(new Set()); setOpenBooks(new Set()); }}>Recolher livros</button>
+            </div>
           </>
         )}
       </div>
 
       {tab === 'versiculos' && (
-        <div className="admin-table-container">
-          <table className="admin-table">
+        <div className="admin-table-responsive au-table-wrap">
+          <table className="au-table">
             <thead><tr><th>Versículo</th><th>Devocionais publicados</th></tr></thead>
             <tbody>
               {groups.map((g) => {
                 const ds = category ? g.devotionals.filter((d) => d.category === category) : g.devotionals;
                 return (
                   <tr key={g.key}>
-                    <td className="cur-ref">
-                      <strong>{g.label}</strong>
-                      {g.devotionals.length > 1 && <span className="cur-badge">{g.devotionals.length}× usado</span>}
-                      {g.overlaps.length > 0 && <div className="cur-overlap">Sobrepõe: {g.overlaps.join(' · ')}</div>}
+                    <td className="cur-ref" data-label="Versículo">
+                      <div className="au-name">{g.label}</div>
+                      {g.devotionals.length > 1 && <span className="au-tag au-tag--warn">{g.devotionals.length}× usado</span>}
+                      {g.overlaps.length > 0 && <div className="au-email cur-overlap">Sobrepõe: {g.overlaps.join(' · ')}</div>}
                     </td>
-                    <td>
+                    <td data-label="Devocionais">
                       <ul className="cur-list">
                         {ds.map((d) => (
                           <li key={d.id}>
-                            <span className="cur-title">{d.title}</span>
-                            <span className="cur-meta"> — {formatDatePtBr(d.publicationDate)} · {d.category ?? 'sem categoria'}</span>
+                            <div className="au-name cur-title">{d.title}</div>
+                            <div className="au-email">{formatDatePtBr(d.publicationDate)} · {d.category ?? 'sem categoria'}</div>
                           </li>
                         ))}
                       </ul>
@@ -189,7 +213,7 @@ export function AdminCuration() {
                   </tr>
                 );
               })}
-              {!groups.length && <tr><td colSpan={2} className="cur-empty">Nenhum versículo encontrado.</td></tr>}
+              {!groups.length && <tr><td colSpan={2} className="au-muted" style={{ textAlign: 'center' }}>Nenhum versículo encontrado.</td></tr>}
             </tbody>
           </table>
         </div>
@@ -205,7 +229,7 @@ export function AdminCuration() {
                   <span className={`cur-chev ${tOpen ? 'open' : ''}`} aria-hidden="true">›</span>
                   <span className="cur-thead-name">{t.name}</span>
                   <span className="cur-bar" aria-hidden="true"><span style={{ width: `${Math.max(t.percent, t.worked ? 1.5 : 0)}%` }} /></span>
-                  <span className="cur-thead-nums">{t.touched} de {t.count} livros · {t.worked.toLocaleString('pt-BR')}/{t.total.toLocaleString('pt-BR')} vers. · <strong>{pct(t.percent)}</strong></span>
+                  <span className="cur-nums">{t.touched} de {t.count} livros · {t.worked.toLocaleString('pt-BR')}/{t.total.toLocaleString('pt-BR')} versículos · <strong>{pct(t.percent)}</strong></span>
                 </button>
                 {tOpen && (
                   <ul className="cur-books">
@@ -213,26 +237,25 @@ export function AdminCuration() {
                       const open = openBooks.has(b.book.id);
                       const empty = b.devotionalCount === 0;
                       return (
-                        <li key={b.book.id} className={empty ? 'empty' : ''}>
+                        <li key={b.book.id}>
                           <button type="button" className="cur-book" disabled={empty} onClick={() => setOpenBooks(toggle(openBooks, b.book.id))} aria-expanded={open}>
                             <span className={`cur-chev ${open ? 'open' : ''}`} aria-hidden="true">{empty ? '' : '›'}</span>
                             <span className="cur-book-name">{b.book.name}</span>
                             <span className="cur-bar" aria-hidden="true"><span style={{ width: `${Math.max(b.percent, b.devotionalCount ? 1.5 : 0)}%` }} /></span>
-                            <span className="cur-book-nums">
-                              {empty ? 'sem devocional' : <>{b.workedVerses}/{b.book.verses} vers. · <strong>{pct(b.percent)}</strong> · {b.devotionalCount} {b.devotionalCount === 1 ? 'devocional' : 'devocionais'}</>}
+                            <span className="cur-nums">
+                              {empty ? 'sem devocional' : <>{b.workedVerses}/{b.book.verses} versículos · <strong>{pct(b.percent)}</strong> · {b.devotionalCount} {b.devotionalCount === 1 ? 'devocional' : 'devocionais'}</>}
                             </span>
                           </button>
                           {open && (
                             <div className="cur-book-detail">
-                              {b.workedChapters > 0 && <p className="cur-note">{b.workedChapters} capítulo(s) citado(s) inteiro(s), sem contagem de versículos.</p>}
-                              {b.approximate && <p className="cur-note">Há trecho que atravessa capítulos; só as pontas foram contadas.</p>}
+                              {b.workedChapters > 0 && <p className="au-muted cur-note">{b.workedChapters} capítulo(s) citado(s) inteiro(s), sem contagem de versículos.</p>}
+                              {b.approximate && <p className="au-muted cur-note">Há trecho que atravessa capítulos; só as pontas foram contadas.</p>}
                               <ul className="cur-list">
                                 {b.groups.map((g) => (
                                   <li key={g.key}>
-                                    <strong>{g.label}</strong>
-                                    {g.devotionals.length > 1 && <span className="cur-badge">{g.devotionals.length}× usado</span>}
+                                    <div className="au-name">{g.label} {g.devotionals.length > 1 && <span className="au-tag au-tag--warn">{g.devotionals.length}× usado</span>}</div>
                                     {g.devotionals.map((d) => (
-                                      <div key={d.id} className="cur-meta">{d.title} — {formatDatePtBr(d.publicationDate)} · {d.category ?? 'sem categoria'}</div>
+                                      <div key={d.id} className="au-email">{d.title} — {formatDatePtBr(d.publicationDate)} · {d.category ?? 'sem categoria'}</div>
                                     ))}
                                   </li>
                                 ))}
@@ -247,7 +270,7 @@ export function AdminCuration() {
               </section>
             );
           })}
-          <p className="cur-note"><strong>Ainda sem devocional ({untouched.length}):</strong> {untouched.map((b) => b.book.name).join(', ') || 'nenhum'}.</p>
+          <p className="au-muted cur-note"><strong>Ainda sem devocional ({untouched.length}):</strong> {untouched.map((b) => b.book.name).join(', ') || 'nenhum'}.</p>
         </>
       )}
 
@@ -256,7 +279,7 @@ export function AdminCuration() {
           <summary>{report.unrecognized.length} devocional(is) com referência não reconhecida</summary>
           <ul className="cur-list">
             {report.unrecognized.map(({ devotional: d, reasons }) => (
-              <li key={d.id}><strong>{d.title}</strong> <span className="cur-meta">— “{reasons.join('; ')}”</span></li>
+              <li key={d.id}><div className="au-name">{d.title}</div><div className="au-email">“{reasons.join('; ')}”</div></li>
             ))}
           </ul>
         </details>
