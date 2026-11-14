@@ -208,7 +208,9 @@ export function FamilyRitual({ source, audience: forced, solo = false, intro = t
   const heroHtml = (band?: string) => (band ? `<div class="ritual__hero ritual__hero--${bandArt(band)}"${heroStyleAttr(band)}></div>` : '');
   // A ilustração cadastrada na versão da faixa vale mais que o arquivo fixo em public/. Só https, e sem aspas ou parênteses que quebrem o CSS.
   const artFor = (band: string) => {
-    return faixaArt(devotional?.id, band) ?? safeStoryImage(kids.find((k) => k.band === band)?.imageUrl);
+    const kid = kids.find((k) => k.band === band);
+    // Sem arte fixa, a capa é o primeiro quadro da história da faixa (ou a imagem avulsa), nunca a ilustração genérica.
+    return faixaArt(devotional?.id, band) ?? storyCard(kid?.story).image ?? safeStoryImage(kid?.imageUrl);
   };
   const heroStyleAttr = (band: string) => { const u = artFor(band); return u ? ` style="background-image:url(${u})"` : ''; };
   const heroStyle = (band: string) => { const u = artFor(band); return u ? { backgroundImage: `url(${u})` } : undefined; };
