@@ -11,6 +11,26 @@ interface ErrorBoundaryState {
   hasError: boolean;
 }
 
+// Deploy novo apaga os chunks com hash do anterior: quem está com a aba
+// aberta pede um arquivo que não existe mais e o servidor devolve HTML.
+const CHUNK_ERROR = /dynamically imported module|module script|Importing a module script failed/i;
+const RELOAD_KEY = 'chunk-reload-at';
+
+// Recarrega uma única vez (janela de 30s) para pegar o index novo; se o erro
+// persistir depois disso, cai na tela de erro normal em vez de entrar em loop.
+function reloadOnStaleChunk(error: Error): boolean {
+  if (!CHUNK_ERROR.test(error.message)) return false;
+  try {
+    const last = Number(sessionStorage.getItem(RELOAD_KEY) ?? 0);
+    if (Date.now() - last < 30_000) return false;
+    sessionStorage.setItem(RELOAD_KEY, String(Date.now()));
+  } catch {
+    return false;
+  }
+  window.location.reload();
+  return true;
+}
+
 // Última linha de defesa: sem isso, um erro de render em qualquer tela
 // (inclusive a Landing, que todo visitante vê) deixa a tela em branco sem
 // recuperação. Reporta via o mesmo canal de analytics já existente
@@ -23,6 +43,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
+    if (reloadOnStaleChunk(error)) return;
     console.error('[ErrorBoundary] Uncaught error:', error, info.componentStack);
     // O canal de analytics acima depende do próprio backend do 3ML estar de
     // pé para chegar a algum lugar (e engole silenciosamente qualquer falha
